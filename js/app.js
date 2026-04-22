@@ -116,15 +116,42 @@ function renderNavbar() {
   const actions = document.getElementById('navbar-actions');
   if (!actions) return;
   if (user) {
-    const initial  = (user.nome || 'U')[0].toUpperCase();
-    const dashLink = user.role === 'admin' ? 'admin.html' : 'dashboard.html';
+    const initial   = (user.nome || 'U')[0].toUpperCase();
+    const dashLink  = user.role === 'admin' ? 'admin.html' : 'dashboard.html';
+    const dashLabel = user.role === 'admin' ? 'Admin' : 'Dashboard';
     actions.innerHTML = `
-      <a href="${dashLink}" class="nav-avatar" title="${user.nome} ${user.cognome}">${initial}</a>
+      <div class="nav-avatar-wrap">
+        <div class="nav-avatar" onclick="toggleNavAvatarMenu(event)" title="${user.nome || ''} ${user.cognome || ''}">${initial}</div>
+        <div class="nav-avatar-menu" id="nav-avatar-menu">
+          <a href="${dashLink}">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            ${dashLabel}
+          </a>
+          <div style="height:1px;background:rgba(255,255,255,0.07);margin:4px 0;"></div>
+          <button onclick="event.stopPropagation();logout()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Logout
+          </button>
+        </div>
+      </div>
       <button class="help-btn" title="Aiuto" onclick="document.getElementById('help-modal')?.classList.add('open')">?</button>
       <a href="situation-room.html" class="btn btn-primary btn-sm">Situation Room</a>
     `;
   }
 }
+
+function toggleNavAvatarMenu(e) {
+  e.stopPropagation();
+  const menu = document.getElementById('nav-avatar-menu');
+  if (menu) menu.classList.toggle('open');
+}
+
+// Chiudi dropdown cliccando fuori
+document.addEventListener('click', () => {
+  const menu = document.getElementById('nav-avatar-menu');
+  if (menu) menu.classList.remove('open');
+});
+
 document.addEventListener('DOMContentLoaded', renderNavbar);
 
 /* ── TOAST ── */
