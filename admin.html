@@ -2245,12 +2245,19 @@ async function triggerAIArticles() {
   const btn = document.getElementById('btn-ai-articles');
   try {
     btn.disabled = true; btn.textContent = '⏳ Generazione...';
+    showToast('Generazione articoli avviata...', 'info');
     const result = await Api.fn('ai-articles', {});
-    showToast(`Articoli generati: ${result.created ?? 0} nuovi, ${result.skipped ?? 0} già esistenti`, 'success');
+    console.log('[ai-articles] risultato:', result);
+    if (result.created !== undefined) {
+      showToast(`✅ Articoli: ${result.created} nuovi, ${result.skipped ?? 0} già esistenti`, 'success');
+    } else {
+      showToast(`Risposta: ${JSON.stringify(result).slice(0, 100)}`, 'info');
+    }
     btn.disabled = false; btn.textContent = '📰 Genera Articoli';
     setTimeout(() => loadAdminStats(), 2000);
   } catch(e) {
-    showToast(e.message || 'Errore generazione articoli', 'error');
+    console.error('[ai-articles] errore:', e);
+    showToast('Errore: ' + (e.message || String(e)), 'error');
     btn.disabled = false; btn.textContent = '📰 Genera Articoli';
   }
 }
