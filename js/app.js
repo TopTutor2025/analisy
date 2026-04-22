@@ -2,13 +2,18 @@
    ANALISY — Shared App Logic
    ========================================================= */
 
+/* ── Migrazione: pulisce i vecchi token da localStorage (v1 → sessionStorage) ── */
+(function migrateAuth() {
+  ['analisy_jwt', 'analisy_refresh', 'analisy_user'].forEach(k => localStorage.removeItem(k));
+})();
+
 /* ── AUTH ── */
 const Auth = {
-  get()        { try { return JSON.parse(localStorage.getItem('analisy_user')) || null; } catch { return null; } },
-  set(user)    { localStorage.setItem('analisy_user', JSON.stringify(user)); },
-  clear()      { localStorage.removeItem('analisy_user'); localStorage.removeItem('analisy_jwt'); localStorage.removeItem('analisy_refresh'); },
-  getToken()   { return localStorage.getItem('analisy_jwt') || null; },
-  setToken(t)  { localStorage.setItem('analisy_jwt', t); },
+  get()        { try { return JSON.parse(sessionStorage.getItem('analisy_user')) || null; } catch { return null; } },
+  set(user)    { sessionStorage.setItem('analisy_user', JSON.stringify(user)); },
+  clear()      { sessionStorage.removeItem('analisy_user'); sessionStorage.removeItem('analisy_jwt'); sessionStorage.removeItem('analisy_refresh'); },
+  getToken()   { return sessionStorage.getItem('analisy_jwt') || null; },
+  setToken(t)  { sessionStorage.setItem('analisy_jwt', t); },
   isLoggedIn() { return !!this.getToken() && !!this.get(); },
   isAdmin()    { const u = this.get(); return u && u.role === 'admin'; },
   isPremium()     { const u = this.get(); return u && (u.plan === 'premium' || u.plan === 'pro' || u.role === 'admin'); },

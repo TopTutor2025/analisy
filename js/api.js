@@ -42,37 +42,37 @@ const SupaAuth = {
     });
     const data = await _handleAuthRes(res);
     if (data.access_token) {
-      localStorage.setItem('analisy_jwt',         data.access_token);
-      localStorage.setItem('analisy_refresh',     data.refresh_token || '');
-      localStorage.setItem('analisy_user',        JSON.stringify(data.user || {}));
+      sessionStorage.setItem('analisy_jwt',         data.access_token);
+      sessionStorage.setItem('analisy_refresh',     data.refresh_token || '');
+      sessionStorage.setItem('analisy_user',        JSON.stringify(data.user || {}));
     }
     return data;
   },
 
   /* ── Logout ── */
   async signOut() {
-    const token = localStorage.getItem('analisy_jwt');
+    const token = sessionStorage.getItem('analisy_jwt');
     if (token) {
       await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
         method: 'POST',
         headers: _authHeaders(token),
       }).catch(() => {});
     }
-    localStorage.removeItem('analisy_jwt');
-    localStorage.removeItem('analisy_refresh');
-    localStorage.removeItem('analisy_user');
+    sessionStorage.removeItem('analisy_jwt');
+    sessionStorage.removeItem('analisy_refresh');
+    sessionStorage.removeItem('analisy_user');
   },
 
   /* ── Recupera utente corrente (da cache locale) ── */
   currentUser() {
     try {
-      return JSON.parse(localStorage.getItem('analisy_user') || 'null');
+      return JSON.parse(sessionStorage.getItem('analisy_user') || 'null');
     } catch { return null; }
   },
 
   /* ── Rinnovo token tramite refresh_token ── */
   async refreshSession() {
-    const refresh = localStorage.getItem('analisy_refresh');
+    const refresh = sessionStorage.getItem('analisy_refresh');
     if (!refresh) return null;
     const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
       method: 'POST',
@@ -81,15 +81,15 @@ const SupaAuth = {
     });
     const data = await res.json().catch(() => ({}));
     if (data.access_token) {
-      localStorage.setItem('analisy_jwt',     data.access_token);
-      localStorage.setItem('analisy_refresh', data.refresh_token || refresh);
+      sessionStorage.setItem('analisy_jwt',     data.access_token);
+      sessionStorage.setItem('analisy_refresh', data.refresh_token || refresh);
     }
     return data;
   },
 
   /* ── Controlla se il token è ancora valido (lato client) ── */
   isTokenExpired() {
-    const token = localStorage.getItem('analisy_jwt');
+    const token = sessionStorage.getItem('analisy_jwt');
     if (!token) return true;
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
@@ -130,7 +130,7 @@ const Api = {
       await SupaAuth.refreshSession().catch(() => {});
     }
 
-    const token = localStorage.getItem('analisy_jwt');
+    const token = sessionStorage.getItem('analisy_jwt');
     const opts  = {
       method,
       headers: {
