@@ -328,22 +328,6 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
         Situation Room
       </a>
-      <a href="#" id="nav-geopolitica">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
-        Geopolitica
-      </a>
-      <a href="#" id="nav-business">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-        Business
-      </a>
-      <a href="#" id="nav-tech">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-        Tecnologia
-      </a>
-      <a href="#abbonamento" id="nav-sub">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
-        Abbonamento
-      </a>
     </nav>
 
     <div class="sidebar-user">
@@ -418,8 +402,8 @@
       <div id="upgrade-section">
         <p style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:16px;">Aggiorna il tuo piano per sbloccare tutti i contenuti:</p>
         <div style="display:flex;gap:12px;flex-wrap:wrap;">
-          <button class="btn btn-primary" onclick="subscribe('premium')">🔓 Passa a Premium — €9,99/mese</button>
-          <button class="btn btn-outline" onclick="subscribe('pro')">⭐ Passa a Pro — €19,99/mese</button>
+          <button class="btn btn-primary" onclick="subscribe('premium')">🔓 Passa a Premium — €2,99/mese</button>
+          <button class="btn btn-outline" onclick="subscribe('pro')">⭐ Passa a Pro — €3,99/mese</button>
         </div>
         <p style="font-size:0.78rem;color:var(--text-muted);margin-top:10px;">Pagamento sicuro con Stripe. Cancella quando vuoi.</p>
       </div>
@@ -430,51 +414,12 @@
       </div>
     </div>
 
-    <!-- Articles -->
-    <div class="articles-list">
-      <div class="articles-list-header">
-        <h3 style="font-size:1rem;">Ultime analisi</h3>
-        <a href="situation-room.html" style="font-size:0.72rem;color:rgba(57,255,20,0.7);font-weight:600;" onmouseover="this.style.color='#39ff14'" onmouseout="this.style.color='rgba(57,255,20,0.7)'">Vedi tutte →</a>
-      </div>
-
-      <div class="article-row">
-        <span class="article-cat-badge cat-geo">Geopolitica</span>
-        <div class="article-info">
-          <h4>La nuova corsa alle risorse in Africa: petrolio, litio e influenze geopolitiche</h4>
-          <div class="article-meta">15 Apr 2026 · 8 min lettura</div>
-        </div>
-      </div>
-      <div class="article-row">
-        <span class="article-cat-badge cat-pol">Politica</span>
-        <div class="article-info">
-          <h4>Elezioni europee 2026: scenari e implicazioni per la governance dell'UE</h4>
-          <div class="article-meta">13 Apr 2026 · 6 min lettura</div>
-        </div>
-      </div>
-      <div class="article-row">
-        <span class="article-cat-badge cat-biz">Business</span>
-        <div class="article-info">
-          <h4>Il mercato del litio e la transizione energetica: chi controlla il futuro?</h4>
-          <div class="article-meta">11 Apr 2026 · 10 min lettura</div>
-        </div>
-        <span class="article-lock" id="lock-1" title="Solo abbonati">🔒</span>
-      </div>
-      <div class="article-row">
-        <span class="article-cat-badge cat-tech">Tecnologia</span>
-        <div class="article-info">
-          <h4>Cavi sottomarini: la guerra invisibile per il controllo di internet</h4>
-          <div class="article-meta">09 Apr 2026 · 7 min lettura</div>
-        </div>
-        <span class="article-lock" id="lock-2" title="Solo abbonati">🔒</span>
-      </div>
-      <div class="article-row">
-        <span class="article-cat-badge cat-geo">Geopolitica</span>
-        <div class="article-info">
-          <h4>Stretto di Hormuz: il collo di bottiglia energetico del mondo</h4>
-          <div class="article-meta">07 Apr 2026 · 9 min lettura</div>
-        </div>
-        <span class="article-lock" id="lock-3" title="Solo abbonati">🔒</span>
-      </div>
+    <!-- CTA Situation Room -->
+    <div class="articles-list" style="text-align:center;padding:32px 24px;">
+      <div style="font-size:1.6rem;margin-bottom:12px;">🗺️</div>
+      <h3 style="font-size:1rem;margin-bottom:8px;">Esplora la Situation Room</h3>
+      <p style="font-size:0.84rem;color:rgba(235,235,245,0.45);margin-bottom:20px;max-width:320px;margin-left:auto;margin-right:auto;">Tutti gli articoli, gli eventi sulla mappa e le analisi in tempo reale sono disponibili nella Situation Room.</p>
+      <a href="situation-room.html" class="btn btn-primary" style="background:#e8344e !important;border-color:#e8344e !important;border-radius:20px !important;font-weight:700 !important;box-shadow:0 2px 14px rgba(232,52,78,0.35) !important;display:inline-block;">Entra nella Situation Room →</a>
     </div>
 
   </main>
@@ -490,7 +435,7 @@
       <button class="modal-close" onclick="document.getElementById('payment-modal').classList.remove('open')">✕</button>
     </div>
     <p style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:20px;" id="payment-modal-desc">
-      Stai per attivare il piano Premium a €9,99/mese.
+      Stai per attivare il piano Premium a €2,99/mese.
     </p>
     <div id="stripe-card-element-wrapper" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:0;padding:14px 16px;margin-bottom:16px;">
       <div id="stripe-card-element" style="padding:4px 0;"></div>
@@ -513,6 +458,7 @@
   if (!requireAuth('login.html')) { /* stop */ }
 
   let user = Auth.get();
+
 
   // Populate UI
   document.getElementById('welcome-msg').textContent = user.nome || 'Dashboard';
@@ -571,7 +517,7 @@
 
   function subscribe(plan) {
     currentPlan = plan;
-    const prices = { premium: '€9,99/mese', pro: '€19,99/mese' };
+    const prices = { premium: '€2,99/mese', pro: '€3,99/mese' };
     const names  = { premium: 'Premium', pro: 'Pro' };
     document.getElementById('payment-modal-title').textContent = `Piano ${names[plan]}`;
     document.getElementById('payment-modal-desc').textContent =

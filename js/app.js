@@ -14,30 +14,59 @@ const Auth = {
   isPremium()     { const u = this.get(); return u && (u.plan === 'premium' || u.plan === 'pro' || u.role === 'admin'); },
   isForumMember() { const u = this.get(); return u && (u.plan === 'pro' || u.role === 'admin'); },
 
+  /* Legge il profilo direttamente dalla REST API (fallback affidabile) */
+  async _fetchProfile(userId) {
+    const token = this.getToken();
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=id,email,nome,cognome,role,plan,sub_status&limit=1`,
+      { headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${token}` } }
+    );
+    const rows = await res.json().catch(() => []);
+    return Array.isArray(rows) && rows[0] ? rows[0] : null;
+  },
+
   /* Login via Supabase Auth — poi carica il profilo esteso dalla Edge Function */
   async login(email, password) {
     const data = await SupaAuth.signIn(email, password);
-    /* data.user contiene i metadati base Supabase;
-       carichiamo il profilo completo (role, plan, ecc.) dalla nostra Edge Function */
+    const u = data.user || {};
+
+    /* 1° tentativo: Edge Function auth-me */
     try {
       const profile = await Api.fn('auth-me');
       this.set(profile);
       return profile;
-    } catch {
-      /* Fallback: usa i metadati Supabase se la Edge Function non risponde */
-      const u = data.user || {};
-      const profile = {
-        id:         u.id,
-        email:      u.email,
-        nome:       u.user_metadata?.nome   || '',
-        cognome:    u.user_metadata?.cognome || '',
-        role:       u.user_metadata?.role   || 'user',
-        plan:       u.user_metadata?.plan   || 'free',
-        sub_status: u.user_metadata?.sub_status || 'inactive',
-      };
-      this.set(profile);
-      return profile;
-    }
+    } catch { /* continua */ }
+
+    /* 2° tentativo: REST API diretta (più affidabile, bypassa Edge Function) */
+    try {
+      const row = await this._fetchProfile(u.id);
+      if (row) {
+        const profile = {
+          id:         row.id,
+          email:      row.email || u.email,
+          nome:       row.nome       || u.user_metadata?.nome    || '',
+          cognome:    row.cognome    || u.user_metadata?.cognome || '',
+          role:       row.role       || 'user',
+          plan:       row.plan       || 'free',
+          sub_status: row.sub_status || 'inactive',
+        };
+        this.set(profile);
+        return profile;
+      }
+    } catch { /* continua */ }
+
+    /* 3° tentativo (last resort): user_metadata */
+    const profile = {
+      id:         u.id,
+      email:      u.email,
+      nome:       u.user_metadata?.nome    || '',
+      cognome:    u.user_metadata?.cognome || '',
+      role:       u.user_metadata?.role    || 'user',
+      plan:       u.user_metadata?.plan    || 'free',
+      sub_status: u.user_metadata?.sub_status || 'inactive',
+    };
+    this.set(profile);
+    return profile;
   },
 
   /* Registrazione via Supabase Auth */
@@ -55,14 +84,29 @@ const Auth = {
       const refreshed = await SupaAuth.refreshSession().catch(() => null);
       if (!refreshed?.access_token) { this.clear(); return null; }
     }
+
+    /* 1° tentativo: Edge Function */
     try {
       const profile = await Api.fn('auth-me');
       this.set(profile);
       return profile;
-    } catch {
-      this.clear();
-      return null;
-    }
+    } catch { /* continua */ }
+
+    /* 2° tentativo: REST API diretta */
+    try {
+      const u = this.get();
+      if (u?.id) {
+        const row = await this._fetchProfile(u.id);
+        if (row) {
+          const profile = { ...u, role: row.role, plan: row.plan, sub_status: row.sub_status };
+          this.set(profile);
+          return profile;
+        }
+      }
+    } catch { /* continua */ }
+
+    this.clear();
+    return null;
   },
 };
 
