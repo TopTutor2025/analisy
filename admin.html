@@ -1,0 +1,2442 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Analisy</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ══════════════════════════════════════════════════
+       v3 Dark — Admin  (#000 / #111113 · Red · GreenRad)
+    ══════════════════════════════════════════════════ */
+
+    :root {
+      --bg-primary:    #000000;
+      --bg-secondary:  #111113;
+      --bg-card:       #111113;
+      --border:        rgba(255,255,255,0.06);
+      --border-hover:  rgba(255,255,255,0.12);
+      --text-primary:  rgba(235,235,245,0.92);
+      --text-secondary:rgba(235,235,245,0.55);
+      --text-muted:    rgba(235,235,245,0.28);
+      --accent-red:    #e8344e;
+      --accent-green:  #39ff14;
+      --accent-blue:   #0a84ff;
+      --accent-yellow: #ffd60a;
+      --accent-purple: #bf5af2;
+    }
+
+    * { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif !important; }
+
+    /* 1 · Layout */
+    body { background: #000; }
+    .dashboard-layout { background: #000; }
+
+    /* 2 · Sidebar */
+    .dashboard-sidebar {
+      background: #111113;
+      border-right: 1px solid rgba(255,255,255,0.06);
+      width: 220px;
+    }
+    .dashboard-main { margin-left: 220px; padding: 0; }
+
+    .sidebar-logo {
+      padding: 18px 16px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 6px;
+    }
+    .sidebar-logo a { font-size: 1.12rem; font-weight: 800; letter-spacing: -0.03em; }
+
+    /* Nav items */
+    .sidebar-nav { padding: 6px 10px; gap: 2px; }
+    .sidebar-nav a {
+      border-radius: 8px; padding: 8px 12px;
+      font-size: 0.82rem; font-weight: 500;
+      color: rgba(235,235,245,0.42);
+      border-left: none; gap: 9px;
+      transition: background 0.13s, color 0.13s;
+    }
+    .sidebar-nav a:hover { background: rgba(255,255,255,0.05); color: rgba(235,235,245,0.82); }
+    .sidebar-nav a.active {
+      background: rgba(57,255,20,0.1);
+      color: #39ff14;
+      border-left: none;
+    }
+    .sidebar-nav a svg { width: 15px; height: 15px; opacity: 0.7; }
+
+    .sidebar-user {
+      padding: 12px 14px 0;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .sidebar-user .user-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      font-size: 0.75rem;
+      background: rgba(232,52,78,0.18);
+      color: #e8344e;
+    }
+    .sidebar-user .user-name { font-size: 0.8rem; font-weight: 600; }
+    .sidebar-user .user-role { font-size: 0.7rem; color: rgba(235,235,245,0.32); }
+
+    /* 3 · Topbar */
+    .dashboard-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; height: 52px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 0;
+      background: #111113;
+      position: sticky; top: 0; z-index: 90;
+    }
+    .dashboard-header h1 {
+      font-size: 0.9rem; font-weight: 600;
+      text-transform: none; letter-spacing: 0;
+      color: rgba(235,235,245,0.82);
+    }
+    .dashboard-header p { display: none; }
+    .dashboard-header .btn-outline {
+      border-radius: 20px; font-size: 0.74rem; padding: 5px 14px;
+      border-color: rgba(255,255,255,0.1) !important;
+      color: rgba(235,235,245,0.42); font-weight: 500;
+    }
+    .dashboard-header .btn-outline:hover {
+      border-color: rgba(255,255,255,0.2) !important;
+      color: rgba(235,235,245,0.82);
+      background: rgba(255,255,255,0.05);
+    }
+
+    /* 4 · Content padding */
+    #admin-stats-cards, .admin-section { padding: 20px 24px; }
+
+    /* 5 · Stat cards */
+    .dashboard-cards {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px; margin-bottom: 0;
+      padding: 18px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .dash-card {
+      background: #111113;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px; padding: 18px 20px;
+      border-bottom: none; border-right: none;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .dash-card:last-child { border-right: none; }
+    .dash-card:hover {
+      background: #1a1a1c;
+      border-color: rgba(255,255,255,0.11);
+    }
+    .dash-card .card-icon { display: none; }
+    .dash-card .card-label {
+      font-size: 0.6rem; font-weight: 700;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      color: rgba(235,235,245,0.25); margin-bottom: 10px;
+    }
+    .dash-card .card-value {
+      font-size: 1.9rem; font-weight: 700;
+      letter-spacing: -0.03em;
+      color: rgba(235,235,245,0.92); margin-bottom: 4px;
+    }
+    .dash-card .card-sub { font-size: 0.72rem; color: rgba(235,235,245,0.25); }
+
+    /* 6 · Section header */
+    .admin-section { padding-top: 20px; }
+    .section-studio-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 12px; margin-bottom: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .section-studio-header .sh-label {
+      font-size: 0.6rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.07em;
+      color: rgba(235,235,245,0.25);
+    }
+
+    /* 7 · Table wrapper */
+    .admin-table-wrapper {
+      background: #000;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    /* 8 · Table toolbar */
+    .table-toolbar {
+      background: #111113;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 10px 14px;
+    }
+    .table-toolbar input, .table-toolbar select {
+      background: #000;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px; font-size: 0.78rem;
+      color: rgba(235,235,245,0.7); padding: 7px 11px;
+    }
+    .table-toolbar input:focus {
+      border-color: rgba(57,255,20,0.35); outline: none;
+      background: rgba(57,255,20,0.04);
+    }
+    .table-toolbar input::placeholder { color: rgba(235,235,245,0.18); }
+    .table-toolbar select { color: rgba(235,235,245,0.45); }
+
+    /* 9 · Table */
+    .admin-table th {
+      background: #111113;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      color: rgba(235,235,245,0.25);
+      font-size: 0.6rem; letter-spacing: 0.07em; font-weight: 700;
+      padding: 9px 14px; text-transform: uppercase;
+    }
+    .admin-table td {
+      padding: 10px 14px; font-size: 0.82rem;
+      color: rgba(235,235,245,0.5);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .admin-table td:first-child { color: rgba(235,235,245,0.82); font-weight: 500; }
+    .admin-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .admin-table tr:last-child td { border-bottom: none; }
+
+    /* 10 · Action buttons */
+    .action-btn { border-radius: 20px; font-size: 0.7rem; padding: 4px 12px; font-weight: 600; }
+    .action-btn:hover { transform: none; opacity: 0.82; filter: none; }
+
+    /* 11 · Category tabs */
+    .cat-tabs {
+      display: flex; gap: 3px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: transparent; padding: 6px 12px;
+    }
+    .cat-tab {
+      background: none; border: none; border-bottom: none;
+      border-radius: 20px; padding: 4px 13px;
+      font-size: 0.72rem; font-weight: 500;
+      text-transform: none; letter-spacing: 0;
+      color: rgba(235,235,245,0.35); cursor: pointer; margin-bottom: 0;
+      transition: background 0.12s, color 0.12s;
+    }
+    .cat-tab:hover { background: rgba(255,255,255,0.06); color: rgba(235,235,245,0.82); }
+    .cat-tab.active { background: rgba(57,255,20,0.1); color: #39ff14; }
+
+    /* 12 · Buttons */
+    .btn-primary {
+      border-radius: 20px !important; font-size: 0.78rem; padding: 7px 18px;
+      font-weight: 600; letter-spacing: 0; text-transform: none;
+      background: #e8344e !important; border-color: #e8344e !important;
+      box-shadow: 0 2px 10px rgba(232,52,78,0.3) !important;
+    }
+    .btn-primary:hover { opacity: 0.86 !important; }
+    .btn-outline {
+      border-radius: 20px !important; font-size: 0.78rem; padding: 7px 18px;
+      font-weight: 600; letter-spacing: 0; text-transform: none;
+      border-color: rgba(255,255,255,0.12) !important;
+      color: rgba(235,235,245,0.6) !important;
+    }
+    .btn-outline:hover { border-color: rgba(255,255,255,0.22) !important; background: rgba(255,255,255,0.05) !important; color: rgba(235,235,245,0.88) !important; }
+    .btn-sm { font-size: 0.72rem !important; padding: 5px 14px !important; }
+
+    /* 13 · Modals */
+    .modal-overlay { background: rgba(0,0,0,0.72); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+    .modal {
+      background: #111113;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 24px 28px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.85);
+    }
+    .modal-header { margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.07); padding-bottom: 16px; }
+    .modal-header h3 { font-size: 0.95rem; font-weight: 600; text-transform: none; letter-spacing: 0; color: rgba(235,235,245,0.88); }
+    .modal-close {
+      border-radius: 50%; background: rgba(255,255,255,0.08); border: none;
+      color: rgba(235,235,245,0.52); width: 28px; height: 28px; font-size: 0.9rem;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.14); color: rgba(235,235,245,0.9); }
+    .modal-footer { margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.07); padding-top: 16px; }
+
+    /* 14 · Form fields */
+    .form-group label {
+      font-size: 0.65rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.07em;
+      color: rgba(235,235,245,0.3); margin-bottom: 6px;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      border-radius: 10px;
+      background: #000; border: 1px solid rgba(255,255,255,0.09);
+      color: rgba(235,235,245,0.85); font-size: 0.84rem; padding: 10px 12px;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: rgba(57,255,20,0.35);
+      background: rgba(57,255,20,0.03); outline: none;
+    }
+    .form-group input::placeholder, .form-group textarea::placeholder { color: rgba(235,235,245,0.18); }
+    .modal select[style], .modal .form-group select {
+      background: #000 !important;
+      border: 1px solid rgba(255,255,255,0.09) !important;
+      border-radius: 10px !important;
+      color: rgba(235,235,245,0.8) !important;
+      padding: 10px 12px !important;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* 15 · Badges */
+    .sub-status-badge { border-radius: 20px; font-size: 0.66rem; padding: 3px 10px; }
+
+    /* 16 · AI section */
+    #section-ai h2 {
+      font-size: 0.82rem !important; font-weight: 600 !important;
+      text-transform: none !important; letter-spacing: 0 !important;
+      color: rgba(235,235,245,0.62) !important; margin: 0 !important;
+    }
+    #section-ai > div:first-child p { display: none !important; }
+    #ai-last-job-bar { border-radius: 10px !important; }
+    #ai-stats-cards { padding: 0; margin-bottom: 0 !important; }
+    #ai-stats-cards .dash-card { padding: 16px 18px; }
+    #section-ai > div[style*="border-bottom"] {
+      border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+      margin-bottom: 16px; gap: 4px; padding: 4px 0;
+    }
+    #ai-tab-jobs, #ai-tab-events {
+      border-radius: 20px !important; font-size: 0.72rem !important;
+      font-weight: 500 !important; text-transform: none !important;
+      letter-spacing: 0 !important; padding: 5px 16px !important; margin-bottom: 0;
+    }
+    #ai-panel-events > div:first-child {
+      display: flex; gap: 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 14px; padding: 4px 0;
+    }
+    #ai-panel-events .btn {
+      border-radius: 20px !important; border: none !important;
+      border-bottom: none !important; background: none !important;
+      font-size: 0.72rem !important; font-weight: 500 !important;
+      text-transform: none !important; letter-spacing: 0 !important;
+      color: rgba(235,235,245,0.38) !important; padding: 5px 14px !important; margin-bottom: 0;
+    }
+    #ai-panel-events .btn:hover { background: rgba(255,255,255,0.06) !important; color: rgba(235,235,245,0.82) !important; }
+    #ef-all { background: rgba(57,255,20,0.1) !important; color: #39ff14 !important; border-bottom: none !important; }
+    #ai-key-badge { border-radius: 20px !important; }
+
+    /* 17 · Misc */
+    #section-map > div:first-child { padding-top: 0; }
+    .articles-admin-grid { padding: 12px 0; }
+
+    /* 18 · Scrollbar */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+
+    /* 19 · Misc UI */
+    #du-ban-warning { border-radius: 12px !important; }
+    #reports-badge { border-radius: 20px !important; font-size: 0.6rem; padding: 2px 7px; background: #e8344e !important; }
+    .img-upload-area {
+      border-radius: 12px !important;
+      background: rgba(255,255,255,0.02) !important;
+      border: 1px dashed rgba(255,255,255,0.1) !important;
+    }
+    .img-upload-area:hover { border-color: rgba(57,255,20,0.3) !important; background: rgba(57,255,20,0.03) !important; }
+
+    /* 20 · AI running badge pulse */
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+    #ai-running-badge { background: #39ff14 !important; box-shadow: 0 0 5px #39ff14; }
+  </style>
+</head>
+<body>
+
+<div class="dashboard-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="dashboard-sidebar">
+    <div class="sidebar-logo">
+      <a href="index.html">
+        <div class="logo-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 26" width="20" height="18"><line x1="7" y1="1" x2="7" y2="5" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/><rect x="3" y="5" width="8" height="13" rx="1.5" fill="white"/><line x1="7" y1="18" x2="7" y2="22" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/><line x1="21" y1="2" x2="21" y2="7" stroke="#e8344e" stroke-width="2" stroke-linecap="round"/><rect x="17" y="7" width="8" height="9" rx="1.5" fill="#e8344e"/><line x1="21" y1="16" x2="21" y2="22" stroke="#e8344e" stroke-width="2" stroke-linecap="round"/></svg></div>
+        analisy
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#section-users" class="active" onclick="showSection('users',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Utenti
+      </a>
+      <a href="#section-subs" onclick="showSection('subs',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+        Abbonamenti
+      </a>
+      <a href="#section-map" onclick="showSection('map',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        Gestione Mappa
+      </a>
+      <a href="#section-articles" onclick="showSection('articles',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Articoli
+      </a>
+      <a href="#section-podcasts" onclick="showSection('podcasts',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+        Podcast
+      </a>
+      <a href="#section-citycams" onclick="showSection('citycams',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.89L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+        City Cam
+      </a>
+      <a href="#section-reports" onclick="showSection('reports',this)" style="position:relative;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Segnalazioni
+        <span id="reports-badge" style="display:none;position:absolute;top:6px;right:8px;background:var(--accent-red);color:#fff;font-size:0.65rem;font-weight:700;padding:1px 5px;border-radius:8px;">0</span>
+      </a>
+      <a href="#section-ai" onclick="showSection('ai',this)" style="position:relative;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        AI Intelligence
+        <span id="ai-running-badge" style="display:none;position:absolute;top:6px;right:8px;width:8px;height:8px;background:#22d47a;border-radius:50%;animation:pulse 1.5s infinite;"></span>
+      </a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-avatar">A</div>
+      <div class="user-info">
+        <div class="user-name">Admin</div>
+        <div class="user-role" style="color:var(--accent-purple);">Amministratore</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="dashboard-main">
+
+    <div class="dashboard-header">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.2);">Analisy</span>
+        <span style="color:rgba(255,255,255,0.12);font-size:0.75rem;">/</span>
+        <h1 id="admin-section-title">Utenti</h1>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <span id="admin-status-dot" style="display:flex;align-items:center;gap:6px;font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:rgba(57,255,20,0.7);">
+          <span style="width:5px;height:5px;border-radius:50%;background:#39ff14;box-shadow:0 0 5px #39ff14;display:inline-block;animation:pulse 1.5s infinite;"></span>
+          Admin
+        </span>
+        <button class="btn btn-outline btn-sm" onclick="logout()">Esci</button>
+      </div>
+    </div>
+
+    <!-- Stats cards -->
+    <div class="dashboard-cards" id="admin-stats-cards">
+      <div class="dash-card">
+        <div class="card-icon" style="background:rgba(79,158,255,0.12);">👥</div>
+        <div class="card-label">Utenti totali</div>
+        <div class="card-value" id="stat-total-users">—</div>
+        <div class="card-sub">registrati sulla piattaforma</div>
+      </div>
+      <div class="dash-card">
+        <div class="card-icon" style="background:rgba(34,212,122,0.12);">✅</div>
+        <div class="card-label">Abbonamenti attivi</div>
+        <div class="card-value" id="stat-active-subs">—</div>
+        <div class="card-sub">premium + pro</div>
+      </div>
+      <div class="dash-card">
+        <div class="card-icon" style="background:rgba(245,200,66,0.12);">📍</div>
+        <div class="card-label">Eventi sulla mappa</div>
+        <div class="card-value" id="stat-events">—</div>
+        <div class="card-sub">geopolitici + risorse</div>
+      </div>
+      <div class="dash-card" onclick="showSection('articles', document.querySelector('[onclick*=articles]'))" style="cursor:pointer;">
+        <div class="card-icon" style="background:rgba(155,89,255,0.12);">📝</div>
+        <div class="card-label">Articoli pubblicati</div>
+        <div class="card-value" id="stat-articles">—</div>
+        <div class="card-sub" id="stat-articles-sub">di cui 0 premium</div>
+      </div>
+    </div>
+
+    <!-- ── SECTION: USERS ── -->
+    <div id="section-users" class="admin-section">
+      <div class="admin-table-wrapper">
+        <div class="table-toolbar">
+          <input type="text" id="user-search" placeholder="Cerca per nome, email..." oninput="filterUsers()" />
+          <select id="user-role-filter" onchange="filterUsers()">
+            <option value="">Tutti i ruoli</option>
+            <option value="user">Utenti</option>
+            <option value="admin">Admin</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="openAddUserModal()">+ Aggiungi utente</button>
+        </div>
+        <table class="admin-table" id="users-table">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Telefono</th>
+              <th>Ruolo</th>
+              <th>Piano</th>
+              <th>Stato</th>
+              <th>Registrato</th>
+              <th>Azioni</th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── SECTION: SUBSCRIPTIONS ── -->
+    <div id="section-subs" class="admin-section" style="display:none;">
+      <div class="admin-table-wrapper">
+        <div class="table-toolbar">
+          <input type="text" id="sub-search" placeholder="Cerca abbonamento..." oninput="filterSubs()" />
+          <select id="sub-status-filter" onchange="filterSubs()">
+            <option value="">Tutti gli stati</option>
+            <option value="active">Attivi</option>
+            <option value="inactive">Inattivi</option>
+            <option value="expired">Scaduti</option>
+          </select>
+        </div>
+        <table class="admin-table" id="subs-table">
+          <thead>
+            <tr>
+              <th>Utente</th>
+              <th>Email</th>
+              <th>Piano</th>
+              <th>Stato</th>
+              <th>Inizio</th>
+              <th>Scadenza</th>
+              <th>Azioni</th>
+            </tr>
+          </thead>
+          <tbody id="subs-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── SECTION: MAP MANAGEMENT ── -->
+    <div id="section-map" class="admin-section" style="display:none;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+
+        <!-- Events management -->
+        <div class="admin-table-wrapper">
+          <div class="table-toolbar" style="justify-content:space-between;">
+            <span style="font-size:0.88rem;font-weight:600;color:var(--text-primary);">Eventi sulla mappa</span>
+            <button class="btn btn-primary btn-sm" onclick="openEventModal()">+ Aggiungi evento</button>
+          </div>
+          <table class="admin-table">
+            <thead><tr><th>Titolo</th><th>Categoria</th><th>Magnitudo</th><th>Azioni</th></tr></thead>
+            <tbody id="events-tbody"></tbody>
+          </table>
+        </div>
+
+        <!-- Resources management -->
+        <div class="admin-table-wrapper">
+          <div class="table-toolbar" style="justify-content:space-between;">
+            <span style="font-size:0.88rem;font-weight:600;color:var(--text-primary);">Zone risorse</span>
+            <button class="btn btn-primary btn-sm" onclick="openResourceModal()">+ Aggiungi risorsa</button>
+          </div>
+          <table class="admin-table">
+            <thead><tr><th>Nome</th><th>Tipo</th><th>Coordinate</th><th>Azioni</th></tr></thead>
+            <tbody id="resources-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- ── SECTION: ARTICLES ── -->
+    <div id="section-articles" class="admin-section" style="display:none;">
+      <div class="admin-table-wrapper">
+
+        <!-- Category tabs + toolbar -->
+        <div class="cat-tabs" id="art-cat-tabs">
+          <button class="cat-tab active" onclick="filterAdminArticles('all',this)">Tutti</button>
+          <button class="cat-tab" onclick="filterAdminArticles('geopolitica',this)">Geopolitica</button>
+          <button class="cat-tab" onclick="filterAdminArticles('politica',this)">Politica Nazionale</button>
+          <button class="cat-tab" onclick="filterAdminArticles('business',this)">Business</button>
+          <button class="cat-tab" onclick="filterAdminArticles('tecnologia',this)">Tecnologia</button>
+        </div>
+
+        <div class="table-toolbar">
+          <input type="text" id="art-search" placeholder="Cerca per titolo, autore..." oninput="renderAdminArticles()" />
+          <button class="btn btn-primary btn-sm" onclick="openArticleModal()">+ Nuovo articolo</button>
+        </div>
+
+        <div class="articles-admin-grid" id="articles-admin-grid">
+          <!-- populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION: PODCASTS ── -->
+    <div id="section-podcasts" class="admin-section" style="display:none;">
+      <div class="admin-table-wrapper">
+        <div class="table-toolbar">
+          <input type="text" id="pod-search" placeholder="Cerca per titolo, autore..." oninput="renderAdminPodcasts()" />
+          <button class="btn btn-primary btn-sm" onclick="openPodcastModal(null)">+ Nuovo</button>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Titolo</th>
+              <th>Autore</th>
+              <th>Data</th>
+              <th>Durata</th>
+              <th>Azioni</th>
+            </tr>
+          </thead>
+          <tbody id="podcasts-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── SECTION: CITY CAMS ── -->
+    <div id="section-citycams" class="admin-section" style="display:none;">
+      <div class="admin-table-wrapper">
+        <div class="table-toolbar">
+          <input type="text" id="cam-search" placeholder="Cerca per nome..." oninput="renderAdminCitycams()" />
+          <button class="btn btn-primary btn-sm" onclick="openCitycamModal(null)">+ Nuova</button>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width:40px;">Flag</th>
+              <th>Nome</th>
+              <th style="width:60px;">Priorità</th>
+              <th>Evento collegato</th>
+              <th style="width:70px;">Gestione</th>
+              <th style="width:100px;">Azioni</th>
+            </tr>
+          </thead>
+          <tbody id="citycams-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── SECTION: REPORTS ── -->
+    <div id="section-reports" class="admin-section" style="display:none;">
+      <div class="admin-table-wrapper">
+        <div class="table-toolbar" style="justify-content:space-between;">
+          <span style="font-size:0.88rem;font-weight:600;color:var(--text-primary);">Segnalazioni forum non risolte</span>
+          <button class="btn btn-outline btn-sm" onclick="loadReports()">↻ Aggiorna</button>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Contenuto</th>
+              <th>Autore segnalato</th>
+              <th>Motivo</th>
+              <th>Data</th>
+              <th>Azioni</th>
+            </tr>
+          </thead>
+          <tbody id="reports-tbody">
+            <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted);">Caricamento...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ AI INTELLIGENCE SECTION ═══ -->
+    <div id="section-ai" class="admin-section" style="display:none;">
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.05);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.28);">AI Intelligence</span>
+          <span id="ai-running-indicator" style="display:none;align-items:center;gap:5px;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#22d47a;">
+            <span style="width:6px;height:6px;border-radius:50%;background:#22d47a;display:inline-block;animation:pulse 1.5s infinite;"></span>
+            In esecuzione
+          </span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div id="ai-key-badge" style="font-size:0.68rem;padding:3px 8px;border-radius:0;font-weight:700;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.3);font-family:monospace;"></div>
+          <button class="btn btn-primary btn-sm" onclick="triggerAIJob()" id="btn-ai-run">▶ Avvia Scansione</button>
+        </div>
+      </div>
+
+      <!-- Last job status bar -->
+      <div id="ai-last-job-bar" style="margin-bottom:20px;padding:14px 18px;border-radius:10px;font-size:0.82rem;display:none;"></div>
+
+      <!-- Stats -->
+      <div class="dashboard-cards" style="margin-bottom:28px;" id="ai-stats-cards">
+        <div class="dash-card">
+          <div class="card-icon" style="background:rgba(34,212,122,0.12);">🌍</div>
+          <div class="card-label">Eventi Attivi AI</div>
+          <div class="card-value" id="ai-stat-active">—</div>
+          <div class="card-sub">in mappa ora</div>
+        </div>
+        <div class="dash-card">
+          <div class="card-icon" style="background:rgba(255,71,87,0.12);">✅</div>
+          <div class="card-label">Risolti</div>
+          <div class="card-value" id="ai-stat-resolved">—</div>
+          <div class="card-sub">eventi chiusi</div>
+        </div>
+        <div class="dash-card">
+          <div class="card-icon" style="background:rgba(255,180,0,0.12);">🔒</div>
+          <div class="card-label">Bloccati</div>
+          <div class="card-value" id="ai-stat-locked">—</div>
+          <div class="card-sub">lock admin attivi</div>
+        </div>
+        <div class="dash-card">
+          <div class="card-icon" style="background:rgba(79,158,255,0.12);">📡</div>
+          <div class="card-label">Scansioni</div>
+          <div class="card-value" id="ai-stat-jobs">—</div>
+          <div class="card-sub">totali eseguite</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:0;border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:20px;">
+        <button id="ai-tab-jobs" onclick="switchAITab('jobs')"
+          style="padding:8px 20px;background:none;border:none;border-bottom:2px solid var(--accent-blue);color:#f0f4ff;font-size:0.82rem;font-weight:600;cursor:pointer;letter-spacing:-0.01em;">
+          📋 Log Scansioni
+        </button>
+        <button id="ai-tab-events" onclick="switchAITab('events')"
+          style="padding:8px 20px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-muted);font-size:0.82rem;font-weight:600;cursor:pointer;letter-spacing:-0.01em;">
+          🌍 Gestione Eventi
+        </button>
+        <button id="ai-tab-docs" onclick="switchAITab('docs')"
+          style="padding:8px 20px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-muted);font-size:0.82rem;font-weight:600;cursor:pointer;letter-spacing:-0.01em;">
+          📖 Come Funziona
+        </button>
+      </div>
+
+      <!-- Jobs panel -->
+      <div id="ai-panel-jobs">
+        <div id="ai-jobs-list"><p style="color:var(--text-muted);font-size:0.85rem;">Nessun job eseguito ancora.</p></div>
+      </div>
+
+      <!-- Events panel -->
+      <div id="ai-panel-events" style="display:none;">
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+          <button class="btn btn-sm" id="ef-all" onclick="filterAIEvents('all')">Tutti</button>
+          <button class="btn btn-outline btn-sm" id="ef-active" onclick="filterAIEvents('active')">🟢 Attivi</button>
+          <button class="btn btn-outline btn-sm" id="ef-resolved" onclick="filterAIEvents('resolved')">✅ Risolti</button>
+          <button class="btn btn-outline btn-sm" id="ef-expired" onclick="filterAIEvents('expired')">⏱ Scaduti</button>
+        </div>
+        <div id="ai-events-list"></div>
+      </div>
+
+      <!-- ── Docs panel ── -->
+      <div id="ai-panel-docs" style="display:none;">
+
+        <!-- Intro -->
+        <div style="background:#111113;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:20px 24px;margin-bottom:20px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <span style="font-size:1.3rem;">🤖</span>
+            <span style="font-size:0.95rem;font-weight:700;color:rgba(235,235,245,0.92);">Sistema IA — Analisy Intelligence Engine</span>
+          </div>
+          <p style="font-size:0.84rem;color:rgba(235,235,245,0.5);line-height:1.7;margin:0;">
+            Il motore IA di Analisy lavora in due pipeline parallele: una ogni <strong style="color:rgba(235,235,245,0.75);">6 ore</strong> per aggiornare la mappa geopolitica, e una ogni <strong style="color:rgba(235,235,245,0.75);">30 minuti</strong> per generare articoli. Tutto è automatico — intervieni solo se necessario tramite il blocco manuale o avviando una scansione forzata.
+          </p>
+        </div>
+
+        <!-- Pipeline 1: Mappa -->
+        <div style="background:#111113;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:20px 24px;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:18px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:rgba(232,52,78,0.15);border:1px solid rgba(232,52,78,0.3);display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;">🗺️</div>
+            <div>
+              <div style="font-size:0.88rem;font-weight:700;color:rgba(235,235,245,0.9);">Pipeline 1 — Mappa Geopolitica</div>
+              <div style="font-size:0.7rem;color:rgba(235,235,245,0.3);margin-top:1px;">Esecuzione automatica ogni 6 ore · avviabile manualmente con "Avvia Scansione"</div>
+            </div>
+          </div>
+
+          <!-- Flow steps -->
+          <div style="display:flex;flex-direction:column;gap:0;">
+
+            <!-- Step 1 -->
+            <div style="display:flex;gap:14px;align-items:flex-start;">
+              <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+                <div style="width:32px;height:32px;border-radius:50%;background:rgba(79,158,255,0.15);border:1.5px solid rgba(79,158,255,0.4);display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:800;color:#4f9eff;">1</div>
+                <div style="width:1px;height:28px;background:rgba(255,255,255,0.06);margin-top:4px;"></div>
+              </div>
+              <div style="padding-top:6px;padding-bottom:20px;">
+                <div style="font-size:0.84rem;font-weight:700;color:rgba(235,235,245,0.85);margin-bottom:4px;">Raccolta notizie — GDELT</div>
+                <div style="font-size:0.78rem;color:rgba(235,235,245,0.42);line-height:1.65;">
+                  L'IA interroga <strong style="color:rgba(235,235,245,0.6);">GDELT Project</strong> (Global Database of Events, Language and Tone) — il più grande database di notizie globali al mondo, aggiornato ogni 15 minuti da oltre 65.000 fonti in 100 lingue. La query copre tutti e 4 i domini: conflitti militari, politica, economia geopolitica e tecnologia. Vengono scaricati i <strong style="color:rgba(235,235,245,0.6);">40 articoli più rilevanti</strong> del momento.
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div style="display:flex;gap:14px;align-items:flex-start;">
+              <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+                <div style="width:32px;height:32px;border-radius:50%;background:rgba(167,139,250,0.15);border:1.5px solid rgba(167,139,250,0.4);display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:800;color:#a78bfa;">2</div>
+                <div style="width:1px;height:28px;background:rgba(255,255,255,0.06);margin-top:4px;"></div>
+              </div>
+              <div style="padding-top:6px;padding-bottom:20px;">
+                <div style="font-size:0.84rem;font-weight:700;color:rgba(235,235,245,0.85);margin-bottom:4px;">Analisi — Claude AI</div>
+                <div style="font-size:0.78rem;color:rgba(235,235,245,0.42);line-height:1.65;">
+                  I titoli vengono inviati a <strong style="color:rgba(235,235,245,0.6);">Claude Opus</strong> (Anthropic) con un prompt di intelligence geopolitica professionale. Claude seleziona i <strong style="color:rgba(235,235,245,0.6);">6–10 eventi più significativi</strong>, li classifica per dominio e magnitudo, produce coordinate geografiche, un brief analitico in italiano di 400–500 parole e assegna un punteggio di rilevanza 0–100.
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div style="display:flex;gap:14px;align-items:flex-start;">
+              <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+                <div style="width:32px;height:32px;border-radius:50%;background:rgba(245,166,35,0.15);border:1.5px solid rgba(245,166,35,0.4);display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:800;color:#f5a623;">3</div>
+                <div style="width:1px;height:28px;background:rgba(255,255,255,0.06);margin-top:4px;"></div>
+              </div>
+              <div style="padding-top:6px;padding-bottom:20px;">
+                <div style="font-size:0.84rem;font-weight:700;color:rgba(235,235,245,0.85);margin-bottom:4px;">Scrittura sulla mappa</div>
+                <div style="font-size:0.78rem;color:rgba(235,235,245,0.42);line-height:1.65;">
+                  Per ogni evento, l'IA controlla se esiste già un evento attivo con lo stesso titolo. <br/>
+                  — <strong style="color:rgba(235,235,245,0.6);">Evento nuovo</strong>: viene creato un nuovo marker sulla mappa.<br/>
+                  — <strong style="color:rgba(235,235,245,0.6);">Evento esistente</strong>: viene aggiornata la magnitudo, il brief e la scadenza (rinnovo automatico).<br/>
+                  — <strong style="color:rgba(235,235,245,0.6);">Evento con manual_lock</strong>: l'IA lo salta completamente, rimane invariato.
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div style="display:flex;gap:14px;align-items:flex-start;">
+              <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+                <div style="width:32px;height:32px;border-radius:50%;background:rgba(232,52,78,0.15);border:1.5px solid rgba(232,52,78,0.4);display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:800;color:#e8344e;">4</div>
+              </div>
+              <div style="padding-top:6px;">
+                <div style="font-size:0.84rem;font-weight:700;color:rgba(235,235,245,0.85);margin-bottom:4px;">Scadenza e rimozione</div>
+                <div style="font-size:0.78rem;color:rgba(235,235,245,0.42);line-height:1.65;">
+                  Ad ogni esecuzione, l'IA archivia automaticamente gli eventi scaduti impostando <code style="background:rgba(255,255,255,0.07);padding:1px 5px;border-radius:3px;font-size:0.73rem;">status = expired</code> — spariscono dalla mappa in tempo reale. Se le notizie su un evento continuano ad arrivare, la scadenza viene rinnovata e l'evento rimane visibile.
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /flow -->
+        </div>
+
+        <!-- Durate scadenza -->
+        <div style="background:#111113;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:18px 24px;margin-bottom:16px;">
+          <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(235,235,245,0.28);margin-bottom:14px;">Durata eventi per magnitudo</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px;text-align:center;">
+              <div style="font-size:1.1rem;font-weight:800;color:rgba(235,235,245,0.3);margin-bottom:4px;">1</div>
+              <div style="font-size:0.7rem;color:rgba(235,235,245,0.3);margin-bottom:6px;">Bassa</div>
+              <div style="font-size:0.82rem;font-weight:700;color:rgba(235,235,245,0.6);">14 giorni</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px;text-align:center;">
+              <div style="font-size:1.1rem;font-weight:800;color:rgba(235,235,245,0.5);margin-bottom:4px;">2</div>
+              <div style="font-size:0.7rem;color:rgba(235,235,245,0.3);margin-bottom:6px;">Moderata</div>
+              <div style="font-size:0.82rem;font-weight:700;color:rgba(235,235,245,0.7);">14 giorni</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px;text-align:center;">
+              <div style="font-size:1.1rem;font-weight:800;color:rgba(235,235,245,0.8);margin-bottom:4px;">3</div>
+              <div style="font-size:0.7rem;color:rgba(235,235,245,0.3);margin-bottom:6px;">Alta</div>
+              <div style="font-size:0.82rem;font-weight:700;color:rgba(235,235,245,0.9);">21 giorni</div>
+            </div>
+            <div style="background:rgba(232,52,78,0.06);border:1px solid rgba(232,52,78,0.2);border-radius:8px;padding:12px;text-align:center;">
+              <div style="font-size:1.1rem;font-weight:800;color:#e8344e;margin-bottom:4px;">4</div>
+              <div style="font-size:0.7rem;color:rgba(235,235,245,0.3);margin-bottom:6px;">Critica</div>
+              <div style="font-size:0.82rem;font-weight:700;color:#e8344e;">30 giorni</div>
+            </div>
+          </div>
+          <div style="margin-top:10px;font-size:0.72rem;color:rgba(235,235,245,0.25);line-height:1.6;">Se l'evento appare di nuovo nelle notizie alla scansione successiva, la scadenza viene automaticamente rinnovata a partire da quel momento.</div>
+        </div>
+
+        <!-- Categorie -->
+        <div style="background:#111113;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:18px 24px;margin-bottom:16px;">
+          <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(235,235,245,0.28);margin-bottom:14px;">4 domini tematici — colori sulla mappa</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:flex-start;gap:12px;">
+              <div style="width:12px;height:12px;border-radius:50%;background:#e8344e;flex-shrink:0;margin-top:3px;box-shadow:0 0 6px rgba(232,52,78,0.5);"></div>
+              <div>
+                <span style="font-size:0.82rem;font-weight:700;color:rgba(235,235,245,0.85);">Geopolitica</span>
+                <span style="font-size:0.76rem;color:rgba(235,235,245,0.35);margin-left:8px;">— conflitti armati, operazioni militari, crisi umanitarie, tensioni tra stati, invasioni</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:12px;">
+              <div style="width:12px;height:12px;border-radius:50%;background:#4f9eff;flex-shrink:0;margin-top:3px;box-shadow:0 0 6px rgba(79,158,255,0.4);"></div>
+              <div>
+                <span style="font-size:0.82rem;font-weight:700;color:rgba(235,235,245,0.85);">Politica</span>
+                <span style="font-size:0.76rem;color:rgba(235,235,245,0.35);margin-left:8px;">— elezioni critiche, colpi di stato, crisi di governo, proteste di massa, cambi di regime</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:12px;">
+              <div style="width:12px;height:12px;border-radius:50%;background:#f5a623;flex-shrink:0;margin-top:3px;box-shadow:0 0 6px rgba(245,166,35,0.4);"></div>
+              <div>
+                <span style="font-size:0.82rem;font-weight:700;color:rgba(235,235,245,0.85);">Business</span>
+                <span style="font-size:0.76rem;color:rgba(235,235,245,0.35);margin-left:8px;">— sanzioni economiche, guerre commerciali, crisi energetiche, dazi, mercati con impatto geopolitico</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:12px;">
+              <div style="width:12px;height:12px;border-radius:50%;background:#a78bfa;flex-shrink:0;margin-top:3px;box-shadow:0 0 6px rgba(167,139,250,0.4);"></div>
+              <div>
+                <span style="font-size:0.82rem;font-weight:700;color:rgba(235,235,245,0.85);">Tecnologia</span>
+                <span style="font-size:0.76rem;color:rgba(235,235,245,0.35);margin-left:8px;">— cyberattacchi statali, corsa all'IA militare, guerre sui semiconduttori, sorveglianza, disinformazione</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pipeline 2: Articoli -->
+        <div style="background:#111113;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:20px 24px;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:rgba(57,255,20,0.1);border:1px solid rgba(57,255,20,0.25);display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;">📰</div>
+            <div>
+              <div style="font-size:0.88rem;font-weight:700;color:rgba(235,235,245,0.9);">Pipeline 2 — Articoli Automatici</div>
+              <div style="font-size:0.7rem;color:rgba(235,235,245,0.3);margin-top:1px;">Esecuzione automatica ogni 30 minuti</div>
+            </div>
+          </div>
+          <div style="font-size:0.78rem;color:rgba(235,235,245,0.42);line-height:1.75;">
+            Ogni 30 minuti l'IA legge gli <strong style="color:rgba(235,235,245,0.65);">eventi attivi con magnitudo ≥ 2</strong> e per ciascuno — se nelle ultime 48 ore non esiste già un articolo sullo stesso evento — chiede a <strong style="color:rgba(235,235,245,0.65);">Claude Haiku</strong> di scrivere un articolo giornalistico completo in italiano (500–800 parole, con contesto storico, impatti e scenari). Gli articoli su eventi con magnitudo ≥ 3 vengono automaticamente marcati come <strong style="color:rgba(235,235,245,0.65);">Premium</strong>. Vengono elaborati al massimo 5 eventi per esecuzione per evitare timeout.
+          </div>
+        </div>
+
+        <!-- CityCam -->
+        <div style="background:#111113;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:20px 24px;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:rgba(79,158,255,0.1);border:1px solid rgba(79,158,255,0.25);display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;">📷</div>
+            <div>
+              <div style="font-size:0.88rem;font-weight:700;color:rgba(235,235,245,0.9);">CityCam — Priorità Automatica</div>
+              <div style="font-size:0.7rem;color:rgba(235,235,245,0.3);margin-top:1px;">Aggiornata ad ogni esecuzione della Pipeline 1</div>
+            </div>
+          </div>
+          <div style="font-size:0.78rem;color:rgba(235,235,245,0.42);line-height:1.75;">
+            Dopo aver aggiornato la mappa, l'IA prende gli eventi con <strong style="color:rgba(235,235,245,0.65);">magnitudo ≥ 3</strong> e cerca le citycam geograficamente più vicine (entro ±5 gradi). Aggiorna priorità e evento collegato solo sulle cam <strong style="color:rgba(235,235,245,0.65);">senza override manuale attivo</strong>. Le cam con <strong style="color:#f5a623;">🔒 Override manuale</strong> vengono saltate completamente — gestisci tu priorità, evento e categoria direttamente dalla sezione <strong style="color:rgba(235,235,245,0.65);">City Cam</strong>.
+          </div>
+        </div>
+
+        <!-- Manual lock -->
+        <div style="background:#111113;border:1px solid rgba(245,166,35,0.2);border-radius:12px;padding:18px 24px;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <span style="font-size:1rem;">🔒</span>
+            <div style="font-size:0.85rem;font-weight:700;color:rgba(245,166,35,0.9);">Blocco Manuale (manual_lock)</div>
+          </div>
+          <div style="font-size:0.78rem;color:rgba(235,235,245,0.42);line-height:1.75;">
+            In "Gestione Eventi" puoi attivare il <strong style="color:rgba(245,166,35,0.7);">blocco manuale</strong> su qualsiasi evento. Quando è attivo, l'IA non lo tocca — non aggiorna la magnitudo, non rinnova la scadenza, non lo elimina. Puoi modificarlo manualmente come vuoi. Usa questa funzione per eventi editorialmente sensibili che vuoi gestire in prima persona, oppure per fissare un evento sulla mappa a lungo termine indipendentemente dalle notizie.
+          </div>
+        </div>
+
+        <!-- Timer automatico -->
+        <div style="background:#111113;border:1px solid rgba(57,255,20,0.15);border-radius:12px;padding:18px 24px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <span style="font-size:1rem;">⏱</span>
+            <div style="font-size:0.85rem;font-weight:700;color:rgba(57,255,20,0.8);">Timer automatici (pg_cron)</div>
+          </div>
+          <div style="font-size:0.78rem;color:rgba(235,235,245,0.42);line-height:1.75;margin-bottom:14px;">
+            Una volta attivata la chiave AI, i timer automatici si configurano in Supabase con due comandi SQL. Dopo, tutto avviene senza intervento manuale.
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px 14px;font-family:monospace;font-size:0.72rem;color:#39ff14;line-height:1.8;">
+              <div style="color:rgba(255,255,255,0.2);margin-bottom:4px;">-- Pipeline mappa ogni 6 ore</div>
+              select cron.schedule('ai-run-6h', '0 */6 * * *', $$<br/>
+              &nbsp;&nbsp;select net.http_post(<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;url:='https://TUOID.supabase.co/functions/v1/ai-run',<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;headers:='{"Authorization":"Bearer SERVICE_KEY"}'::jsonb<br/>
+              &nbsp;&nbsp;)<br/>
+              $$);
+            </div>
+            <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px 14px;font-family:monospace;font-size:0.72rem;color:#39ff14;line-height:1.8;">
+              <div style="color:rgba(255,255,255,0.2);margin-bottom:4px;">-- Articoli ogni 30 minuti</div>
+              select cron.schedule('ai-articles-30m', '*/30 * * * *', $$<br/>
+              &nbsp;&nbsp;select net.http_post(<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;url:='https://TUOID.supabase.co/functions/v1/ai-articles',<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;headers:='{"Authorization":"Bearer SERVICE_KEY"}'::jsonb<br/>
+              &nbsp;&nbsp;)<br/>
+              $$);
+            </div>
+          </div>
+          <div style="margin-top:10px;font-size:0.71rem;color:rgba(235,235,245,0.22);line-height:1.6;">Sostituisci TUOID con il tuo Project ID e SERVICE_KEY con la Service Role Key (Supabase → Settings → API).</div>
+        </div>
+
+      </div><!-- /ai-panel-docs -->
+
+    </div><!-- /section-ai -->
+
+  </main>
+</div>
+
+<!-- ── MODAL: Delete User ── -->
+<div class="modal-overlay" id="delete-user-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <h3>Elimina utente</h3>
+      <button class="modal-close" onclick="document.getElementById('delete-user-modal').classList.remove('open')">✕</button>
+    </div>
+    <input type="hidden" id="du-user-id" />
+    <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:20px;">Seleziona il motivo dell'eliminazione:</p>
+    <div class="form-group">
+      <label>Motivo</label>
+      <select id="du-reason" style="background:var(--bg-secondary);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;font-size:0.95rem;color:var(--text-primary);width:100%;">
+        <option value="standard">Standard (eliminazione normale)</option>
+        <option value="non_conforme">Non conforme alle regole della community</option>
+      </select>
+    </div>
+    <div id="du-ban-warning" style="display:none;background:rgba(232,52,78,0.1);border:1px solid rgba(232,52,78,0.3);border-radius:8px;padding:12px 14px;font-size:0.83rem;color:var(--accent-red);margin-bottom:16px;">
+      ⚠️ L'utente verrà <strong>bloccato</strong>: non potrà più accedere con le sue credenziali e vedrà solo un messaggio di ban al login.
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('delete-user-modal').classList.remove('open')">Annulla</button>
+      <button class="btn btn-sm" style="background:var(--accent-red);color:#fff;" onclick="executeDeleteUser()">Conferma eliminazione</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Article ── -->
+<div class="modal-overlay" id="article-modal" onclick="if(event.target===this)this.classList.remove('open')" style="align-items:flex-start;padding-top:32px;">
+  <div class="modal" style="max-width:700px;max-height:90vh;overflow-y:auto;">
+    <div class="modal-header">
+      <h3 id="art-modal-title">Nuovo articolo</h3>
+      <button class="modal-close" onclick="document.getElementById('article-modal').classList.remove('open')">✕</button>
+    </div>
+
+    <input type="hidden" id="art-id" />
+
+    <div class="form-group">
+      <label>Titolo <span style="color:var(--accent-red);">*</span></label>
+      <input type="text" id="art-title" placeholder="Titolo dell'articolo" />
+    </div>
+
+    <div class="form-group">
+      <label>Sottotitolo</label>
+      <input type="text" id="art-subtitle" placeholder="Sottotitolo o occhiello" />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Categoria <span style="color:var(--accent-red);">*</span></label>
+        <select id="art-cat" style="background:var(--bg-secondary);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;font-size:0.95rem;color:var(--text-primary);width:100%;">
+          <option value="geopolitica">Geopolitica</option>
+          <option value="politica">Politica Nazionale</option>
+          <option value="business">Business</option>
+          <option value="tecnologia">Tecnologia</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Data pubblicazione</label>
+        <input type="date" id="art-date" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Autore <span style="color:var(--accent-red);">*</span></label>
+        <input type="text" id="art-author" placeholder="Nome e cognome autore" />
+      </div>
+      <div class="form-group">
+        <label>Tempo di lettura</label>
+        <input type="text" id="art-readtime" placeholder="Es: 8 min" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Immagine copertina</label>
+      <div class="img-upload-area" onclick="document.getElementById('art-img-file').click()">
+        <div class="upload-icon">🖼️</div>
+        <p>Clicca per caricare un'immagine oppure incolla un URL</p>
+        <input type="file" id="art-img-file" accept="image/*" onchange="handleImgUpload(this)" />
+        <img id="art-img-preview" class="img-preview" alt="Anteprima" />
+      </div>
+      <input type="text" id="art-img-url" placeholder="oppure inserisci URL immagine" style="margin-top:8px;background:var(--bg-secondary);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-size:0.88rem;color:var(--text-primary);width:100%;" oninput="updateImgPreviewFromUrl(this.value)" />
+    </div>
+
+    <div class="form-group">
+      <label>Abstract (riassunto breve) <span style="color:var(--accent-red);">*</span></label>
+      <textarea id="art-abstract" class="rich-editor" style="min-height:80px;" placeholder="Breve descrizione dell'articolo mostrata in anteprima..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Testo completo <span style="color:var(--accent-red);">*</span></label>
+      <textarea id="art-body" class="rich-editor" style="min-height:240px;" placeholder="Testo completo dell'articolo. Puoi usare paragrafi separati da righe vuote."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Articoli suggeriti</label>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px;">Inserisci gli ID degli articoli correlati separati da virgola (es: 1,3,5)</p>
+      <input type="text" id="art-suggested" placeholder="Es: 1,3,5" />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Visibilità</label>
+        <select id="art-premium" style="background:var(--bg-secondary);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;font-size:0.95rem;color:var(--text-primary);width:100%;">
+          <option value="false">Pubblico (tutti)</option>
+          <option value="true">Premium (solo abbonati)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Stato</label>
+        <select id="art-status" style="background:var(--bg-secondary);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;font-size:0.95rem;color:var(--text-primary);width:100%;">
+          <option value="published">Pubblicato</option>
+          <option value="draft">Bozza</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('article-modal').classList.remove('open')">Annulla</button>
+      <button class="btn btn-outline btn-sm" onclick="saveArticle('draft')">Salva bozza</button>
+      <button class="btn btn-primary btn-sm" onclick="saveArticle('published')">Pubblica articolo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Article Preview ── -->
+<div class="modal-overlay" id="article-preview-modal" onclick="if(event.target===this)this.classList.remove('open')" style="align-items:flex-start;padding-top:24px;">
+  <div class="modal" style="max-width:760px;max-height:90vh;overflow-y:auto;">
+    <div class="modal-header">
+      <h3>Anteprima articolo</h3>
+      <button class="modal-close" onclick="document.getElementById('article-preview-modal').classList.remove('open')">✕</button>
+    </div>
+    <div id="article-preview-content" style="font-family:var(--font);"></div>
+  </div>
+</div>
+
+<!-- ── MODAL: Edit User ── -->
+<div class="modal-overlay" id="user-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="user-modal-title">Modifica utente</h3>
+      <button class="modal-close" onclick="document.getElementById('user-modal').classList.remove('open')">✕</button>
+    </div>
+    <form id="user-modal-form">
+      <input type="hidden" id="um-email-orig" />
+      <div class="form-row">
+        <div class="form-group"><label>Nome</label><input type="text" id="um-nome" /></div>
+        <div class="form-group"><label>Cognome</label><input type="text" id="um-cognome" /></div>
+      </div>
+      <div class="form-group"><label>Email</label><input type="email" id="um-email" /></div>
+      <div class="form-group"><label>Telefono</label><input type="tel" id="um-telefono" /></div>
+      <div class="form-group">
+        <label>Piano</label>
+        <select id="um-plan" style="background:var(--bg-secondary);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;font-size:0.95rem;color:var(--text-primary);width:100%;">
+          <option value="free">Free</option>
+          <option value="premium">Premium</option>
+          <option value="pro">Pro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Stato abbonamento</label>
+        <select id="um-status" style="background:var(--bg-secondary);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;font-size:0.95rem;color:var(--text-primary);width:100%;">
+          <option value="active">Attivo</option>
+          <option value="inactive">Inattivo</option>
+          <option value="expired">Scaduto</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Inizio abbonamento</label><input type="date" id="um-start" /></div>
+        <div class="form-group"><label>Scadenza abbonamento</label><input type="date" id="um-end" /></div>
+      </div>
+    </form>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('user-modal').classList.remove('open')">Annulla</button>
+      <button class="btn btn-primary btn-sm" onclick="saveUser()">Salva modifiche</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Event ── -->
+<div class="modal-overlay" id="event-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="event-modal-title">Aggiungi evento</h3>
+      <button class="modal-close" onclick="document.getElementById('event-modal').classList.remove('open')">✕</button>
+    </div>
+    <form id="event-modal-form">
+      <input type="hidden" id="ev-id" />
+      <div class="form-group"><label>Titolo evento</label><input type="text" id="ev-title" placeholder="Es: Conflitto in Ucraina" /></div>
+      <div class="form-group"><label>Descrizione breve</label><input type="text" id="ev-desc" placeholder="Breve descrizione..." /></div>
+      <div class="form-row">
+        <div class="form-group"><label>Latitudine</label><input type="number" id="ev-lat" placeholder="Es: 50.4" step="0.0001" /></div>
+        <div class="form-group"><label>Longitudine</label><input type="number" id="ev-lng" placeholder="Es: 30.5" step="0.0001" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Categoria</label>
+          <select id="ev-cat" style="background:var(--bg-secondary);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;font-size:0.95rem;color:var(--text-primary);width:100%;">
+            <option value="conflict">Conflitto</option>
+            <option value="tension">Tensione</option>
+            <option value="crisis">Crisi</option>
+            <option value="political">Politico</option>
+            <option value="economic">Economico</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Magnitudo (1-4)</label>
+          <select id="ev-mag" style="background:var(--bg-secondary);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;font-size:0.95rem;color:var(--text-primary);width:100%;">
+            <option value="1">1 — Bassa</option>
+            <option value="2">2 — Media</option>
+            <option value="3" selected>3 — Alta</option>
+            <option value="4">4 — Critica</option>
+          </select>
+        </div>
+      </div>
+    </form>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('event-modal').classList.remove('open')">Annulla</button>
+      <button class="btn btn-primary btn-sm" onclick="saveEvent()">Salva evento</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Resource ── -->
+<div class="modal-overlay" id="resource-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="resource-modal-title">Aggiungi zona risorsa</h3>
+      <button class="modal-close" onclick="document.getElementById('resource-modal').classList.remove('open')">✕</button>
+    </div>
+    <form id="resource-modal-form">
+      <input type="hidden" id="res-id" />
+      <div class="form-group"><label>Nome zona</label><input type="text" id="res-name" placeholder="Es: Giacimento petrolifero Arabia Saudita" /></div>
+      <div class="form-row">
+        <div class="form-group"><label>Latitudine</label><input type="number" id="res-lat" placeholder="24" step="0.0001" /></div>
+        <div class="form-group"><label>Longitudine</label><input type="number" id="res-lng" placeholder="45" step="0.0001" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tipo risorsa</label>
+          <select id="res-type" style="background:var(--bg-secondary);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;font-size:0.95rem;color:var(--text-primary);width:100%;">
+            <option value="oil">Petrolio</option>
+            <option value="gas">Gas naturale</option>
+            <option value="lithium">Litio</option>
+            <option value="uranium">Uranio</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Raggio (km)</label>
+          <input type="number" id="res-radius" placeholder="200" value="200" />
+        </div>
+      </div>
+      <div class="form-group"><label>Note</label><input type="text" id="res-notes" placeholder="Informazioni aggiuntive..." /></div>
+    </form>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('resource-modal').classList.remove('open')">Annulla</button>
+      <button class="btn btn-primary btn-sm" onclick="saveResource()">Salva zona</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Podcast ── -->
+<div class="modal-overlay" id="podcast-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="pod-modal-title">Nuovo podcast</h3>
+      <button class="modal-close" onclick="document.getElementById('podcast-modal').classList.remove('open')">✕</button>
+    </div>
+    <input type="hidden" id="pod-id" />
+    <div class="form-group">
+      <label>Titolo <span style="color:var(--accent-red);">*</span></label>
+      <input type="text" id="pod-title" placeholder="Titolo del podcast" />
+    </div>
+    <div class="form-group">
+      <label>Autore</label>
+      <input type="text" id="pod-author" placeholder="Nome autore" />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Data</label>
+        <input type="date" id="pod-date" />
+      </div>
+      <div class="form-group">
+        <label>Durata</label>
+        <input type="text" id="pod-duration" placeholder="42 min" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('podcast-modal').classList.remove('open')">Annulla</button>
+      <button class="btn btn-primary btn-sm" onclick="savePodcast()">Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: City Cam ── -->
+<div class="modal-overlay" id="citycam-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <h3 id="cam-modal-title">Nuova city cam</h3>
+      <button class="modal-close" onclick="document.getElementById('citycam-modal').classList.remove('open')">✕</button>
+    </div>
+    <input type="hidden" id="cam-id" />
+
+    <!-- Dati base -->
+    <div style="display:grid;grid-template-columns:80px 1fr;gap:12px;margin-bottom:16px;">
+      <div class="form-group" style="margin-bottom:0;">
+        <label>Flag</label>
+        <input type="text" id="cam-flag" placeholder="🇮🇹" />
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label>Nome <span style="color:var(--accent-red);">*</span></label>
+        <input type="text" id="cam-name" placeholder="Roma, Italia" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>URL Embed YouTube / stream</label>
+      <input type="text" id="cam-embed" placeholder="Incolla qui l'URL o il codice embed completo" oninput="extractEmbedUrl(this)" />
+      <div style="font-size:0.75rem;color:var(--text-muted);margin-top:5px;">Su YouTube: <strong>Condividi → Incorpora</strong> → incolla il codice intero — l'URL viene estratto automaticamente.</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div class="form-group" style="margin-bottom:0;">
+        <label>Latitudine <span style="font-size:0.72rem;color:var(--text-muted);font-weight:400;">(per AI)</span></label>
+        <input type="number" id="cam-lat" placeholder="es. 41.90" step="0.0001" />
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label>Longitudine <span style="font-size:0.72rem;color:var(--text-muted);font-weight:400;">(per AI)</span></label>
+        <input type="number" id="cam-lng" placeholder="es. 12.49" step="0.0001" />
+      </div>
+    </div>
+
+    <!-- Separatore AI Override -->
+    <div style="border-top:1px solid rgba(255,255,255,0.07);margin:4px 0 16px;padding-top:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <div>
+          <div style="font-size:0.8rem;font-weight:700;color:rgba(235,235,245,0.85);">Override manuale</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">Quando attivo, l'IA non tocca questa cam — priorità ed evento restano quelli che imposti tu.</div>
+        </div>
+        <!-- Toggle switch AI lock -->
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;flex-shrink:0;margin-left:16px;">
+          <input type="checkbox" id="cam-ai-lock" style="display:none;" onchange="toggleCamOverride(this)" />
+          <div id="cam-ai-lock-track" style="width:40px;height:22px;border-radius:11px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);position:relative;transition:background 0.2s;cursor:pointer;" onclick="document.getElementById('cam-ai-lock').click()">
+            <div id="cam-ai-lock-thumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.4);transition:transform 0.2s,background 0.2s;"></div>
+          </div>
+          <span id="cam-ai-lock-label" style="font-size:0.75rem;font-weight:600;color:var(--text-muted);">AI gestisce</span>
+        </label>
+      </div>
+
+      <!-- Campi override — visibili solo quando locked -->
+      <div id="cam-override-fields" style="display:none;margin-top:14px;padding:14px;background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.2);border-radius:10px;">
+        <div style="display:grid;grid-template-columns:80px 1fr;gap:12px;margin-bottom:12px;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Priorità <span style="font-size:0.7rem;color:var(--text-muted);font-weight:400;">0–100</span></label>
+            <input type="number" id="cam-priority" placeholder="85" min="0" max="100" />
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Dominio evento</label>
+            <select id="cam-event-cat" style="background:var(--bg-primary);border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:0.88rem;color:var(--text-primary);width:100%;">
+              <option value="">— nessun evento collegato —</option>
+              <option value="geopolitica">🔴 Geopolitica</option>
+              <option value="politica">🔵 Politica</option>
+              <option value="business">🟠 Business</option>
+              <option value="tecnologia">🟣 Tecnologia</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label>Titolo evento collegato <span style="font-size:0.7rem;color:var(--text-muted);font-weight:400;">(opzionale)</span></label>
+          <input type="text" id="cam-event-title" placeholder="es. Tensioni nel Mediterraneo orientale" />
+        </div>
+        <div style="font-size:0.72rem;color:rgba(245,166,35,0.55);margin-top:8px;">⚠️ Con override attivo l'IA non aggiornerà automaticamente questa cam alla prossima scansione.</div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('citycam-modal').classList.remove('open')">Annulla</button>
+      <button class="btn btn-primary btn-sm" onclick="saveCitycam()">Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm delete modal -->
+<div class="modal-overlay" id="confirm-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <h3>Conferma eliminazione</h3>
+      <button class="modal-close" onclick="document.getElementById('confirm-modal').classList.remove('open')">✕</button>
+    </div>
+    <p id="confirm-msg" style="font-size:0.9rem;color:var(--text-secondary);">Sei sicuro di voler eliminare questo elemento?</p>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('confirm-modal').classList.remove('open')">Annulla</button>
+      <button class="btn btn-primary btn-sm" id="confirm-action" style="background:var(--accent-red);">Elimina</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+<script>
+  if (!requireAdmin('index.html')) { /* stop */ }
+
+  /* ── SECTIONS ── */
+  const _SECTION_LABELS = {
+    users: 'Utenti', subs: 'Abbonamenti', map: 'Gestione Mappa',
+    articles: 'Articoli', podcasts: 'Podcast', citycams: 'City Cam',
+    reports: 'Segnalazioni', ai: 'AI Intelligence',
+  };
+  function showSection(name, link) {
+    document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
+    document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+    document.getElementById('section-' + name).style.display = 'block';
+    if (link) link.classList.add('active');
+    const titleEl = document.getElementById('admin-section-title');
+    if (titleEl) titleEl.textContent = _SECTION_LABELS[name] || name;
+    if (name === 'ai') { loadAIStatus(); loadAIJobs(); }
+  }
+
+  /* ── STATS ── */
+  function refreshStats() {
+    const users = AppData.users || [];
+    document.getElementById('stat-total-users').textContent = users.length;
+    document.getElementById('stat-active-subs').textContent = users.filter(u => u.subscriptionStatus === 'active').length;
+    document.getElementById('stat-events').textContent = (AppData.mapEvents||[]).length + (AppData.mapResources||[]).length;
+    const articles  = AppData.articles || [];
+    const published = articles.filter(a => a.status === 'published');
+    const premium   = published.filter(a => a.premium === true);
+    document.getElementById('stat-articles').textContent = published.length;
+    document.getElementById('stat-articles-sub').textContent = `di cui ${premium.length} premium`;
+  }
+
+  /* ── USERS TABLE ── */
+  function renderUsers(list) {
+    const tbody = document.getElementById('users-tbody');
+    if (!list) list = AppData.users || [];
+    tbody.innerHTML = list.map(u => `
+      <tr>
+        <td>${u.nome} ${u.cognome}</td>
+        <td><span style="color:var(--text-secondary);">${u.email}</span></td>
+        <td>${u.telefono || '—'}</td>
+        <td><span style="color:${u.role==='admin'?'var(--accent-purple)':'var(--text-secondary)'};font-weight:600;">${u.role==='admin'?'Admin':'Utente'}</span></td>
+        <td>${getPlanBadge(u.plan || 'free')}</td>
+        <td>${getStatusBadge(u.subscriptionStatus || 'inactive')}</td>
+        <td>${fmtDate(u.createdAt)}</td>
+        <td style="display:flex;gap:6px;flex-wrap:wrap;">
+          ${u.email !== 'admin@analisy.com' ? `<button class="action-btn edit" onclick="openEditUserModal('${u.id}')">Modifica</button>` : ''}
+          ${u.email !== 'admin@analisy.com' ? `<button class="action-btn del" onclick="openDeleteUserModal('${u.id}')">Elimina</button>` : '<span style="font-size:0.75rem;color:var(--text-muted);">Non modificabile</span>'}
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function filterUsers() {
+    const q    = document.getElementById('user-search').value.toLowerCase();
+    const role = document.getElementById('user-role-filter').value;
+    const filtered = (AppData.users || []).filter(u => {
+      const match = `${u.nome} ${u.cognome} ${u.email}`.toLowerCase().includes(q);
+      return match && (!role || u.role === role);
+    });
+    renderUsers(filtered);
+  }
+
+  function openAddUserModal() {
+    document.getElementById('user-modal-title').textContent = 'Aggiungi utente';
+    document.getElementById('um-email-orig').value = '';
+    document.getElementById('um-nome').value       = '';
+    document.getElementById('um-cognome').value    = '';
+    document.getElementById('um-email').value      = '';
+    document.getElementById('um-telefono').value   = '';
+    document.getElementById('um-plan').value       = 'free';
+    document.getElementById('um-status').value     = 'inactive';
+    document.getElementById('um-start').value      = '';
+    document.getElementById('um-end').value        = '';
+    document.getElementById('user-modal').classList.add('open');
+  }
+
+  function openEditUserModal(id) {
+    const u = (AppData.users || []).find(x => x.id === id);
+    if (!u) return;
+    document.getElementById('user-modal-title').textContent = 'Modifica utente';
+    document.getElementById('um-email-orig').value = u.id;
+    document.getElementById('um-nome').value       = u.nome;
+    document.getElementById('um-cognome').value    = u.cognome;
+    document.getElementById('um-email').value      = u.email;
+    document.getElementById('um-telefono').value   = u.telefono || '';
+    document.getElementById('um-plan').value       = u.plan || 'free';
+    document.getElementById('um-status').value     = u.subscriptionStatus || 'inactive';
+    document.getElementById('um-start').value      = u.subscriptionStart || '';
+    document.getElementById('um-end').value        = u.subscriptionEnd || '';
+    document.getElementById('user-modal').classList.add('open');
+  }
+
+  async function saveUser() {
+    const origId = document.getElementById('um-email-orig').value;
+    const data = {
+      nome:               document.getElementById('um-nome').value.trim(),
+      cognome:            document.getElementById('um-cognome').value.trim(),
+      email:              document.getElementById('um-email').value.trim().toLowerCase(),
+      telefono:           document.getElementById('um-telefono').value.trim(),
+      role:               'user',
+      plan:               document.getElementById('um-plan').value,
+      subscriptionStatus: document.getElementById('um-status').value,
+      subscriptionStart:  document.getElementById('um-start').value || null,
+      subscriptionEnd:    document.getElementById('um-end').value || null,
+    };
+    try {
+      if (origId) {
+        const updated = await Api.put('/api/users/' + origId, data);
+        const idx = AppData.users.findIndex(u => u.id === origId);
+        if (idx > -1) AppData.users[idx] = updated;
+      } else {
+        const created = await Api.post('/api/users', { ...data, password: 'changeme' });
+        AppData.users.unshift(created);
+      }
+      document.getElementById('user-modal').classList.remove('open');
+      renderUsers();
+      refreshStats();
+      showToast('Utente salvato con successo!', 'success');
+    } catch(err) {
+      showToast(err.message || 'Errore nel salvataggio', 'error');
+    }
+  }
+
+  /* ── SUBS TABLE ── */
+  function renderSubs(list) {
+    const tbody = document.getElementById('subs-tbody');
+    if (!list) list = AppData.users || [];
+    tbody.innerHTML = list.map(u => `
+      <tr>
+        <td>${u.nome} ${u.cognome}</td>
+        <td>${u.email}</td>
+        <td>${getPlanBadge(u.plan || 'free')}</td>
+        <td>${getStatusBadge(u.subscriptionStatus || 'inactive')}</td>
+        <td>${fmtDate(u.subscriptionStart)}</td>
+        <td>${fmtDate(u.subscriptionEnd)}</td>
+        <td style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="action-btn edit" onclick="setSubStatus('${u.id}','active')">Attiva</button>
+          <button class="action-btn view" onclick="setSubStatus('${u.id}','inactive')">Inattiva</button>
+          <button class="action-btn del"  onclick="setSubStatus('${u.id}','expired')">Scaduta</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function filterSubs() {
+    const q      = document.getElementById('sub-search').value.toLowerCase();
+    const status = document.getElementById('sub-status-filter').value;
+    const filtered = (AppData.users || []).filter(u => {
+      const match = `${u.nome} ${u.cognome} ${u.email}`.toLowerCase().includes(q);
+      return match && (!status || u.subscriptionStatus === status);
+    });
+    renderSubs(filtered);
+  }
+
+  async function setSubStatus(userId, status) {
+    try {
+      const updated = await Api.put('/api/users/' + userId, { subscriptionStatus: status });
+      const idx = AppData.users.findIndex(u => u.id === userId);
+      if (idx > -1) AppData.users[idx] = updated;
+      renderSubs();
+      refreshStats();
+      showToast(`Abbonamento impostato su: ${status}`, 'success');
+    } catch(err) {
+      showToast(err.message || 'Errore', 'error');
+    }
+  }
+
+  /* ── MAP EVENTS TABLE ── */
+  function renderEvents() {
+    const events = AppData.mapEvents || [];
+    const catLabels = { conflict:'Conflitto', tension:'Tensione', crisis:'Crisi', political:'Politico', economic:'Economico' };
+    const catColors = { conflict:'var(--accent-red)', tension:'var(--accent-yellow)', crisis:'var(--accent-orange)', political:'var(--accent-blue)', economic:'var(--accent-green)' };
+    document.getElementById('events-tbody').innerHTML = events.map(ev => `
+      <tr>
+        <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${ev.title}</td>
+        <td><span style="color:${catColors[ev.category]||'var(--text-secondary)'};font-weight:600;font-size:0.82rem;">${catLabels[ev.category]||ev.category}</span></td>
+        <td>${'●'.repeat(ev.magnitude)}</td>
+        <td style="display:flex;gap:6px;">
+          <button class="action-btn edit" onclick="openEventModal('${ev.id}')">Edit</button>
+          <button class="action-btn del"  onclick="confirmDelete('event','${ev.id}')">Del</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function renderResources() {
+    const resources = AppData.mapResources || [];
+    const typeLabels = { oil:'Petrolio', gas:'Gas', lithium:'Litio', uranium:'Uranio' };
+    document.getElementById('resources-tbody').innerHTML = resources.map(r => `
+      <tr>
+        <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.name}</td>
+        <td>${typeLabels[r.type]||r.type}</td>
+        <td style="font-size:0.78rem;color:var(--text-muted);">${r.lat}, ${r.lng}</td>
+        <td style="display:flex;gap:6px;">
+          <button class="action-btn edit" onclick="openResourceModal('${r.id}')">Edit</button>
+          <button class="action-btn del"  onclick="confirmDelete('resource','${r.id}')">Del</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function openEventModal(id) {
+    const ev = id ? (AppData.mapEvents || []).find(e => e.id === id) : null;
+    document.getElementById('event-modal-title').textContent = ev ? 'Modifica evento' : 'Aggiungi evento';
+    document.getElementById('ev-id').value    = ev ? ev.id : '';
+    document.getElementById('ev-title').value = ev ? ev.title : '';
+    document.getElementById('ev-desc').value  = ev ? ev.desc : '';
+    document.getElementById('ev-lat').value   = ev ? ev.lat : '';
+    document.getElementById('ev-lng').value   = ev ? ev.lng : '';
+    document.getElementById('ev-cat').value   = ev ? ev.category : 'conflict';
+    document.getElementById('ev-mag').value   = ev ? ev.magnitude : '3';
+    document.getElementById('event-modal').classList.add('open');
+  }
+
+  async function saveEvent() {
+    const id = document.getElementById('ev-id').value;
+    const ev = {
+      title:     document.getElementById('ev-title').value.trim(),
+      desc:      document.getElementById('ev-desc').value.trim(),
+      lat:       parseFloat(document.getElementById('ev-lat').value),
+      lng:       parseFloat(document.getElementById('ev-lng').value),
+      category:  document.getElementById('ev-cat').value,
+      magnitude: parseInt(document.getElementById('ev-mag').value),
+    };
+    if (!ev.title || isNaN(ev.lat) || isNaN(ev.lng)) {
+      showToast('Compila tutti i campi obbligatori', 'error'); return;
+    }
+    try {
+      if (id) {
+        const updated = await Api.put('/api/map/events/' + id, ev);
+        const idx = AppData.mapEvents.findIndex(e => e.id === id);
+        if (idx > -1) AppData.mapEvents[idx] = updated;
+      } else {
+        const created = await Api.post('/api/map/events', ev);
+        AppData.mapEvents.push(created);
+      }
+      document.getElementById('event-modal').classList.remove('open');
+      renderEvents(); refreshStats();
+      showToast('Evento salvato!', 'success');
+    } catch(err) {
+      showToast(err.message || 'Errore nel salvataggio', 'error');
+    }
+  }
+
+  function openResourceModal(id) {
+    const r = id ? (AppData.mapResources || []).find(x => x.id === id) : null;
+    document.getElementById('resource-modal-title').textContent = r ? 'Modifica zona' : 'Aggiungi zona risorsa';
+    document.getElementById('res-id').value     = r ? r.id : '';
+    document.getElementById('res-name').value   = r ? r.name : '';
+    document.getElementById('res-lat').value    = r ? r.lat : '';
+    document.getElementById('res-lng').value    = r ? r.lng : '';
+    document.getElementById('res-type').value   = r ? r.type : 'oil';
+    document.getElementById('res-radius').value = r ? r.radius : 200;
+    document.getElementById('res-notes').value  = r ? r.notes : '';
+    document.getElementById('resource-modal').classList.add('open');
+  }
+
+  async function saveResource() {
+    const id = document.getElementById('res-id').value;
+    const r = {
+      name:   document.getElementById('res-name').value.trim(),
+      lat:    parseFloat(document.getElementById('res-lat').value),
+      lng:    parseFloat(document.getElementById('res-lng').value),
+      type:   document.getElementById('res-type').value,
+      radius: parseInt(document.getElementById('res-radius').value) || 200,
+      notes:  document.getElementById('res-notes').value.trim(),
+    };
+    if (!r.name || isNaN(r.lat) || isNaN(r.lng)) {
+      showToast('Compila tutti i campi obbligatori', 'error'); return;
+    }
+    try {
+      if (id) {
+        const updated = await Api.put('/api/map/resources/' + id, r);
+        const idx = AppData.mapResources.findIndex(x => x.id === id);
+        if (idx > -1) AppData.mapResources[idx] = updated;
+      } else {
+        const created = await Api.post('/api/map/resources', r);
+        AppData.mapResources.push(created);
+      }
+      document.getElementById('resource-modal').classList.remove('open');
+      renderResources(); refreshStats();
+      showToast('Zona risorsa salvata!', 'success');
+    } catch(err) {
+      showToast(err.message || 'Errore nel salvataggio', 'error');
+    }
+  }
+
+  /* ── CONFIRM DELETE ── */
+  function confirmDelete(type, id) {
+    const msgs = {
+      user:     'Eliminare definitivamente questo utente?',
+      event:    'Eliminare questo evento dalla mappa?',
+      resource: 'Eliminare questa zona risorsa?',
+      article:  'Eliminare definitivamente questo articolo?',
+      podcast:  'Eliminare definitivamente questo podcast?',
+      citycam:  'Eliminare questa city cam?',
+    };
+    document.getElementById('confirm-msg').textContent = msgs[type] || 'Eliminare questo elemento?';
+    document.getElementById('confirm-action').onclick = async () => {
+      try {
+        if (type === 'user') {
+          await Api.del('/api/users/' + id);
+          AppData.users = AppData.users.filter(u => u.id !== id);
+          renderUsers();
+        } else if (type === 'event') {
+          await Api.del('/api/map/events/' + id);
+          AppData.mapEvents = AppData.mapEvents.filter(e => e.id !== id);
+          renderEvents();
+        } else if (type === 'resource') {
+          await Api.del('/api/map/resources/' + id);
+          AppData.mapResources = AppData.mapResources.filter(r => r.id !== id);
+          renderResources();
+        } else if (type === 'article') {
+          await Api.del('/api/articles/' + id);
+          AppData.articles = AppData.articles.filter(a => a.id !== id);
+          renderAdminArticles();
+        } else if (type === 'podcast') {
+          await Api.del('/api/podcasts/' + id);
+          AppData.podcasts = AppData.podcasts.filter(p => p.id !== id);
+          renderAdminPodcasts();
+        } else if (type === 'citycam') {
+          await Api.del('/api/citycams/' + id);
+          AppData.citycams = AppData.citycams.filter(c => c.id !== id);
+          renderAdminCitycams();
+        }
+        document.getElementById('confirm-modal').classList.remove('open');
+        refreshStats();
+        showToast('Eliminato con successo.', 'success');
+      } catch(err) {
+        showToast(err.message || 'Errore nell\'eliminazione', 'error');
+      }
+    };
+    document.getElementById('confirm-modal').classList.add('open');
+  }
+
+  /* ── ARTICLES ── */
+  let adminArticleFilter = 'all';
+
+  function filterAdminArticles(cat, el) {
+    adminArticleFilter = cat;
+    document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+    if (el) el.classList.add('active');
+    renderAdminArticles();
+  }
+
+  function renderAdminArticles() {
+    const q    = (document.getElementById('art-search')?.value || '').toLowerCase();
+    let list   = AppData.articles || [];
+    if (adminArticleFilter !== 'all') list = list.filter(a => a.cat === adminArticleFilter);
+    if (q) list = list.filter(a => (a.title + a.author).toLowerCase().includes(q));
+
+    const catLabels = { geopolitica:'Geopolitica', politica:'Politica Nazionale', business:'Business', tecnologia:'Tecnologia' };
+    const catClass  = { geopolitica:'cat-geo', politica:'cat-pol', business:'cat-biz', tecnologia:'cat-tech' };
+    const grid = document.getElementById('articles-admin-grid');
+
+    if (!list.length) {
+      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--text-muted);">
+        <div style="font-size:2.5rem;margin-bottom:12px;">📝</div>
+        <p>Nessun articolo trovato. Crea il primo articolo cliccando "+ Nuovo articolo".</p>
+      </div>`;
+      return;
+    }
+
+    grid.innerHTML = list.map(a => {
+      const isBase = a.isBase === true;
+      const imgEl = a.image
+        ? `<img src="${a.image}" alt="${a.title}" style="width:100%;height:100%;object-fit:cover;" />`
+        : `<div style="width:100%;height:100%;background:linear-gradient(135deg,#0a1020,#0f1a30);display:flex;align-items:center;justify-content:center;font-size:2rem;">📰</div>`;
+      const statusBadge = isBase
+        ? `<div style="position:absolute;top:8px;right:8px;background:var(--accent-blue);color:#fff;font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:4px;">Predefinito</div>`
+        : `<div style="position:absolute;top:8px;right:8px;background:${a.status === 'published' ? 'var(--accent-green)' : 'var(--accent-yellow)'};color:#060e1a;font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:4px;">${a.status === 'published' ? 'Pubblicato' : 'Bozza'}</div>`;
+      const actions = isBase
+        ? `<button class="action-btn view" onclick="previewArticle('${a.id}')">Anteprima</button>`
+        : `<button class="action-btn view" onclick="previewArticle('${a.id}')">Anteprima</button>
+              <button class="action-btn edit" onclick="openArticleModal('${a.id}')">Modifica</button>
+              <button class="action-btn del"  onclick="confirmDelete('article','${a.id}')">Elimina</button>`;
+      return `
+        <div class="article-admin-card" style="position:relative;">
+          <div class="card-img">${imgEl}</div>
+          ${statusBadge}
+          <div class="card-body">
+            <div style="margin-bottom:6px;"><span class="article-cat-badge ${catClass[a.cat]||'cat-geo'}" style="font-size:0.68rem;">${catLabels[a.cat]||a.cat}</span>${a.premium===true ? '<span style="margin-left:6px;font-size:0.65rem;color:var(--accent-yellow);">🔒 Premium</span>' : ''}</div>
+            <h4>${a.title}</h4>
+            <div class="card-meta">${a.date||''} ${a.author ? '· ' + a.author : ''}</div>
+            <div class="card-actions">${actions}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function openArticleModal(id) {
+    const list = AppData.articles || [];
+    const a = id ? list.find(x => x.id === id) : null;
+    document.getElementById('art-modal-title').textContent = a ? 'Modifica articolo' : 'Nuovo articolo';
+    document.getElementById('art-id').value       = a ? a.id : '';
+    document.getElementById('art-title').value    = a ? a.title : '';
+    document.getElementById('art-subtitle').value = a ? (a.subtitle||'') : '';
+    document.getElementById('art-cat').value      = a ? a.cat : 'geopolitica';
+    document.getElementById('art-date').value     = a ? (a.rawDate||'') : new Date().toISOString().slice(0,10);
+    document.getElementById('art-author').value   = a ? (a.author||'') : '';
+    document.getElementById('art-readtime').value = a ? (a.readTime||'') : '';
+    document.getElementById('art-img-url').value  = a ? (a.image||'') : '';
+    document.getElementById('art-abstract').value = a ? (a.excerpt||'') : '';
+    document.getElementById('art-body').value     = a ? (a.body||'') : '';
+    document.getElementById('art-suggested').value= a ? (a.suggested||'') : '';
+    document.getElementById('art-premium').value  = a ? String(a.premium||'false') : 'false';
+    document.getElementById('art-status').value   = a ? (a.status||'published') : 'published';
+    const preview = document.getElementById('art-img-preview');
+    if (a && a.image) { preview.src = a.image; preview.style.display = 'block'; }
+    else { preview.style.display = 'none'; }
+    document.getElementById('article-modal').classList.add('open');
+  }
+
+  async function saveArticle(forceStatus) {
+    const id     = document.getElementById('art-id').value;
+    const title  = document.getElementById('art-title').value.trim();
+    const author = document.getElementById('art-author').value.trim();
+    const abs    = document.getElementById('art-abstract').value.trim();
+    const body   = document.getElementById('art-body').value.trim();
+    if (!title)  { showToast('Il titolo è obbligatorio', 'error'); return; }
+    if (!author) { showToast('Inserisci il nome dell\'autore', 'error'); return; }
+    if (!abs)    { showToast('L\'abstract è obbligatorio', 'error'); return; }
+    if (!body)   { showToast('Il testo dell\'articolo è obbligatorio', 'error'); return; }
+    const rawDate = document.getElementById('art-date').value;
+    const fmtD    = rawDate ? new Date(rawDate).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'}) : '';
+    const payload = {
+      title, author,
+      subtitle:  document.getElementById('art-subtitle').value.trim(),
+      cat:       document.getElementById('art-cat').value,
+      date:      fmtD, rawDate,
+      readTime:  document.getElementById('art-readtime').value.trim(),
+      image:     document.getElementById('art-img-url').value.trim(),
+      abstract:  abs, body,
+      suggested: document.getElementById('art-suggested').value.trim(),
+      premium:   document.getElementById('art-premium').value === 'true',
+      status:    forceStatus || document.getElementById('art-status').value,
+    };
+    try {
+      if (id) {
+        const updated = await Api.put('/api/articles/' + id, payload);
+        const idx = AppData.articles.findIndex(a => a.id === id);
+        if (idx > -1) AppData.articles[idx] = updated;
+      } else {
+        const created = await Api.post('/api/articles', payload);
+        AppData.articles.unshift(created);
+      }
+      document.getElementById('article-modal').classList.remove('open');
+      renderAdminArticles();
+      refreshStats();
+      showToast(forceStatus === 'draft' ? 'Bozza salvata!' : 'Articolo pubblicato!', 'success');
+    } catch(err) {
+      showToast(err.message || 'Errore nel salvataggio', 'error');
+    }
+  }
+
+  function previewArticle(id) {
+    const a = (AppData.articles || []).find(x => String(x.id) === String(id));
+    if (!a) return;
+    const catLabels = { geopolitica:'Geopolitica', politica:'Politica Nazionale', business:'Business', tecnologia:'Tecnologia' };
+    const catClass  = { geopolitica:'cat-geo', politica:'cat-pol', business:'cat-biz', tecnologia:'cat-tech' };
+    const imgHtml = a.image
+      ? `<img src="${a.image}" alt="${a.title}" style="width:100%;max-height:320px;object-fit:cover;border-radius:12px;margin-bottom:24px;" />`
+      : `<div style="width:100%;height:200px;background:linear-gradient(135deg,#0a1020,#0f1a30);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:3rem;margin-bottom:24px;">📰</div>`;
+    const bodyHtml = (a.body||'').split('\n').filter(l=>l.trim()).map(l=>`<p style="margin-bottom:14px;color:var(--text-secondary);line-height:1.8;">${l}</p>`).join('');
+    document.getElementById('article-preview-content').innerHTML = `
+      <div style="max-width:680px;margin:0 auto;">
+        ${imgHtml}
+        <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span class="article-cat-badge ${catClass[a.cat]||'cat-geo'}">${catLabels[a.cat]||a.cat}</span>
+          ${a.premium ? '<span style="font-size:0.75rem;color:var(--accent-yellow);font-weight:700;">🔒 Premium</span>' : ''}
+          <span style="font-size:0.78rem;color:var(--text-muted);">${a.date||''}</span>
+          ${a.readTime ? `<span style="font-size:0.78rem;color:var(--text-muted);">· ${a.readTime}</span>` : ''}
+        </div>
+        <h1 style="font-size:1.8rem;font-weight:800;letter-spacing:-0.03em;line-height:1.2;margin-bottom:${a.subtitle?'10px':'20px'}">${a.title}</h1>
+        ${a.subtitle ? `<p style="font-size:1.05rem;color:var(--text-secondary);margin-bottom:20px;font-weight:500;">${a.subtitle}</p>` : ''}
+        <div style="display:flex;align-items:center;gap:10px;padding:16px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:24px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent-blue),var(--accent-cyan));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;color:#fff;">${(a.author||'A')[0].toUpperCase()}</div>
+          <div>
+            <div style="font-size:0.88rem;font-weight:600;">${a.author||'Redazione Analisy'}</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);">Analista — Analisy</div>
+          </div>
+        </div>
+        <div style="background:rgba(79,158,255,0.06);border-left:3px solid var(--accent-blue);border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:24px;">
+          <p style="font-size:0.92rem;color:var(--text-secondary);line-height:1.7;font-style:italic;">${a.excerpt||''}</p>
+        </div>
+        <div>${bodyHtml}</div>
+        ${a.suggested ? `
+          <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border);">
+            <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:12px;">Articoli suggeriti</div>
+            <p style="font-size:0.85rem;color:var(--text-muted);">ID: ${a.suggested}</p>
+          </div>` : ''}
+      </div>
+    `;
+    document.getElementById('article-preview-modal').classList.add('open');
+  }
+
+  function handleImgUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const preview = document.getElementById('art-img-preview');
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+      document.getElementById('art-img-url').value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function updateImgPreviewFromUrl(url) {
+    const preview = document.getElementById('art-img-preview');
+    if (url) { preview.src = url; preview.style.display = 'block'; }
+    else { preview.style.display = 'none'; }
+  }
+
+  /* ── PODCASTS ADMIN ── */
+  function renderAdminPodcasts() {
+    const q = (document.getElementById('pod-search')?.value || '').toLowerCase();
+    let list = AppData.podcasts || [];
+    if (q) list = list.filter(p => (p.title + (p.author||'')).toLowerCase().includes(q));
+    const tbody = document.getElementById('podcasts-tbody');
+    if (!list.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);">Nessun podcast. Aggiungine uno.</td></tr>'; return; }
+    tbody.innerHTML = list.map(p => `
+      <tr>
+        <td style="font-weight:600;">${p.title}</td>
+        <td>${p.author || '—'}</td>
+        <td>${p.date || '—'}</td>
+        <td>${p.duration || '—'}</td>
+        <td><div style="display:flex;gap:6px;">
+          <button class="action-btn edit" onclick="openPodcastModal('${p.id}')">Modifica</button>
+          <button class="action-btn del"  onclick="confirmDelete('podcast','${p.id}')">Elimina</button>
+        </div></td>
+      </tr>`).join('');
+  }
+
+  function openPodcastModal(id) {
+    const p = id ? (AppData.podcasts || []).find(x => x.id === id) : null;
+    document.getElementById('pod-modal-title').textContent = p ? 'Modifica podcast' : 'Nuovo podcast';
+    document.getElementById('pod-id').value       = p ? p.id : '';
+    document.getElementById('pod-title').value    = p ? p.title : '';
+    document.getElementById('pod-author').value   = p ? (p.author || '') : '';
+    document.getElementById('pod-date').value     = p ? (p.rawDate || '') : new Date().toISOString().slice(0,10);
+    document.getElementById('pod-duration').value = p ? (p.duration || '') : '';
+    document.getElementById('podcast-modal').classList.add('open');
+  }
+
+  async function savePodcast() {
+    const id    = document.getElementById('pod-id').value;
+    const title = document.getElementById('pod-title').value.trim();
+    if (!title) { showToast('Il titolo è obbligatorio', 'error'); return; }
+    const rawDate = document.getElementById('pod-date').value;
+    const fmtD    = rawDate ? new Date(rawDate).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'}) : '';
+    const payload = {
+      title,
+      author:   document.getElementById('pod-author').value.trim(),
+      date:     fmtD, rawDate,
+      duration: document.getElementById('pod-duration').value.trim(),
+    };
+    try {
+      if (id) {
+        const updated = await Api.put('/api/podcasts/' + id, payload);
+        const idx = AppData.podcasts.findIndex(x => x.id === id);
+        if (idx > -1) AppData.podcasts[idx] = updated;
+      } else {
+        const created = await Api.post('/api/podcasts', payload);
+        AppData.podcasts.unshift(created);
+      }
+      document.getElementById('podcast-modal').classList.remove('open');
+      renderAdminPodcasts();
+      showToast('Podcast salvato!', 'success');
+    } catch(err) {
+      showToast(err.message || 'Errore nel salvataggio', 'error');
+    }
+  }
+
+  /* ── CITY CAMS ADMIN ── */
+  const CAT_COLORS = { geopolitica:'#e8344e', politica:'#4f9eff', business:'#f5a623', tecnologia:'#a78bfa' };
+  const CAT_ICONS  = { geopolitica:'🔴', politica:'🔵', business:'🟠', tecnologia:'🟣' };
+
+  function renderAdminCitycams() {
+    const q = (document.getElementById('cam-search')?.value || '').toLowerCase();
+    let list = AppData.citycams || [];
+    if (q) list = list.filter(c => c.name.toLowerCase().includes(q));
+    const tbody = document.getElementById('citycams-tbody');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted);">Nessuna city cam. Aggiungine una.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map(c => {
+      const locked  = c.ai_lock || c.aiLock;
+      const prio    = c.ai_priority ?? c.aiPriority ?? '—';
+      const evTitle = c.ai_event_title || c.aiEventTitle || '';
+      const evCat   = c.ai_event_category || c.aiEventCategory || '';
+      const catColor = CAT_COLORS[evCat] || 'rgba(255,255,255,0.3)';
+      const catIcon  = CAT_ICONS[evCat]  || '';
+      const lockBadge = locked
+        ? `<span style="font-size:0.65rem;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(245,166,35,0.12);border:1px solid rgba(245,166,35,0.3);color:#f5a623;white-space:nowrap;">🔒 Manuale</span>`
+        : `<span style="font-size:0.65rem;padding:2px 7px;border-radius:20px;background:rgba(57,255,20,0.08);border:1px solid rgba(57,255,20,0.2);color:#39ff14;white-space:nowrap;">🤖 AI</span>`;
+      return `
+        <tr>
+          <td style="font-size:1.4rem;">${c.flag || ''}</td>
+          <td style="font-weight:600;">${c.name}</td>
+          <td style="text-align:center;">
+            <span style="font-size:0.82rem;font-weight:700;color:${prio >= 80 ? '#e8344e' : prio >= 50 ? '#f5a623' : 'rgba(255,255,255,0.5)'};">${prio}</span>
+          </td>
+          <td style="max-width:200px;overflow:hidden;">
+            ${evTitle
+              ? `<span style="font-size:0.72rem;color:${catColor};">${catIcon} ${evTitle}</span>`
+              : `<span style="font-size:0.72rem;color:var(--text-muted);">—</span>`}
+          </td>
+          <td>${lockBadge}</td>
+          <td><div style="display:flex;gap:6px;">
+            <button class="action-btn edit" onclick="openCitycamModal('${c.id}')">Modifica</button>
+            <button class="action-btn del"  onclick="confirmDelete('citycam','${c.id}')">Elimina</button>
+          </div></td>
+        </tr>`;
+    }).join('');
+  }
+
+  function toggleCamOverride(cb) {
+    const locked = cb.checked;
+    document.getElementById('cam-override-fields').style.display = locked ? 'block' : 'none';
+    document.getElementById('cam-ai-lock-track').style.background = locked ? 'rgba(245,166,35,0.35)' : 'rgba(255,255,255,0.1)';
+    document.getElementById('cam-ai-lock-track').style.borderColor = locked ? 'rgba(245,166,35,0.5)' : 'rgba(255,255,255,0.15)';
+    document.getElementById('cam-ai-lock-thumb').style.transform = locked ? 'translateX(18px)' : 'translateX(0)';
+    document.getElementById('cam-ai-lock-thumb').style.background = locked ? '#f5a623' : 'rgba(255,255,255,0.4)';
+    document.getElementById('cam-ai-lock-label').textContent = locked ? 'Override attivo' : 'AI gestisce';
+    document.getElementById('cam-ai-lock-label').style.color = locked ? '#f5a623' : 'var(--text-muted)';
+  }
+
+  function openCitycamModal(id) {
+    const c = id ? (AppData.citycams || []).find(x => x.id === id) : null;
+    document.getElementById('cam-modal-title').textContent = c ? 'Modifica city cam' : 'Nuova city cam';
+    document.getElementById('cam-id').value         = c ? c.id : '';
+    document.getElementById('cam-flag').value        = c ? (c.flag || '') : '';
+    document.getElementById('cam-name').value        = c ? c.name : '';
+    document.getElementById('cam-embed').value       = c ? (c.embedUrl || c.embed_url || '') : '';
+    document.getElementById('cam-lat').value         = (c && c.lat  != null) ? c.lat  : '';
+    document.getElementById('cam-lng').value         = (c && c.lng  != null) ? c.lng  : '';
+    const locked = !!(c && (c.ai_lock || c.aiLock));
+    document.getElementById('cam-ai-lock').checked   = locked;
+    document.getElementById('cam-priority').value    = c ? (c.ai_priority ?? c.aiPriority ?? '') : '';
+    document.getElementById('cam-event-cat').value   = c ? (c.ai_event_category || c.aiEventCategory || '') : '';
+    document.getElementById('cam-event-title').value = c ? (c.ai_event_title || c.aiEventTitle || '') : '';
+    // Aggiorna UI toggle
+    toggleCamOverride(document.getElementById('cam-ai-lock'));
+    document.getElementById('citycam-modal').classList.add('open');
+  }
+
+  async function saveCitycam() {
+    const id   = document.getElementById('cam-id').value;
+    const flag = document.getElementById('cam-flag').value.trim();
+    const name = document.getElementById('cam-name').value.trim();
+    if (!name) { showToast('Il nome è obbligatorio', 'error'); return; }
+    const embedUrl = document.getElementById('cam-embed').value.trim();
+    const latVal   = document.getElementById('cam-lat').value.trim();
+    const lngVal   = document.getElementById('cam-lng').value.trim();
+    const aiLock   = document.getElementById('cam-ai-lock').checked;
+    const prioVal  = document.getElementById('cam-priority').value.trim();
+    const payload  = {
+      flag, name, embedUrl,
+      lat: latVal !== '' ? parseFloat(latVal) : null,
+      lng: lngVal !== '' ? parseFloat(lngVal) : null,
+      ai_lock: aiLock,
+      ...(aiLock ? {
+        ai_priority:        prioVal !== '' ? parseInt(prioVal) : 50,
+        ai_event_category:  document.getElementById('cam-event-cat').value   || '',
+        ai_event_title:     document.getElementById('cam-event-title').value.trim() || '',
+      } : {}),
+    };
+    try {
+      if (id) {
+        const updated = await Api.fn('citycams-save', { id, ...payload });
+        const idx = AppData.citycams.findIndex(x => x.id === id);
+        if (idx > -1) AppData.citycams[idx] = { ...AppData.citycams[idx], ...payload };
+      } else {
+        const created = await Api.fn('citycams-save', payload);
+        AppData.citycams.push(created || payload);
+      }
+      document.getElementById('citycam-modal').classList.remove('open');
+      renderAdminCitycams();
+      showToast(aiLock ? '🔒 City cam salvata con override manuale.' : '✅ City cam salvata — l\'IA la gestirà automaticamente.', 'success');
+    } catch(err) {
+      showToast(err.message || 'Errore nel salvataggio', 'error');
+    }
+  }
+
+  /* ── CITYCAM EMBED HELPER ── */
+  function extractEmbedUrl(input) {
+    const val = input.value;
+    const match = val.match(/src=["']([^"']+)["']/);
+    if (match) input.value = match[1];
+  }
+
+  /* ── DELETE USER MODAL ── */
+  function openDeleteUserModal(userId) {
+    document.getElementById('du-user-id').value = userId;
+    document.getElementById('du-reason').value  = 'standard';
+    document.getElementById('du-ban-warning').style.display = 'none';
+    document.getElementById('delete-user-modal').classList.add('open');
+  }
+
+  document.addEventListener('change', e => {
+    if (e.target.id === 'du-reason') {
+      document.getElementById('du-ban-warning').style.display =
+        e.target.value === 'non_conforme' ? 'block' : 'none';
+    }
+  });
+
+  async function executeDeleteUser() {
+    const userId = document.getElementById('du-user-id').value;
+    const reason = document.getElementById('du-reason').value;
+    try {
+      const result = await Api.del('/api/users/' + userId, { deleteReason: reason });
+      if (result.banned) {
+        const u = AppData.users.find(x => x.id === userId);
+        if (u) { u.banned = true; }
+        showToast('Account bloccato per violazione delle norme.', 'success');
+      } else {
+        AppData.users = AppData.users.filter(u => u.id !== userId);
+        showToast('Utente eliminato con successo.', 'success');
+      }
+      document.getElementById('delete-user-modal').classList.remove('open');
+      renderUsers();
+      refreshStats();
+    } catch(err) {
+      showToast(err.message || 'Errore nell\'eliminazione', 'error');
+    }
+  }
+
+  /* ── REPORTS ── */
+  let adminReports = [];
+
+  async function loadReports() {
+    try {
+      const data = await Api.get('/api/forum/reports');
+      adminReports = Array.isArray(data) ? data : [];
+      renderReports();
+      const badge = document.getElementById('reports-badge');
+      if (adminReports.length > 0) {
+        badge.textContent = adminReports.length;
+        badge.style.display = 'inline';
+      } else {
+        badge.style.display = 'none';
+      }
+    } catch(e) {
+      document.getElementById('reports-tbody').innerHTML =
+        '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted);">Errore nel caricamento delle segnalazioni.</td></tr>';
+    }
+  }
+
+  function renderReports() {
+    const tbody = document.getElementById('reports-tbody');
+    if (!adminReports.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted);">Nessuna segnalazione in attesa.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = adminReports.map(r => {
+      const d = new Date(r.created_at).toLocaleDateString('it-IT', {day:'2-digit',month:'short',year:'numeric'});
+      const typeLabel = r.content_type === 'post' ? '📝 Post' : '💬 Risposta';
+      const preview = (r.content_text || '').slice(0, 80) + ((r.content_text||'').length > 80 ? '…' : '');
+      return `<tr>
+        <td><span style="font-size:0.82rem;">${typeLabel}</span></td>
+        <td style="max-width:200px;font-size:0.82rem;color:var(--text-secondary);">${preview || '—'}</td>
+        <td style="font-size:0.85rem;">${r.author_name || '—'}</td>
+        <td style="font-size:0.82rem;color:var(--text-muted);max-width:160px;">${r.reason}</td>
+        <td style="font-size:0.78rem;color:var(--text-muted);">${d}</td>
+        <td>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="action-btn del" onclick="deleteReportedContent('${r.content_type}','${r.content_id}','${r.id}')">Elimina contenuto</button>
+            <button class="action-btn view" onclick="resolveReport('${r.id}')">Risolvi</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  async function resolveReport(reportId) {
+    try {
+      await Api.del('/api/forum/reports/' + reportId);
+      adminReports = adminReports.filter(r => r.id !== reportId);
+      renderReports();
+      const badge = document.getElementById('reports-badge');
+      if (adminReports.length > 0) { badge.textContent = adminReports.length; }
+      else { badge.style.display = 'none'; }
+      showToast('Segnalazione risolta.', 'success');
+    } catch(e) {
+      showToast(e.message || 'Errore', 'error');
+    }
+  }
+
+  async function deleteReportedContent(contentType, contentId, reportId) {
+    if (!confirm('Eliminare il contenuto segnalato?')) return;
+    try {
+      if (contentType === 'post') {
+        await Api.del('/api/forum/posts/' + contentId);
+      } else {
+        await Api.del('/api/forum/replies/' + contentId);
+      }
+      await Api.del('/api/forum/reports/' + reportId);
+      adminReports = adminReports.filter(r => r.id !== reportId);
+      renderReports();
+      const badge = document.getElementById('reports-badge');
+      if (adminReports.length > 0) { badge.textContent = adminReports.length; }
+      else { badge.style.display = 'none'; }
+      showToast('Contenuto eliminato e segnalazione risolta.', 'success');
+    } catch(e) {
+      showToast(e.message || 'Errore', 'error');
+    }
+  }
+
+  /* ── INIT ── */
+  document.addEventListener('DOMContentLoaded', async () => {
+    await AppData.initAdmin();
+    renderUsers();
+    renderSubs();
+    renderEvents();
+    renderResources();
+    renderAdminArticles();
+    renderAdminPodcasts();
+    renderAdminCitycams();
+    refreshStats();
+    loadReports();
+  });
+
+/* ════════ AI INTELLIGENCE ════════ */
+let aiEventsAll = [];
+let aiEventsFilter = 'all';
+let aiPollingTimer = null;
+
+async function loadAIStatus() {
+  try {
+    const d = await Api.get('/api/admin/ai/status');
+    // Key badge
+    const badge = document.getElementById('ai-key-badge');
+    if (badge) {
+      badge.textContent = d.hasApiKey ? 'Claude · Attivo' : 'API Key Mancante';
+      badge.style.background = 'transparent';
+      badge.style.color = d.hasApiKey ? '#22d47a' : '#ff4757';
+      badge.style.border = `1px solid ${d.hasApiKey ? 'rgba(34,212,122,0.25)' : 'rgba(255,71,87,0.25)'}`;
+      badge.style.fontFamily = 'monospace';
+    }
+    // Stats
+    if (d.stats) {
+      setText('ai-stat-active',   d.stats.active);
+      setText('ai-stat-resolved', d.stats.resolved);
+      setText('ai-stat-locked',   d.stats.locked);
+      setText('ai-stat-jobs',     d.stats.totalJobs);
+    }
+    // Running badge in sidebar
+    const rb = document.getElementById('ai-running-badge');
+    if (rb) rb.style.display = d.isRunning ? 'block' : 'none';
+    // Running indicator in AI section header
+    const ri = document.getElementById('ai-running-indicator');
+    if (ri) ri.style.display = d.isRunning ? 'flex' : 'none';
+    // Last job bar
+    const bar = document.getElementById('ai-last-job-bar');
+    if (bar && d.lastJob) {
+      const j = d.lastJob;
+      const colors = { completed:'rgba(34,212,122,0.12)', failed:'rgba(255,71,87,0.12)', running:'rgba(79,158,255,0.12)' };
+      const icons  = { completed:'✅', failed:'❌', running:'⏳' };
+      bar.style.display = 'block';
+      bar.style.background = colors[j.status] || colors.running;
+      bar.style.border = `1px solid ${j.status==='completed'?'rgba(34,212,122,0.25)':j.status==='failed'?'rgba(255,71,87,0.25)':'rgba(79,158,255,0.25)'}`;
+      const dur = j.finishedAt ? Math.round((new Date(j.finishedAt)-new Date(j.startedAt))/1000) : null;
+      bar.innerHTML = `
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <span style="font-size:1.1rem;">${icons[j.status]||'⏳'}</span>
+          <div>
+            <strong style="color:#f0f4ff;">Ultima scansione #${j.id}</strong>
+            <span style="color:var(--text-muted);margin-left:8px;">${j.startedAt ? new Date(j.startedAt).toLocaleString('it-IT') : ''}</span>
+            ${dur !== null ? `<span style="color:var(--text-muted);margin-left:8px;">(${dur}s)</span>` : ''}
+          </div>
+          <div style="margin-left:auto;display:flex;gap:18px;font-size:0.78rem;">
+            <span>📰 <strong style="color:#f0f4ff;">${j.articlesFetched}</strong> articoli</span>
+            <span>➕ <strong style="color:#22d47a;">${j.eventsCreated}</strong> creati</span>
+            <span>🔄 <strong style="color:#4f9eff;">${j.eventsRenewed}</strong> rinnovati</span>
+            <span>✅ <strong style="color:#ffb400;">${j.eventsResolved}</strong> risolti</span>
+            ${j.errorText ? `<span style="color:#ff4757;">⚠️ ${j.errorText.slice(0,60)}</span>` : ''}
+          </div>
+        </div>`;
+    }
+    // Auto-poll when running
+    if (d.isRunning && !aiPollingTimer) {
+      aiPollingTimer = setInterval(() => loadAIStatus(), 4000);
+    } else if (!d.isRunning && aiPollingTimer) {
+      clearInterval(aiPollingTimer); aiPollingTimer = null;
+      loadAIJobs();
+    }
+  } catch(e) { console.warn('[AI status]', e); }
+}
+
+function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+
+async function triggerAIJob() {
+  const btn = document.getElementById('btn-ai-run');
+  try {
+    btn.disabled = true; btn.textContent = '⏳ Avvio...';
+    await Api.post('/api/admin/ai/run', {});
+    showToast('Scansione AI avviata', 'success');
+    btn.textContent = '⏳ In esecuzione...';
+    setTimeout(() => loadAIStatus(), 1000);
+  } catch(e) {
+    showToast(e.message || 'Errore avvio', 'error');
+    btn.disabled = false; btn.textContent = '▶ Avvia Scansione';
+  }
+}
+
+async function loadAIJobs() {
+  try {
+    const jobs = await Api.get('/api/admin/ai/jobs?limit=25');
+    const el = document.getElementById('ai-jobs-list');
+    if (!el) return;
+    if (!jobs.length) { el.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">Nessun job eseguito ancora.</p>'; return; }
+    el.innerHTML = `
+      <table class="admin-table">
+        <thead><tr>
+          <th>#</th><th>Stato</th><th>Avviato</th><th>Durata</th>
+          <th>Articoli</th><th>Creati</th><th>Rinnovati</th><th>Risolti</th><th></th>
+        </tr></thead>
+        <tbody>
+          ${jobs.map(j => {
+            const dur = j.finished_at ? Math.round((new Date(j.finished_at)-new Date(j.started_at))/1000)+'s' : '—';
+            const stColors = {completed:'#22d47a',failed:'#ff4757',running:'#4f9eff'};
+            return `<tr>
+              <td style="color:var(--text-muted);">#${j.id}</td>
+              <td><span style="color:${stColors[j.status]||'#fff'};font-weight:600;font-size:0.8rem;">${j.status.toUpperCase()}</span></td>
+              <td style="font-size:0.78rem;color:var(--text-muted);">${j.started_at ? new Date(j.started_at).toLocaleString('it-IT') : '—'}</td>
+              <td style="color:var(--text-muted);">${dur}</td>
+              <td style="text-align:center;">${j.articles_fetched}</td>
+              <td style="text-align:center;color:#22d47a;font-weight:600;">${j.events_created}</td>
+              <td style="text-align:center;color:#4f9eff;">${j.events_renewed}</td>
+              <td style="text-align:center;color:#ffb400;">${j.events_resolved}</td>
+              <td><button class="btn btn-outline btn-sm" onclick="showJobDetail(${j.id})" style="font-size:0.72rem;">Dettaglio</button></td>
+            </tr>
+            ${j.error_text ? `<tr><td colspan="9" style="font-size:0.75rem;color:#ff4757;padding:4px 12px;">⚠️ ${j.error_text}</td></tr>` : ''}`;
+          }).join('')}
+        </tbody>
+      </table>`;
+  } catch(e) { console.warn('[AI jobs]', e); }
+}
+
+async function showJobDetail(jobId) {
+  try {
+    const articles = await Api.get(`/api/admin/ai/jobs/${jobId}/articles`);
+    const actions = { created:'➕ Creato', renewed:'🔄 Rinnovato', resolved:'✅ Risolto', ignored:'— Ignorato' };
+    const aColors = { created:'#22d47a', renewed:'#4f9eff', resolved:'#ffb400', ignored:'rgba(255,255,255,0.3)' };
+    const html = `
+      <div style="max-height:70vh;overflow-y:auto;">
+        <table class="admin-table" style="font-size:0.78rem;">
+          <thead><tr><th>Rilevante</th><th>Azione</th><th>Titolo Articolo</th><th>Fonte</th></tr></thead>
+          <tbody>
+            ${articles.map(a => `<tr>
+              <td style="text-align:center;">${a.is_relevant ? '🟢' : '⚪'}</td>
+              <td style="color:${aColors[a.action]||'#fff'};font-weight:600;white-space:nowrap;">${actions[a.action]||a.action}</td>
+              <td>${a.url ? `<a href="${a.url}" target="_blank" style="color:#4f9eff;text-decoration:none;">${(a.title||'').slice(0,80)}</a>` : (a.title||'').slice(0,80)}</td>
+              <td style="color:var(--text-muted);">${a.source}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+        ${!articles.length ? '<p style="color:var(--text-muted);padding:12px;text-align:center;">Nessun articolo registrato per questo job.</p>' : ''}
+      </div>`;
+    showModal(`📋 Dettaglio Job #${jobId} — ${articles.length} articoli`, html);
+  } catch(e) { showToast('Errore caricamento dettaglio', 'error'); }
+}
+
+async function loadAIEvents() {
+  try {
+    aiEventsAll = await Api.get('/api/admin/ai/events');
+    renderAIEvents();
+  } catch(e) { console.warn('[AI events]', e); }
+}
+
+function filterAIEvents(f) {
+  aiEventsFilter = f;
+  ['all','active','resolved','expired'].forEach(x => {
+    const btn = document.getElementById('ef-'+x);
+    if (!btn) return;
+    btn.className = x === f ? 'btn btn-sm' : 'btn btn-outline btn-sm';
+  });
+  renderAIEvents();
+}
+
+function renderAIEvents() {
+  const el = document.getElementById('ai-events-list');
+  if (!el) return;
+  const list = aiEventsFilter === 'all' ? aiEventsAll : aiEventsAll.filter(e => e.status === aiEventsFilter);
+  if (!list.length) { el.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;padding:12px 0;">Nessun evento trovato.</p>'; return; }
+  const catIcons = {conflict:'⚔️',disaster:'🌊',migration:'🚶',diplomatic:'🤝',political:'🏛️',tension:'⚡',crisis:'🚨',economic:'📉'};
+  const magColors = ['','#4f9eff','#ffb400','#ff8c00','#ff4757'];
+  el.innerHTML = `
+    <table class="admin-table">
+      <thead><tr>
+        <th>Evento</th><th>Tipo</th><th>Mag.</th><th>Score</th>
+        <th>Scadenza</th><th>Stato</th><th>Azioni</th>
+      </tr></thead>
+      <tbody>
+        ${list.map(e => {
+          const exp = e.expiresAt ? new Date(e.expiresAt).toLocaleDateString('it-IT') : '∞';
+          const stColors = {active:'#22d47a',resolved:'#4f9eff',expired:'rgba(255,255,255,0.35)'};
+          const scoreBar = Math.max(0, Math.min(100, e.relevanceScore||0));
+          return `<tr>
+            <td>
+              <div style="font-weight:600;color:#f0f4ff;font-size:0.85rem;">${e.manualLock?'🔒 ':''}${e.title}</div>
+              ${e.aiSummary ? `<div style="font-size:0.73rem;color:var(--text-muted);margin-top:2px;">${e.aiSummary.slice(0,70)}</div>` : ''}
+              ${e.sourceUrl ? `<a href="${e.sourceUrl}" target="_blank" style="font-size:0.7rem;color:#4f9eff;text-decoration:none;">🔗 Fonte</a>` : ''}
+            </td>
+            <td style="white-space:nowrap;">${catIcons[e.category]||'🌍'} ${e.category}</td>
+            <td style="color:${magColors[e.magnitude]||'#fff'};font-weight:700;font-size:1rem;text-align:center;">${e.magnitude}</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div style="width:50px;height:5px;border-radius:3px;background:rgba(255,255,255,0.1);overflow:hidden;">
+                  <div style="width:${scoreBar}%;height:100%;background:${scoreBar>60?'#22d47a':scoreBar>30?'#ffb400':'#ff4757'};border-radius:3px;transition:.3s;"></div>
+                </div>
+                <span style="font-size:0.78rem;color:var(--text-muted);">${scoreBar}</span>
+              </div>
+            </td>
+            <td style="font-size:0.78rem;color:var(--text-muted);white-space:nowrap;">${exp}</td>
+            <td><span style="color:${stColors[e.status]||'#fff'};font-size:0.78rem;font-weight:600;">${e.status.toUpperCase()}</span></td>
+            <td>
+              <div style="display:flex;gap:5px;flex-wrap:wrap;">
+                <button class="btn btn-outline btn-sm" title="${e.manualLock?'Sblocca':'Blocca permanente'}"
+                  onclick="aiLockEvent('${e.id}')" style="font-size:0.7rem;min-width:0;padding:3px 7px;">
+                  ${e.manualLock?'🔓':'🔒'}
+                </button>
+                ${e.status!=='resolved'?`<button class="btn btn-outline btn-sm" title="Segna come risolto"
+                  onclick="aiResolveEvent('${e.id}')" style="font-size:0.7rem;min-width:0;padding:3px 7px;color:#22d47a;">✅</button>`:''}
+                ${e.status==='active'?`<button class="btn btn-outline btn-sm" title="Estendi di 7 giorni"
+                  onclick="aiExtendEvent('${e.id}')" style="font-size:0.7rem;min-width:0;padding:3px 7px;color:#4f9eff;">+7g</button>`:''}
+                ${e.status!=='active'?`<button class="btn btn-outline btn-sm" title="Riattiva"
+                  onclick="aiReactivateEvent('${e.id}')" style="font-size:0.7rem;min-width:0;padding:3px 7px;color:#ffb400;">▶</button>`:''}
+                <button class="btn btn-outline btn-sm" title="Elimina"
+                  onclick="aiDeleteEvent('${e.id}')" style="font-size:0.7rem;min-width:0;padding:3px 7px;color:#ff4757;">🗑</button>
+              </div>
+            </td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+async function aiLockEvent(id) {
+  try {
+    const r = await Api.put(`/api/admin/ai/events/${id}/lock`, {});
+    showToast(r.manualLock ? '🔒 Evento bloccato — non scadrà automaticamente' : '🔓 Blocco rimosso', 'success');
+    loadAIEvents();
+  } catch(e) { showToast(e.message||'Errore', 'error'); }
+}
+async function aiResolveEvent(id) {
+  if (!confirm('Segna questo evento come risolto? Sparirà dalla mappa.')) return;
+  try { await Api.put(`/api/admin/ai/events/${id}/resolve`, {}); showToast('Evento segnato come risolto','success'); loadAIEvents(); loadAIStatus(); }
+  catch(e) { showToast(e.message||'Errore','error'); }
+}
+async function aiExtendEvent(id) {
+  try { await Api.put(`/api/admin/ai/events/${id}/extend`, { days: 7 }); showToast('Scadenza estesa di 7 giorni','success'); loadAIEvents(); }
+  catch(e) { showToast(e.message||'Errore','error'); }
+}
+async function aiReactivateEvent(id) {
+  try { await Api.put(`/api/admin/ai/events/${id}/reactivate`, {}); showToast('Evento riattivato per 7 giorni','success'); loadAIEvents(); loadAIStatus(); }
+  catch(e) { showToast(e.message||'Errore','error'); }
+}
+async function aiDeleteEvent(id) {
+  if (!confirm('Eliminare definitivamente questo evento AI?')) return;
+  try { await Api.delete(`/api/admin/ai/events/${id}`); showToast('Evento eliminato','success'); loadAIEvents(); loadAIStatus(); }
+  catch(e) { showToast(e.message||'Errore','error'); }
+}
+
+function switchAITab(tab) {
+  ['jobs','events','docs'].forEach(t => {
+    const panel = document.getElementById(`ai-panel-${t}`);
+    const btn   = document.getElementById(`ai-tab-${t}`);
+    if (panel) panel.style.display = t === tab ? '' : 'none';
+    if (btn) {
+      btn.style.borderBottomColor = t === tab ? 'var(--accent-blue)' : 'transparent';
+      btn.style.color             = t === tab ? '#f0f4ff' : 'var(--text-muted)';
+    }
+  });
+  if (tab === 'events') loadAIEvents();
+  if (tab === 'jobs')   loadAIJobs();
+}
+
+function showModal(title, bodyHtml) {
+  let modal = document.getElementById('generic-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'generic-modal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+    modal.onclick = e => { if(e.target===modal) modal.remove(); };
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML = `
+    <div style="background:var(--panel-bg,#0d1f35);border:1px solid rgba(79,158,255,0.2);border-radius:14px;max-width:800px;width:100%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;">
+      <div style="padding:16px 20px;border-bottom:1px solid rgba(79,158,255,0.15);display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-weight:700;color:#f0f4ff;font-size:0.95rem;">${title}</span>
+        <button onclick="document.getElementById('generic-modal').remove()" style="background:none;border:none;color:var(--text-muted);font-size:1.3rem;cursor:pointer;line-height:1;">×</button>
+      </div>
+      <div style="padding:16px 20px;overflow-y:auto;">${bodyHtml}</div>
+    </div>`;
+}
+</script>
+<script src="js/cookie-banner.js"></script>
+</body>
+</html>

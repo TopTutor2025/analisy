@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registrati — Analisy</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="auth-page">
+  <div class="auth-container" style="max-width:520px;">
+
+    <div class="auth-logo">
+      <a href="index.html">
+        <span style="display:inline-flex;align-items:center;gap:10px;">
+          <span style="width:36px;height:36px;background:rgba(6,14,26,0.9);border:1px solid rgba(79,158,255,0.3);border-radius:9px;display:inline-flex;align-items:center;justify-content:center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 26" width="22" height="20"><line x1="7" y1="1" x2="7" y2="5" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/><rect x="3" y="5" width="8" height="13" rx="1.5" fill="white"/><line x1="7" y1="18" x2="7" y2="22" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/><line x1="21" y1="2" x2="21" y2="7" stroke="#e8344e" stroke-width="2" stroke-linecap="round"/><rect x="17" y="7" width="8" height="9" rx="1.5" fill="#e8344e"/><line x1="21" y1="16" x2="21" y2="22" stroke="#e8344e" stroke-width="2" stroke-linecap="round"/></svg></span>
+          analisy
+        </span>
+      </a>
+    </div>
+
+    <div class="auth-card">
+      <h2>Crea il tuo account</h2>
+      <p class="auth-sub">Inizia gratis — nessuna carta di credito richiesta</p>
+
+      <div class="form-error" id="reg-error"></div>
+
+      <form id="register-form" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" placeholder="Mario" autocomplete="given-name" required />
+          </div>
+          <div class="form-group">
+            <label for="cognome">Cognome</label>
+            <input type="text" id="cognome" placeholder="Rossi" autocomplete="family-name" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Indirizzo email</label>
+          <input type="email" id="email" placeholder="mario@esempio.com" autocomplete="email" required />
+        </div>
+
+        <div class="form-group">
+          <label for="telefono">Numero di telefono</label>
+          <input type="tel" id="telefono" placeholder="+39 333 123 4567" autocomplete="tel" required />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Minimo 8 caratteri" autocomplete="new-password" required />
+        </div>
+
+        <div class="form-group">
+          <label for="password2">Conferma password</label>
+          <input type="password" id="password2" placeholder="Ripeti la password" autocomplete="new-password" required />
+        </div>
+
+        <div class="form-check">
+          <input type="checkbox" id="age-check" required />
+          <label for="age-check">
+            Dichiaro di avere la <strong>maggiore età</strong> (18+ anni) e di essere consapevole che i contenuti della piattaforma sono rivolti a un pubblico adulto.
+          </label>
+        </div>
+
+        <div class="form-check">
+          <input type="checkbox" id="terms-check" required />
+          <label for="terms-check">
+            Accetto i <a href="#">Termini e Condizioni</a> e la <a href="#">Privacy Policy</a> di Analisy.
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary auth-submit">Crea account gratuito</button>
+      </form>
+
+      <p class="auth-footer-text">
+        Hai già un account? <a href="login.html">Accedi</a>
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+<script>
+  if (Auth.isLoggedIn()) {
+    window.location.href = Auth.isAdmin() ? 'admin.html' : 'dashboard.html';
+  }
+
+  document.getElementById('register-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const errorEl = document.getElementById('reg-error');
+
+    const nome      = document.getElementById('nome').value.trim();
+    const cognome   = document.getElementById('cognome').value.trim();
+    const email     = document.getElementById('email').value.trim().toLowerCase();
+    const telefono  = document.getElementById('telefono').value.trim();
+    const password  = document.getElementById('password').value;
+    const password2 = document.getElementById('password2').value;
+    const ageCheck  = document.getElementById('age-check').checked;
+    const termsCheck= document.getElementById('terms-check').checked;
+
+    function showError(msg) { errorEl.textContent = msg; errorEl.classList.add('show'); }
+    errorEl.classList.remove('show');
+
+    if (!nome || !cognome)              return showError('Inserisci nome e cognome.');
+    if (!email || !email.includes('@')) return showError('Inserisci un indirizzo email valido.');
+    if (!telefono)                      return showError('Inserisci il numero di telefono.');
+    if (password.length < 6)            return showError('La password deve essere di almeno 6 caratteri.');
+    if (password !== password2)         return showError('Le password non coincidono.');
+    if (!ageCheck)                      return showError('Devi dichiarare di avere la maggiore età.');
+    if (!termsCheck)                    return showError('Devi accettare i Termini e Condizioni.');
+
+    const btn = this.querySelector('button[type=submit]');
+    btn.disabled = true;
+    btn.textContent = 'Creazione account…';
+
+    try {
+      await Auth.register({ nome, cognome, email, password, telefono });
+      showToast('Account creato con successo! Benvenuto in Analisy.', 'success');
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 600);
+    } catch(err) {
+      showError(err.message || 'Errore durante la registrazione. Riprova.');
+      btn.disabled = false;
+      btn.textContent = 'Crea account';
+    }
+  });
+</script>
+<script src="js/cookie-banner.js"></script>
+</body>
+</html>

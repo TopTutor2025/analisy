@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analisy — Il modo rivoluzionario di interpretare il mondo</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════ NAVBAR ═══════════════════════════ -->
+<nav class="navbar" id="main-navbar">
+  <div class="container">
+    <div class="navbar-inner">
+
+      <a href="index.html" class="navbar-logo">
+        <div class="logo-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 26" width="22" height="20"><line x1="7" y1="1" x2="7" y2="5" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/><rect x="3" y="5" width="8" height="13" rx="1.5" fill="white"/><line x1="7" y1="18" x2="7" y2="22" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/><line x1="21" y1="2" x2="21" y2="7" stroke="#e8344e" stroke-width="2" stroke-linecap="round"/><rect x="17" y="7" width="8" height="9" rx="1.5" fill="#e8344e"/><line x1="21" y1="16" x2="21" y2="22" stroke="#e8344e" stroke-width="2" stroke-linecap="round"/></svg></div>
+        analisy
+      </a>
+
+      <ul class="navbar-nav">
+        <li><a href="#perche-analisy">Perché Analisy</a></li>
+        <li><a href="#come-funziona">Come funziona</a></li>
+        <li><a href="situation-room.html">Situation Room</a></li>
+        <li><a href="situation-room.html#community">Community</a></li>
+      </ul>
+
+      <div class="navbar-actions" id="navbar-actions">
+        <!-- populated by app.js based on auth state -->
+        <a href="login.html" class="btn-accedi">Accedi</a>
+        <button class="theme-toggle-btn" id="theme-toggle-btn" title="Cambia tema" onclick="toggleTheme()">🌙</button>
+        <button class="help-btn" title="Aiuto" onclick="document.getElementById('help-modal').classList.add('open')">?</button>
+        <a href="situation-room.html" class="btn btn-primary btn-sm">Situation Room</a>
+      </div>
+
+    </div>
+  </div>
+</nav>
+
+
+<!-- ═══════════════════════════ HERO ═══════════════════════════ -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-inner">
+
+      <div class="hero-content fade-in">
+
+        <h1 class="hero-title">
+          Il modo rivoluzionario<br>di <span>interpretare</span><br>il mondo
+        </h1>
+
+        <p class="hero-desc">
+          Analisy porta l'intelligence geopolitica, economica e tecnologica
+          nelle tue mani con un approccio di visione d'insieme che nessun
+          altro media offre.
+        </p>
+
+        <div class="hero-features">
+          <div class="hero-feature-item">Situation Room con visualizzatore mondiale interattivo</div>
+          <div class="hero-feature-item">Analisi integrate: geopolitica, business, tecnologia</div>
+          <div class="hero-feature-item">Mercati in tempo reale e city cam dalle zone di crisi</div>
+        </div>
+
+        <div class="hero-cta">
+          <a href="situation-room.html" class="btn btn-primary btn-lg">Accedi alla Situation Room</a>
+          <a href="register.html" class="btn btn-outline btn-lg">Iscriviti gratis</a>
+        </div>
+        <div class="hero-guarantee">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Contenuti pubblici sempre gratuiti &mdash; abbonamento per le analisi premium
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="hero-map-wrapper">
+          <div id="hero-map"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════ FEATURES SECTION ═══════════════════════ -->
+<section class="features-section section" id="perche-analisy">
+  <div class="container">
+    <div class="section-header">
+      <h2>Molto più di una piattaforma<br>di informazione</h2>
+      <p>Analisy integra dati, analisi e visualizzazione in un'unica esperienza pensata per chi vuole capire davvero il mondo.</p>
+    </div>
+
+    <div class="features-grid">
+
+      <!-- Card person placeholder -->
+      <div class="feature-card card-person">
+        <div class="person-img-placeholder">🌍</div>
+        <div class="card-platforms">
+          <div class="platform-icon" title="Web">🌐</div>
+          <div class="platform-icon" title="Mobile">📱</div>
+          <div class="platform-icon" title="Tablet">💻</div>
+        </div>
+        <p style="margin-top:12px; font-size:0.82rem;">Disponibile su tutti i dispositivi</p>
+      </div>
+
+      <!-- Speed card -->
+      <div class="feature-card card-speed">
+        <div class="card-tag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Situation Room
+        </div>
+        <h3>Il visualizzatore<br>geopolitico più avanzato</h3>
+        <p>Mappa mondiale interattiva con eventi, tratte e risorse in tempo reale. Tutto in un'unica schermata.</p>
+        <a class="card-link" href="situation-room.html">Esplora la Situation Room →</a>
+      </div>
+
+      <!-- Flags card -->
+      <div class="feature-card card-flags">
+        <div class="card-tag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+          Copertura Globale
+        </div>
+        <div class="card-flags-row">🇮🇹 🇺🇸 🇨🇳 🇷🇺 🇩🇪 🇬🇧</div>
+        <p>Analisi da oltre 195 paesi. Corrispondenti e fonti verificate in ogni area geopolitica chiave.</p>
+      </div>
+
+      <!-- Map card -->
+      <div class="feature-card card-map">
+        <div class="card-map-mini" id="feature-mini-map">
+          <div class="globe-label">Globale<br><span class="globe-sublabel">rete di monitoraggio</span></div>
+        </div>
+        <div class="card-tag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+          Tratte &amp; Risorse
+        </div>
+        <h3>Tratte migratorie, cavi<br>sottomarini e risorse</h3>
+        <p>Visualizza le principali tratte del mondo e le zone di interesse strategico delle risorse globali.</p>
+      </div>
+
+      <!-- Dark monitor -->
+      <div class="feature-card card-dark threat-card">
+        <div class="threat-badge">Threat Intelligence</div>
+        <h3>Protezione<br>dall'infodemia</h3>
+        <p style="font-size:0.82rem; margin-bottom:12px;">Analisi verificate da esperti per non cadere nella disinformazione.</p>
+        <div class="threat-stats">
+          <div class="threat-stat">
+            <div class="threat-dot" style="width:8px;height:8px;border-radius:50%;background:#9b59ff;flex-shrink:0"></div>
+            Anti-disinformazione
+          </div>
+          <div class="threat-stat">
+            <div class="threat-dot" style="width:8px;height:8px;border-radius:50%;background:#4f9eff;flex-shrink:0"></div>
+            Fonti verificate
+          </div>
+          <div class="threat-stat">
+            <div class="threat-dot" style="width:8px;height:8px;border-radius:50%;background:#00d4aa;flex-shrink:0"></div>
+            Bias check attivo
+          </div>
+        </div>
+      </div>
+
+      <!-- AI card -->
+      <div class="feature-card card-ai" style="background: linear-gradient(135deg,rgba(79,158,255,0.08),var(--bg-card))">
+        <div class="card-tag" style="color:var(--accent-purple);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2z"/><path d="M12 8v4l3 3"/></svg>
+          Video Podcast
+        </div>
+        <h3>Analisi<br>audiovisive</h3>
+        <p style="font-size:0.82rem;">I nostri esperti commentano gli eventi in formato video podcast.</p>
+      </div>
+
+      <!-- Wide card -->
+      <div class="feature-card card-wide">
+        <div style="flex:1">
+          <div class="card-tag" style="color:var(--accent-teal);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            City Cam Live
+          </div>
+          <h3>Occhi nelle zone di crisi</h3>
+          <p>Feed live dalle principali città in conflitto o aree di tensione geopolitica. Aggiornamento in tempo reale 24/7.</p>
+        </div>
+        <div style="flex:1; display:grid; grid-template-columns:repeat(3,1fr); gap:8px;">
+          <div style="background:var(--bg-dark);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;font-size:0.75rem;color:var(--text-muted);">🇺🇦 Kyiv</div>
+          <div style="background:var(--bg-dark);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;font-size:0.75rem;color:var(--text-muted);">🇵🇸 Gaza</div>
+          <div style="background:var(--bg-dark);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;font-size:0.75rem;color:var(--text-muted);">🇸🇩 Khartoum</div>
+        </div>
+        <div style="flex:1">
+          <div class="card-tag" style="color:var(--accent-green);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            Mercati
+          </div>
+          <h3>Materie prime in tempo reale</h3>
+          <p>Petrolio, gas, metalli, cereali: il polso dell'economia globale, con contesto geopolitico integrato.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════ STATS SECTION ═══════════════════════ -->
+<section class="stats-section" id="come-funziona">
+  <div class="container" style="position:relative;z-index:1;">
+    <h2>Scopri quanto possono essere<br>determinanti gli eventi globali</h2>
+
+    <div class="stats-grid">
+      <div class="stats-main">
+        <div class="stats-numbers">
+          <div class="stat-item">
+            <div class="stat-number">1.200+</div>
+            <div class="stat-desc">eventi geopolitici monitorati nel 2024</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">3,8 miliardi</div>
+            <div class="stat-desc">di persone in aree ad alto rischio geopolitico</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">195 paesi</div>
+            <div class="stat-desc">sotto monitoraggio continuo nella Situation Room</div>
+          </div>
+        </div>
+        <!-- Chart SVG -->
+        <div class="stat-chart">
+          <svg viewBox="0 0 600 80" style="width:100%;height:80px;" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="chartGrad1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#4f9eff" stop-opacity="0.4"/>
+                <stop offset="100%" stop-color="#4f9eff" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="chartGrad2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00c2e0" stop-opacity="0.5"/>
+                <stop offset="100%" stop-color="#00c2e0" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0,65 C50,60 100,50 150,45 C200,40 220,55 270,40 C320,25 360,35 400,20 C440,10 480,15 530,8 C555,5 580,3 600,2 L600,80 L0,80 Z" fill="url(#chartGrad1)"/>
+            <path d="M0,65 C50,60 100,50 150,45 C200,40 220,55 270,40 C320,25 360,35 400,20 C440,10 480,15 530,8 C555,5 580,3 600,2" fill="none" stroke="#4f9eff" stroke-width="2"/>
+            <path d="M0,70 C60,65 110,58 170,52 C220,48 260,58 310,50 C360,42 400,48 450,35 C490,25 540,22 600,18 L600,80 L0,80 Z" fill="url(#chartGrad2)" opacity="0.5"/>
+            <path d="M0,70 C60,65 110,58 170,52 C220,48 260,58 310,50 C360,42 400,48 450,35 C490,25 540,22 600,18" fill="none" stroke="#00c2e0" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="stats-side">
+        <div class="stat-side-card">
+          <div class="stat-icon">⏱</div>
+          <div class="side-number">48h</div>
+          <p style="font-size:0.82rem; margin-bottom:12px;">tempo medio di risposta editoriale a nuovi scenari globali</p>
+          <div class="side-bar"><div class="side-bar-fill" style="width:75%"></div></div>
+          <p style="font-size:0.78rem; color:var(--text-muted);">vs 5+ giorni media tradizionale</p>
+        </div>
+        <div class="stat-side-card">
+          <div class="stat-icon">🎯</div>
+          <div class="side-number">31%</div>
+          <p style="font-size:0.82rem; margin-bottom:12px;">dei conflitti inizia con crisi economiche non rilevate nei media mainstream.</p>
+          <div class="side-bar"><div class="side-bar-fill" style="width:31%"></div></div>
+        </div>
+        <div class="stat-side-card">
+          <div class="stat-icon">🔒</div>
+          <div class="side-number">Meno di 1%</div>
+          <p style="font-size:0.82rem;">della popolazione accede ad analisi geopolitiche di qualità. Analisy cambia questo.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════ HOW IT WORKS ═══════════════════════ -->
+<section class="how-section section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Come funziona Analisy</h2>
+      <p>In tre semplici passi accedi a un livello di informazione che prima richiedeva ore di ricerca</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3>Iscriviti gratuitamente</h3>
+        <p>Crea il tuo account in meno di 2 minuti. Accesso immediato alle analisi pubbliche e alla Situation Room base.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3>Esplora la Situation Room</h3>
+        <p>Naviga la mappa mondiale interattiva. Attiva e disattiva i layer: tratte, risorse, eventi, city cam.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3>Abbonati per le analisi premium</h3>
+        <p>Sblocca tutte le analisi approfondite, i report esclusivi e i video podcast degli esperti.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════ PRICING ═══════════════════════ -->
+<section class="pricing-section section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Scegli il tuo piano</h2>
+      <p>Inizia gratuitamente, aggiorna quando vuoi</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-name">Free</div>
+        <div class="pricing-price">€0</div>
+        <div class="pricing-period">per sempre gratuito</div>
+        <ul class="pricing-features">
+          <li>Accesso alla Situation Room base</li>
+          <li>Analisi pubbliche (aggiornate settimanalmente)</li>
+          <li>Visualizzatore mappa interattiva</li>
+          <li>Tratte e risorse base</li>
+          <li class="disabled">Analisi premium per abbonati</li>
+          <li class="disabled">City Cam live</li>
+          <li class="disabled">Report esclusivi</li>
+        </ul>
+        <a href="register.html" class="btn btn-outline">Inizia gratis</a>
+      </div>
+      <div class="pricing-card featured">
+        <div class="pricing-badge">Più popolare</div>
+        <div class="pricing-name">Premium</div>
+        <div class="pricing-price">€2,99 <span>/mese</span></div>
+        <div class="pricing-period">fatturazione mensile</div>
+        <ul class="pricing-features">
+          <li>Tutto del piano Free</li>
+          <li>Tutte le analisi premium</li>
+          <li>City Cam live dalle zone di crisi</li>
+          <li>Video podcast completi</li>
+          <li>Mercati in tempo reale</li>
+          <li>Newsletter settimanale</li>
+          <li class="disabled">Accesso alla Community forum</li>
+        </ul>
+        <a href="register.html" class="btn btn-primary">Abbonati ora</a>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-name">Pro</div>
+        <div class="pricing-price">€3,99 <span>/mese</span></div>
+        <div class="pricing-period">fatturazione mensile</div>
+        <ul class="pricing-features">
+          <li>Tutto del piano Premium</li>
+          <li>Accesso alla Community forum</li>
+          <li>Pubblica discussioni e risposte</li>
+          <li>Badge Pro sul profilo</li>
+          <li>Supporto prioritario</li>
+          <li>Accesso anticipato ai nuovi contenuti</li>
+          <li>Analisi personalizzate su richiesta</li>
+        </ul>
+        <a href="register.html" class="btn btn-outline">Inizia con Pro</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════ CTA ═══════════════════════ -->
+<section class="cta-section">
+  <div class="container">
+    <h2>Pronto a vedere il mondo<br>da una prospettiva diversa?</h2>
+    <p>Unisciti a migliaia di analisti, giornalisti, imprenditori e cittadini informati.</p>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+      <a href="situation-room.html" class="btn btn-primary btn-lg">Entra nella Situation Room</a>
+      <a href="register.html" class="btn btn-outline btn-lg">Crea account gratuito</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="navbar-logo" style="display:inline-flex;margin-bottom:12px;">
+          <div class="logo-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 26" width="22" height="20"><line x1="7" y1="1" x2="7" y2="5" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/><rect x="3" y="5" width="8" height="13" rx="1.5" fill="white"/><line x1="7" y1="18" x2="7" y2="22" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/><line x1="21" y1="2" x2="21" y2="7" stroke="#e8344e" stroke-width="2" stroke-linecap="round"/><rect x="17" y="7" width="8" height="9" rx="1.5" fill="#e8344e"/><line x1="21" y1="16" x2="21" y2="22" stroke="#e8344e" stroke-width="2" stroke-linecap="round"/></svg></div>
+          analisy
+        </div>
+        <p>La piattaforma di analisi geopolitica, business e tecnologia per chi vuole capire il mondo.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Prodotto</h4>
+        <ul>
+          <li><a href="situation-room.html">Situation Room</a></li>
+          <li><a href="#perche-analisy">Perché Analisy</a></li>
+          <li><a href="#come-funziona">Come funziona</a></li>
+          <li><a href="#">Prezzi</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Categorie</h4>
+        <ul>
+          <li><a href="#">Geopolitica</a></li>
+          <li><a href="#">Politica Nazionale</a></li>
+          <li><a href="#">Business</a></li>
+          <li><a href="#">Tecnologia</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legale</h4>
+        <ul>
+          <li><a href="termini-condizioni.html">Termini e Condizioni</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="cookie-policy.html">Cookie Policy</a></li>
+          <li><a href="#">Contatti</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Analisy. Tutti i diritti riservati.</span>
+      <div class="footer-links">
+        <a href="privacy-policy.html">Privacy</a>
+        <a href="termini-condizioni.html">Termini</a>
+        <a href="cookie-policy.html">Cookie</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<!-- Help modal -->
+<div class="modal-overlay" id="help-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Hai bisogno di aiuto?</h3>
+      <button class="modal-close" onclick="document.getElementById('help-modal').classList.remove('open')">✕</button>
+    </div>
+    <p style="margin-bottom:16px;">Benvenuto in Analisy. Ecco cosa puoi fare:</p>
+    <ul style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
+      <li style="font-size:0.9rem;color:var(--text-secondary);display:flex;gap:8px;"><span style="color:var(--accent-blue);">→</span> <a href="situation-room.html" style="color:var(--accent-blue);">Entra nella Situation Room</a> per esplorare la mappa interattiva</li>
+      <li style="font-size:0.9rem;color:var(--text-secondary);display:flex;gap:8px;"><span style="color:var(--accent-blue);">→</span> <a href="register.html" style="color:var(--accent-blue);">Crea un account</a> per accedere alle analisi</li>
+      <li style="font-size:0.9rem;color:var(--text-secondary);display:flex;gap:8px;"><span style="color:var(--accent-blue);">→</span> Abbonati per sbloccare tutti i contenuti premium</li>
+    </ul>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="document.getElementById('help-modal').classList.remove('open')">Ho capito</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/app.js"></script>
+<script>
+  // Hero map initialization
+  const heroMap = L.map('hero-map', {
+    zoomControl: false,
+    attributionControl: true,
+    scrollWheelZoom: false,
+    dragging: false,
+    doubleClickZoom: false,
+    touchZoom: false,
+    center: [20, 15],
+    zoom: 2
+  });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap © CARTO',
+    subdomains: 'abcd',
+    maxZoom: 19
+  }).addTo(heroMap);
+
+  // Hero map events (teaser)
+  const heroEvents = [
+    { latlng: [50.4, 30.5],  title: 'Conflitto in Ucraina',    type: 'CONFLITTO', color: '#e8344e' },
+    { latlng: [31.3, 34.5],  title: 'Crisi a Gaza',            type: 'CRISI',     color: '#e8344e' },
+    { latlng: [24, 121],     title: 'Tensioni nello Stretto',   type: 'TENSIONE',  color: '#f5c842' },
+    { latlng: [14, 0],       title: 'Instabilità Sahel',        type: 'CRISI',     color: '#ff7043' },
+    { latlng: [15.6, 32.5],  title: 'Sudan: guerra civile',     type: 'CONFLITTO', color: '#e8344e' },
+    { latlng: [12, 114],     title: 'Mar Cinese Meridionale',   type: 'TENSIONE',  color: '#f5c842' },
+    { latlng: [35, 52],      title: 'Dossier nucleare Iran',    type: 'POLITICO',  color: '#4f9eff' },
+  ];
+
+  heroEvents.forEach(ev => {
+    const icon = L.divIcon({
+      className: '',
+      html: `<div class="pulse-marker mag-2">
+        <div class="pulse-dot" style="background:${ev.color};border-radius:50%;width:12px;height:12px;position:relative;z-index:2;box-shadow:0 0 8px ${ev.color}80;"></div>
+        <div class="pulse-ring" style="color:${ev.color};border-color:${ev.color};"></div>
+        <div class="pulse-ring pulse-ring-2" style="color:${ev.color};border-color:${ev.color};"></div>
+      </div>`,
+      iconSize: [12, 12],
+      iconAnchor: [6, 6]
+    });
+    L.marker(ev.latlng, { icon })
+      .addTo(heroMap)
+      .bindPopup(`<div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:${ev.color};margin-bottom:2px;">${ev.type}</div><div style="font-size:0.85rem;font-weight:600;">${ev.title}</div>`, { maxWidth: 160 });
+  });
+
+  // Navbar scroll effect
+  // Theme toggle (hero map tiles stay dark regardless)
+  function toggleTheme() {
+    const isLight = document.body.classList.toggle('light-mode');
+    localStorage.setItem('analisy_theme', isLight ? 'light' : 'dark');
+    document.getElementById('theme-toggle-btn').textContent = isLight ? '☀️' : '🌙';
+  }
+  // Restore saved theme
+  (function() {
+    if (localStorage.getItem('analisy_theme') === 'light') {
+      document.body.classList.add('light-mode');
+      const btn = document.getElementById('theme-toggle-btn');
+      if (btn) btn.textContent = '☀️';
+    }
+  })();
+</script>
+<script src="js/cookie-banner.js"></script>
+</body>
+</html>

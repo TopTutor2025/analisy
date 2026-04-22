@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Analisy</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    /* ══════════════════════════════════════════════════
+       v3 Dark — Dashboard Utente (#000 / #111113 · Red · GreenRad)
+    ══════════════════════════════════════════════════ */
+
+    :root {
+      --bg-primary:    #000000;
+      --bg-secondary:  #111113;
+      --bg-card:       #111113;
+      --border:        rgba(255,255,255,0.06);
+      --border-hover:  rgba(255,255,255,0.12);
+      --text-primary:  rgba(235,235,245,0.92);
+      --text-secondary:rgba(235,235,245,0.55);
+      --text-muted:    rgba(235,235,245,0.28);
+      --accent-red:    #e8344e;
+      --accent-green:  #39ff14;
+      --accent-blue:   #0a84ff;
+      --accent-yellow: #ffd60a;
+      --accent-purple: #bf5af2;
+    }
+
+    * { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif !important; }
+
+    /* 1 · Layout */
+    body { background: #000; }
+    .dashboard-layout { background: #000; }
+
+    /* 2 · Sidebar */
+    .dashboard-sidebar {
+      background: #111113;
+      border-right: 1px solid rgba(255,255,255,0.06);
+      width: 220px;
+    }
+    .dashboard-main { margin-left: 220px; padding: 0; }
+
+    .sidebar-logo {
+      padding: 18px 16px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 6px;
+    }
+    .sidebar-logo a { font-size: 1.12rem; font-weight: 800; letter-spacing: -0.03em; }
+
+    /* Nav items */
+    .sidebar-nav { padding: 6px 10px; gap: 2px; }
+    .sidebar-nav a {
+      border-radius: 8px; padding: 8px 12px;
+      font-size: 0.82rem; font-weight: 500;
+      color: rgba(235,235,245,0.42);
+      border-left: none; gap: 9px;
+      transition: background 0.13s, color 0.13s;
+    }
+    .sidebar-nav a:hover { background: rgba(255,255,255,0.05); color: rgba(235,235,245,0.82); }
+    .sidebar-nav a.active {
+      background: rgba(57,255,20,0.1);
+      color: #39ff14;
+      border-left: none;
+    }
+    .sidebar-nav a svg { width: 15px; height: 15px; opacity: 0.7; }
+
+    .sidebar-user {
+      padding: 12px 14px 0;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .sidebar-user .user-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      font-size: 0.75rem;
+      background: rgba(57,255,20,0.12);
+      color: #39ff14;
+    }
+    .sidebar-user .user-name { font-size: 0.8rem; font-weight: 600; }
+    .sidebar-user .user-role { font-size: 0.7rem; color: rgba(235,235,245,0.32); }
+
+    /* 3 · Topbar */
+    .dashboard-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; height: 52px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 0; background: #111113;
+      position: sticky; top: 0; z-index: 90;
+    }
+    .dashboard-header > div:first-child { display: flex; align-items: center; gap: 10px; }
+    .dashboard-header h1 {
+      font-size: 0.9rem; font-weight: 600;
+      text-transform: none; letter-spacing: 0;
+      color: rgba(235,235,245,0.82); margin: 0;
+    }
+    .dashboard-header p { display: none; }
+    .dashboard-header .btn-outline {
+      border-radius: 20px; font-size: 0.74rem; padding: 5px 14px;
+      border-color: rgba(255,255,255,0.1) !important;
+      color: rgba(235,235,245,0.42); font-weight: 500;
+    }
+    .dashboard-header .btn-outline:hover {
+      border-color: rgba(255,255,255,0.2) !important;
+      color: rgba(235,235,245,0.82); background: rgba(255,255,255,0.05);
+    }
+    .dashboard-header .btn-primary {
+      border-radius: 20px !important; font-size: 0.74rem; padding: 5px 14px;
+      background: #e8344e !important; border-color: #e8344e !important;
+      box-shadow: 0 1px 8px rgba(232,52,78,0.3) !important;
+    }
+    #header-plan-badge {
+      font-size: 0.6rem !important; font-weight: 700 !important;
+      letter-spacing: 0.07em !important; padding: 3px 9px !important;
+      border: 1px solid rgba(255,255,255,0.09) !important;
+      border-radius: 20px !important;
+      color: rgba(235,235,245,0.35) !important;
+    }
+
+    /* 4 · Stat cards */
+    .dashboard-main > .dashboard-cards,
+    .dashboard-main > .subscription-card,
+    .dashboard-main > .articles-list { margin: 0; }
+
+    .dashboard-cards {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 18px 24px; margin-bottom: 0 !important;
+    }
+    .dash-card {
+      background: #111113;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px; padding: 18px 20px;
+      border-bottom: none; border-right: none;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .dash-card:last-child { border-right: none; }
+    .dash-card:hover { background: #1a1a1c; border-color: rgba(255,255,255,0.11); }
+    .dash-card .card-icon { display: none; }
+    .dash-card .card-label {
+      font-size: 0.6rem; font-weight: 700;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      color: rgba(235,235,245,0.25); margin-bottom: 10px;
+    }
+    .dash-card .card-value {
+      font-size: 1.55rem; font-weight: 700;
+      letter-spacing: -0.03em;
+      color: rgba(235,235,245,0.92); margin-bottom: 4px;
+    }
+    .dash-card .card-sub { font-size: 0.72rem; color: rgba(235,235,245,0.25); }
+
+    /* 5 · Subscription card */
+    .subscription-card {
+      background: #000;
+      border: none; border-radius: 0;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 22px 24px;
+      margin: 0;
+    }
+    .subscription-card h3 { display: none; }
+
+    .sub-info-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0; margin-bottom: 20px;
+    }
+    .sub-info-item {
+      padding-right: 24px;
+      border-right: 1px solid rgba(255,255,255,0.06);
+      margin-right: 0;
+    }
+    .sub-info-item:last-child { border-right: none; padding-right: 0; }
+    .sub-info-item .label {
+      font-size: 0.6rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.07em;
+      color: rgba(235,235,245,0.25); margin-bottom: 6px;
+    }
+    .sub-info-item .value { font-size: 0.88rem; font-weight: 600; color: rgba(235,235,245,0.82); }
+
+    /* Badges */
+    .sub-status-badge { border-radius: 20px; font-size: 0.66rem; padding: 3px 10px; }
+    .plan-badge {
+      display: inline-block; border-radius: 20px !important;
+      font-size: 0.68rem; font-weight: 700;
+      padding: 3px 10px; text-transform: none; letter-spacing: 0;
+    }
+
+    /* Upgrade / manage */
+    #upgrade-section {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 18px; margin-top: 6px;
+    }
+    #upgrade-section p:first-child { font-size: 0.82rem !important; color: rgba(235,235,245,0.4) !important; margin-bottom: 14px !important; }
+    #upgrade-section .btn { border-radius: 20px !important; font-size: 0.78rem !important; }
+    #upgrade-section .btn-primary {
+      background: #e8344e !important; border-color: #e8344e !important;
+      box-shadow: 0 2px 12px rgba(232,52,78,0.35) !important;
+    }
+    #upgrade-section .btn-outline {
+      border-color: rgba(255,255,255,0.12) !important;
+      color: rgba(235,235,245,0.6) !important;
+    }
+    #upgrade-section p:last-child { font-size: 0.7rem !important; color: rgba(235,235,245,0.22) !important; margin-top: 10px !important; }
+    #manage-section {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 16px; margin-top: 6px;
+    }
+    #manage-section p { font-size: 0.82rem !important; color: rgba(235,235,245,0.38) !important; margin-bottom: 10px !important; }
+    #manage-section .btn { border-radius: 20px !important; font-size: 0.75rem !important; border-color: rgba(255,255,255,0.12) !important; }
+
+    /* 6 · Articles list */
+    .articles-list {
+      background: transparent; border: none; border-radius: 0;
+      overflow: visible; padding: 0 24px 24px;
+    }
+    .articles-list-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 0 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 0;
+    }
+    .articles-list-header h3 {
+      font-size: 0.6rem !important; font-weight: 700 !important;
+      text-transform: uppercase !important; letter-spacing: 0.07em !important;
+      color: rgba(235,235,245,0.25) !important;
+    }
+    .articles-list-header a {
+      font-size: 0.72rem !important; color: rgba(57,255,20,0.7) !important;
+      text-transform: none; letter-spacing: 0; font-weight: 600;
+    }
+    .articles-list-header a:hover { color: #39ff14 !important; }
+
+    .article-row {
+      padding: 12px 0 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      border-left: 2px solid var(--row-cat-color, rgba(255,255,255,0.08));
+      border-radius: 0; gap: 14px;
+      transition: background 0.12s;
+    }
+    .article-row:last-child { border-bottom: none; }
+    .article-row:hover { background: rgba(255,255,255,0.02); }
+
+    .article-row:has(.cat-geo)  { --row-cat-color: rgba(232,52,78,0.55); }
+    .article-row:has(.cat-pol)  { --row-cat-color: rgba(10,132,255,0.5); }
+    .article-row:has(.cat-biz)  { --row-cat-color: rgba(57,255,20,0.45); }
+    .article-row:has(.cat-tech) { --row-cat-color: rgba(191,90,242,0.5); }
+
+    .article-cat-badge {
+      border-radius: 20px !important; font-size: 0.6rem !important;
+      font-weight: 700 !important; letter-spacing: 0 !important;
+      padding: 2px 9px !important; white-space: nowrap; flex-shrink: 0;
+    }
+    .article-info h4 { font-size: 0.84rem; color: rgba(235,235,245,0.8); margin-bottom: 4px; }
+    .article-info .article-meta { font-size: 0.7rem; color: rgba(235,235,245,0.25); }
+
+    /* Lock badge */
+    .article-lock { font-size: 0 !important; }
+    .article-lock::after {
+      content: 'PRO';
+      font-size: 0.58rem; font-weight: 700; letter-spacing: 0.06em;
+      color: rgba(232,52,78,0.8);
+      background: rgba(232,52,78,0.08);
+      border: 1px solid rgba(232,52,78,0.2);
+      padding: 2px 7px; border-radius: 20px;
+    }
+
+    /* 7 · Modal (Stripe) */
+    .modal-overlay { background: rgba(0,0,0,0.72); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+    .modal {
+      background: #111113;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 24px 28px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.85);
+    }
+    .modal-header { margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.07); padding-bottom: 14px; }
+    .modal-header h3 { font-size: 0.92rem; font-weight: 600; text-transform: none; letter-spacing: 0; color: rgba(235,235,245,0.85); }
+    .modal-close {
+      border-radius: 50%; background: rgba(255,255,255,0.08); border: none;
+      color: rgba(235,235,245,0.52); width: 28px; height: 28px; font-size: 0.9rem;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.14); color: rgba(235,235,245,0.9); }
+    .modal > p { font-size: 0.82rem !important; color: rgba(235,235,245,0.4) !important; }
+
+    /* Stripe wrapper */
+    #stripe-card-element-wrapper,
+    .modal div:has(#stripe-card-element) {
+      background: #000 !important;
+      border: 1px solid rgba(255,255,255,0.1) !important;
+      border-radius: 10px !important;
+    }
+    .modal-footer { margin-top: 16px; border-top: 1px solid rgba(255,255,255,0.07); padding-top: 14px; }
+    .modal-footer .btn { border-radius: 20px !important; font-size: 0.78rem !important; }
+    .modal-footer .btn-primary {
+      background: #e8344e !important; border-color: #e8344e !important;
+      box-shadow: 0 2px 10px rgba(232,52,78,0.3) !important;
+    }
+    .modal > p:last-child { font-size: 0.7rem !important; color: rgba(235,235,245,0.2) !important; text-align: center; margin-top: 10px; }
+    #payment-error { border-radius: 10px !important; font-size: 0.8rem !important; }
+
+    /* 8 · Scrollbar */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+
+    /* 9 · Pulse keyframe */
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+  </style>
+</head>
+<body>
+
+<div class="dashboard-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="dashboard-sidebar">
+    <div class="sidebar-logo">
+      <a href="index.html">
+        <div class="logo-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 26" width="20" height="18"><line x1="7" y1="1" x2="7" y2="5" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/><rect x="3" y="5" width="8" height="13" rx="1.5" fill="white"/><line x1="7" y1="18" x2="7" y2="22" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/><line x1="21" y1="2" x2="21" y2="7" stroke="#e8344e" stroke-width="2" stroke-linecap="round"/><rect x="17" y="7" width="8" height="9" rx="1.5" fill="#e8344e"/><line x1="21" y1="16" x2="21" y2="22" stroke="#e8344e" stroke-width="2" stroke-linecap="round"/></svg></div>
+        analisy
+      </a>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a href="situation-room.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        Situation Room
+      </a>
+      <a href="#" id="nav-geopolitica">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+        Geopolitica
+      </a>
+      <a href="#" id="nav-business">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        Business
+      </a>
+      <a href="#" id="nav-tech">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Tecnologia
+      </a>
+      <a href="#abbonamento" id="nav-sub">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+        Abbonamento
+      </a>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" id="sidebar-avatar">U</div>
+      <div class="user-info">
+        <div class="user-name" id="sidebar-name">Utente</div>
+        <div class="user-role" id="sidebar-plan">Free</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="dashboard-main">
+
+    <!-- Header -->
+    <div class="dashboard-header">
+      <div>
+        <span style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.2);">Analisy</span>
+        <span style="color:rgba(255,255,255,0.12);font-size:0.75rem;margin:0 6px;">/</span>
+        <h1 id="welcome-msg">Dashboard</h1>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <span id="header-plan-badge" style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;font-family:monospace;padding:3px 8px;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.3);"></span>
+        <a href="situation-room.html" class="btn btn-primary btn-sm" style="background:#e8344e !important;border-color:#e8344e !important;border-radius:20px !important;font-weight:700 !important;box-shadow:0 1px 8px rgba(232,52,78,0.3) !important;">Situation Room →</a>
+        <button class="btn btn-outline btn-sm" onclick="logout()">Esci</button>
+      </div>
+    </div>
+
+    <!-- Cards -->
+    <div class="dashboard-cards">
+      <div class="dash-card card-active">
+        <div class="card-icon">✅</div>
+        <div class="card-label">Stato account</div>
+        <div class="card-value" id="card-status">—</div>
+        <div class="card-sub" id="card-plan">Piano: —</div>
+      </div>
+      <div class="dash-card card-articles">
+        <div class="card-icon">📰</div>
+        <div class="card-label">Analisi disponibili</div>
+        <div class="card-value" id="card-articles">—</div>
+        <div class="card-sub">sul tuo piano corrente</div>
+      </div>
+      <div class="dash-card card-sub-card">
+        <div class="card-icon">📅</div>
+        <div class="card-label">Scadenza abbonamento</div>
+        <div class="card-value" id="card-expiry">—</div>
+        <div class="card-sub" id="card-expiry-sub">—</div>
+      </div>
+    </div>
+
+    <!-- Subscription section -->
+    <div class="subscription-card" id="abbonamento">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.05);">
+        <span style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.28);">Abbonamento</span>
+      </div>
+      <div class="sub-info-grid">
+        <div class="sub-info-item">
+          <div class="label">Piano</div>
+          <div class="value" id="sub-plan">—</div>
+        </div>
+        <div class="sub-info-item">
+          <div class="label">Stato</div>
+          <div class="value" id="sub-status">—</div>
+        </div>
+        <div class="sub-info-item">
+          <div class="label">Rinnovo</div>
+          <div class="value" id="sub-renewal">—</div>
+        </div>
+      </div>
+
+      <!-- Upgrade options (shown only if not pro) -->
+      <div id="upgrade-section">
+        <p style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:16px;">Aggiorna il tuo piano per sbloccare tutti i contenuti:</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="subscribe('premium')">🔓 Passa a Premium — €9,99/mese</button>
+          <button class="btn btn-outline" onclick="subscribe('pro')">⭐ Passa a Pro — €19,99/mese</button>
+        </div>
+        <p style="font-size:0.78rem;color:var(--text-muted);margin-top:10px;">Pagamento sicuro con Stripe. Cancella quando vuoi.</p>
+      </div>
+
+      <div id="manage-section" style="display:none;">
+        <p style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:12px;">Gestisci il tuo abbonamento attivo:</p>
+        <button class="btn btn-outline btn-sm" onclick="manageSubscription()">Gestisci abbonamento</button>
+      </div>
+    </div>
+
+    <!-- Articles -->
+    <div class="articles-list">
+      <div class="articles-list-header">
+        <h3 style="font-size:1rem;">Ultime analisi</h3>
+        <a href="situation-room.html" style="font-size:0.72rem;color:rgba(57,255,20,0.7);font-weight:600;" onmouseover="this.style.color='#39ff14'" onmouseout="this.style.color='rgba(57,255,20,0.7)'">Vedi tutte →</a>
+      </div>
+
+      <div class="article-row">
+        <span class="article-cat-badge cat-geo">Geopolitica</span>
+        <div class="article-info">
+          <h4>La nuova corsa alle risorse in Africa: petrolio, litio e influenze geopolitiche</h4>
+          <div class="article-meta">15 Apr 2026 · 8 min lettura</div>
+        </div>
+      </div>
+      <div class="article-row">
+        <span class="article-cat-badge cat-pol">Politica</span>
+        <div class="article-info">
+          <h4>Elezioni europee 2026: scenari e implicazioni per la governance dell'UE</h4>
+          <div class="article-meta">13 Apr 2026 · 6 min lettura</div>
+        </div>
+      </div>
+      <div class="article-row">
+        <span class="article-cat-badge cat-biz">Business</span>
+        <div class="article-info">
+          <h4>Il mercato del litio e la transizione energetica: chi controlla il futuro?</h4>
+          <div class="article-meta">11 Apr 2026 · 10 min lettura</div>
+        </div>
+        <span class="article-lock" id="lock-1" title="Solo abbonati">🔒</span>
+      </div>
+      <div class="article-row">
+        <span class="article-cat-badge cat-tech">Tecnologia</span>
+        <div class="article-info">
+          <h4>Cavi sottomarini: la guerra invisibile per il controllo di internet</h4>
+          <div class="article-meta">09 Apr 2026 · 7 min lettura</div>
+        </div>
+        <span class="article-lock" id="lock-2" title="Solo abbonati">🔒</span>
+      </div>
+      <div class="article-row">
+        <span class="article-cat-badge cat-geo">Geopolitica</span>
+        <div class="article-info">
+          <h4>Stretto di Hormuz: il collo di bottiglia energetico del mondo</h4>
+          <div class="article-meta">07 Apr 2026 · 9 min lettura</div>
+        </div>
+        <span class="article-lock" id="lock-3" title="Solo abbonati">🔒</span>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<!-- Stripe payment modal -->
+<div class="modal-overlay" id="payment-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="payment-modal-title">Abbonamento Premium</h3>
+      <button class="modal-close" onclick="document.getElementById('payment-modal').classList.remove('open')">✕</button>
+    </div>
+    <p style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:20px;" id="payment-modal-desc">
+      Stai per attivare il piano Premium a €9,99/mese.
+    </p>
+    <div id="stripe-card-element-wrapper" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:0;padding:14px 16px;margin-bottom:16px;">
+      <div id="stripe-card-element" style="padding:4px 0;"></div>
+    </div>
+    <div id="payment-error" style="color:var(--accent-red);font-size:0.85rem;margin-bottom:12px;display:none;"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('payment-modal').classList.remove('open')">Annulla</button>
+      <button class="btn btn-primary" id="pay-btn" onclick="processPayment()">Attiva abbonamento</button>
+    </div>
+    <p style="font-size:0.75rem;color:var(--text-muted);text-align:center;margin-top:12px;">
+      🔒 Pagamento sicuro con Stripe · Cancella in qualsiasi momento
+    </p>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+<script>
+  // Auth guard
+  if (!requireAuth('login.html')) { /* stop */ }
+
+  let user = Auth.get();
+
+  // Populate UI
+  document.getElementById('welcome-msg').textContent = user.nome || 'Dashboard';
+  document.getElementById('sidebar-avatar').textContent = user.nome[0].toUpperCase();
+  document.getElementById('sidebar-name').textContent = `${user.nome} ${user.cognome}`;
+  const _planLabel = (user.plan || 'free').toUpperCase();
+  document.getElementById('sidebar-plan').textContent = _planLabel;
+  // Header plan badge
+  const _hpb = document.getElementById('header-plan-badge');
+  if (_hpb) {
+    _hpb.textContent = _planLabel;
+    const _planColors = { FREE:'rgba(255,255,255,0.2)', PREMIUM:'rgba(79,158,255,0.6)', PRO:'rgba(155,89,255,0.7)' };
+    _hpb.style.color = _planColors[_planLabel] || 'rgba(255,255,255,0.3)';
+    _hpb.style.borderColor = (_planColors[_planLabel] || 'rgba(255,255,255,0.1)').replace('0.6','0.25').replace('0.7','0.3').replace('0.2','0.1');
+  }
+
+  // Status card
+  const statusLabels = { active: 'Attivo', inactive: 'Inattivo', expired: 'Scaduto' };
+  document.getElementById('card-status').textContent = statusLabels[user.subscriptionStatus] || 'Inattivo';
+  document.getElementById('card-plan').textContent = 'Piano: ' + ((user.plan || 'Free').charAt(0).toUpperCase() + (user.plan || 'free').slice(1));
+
+  const planArticles = { free: '12 pubbliche', premium: 'Tutte (illimitate)', pro: 'Tutte + Report esclusivi' };
+  document.getElementById('card-articles').textContent = planArticles[user.plan] || '12 pubbliche';
+
+  if (user.subscriptionEnd) {
+    document.getElementById('card-expiry').textContent = fmtDate(user.subscriptionEnd);
+    document.getElementById('card-expiry-sub').textContent = 'Rinnovo automatico';
+  } else {
+    document.getElementById('card-expiry').textContent = '—';
+    document.getElementById('card-expiry-sub').textContent = 'Nessun abbonamento attivo';
+  }
+
+  // Subscription details
+  document.getElementById('sub-plan').innerHTML = getPlanBadge(user.plan || 'free');
+  document.getElementById('sub-status').innerHTML = getStatusBadge(user.subscriptionStatus || 'inactive');
+  document.getElementById('sub-renewal').textContent = fmtDate(user.subscriptionEnd);
+
+  // Show/hide sections
+  if (user.plan === 'pro' || (user.plan === 'premium' && user.subscriptionStatus === 'active')) {
+    document.getElementById('upgrade-section').style.display = 'none';
+    document.getElementById('manage-section').style.display = 'block';
+  }
+
+  // Hide locks for premium/pro users
+  if (Auth.isPremium()) {
+    ['lock-1','lock-2','lock-3'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+  }
+
+  // Stripe integration
+  // NOTE: Replace 'pk_test_...' with your actual Stripe publishable key
+  const STRIPE_KEY = 'pk_test_YOUR_STRIPE_PUBLISHABLE_KEY';
+  let stripe, cardElement, currentPlan;
+
+  function subscribe(plan) {
+    currentPlan = plan;
+    const prices = { premium: '€9,99/mese', pro: '€19,99/mese' };
+    const names  = { premium: 'Premium', pro: 'Pro' };
+    document.getElementById('payment-modal-title').textContent = `Piano ${names[plan]}`;
+    document.getElementById('payment-modal-desc').textContent =
+      `Stai per attivare il piano ${names[plan]} a ${prices[plan]}. Inserisci i dati della carta.`;
+    document.getElementById('payment-modal').classList.add('open');
+
+    // Init Stripe Elements (requires valid key)
+    try {
+      if (!stripe) stripe = Stripe(STRIPE_KEY);
+      const elements = stripe.elements({ appearance: { theme: 'night', variables: { colorPrimary: '#4f9eff', colorBackground: '#0a1220', colorText: '#f0f4ff', colorDanger: '#e8344e', fontFamily: 'Inter, sans-serif', borderRadius: '0px' } } });
+      if (!cardElement) {
+        cardElement = elements.create('card');
+        cardElement.mount('#stripe-card-element');
+      }
+    } catch(err) {
+      // Stripe key not configured — show demo mode
+      document.getElementById('stripe-card-element').innerHTML =
+        '<p style="font-size:0.82rem;color:var(--text-muted);text-align:center;padding:8px 0;">⚠️ Modalità demo — configura la chiave Stripe in dashboard.html</p>';
+    }
+  }
+
+  function processPayment() {
+    const btn = document.getElementById('pay-btn');
+    btn.textContent = 'Elaborazione...';
+    btn.disabled = true;
+
+    // DEMO: simulate successful payment
+    setTimeout(() => {
+      const end = new Date();
+      end.setMonth(end.getMonth() + 1);
+      const updates = {
+        plan: currentPlan,
+        subscriptionStatus: 'active',
+        subscriptionStart: new Date().toISOString().slice(0,10),
+        subscriptionEnd: end.toISOString().slice(0,10)
+      };
+      Object.assign(user, updates);
+      Auth.set(user);
+      document.getElementById('payment-modal').classList.remove('open');
+      showToast('Abbonamento attivato con successo!', 'success');
+      setTimeout(() => location.reload(), 1000);
+    }, 1500);
+  }
+
+  function manageSubscription() {
+    showToast('Reindirizzamento al portale Stripe...', 'info');
+    // In production: redirect to Stripe Customer Portal URL
+    // window.location.href = stripePortalUrl;
+  }
+</script>
+<script src="js/cookie-banner.js"></script>
+</body>
+</html>

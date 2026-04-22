@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Accedi — Analisy</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="auth-page">
+  <div class="auth-container">
+
+    <div class="auth-logo">
+      <a href="index.html">
+        <span style="display:inline-flex;align-items:center;gap:10px;">
+          <span style="width:36px;height:36px;background:rgba(6,14,26,0.9);border:1px solid rgba(79,158,255,0.3);border-radius:9px;display:inline-flex;align-items:center;justify-content:center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 26" width="22" height="20"><line x1="7" y1="1" x2="7" y2="5" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/><rect x="3" y="5" width="8" height="13" rx="1.5" fill="white"/><line x1="7" y1="18" x2="7" y2="22" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/><line x1="21" y1="2" x2="21" y2="7" stroke="#e8344e" stroke-width="2" stroke-linecap="round"/><rect x="17" y="7" width="8" height="9" rx="1.5" fill="#e8344e"/><line x1="21" y1="16" x2="21" y2="22" stroke="#e8344e" stroke-width="2" stroke-linecap="round"/></svg></span>
+          analisy
+        </span>
+      </a>
+    </div>
+
+    <div class="auth-card">
+      <h2>Bentornato</h2>
+      <p class="auth-sub">Accedi al tuo account Analisy</p>
+
+      <div class="form-error" id="login-error"></div>
+
+      <form id="login-form" novalidate>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="nome@esempio.com" autocomplete="email" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="La tua password" autocomplete="current-password" required />
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;margin-bottom:20px;">
+          <a href="#" style="font-size:0.85rem;color:var(--accent-blue);">Password dimenticata?</a>
+        </div>
+
+        <button type="submit" class="btn btn-primary auth-submit">Accedi</button>
+      </form>
+
+      <div class="auth-divider">oppure</div>
+
+      <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:0.82rem;color:var(--text-muted);margin-bottom:20px;">
+        <strong style="color:var(--text-secondary);">Demo:</strong>
+        <div style="margin-top:6px;display:flex;flex-direction:column;gap:4px;">
+          <span>Utente: <code style="color:var(--accent-blue);">demo@analisy.com</code> / <code style="color:var(--accent-blue);">demo123</code></span>
+          <span>Admin: <code style="color:var(--accent-purple);">admin@analisy.com</code> / <code style="color:var(--accent-purple);">admin123</code></span>
+        </div>
+      </div>
+
+      <p class="auth-footer-text">
+        Non hai un account? <a href="register.html">Iscriviti gratis</a>
+      </p>
+    </div>
+
+
+  </div>
+</div>
+
+<!-- Ban overlay -->
+<div id="ban-overlay" style="display:none;position:fixed;inset:0;background:var(--bg-primary);z-index:9999;align-items:center;justify-content:center;padding:24px;">
+  <div style="max-width:460px;text-align:center;">
+    <div style="font-size:3.5rem;margin-bottom:20px;">🚫</div>
+    <h2 style="margin-bottom:14px;color:var(--text-primary);">Account bloccato</h2>
+    <p style="font-size:0.92rem;color:var(--text-secondary);line-height:1.75;margin-bottom:28px;">
+      Il tuo account è stato eliminato o bloccato perché hai violato le norme della community di Analisy.<br><br>
+      Se ritieni che ci sia stato un errore, puoi contattare la nostra assistenza.
+    </p>
+    <a href="mailto:assistenza@analisy.com" class="btn btn-primary" style="display:inline-block;">✉️ Contatta l'assistenza</a>
+    <p style="font-size:0.78rem;color:var(--text-muted);margin-top:14px;">assistenza@analisy.com</p>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+<script>
+  if (Auth.isLoggedIn()) {
+    window.location.href = Auth.isAdmin() ? 'admin.html' : 'dashboard.html';
+  }
+
+  document.getElementById('login-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const errorEl  = document.getElementById('login-error');
+    const btn      = this.querySelector('button[type=submit]');
+
+    errorEl.classList.remove('show');
+    btn.disabled = true;
+    btn.textContent = 'Accesso in corso…';
+
+    try {
+      const user = await Auth.login(email, password);
+      showToast('Accesso effettuato con successo!', 'success');
+      setTimeout(() => {
+        window.location.href = user.role === 'admin' ? 'admin.html' : 'dashboard.html';
+      }, 500);
+    } catch(err) {
+      if (err.message === 'ACCOUNT_BANNED') {
+        const overlay = document.getElementById('ban-overlay');
+        overlay.style.display = 'flex';
+        return;
+      }
+      errorEl.textContent = err.message || 'Email o password non corretti.';
+      errorEl.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'Accedi';
+    }
+  });
+</script>
+<script src="js/cookie-banner.js"></script>
+</body>
+</html>

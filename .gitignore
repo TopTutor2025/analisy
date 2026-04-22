@@ -1,0 +1,16 @@
+node_modules/
+.env
+.env.local
+# SQLite (vecchio backend Express — non più usato)
+db/analisy.db
+db/analisy.db-shm
+db/analisy.db-wal
+server.js
+# Supabase local dev secrets
+supabase/.temp/
+supabase/seed.sql
+# Logs
+*.log
+# OS
+.DS_Store
+Thumbs.db

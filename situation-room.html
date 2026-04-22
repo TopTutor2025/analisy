@@ -1,0 +1,2020 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Situation Room — Analisy</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    /* ══════════════════════════════════════════════════
+       Situation Room v3 — #000 / #111 · Red · GreenRad
+    ══════════════════════════════════════════════════ */
+
+    /* 1 · Tokens */
+    :root {
+      --bg-primary:    #000000;
+      --bg-secondary:  #111113;
+      --bg-card:       #111113;
+      --bg-card-hover: #1a1a1c;
+      --bg-dark:       #000000;
+      --border:        rgba(255,255,255,0.06);
+      --border-hover:  rgba(255,255,255,0.12);
+      --text-primary:  rgba(235,235,245,0.92);
+      --text-secondary:rgba(235,235,245,0.55);
+      --text-muted:    rgba(235,235,245,0.28);
+      --accent-red:    #e8344e;
+      --accent-green:  #39ff14;
+      --accent-blue:   #0a84ff;
+      --accent-orange: #ff9f0a;
+      --accent-yellow: #ffd60a;
+      --accent-purple: #bf5af2;
+      --announce-h:    32px;
+    }
+
+    /* 2 · Base */
+    * { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif !important; }
+    body { overflow-x: hidden; background: #000; }
+
+    /* 3 · Announcement bar */
+    .sr-announce-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1100;
+      background: #000;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      height: var(--announce-h);
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px;
+      font-size: 0.74rem;
+      color: rgba(235,235,245,0.5);
+      letter-spacing: 0.01em;
+    }
+    .sr-announce-bar strong { color: rgba(235,235,245,0.75); font-weight: 600; }
+    .sr-announce-cta {
+      color: #e8344e !important;
+      font-weight: 700 !important;
+      font-size: 0.7rem !important;
+      padding: 2px 10px !important;
+      border: 1px solid rgba(232,52,78,0.35) !important;
+      border-radius: 20px !important;
+      text-decoration: none !important;
+      transition: background 0.15s !important;
+      white-space: nowrap;
+    }
+    .sr-announce-cta:hover { background: rgba(232,52,78,0.12) !important; }
+    .sr-announce-bar .dismiss-btn {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: rgba(235,235,245,0.25);
+      cursor: pointer; font-size: 0.9rem; line-height: 1; padding: 4px;
+    }
+    .sr-announce-bar .dismiss-btn:hover { color: rgba(235,235,245,0.6); }
+
+    /* 4 · Ticker */
+    @keyframes tickerScroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-wrap {
+      overflow: hidden; background: #111113 !important;
+      border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+      height: 34px; display: flex; align-items: center;
+    }
+    .ticker-track {
+      display: flex; gap: 40px; white-space: nowrap;
+      animation: tickerScroll 40s linear infinite;
+      padding: 0 20px;
+    }
+    .ticker-item { display: flex; align-items: center; gap: 8px; font-size: 0.77rem; }
+    .ticker-name  { font-weight: 600; color: rgba(235,235,245,0.32); }
+    .ticker-price { color: rgba(235,235,245,0.8); }
+    .ticker-up    { color: #30d158; }
+    .ticker-down  { color: #ff453a; }
+
+    /* 5 · Navbar */
+    .sr-navbar {
+      top: var(--announce-h) !important;
+      background: rgba(0,0,0,0.78) !important;
+      backdrop-filter: blur(28px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+      border-bottom: 1px solid rgba(255,255,255,0.07) !important;
+      z-index: 1050 !important;
+    }
+    .sr-navbar-cats {
+      display: flex; align-items: center; gap: 3px;
+      flex: 1; margin-left: 16px; height: 100%;
+    }
+    .sr-navbar-cats .sr-subnav-link {
+      padding: 5px 11px; height: auto;
+      display: flex; align-items: center;
+      font-size: 0.77rem; font-weight: 500;
+      border: none !important; border-bottom: none !important;
+      border-radius: 7px;
+      transition: background 0.15s, color 0.15s;
+      color: rgba(235,235,245,0.48);
+      cursor: pointer; white-space: nowrap; text-decoration: none;
+    }
+    .sr-navbar-cats .sr-subnav-link:hover { background: rgba(255,255,255,0.07); color: rgba(235,235,245,0.9); }
+    .sr-navbar-cats .sr-subnav-link.active { background: rgba(57,255,20,0.1); color: #39ff14; border-bottom: none !important; }
+    #subnav-subscribe-cta {
+      background: #e8344e !important; color: #fff !important;
+      border-radius: 20px !important; font-weight: 700 !important;
+      letter-spacing: 0 !important; text-transform: none !important;
+      padding: 6px 16px !important; font-size: 0.78rem !important;
+      border: none !important;
+      box-shadow: 0 2px 12px rgba(232,52,78,0.4) !important;
+      transition: opacity 0.15s !important;
+    }
+    #subnav-subscribe-cta:hover { opacity: 0.85 !important; }
+    .help-btn   { border-radius: 50% !important; }
+    .btn-accedi { border-radius: 20px !important; font-weight: 500 !important; }
+
+    /* 6 · Map layout */
+    .sr-map-wrapper { display: flex; flex-direction: column; border-bottom: 1px solid rgba(255,255,255,0.06); background: #000; }
+    .sr-map-row     { display: flex; height: 60vh; min-height: 380px; }
+    .sr-map-section { flex: 1; min-width: 0; height: 100%; position: relative; }
+    #situation-map  { width: 100%; height: 100%; }
+
+    /* 7 · Map unified panel — LEFT, black */
+    .map-unified-panel {
+      position: absolute; top: 14px; left: 14px; z-index: 800;
+      width: 206px;
+      background: rgba(0,0,0,0.94) !important;
+      border: 1px solid rgba(255,255,255,0.09) !important;
+      border-radius: 12px !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.8) !important;
+    }
+    .mup-header {
+      display: flex; align-items: center; height: 34px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 0 10px 0 12px;
+      background: rgba(255,255,255,0.02);
+    }
+    .mup-title {
+      font-size: 0.56rem; font-weight: 700;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      color: rgba(235,235,245,0.2); margin-right: 8px; white-space: nowrap;
+    }
+    .mup-tabs { display: flex; flex: 1; gap: 4px; height: 100%; align-items: center; }
+    .mup-tab {
+      padding: 3px 9px !important; border: none !important; border-bottom: none !important;
+      border-radius: 6px !important; background: transparent;
+      font-size: 0.63rem !important; font-weight: 600 !important;
+      letter-spacing: 0 !important; text-transform: none !important;
+      color: rgba(235,235,245,0.35); cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+      margin-bottom: 0 !important; white-space: nowrap;
+    }
+    .mup-tab:hover { background: rgba(255,255,255,0.08) !important; color: rgba(235,235,245,0.82) !important; }
+    .mup-tab.active { background: rgba(57,255,20,0.13) !important; color: #39ff14 !important; border-bottom-color: transparent !important; }
+    .mup-collapse-btn {
+      width: 20px; height: 20px; background: transparent;
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 5px !important;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(235,235,245,0.22); cursor: pointer; flex-shrink: 0;
+      transition: color 0.15s, border-color 0.15s; margin-left: 6px;
+    }
+    .mup-collapse-btn:hover { color: rgba(235,235,245,0.8); border-color: rgba(255,255,255,0.3); }
+    .mup-collapse-btn svg { transition: transform 0.2s ease; }
+    .mup-body { padding: 10px 11px 10px; background: #000; }
+    .mup-group-label {
+      font-size: 0.55rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; color: rgba(235,235,245,0.18);
+      margin-bottom: 6px; padding-bottom: 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .map-unified-panel .legend-items { gap: 5px; }
+    .map-unified-panel .legend-item  { font-size: 0.72rem; color: rgba(235,235,245,0.52); }
+
+    /* Map panel hidden state */
+    .sr-panel-hidden { display: none !important; }
+
+    /* 8 · Tool navbar */
+    .sr-toolnav {
+      height: 36px; background: #111113;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center;
+      padding: 0 6px; gap: 1px;
+      position: sticky; top: 0; z-index: 600;
+    }
+    .tn-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 28px;
+      border: none; background: transparent; border-radius: 6px;
+      color: rgba(235,235,245,0.38); cursor: pointer;
+      transition: background 0.12s, color 0.12s; position: relative;
+    }
+    .tn-btn:hover { background: rgba(255,255,255,0.07); color: rgba(235,235,245,0.88); }
+    .tn-btn.active { color: #39ff14; }
+    .tn-btn.active::after {
+      content: ''; position: absolute; bottom: 0; left: 6px; right: 6px;
+      height: 2px; background: #39ff14; border-radius: 1px;
+    }
+    .tn-tab {
+      display: flex; align-items: center; gap: 5px;
+      height: 28px; padding: 0 10px;
+      border: none; background: transparent; border-radius: 6px;
+      color: rgba(235,235,245,0.38); font-size: 0.72rem; font-weight: 500;
+      cursor: pointer; transition: background 0.12s, color 0.12s;
+      position: relative; white-space: nowrap;
+    }
+    .tn-tab:hover { background: rgba(255,255,255,0.07); color: rgba(235,235,245,0.88); }
+    .tn-tab.active { color: #39ff14; }
+    .tn-tab.active::after {
+      content: ''; position: absolute; bottom: 0; left: 4px; right: 4px;
+      height: 2px; background: #39ff14; border-radius: 1px;
+    }
+    .tn-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.07); margin: 0 4px; flex-shrink: 0; }
+    .tn-spacer  { flex: 1; }
+    .tn-toggle-btn {
+      display: flex; align-items: center; gap: 5px;
+      height: 24px; padding: 0 11px;
+      border: 1px solid rgba(255,255,255,0.08); background: transparent;
+      border-radius: 20px; color: rgba(235,235,245,0.4);
+      font-size: 0.68rem; font-weight: 600;
+      cursor: pointer; transition: all 0.12s; white-space: nowrap;
+      margin-right: 4px;
+    }
+    .tn-toggle-btn:hover { border-color: rgba(255,255,255,0.16); color: rgba(235,235,245,0.8); }
+    .tn-toggle-btn.active { background: rgba(57,255,20,0.1); border-color: rgba(57,255,20,0.3); color: #39ff14; }
+
+    /* 9 · 3-column grid */
+    .sr-grid {
+      display: grid; grid-template-columns: 25% 35% 40%;
+      background: #000;
+      height: calc(100vh - 60vh - 36px - 34px - var(--announce-h));
+      min-height: 480px;
+    }
+    .sr-col-left   { background: #000; border-right: 1px solid rgba(255,255,255,0.06); overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
+    .sr-col-center { background: #111113; border-right: 1px solid rgba(255,255,255,0.06); overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
+    .sr-col-right  { background: #000; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
+    .sr-col-header {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 38px; padding: 0 14px; flex-shrink: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+    }
+    .sr-col-title {
+      font-size: 0.58rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: rgba(235,235,245,0.22);
+    }
+    .sr-live-badge {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 0.55rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+      color: #39ff14;
+    }
+    .sr-live-dot {
+      width: 4px; height: 4px; border-radius: 50%;
+      background: #39ff14; box-shadow: 0 0 5px #39ff14;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* 10 · Left column — Scenari in Evoluzione */
+    .briefs-list-wrap {
+      flex: 1; overflow-y: auto; padding: 0;
+      scrollbar-width: thin; scrollbar-color: rgba(84,84,88,0.3) transparent;
+    }
+    .briefs-list-wrap::-webkit-scrollbar { width: 3px; }
+    .briefs-list-wrap::-webkit-scrollbar-thumb { background: rgba(84,84,88,0.4); border-radius: 3px; }
+    .brief-card {
+      border-radius: 0 !important;
+      border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+      border-left: 2px solid var(--cat-color, rgba(255,255,255,0.1)) !important;
+      margin: 0 !important; padding: 11px 12px !important;
+      transition: background 0.12s !important;
+    }
+    .brief-card:hover { background: rgba(255,255,255,0.03) !important; }
+    .brief-card:last-child { border-bottom: none !important; }
+    .brief-eyebrow { font-size: 0.57rem !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 0.07em !important; }
+    .brief-title   { font-size: 0.79rem !important; font-weight: 600 !important; line-height: 1.35 !important; color: rgba(235,235,245,0.88); margin: 4px 0 !important; }
+    .brief-text    { font-size: 0.71rem !important; line-height: 1.5 !important; color: rgba(235,235,245,0.48); }
+    .brief-meta    { font-size: 0.6rem; color: rgba(235,235,245,0.22); margin-top: 5px; display: flex; gap: 8px; }
+    .brief-source-link { color: rgba(235,235,245,0.35); text-decoration: none; }
+    .brief-source-link:hover { color: rgba(235,235,245,0.6); }
+    .briefs-filter {
+      display: flex; gap: 3px; padding: 6px 10px; flex-shrink: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .briefs-filter::-webkit-scrollbar { display: none; }
+
+    /* 11 · Center column — CityCams & Markets */
+    .cams-panel  { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+    .cams-panel.active  { display: flex; }
+    .mkts-panel  { display: none; flex-direction: column; flex: 1; overflow-y: auto; padding: 0; gap: 0;
+      scrollbar-width: thin; scrollbar-color: rgba(84,84,88,0.3) transparent; }
+    .mkts-panel.active  { display: flex; }
+    .mkts-panel::-webkit-scrollbar { width: 3px; }
+    .mkts-panel::-webkit-scrollbar-thumb { background: rgba(84,84,88,0.4); border-radius: 3px; }
+    .cam-grid-inner {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px;
+      overflow-y: auto; flex: 1; align-content: start;
+      scrollbar-width: thin; scrollbar-color: rgba(84,84,88,0.3) transparent;
+    }
+    .cam-grid-inner::-webkit-scrollbar { width: 3px; }
+    .cam-grid-inner::-webkit-scrollbar-thumb { background: rgba(84,84,88,0.4); border-radius: 3px; }
+    .citycam-card {
+      background: #0a0a0a !important; border: 1px solid rgba(255,255,255,0.07) !important;
+      border-radius: 10px !important; overflow: hidden; cursor: pointer;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .citycam-card:hover { border-color: rgba(255,255,255,0.2) !important; transform: translateY(-1px); }
+    .citycam-preview { aspect-ratio: 16/9; width: 100%; position: relative; overflow: hidden; background: #050505; }
+    .citycam-name {
+      font-size: 0.6rem !important; font-weight: 500 !important;
+      padding: 5px 7px !important; border-top: 1px solid rgba(255,255,255,0.05) !important;
+      white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
+      background: #111113 !important;
+      display: flex !important; align-items: center !important; line-height: 1 !important;
+      color: rgba(235,235,245,0.65) !important;
+    }
+    .citycam-live-badge {
+      position: absolute; top: 5px; right: 5px;
+      font-size: 0.44rem !important; padding: 2px 5px !important; border-radius: 4px !important;
+      background: #e8344e; color: #fff; font-weight: 700; letter-spacing: 0.06em;
+    }
+    .mkt-card {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 12px; background: #000;
+      border: 1px solid rgba(255,255,255,0.06); border-radius: 8px;
+      transition: background 0.12s; flex-shrink: 0;
+    }
+    .mkt-card:hover { background: rgba(255,255,255,0.03); }
+    .mkt-name   { font-size: 0.76rem; font-weight: 600; color: rgba(235,235,245,0.82); }
+    .mkt-ticker { font-size: 0.58rem; color: rgba(235,235,245,0.28); font-family: monospace; margin-top: 2px; }
+    .mkt-price  { font-size: 0.78rem; font-weight: 700; color: rgba(235,235,245,0.88); font-family: monospace; text-align: right; }
+    .mkt-up   { font-size: 0.65rem; font-weight: 600; color: #30d158; text-align: right; }
+    .mkt-down { font-size: 0.65rem; font-weight: 600; color: #ff453a; text-align: right; }
+
+    /* 12 · Right column — Articles / Pro / Forum */
+    .sr-right-pane { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+    .sr-right-pane.active { display: flex; }
+    .articles-scroll {
+      flex: 1; overflow-y: auto; padding: 0;
+      scrollbar-width: thin; scrollbar-color: rgba(84,84,88,0.3) transparent;
+    }
+    .articles-scroll::-webkit-scrollbar { width: 3px; }
+    .articles-scroll::-webkit-scrollbar-thumb { background: rgba(84,84,88,0.4); border-radius: 3px; }
+    .articles-grid { display: flex; flex-direction: column; gap: 8px; padding: 10px; }
+    .sr-article-card {
+      background: #111113 !important;
+      border: 1px solid rgba(255,255,255,0.06) !important;
+      border-left: 3px solid var(--art-cat-color, rgba(255,255,255,0.15)) !important;
+      border-radius: 10px !important;
+      padding: 11px 13px !important;
+      display: flex !important; gap: 11px !important; align-items: flex-start !important;
+      transition: background 0.15s, border-color 0.15s !important; cursor: pointer; flex-shrink: 0;
+    }
+    .sr-article-card:hover {
+      background: rgba(255,255,255,0.04) !important;
+      border-color: rgba(255,255,255,0.11) !important;
+      border-left-color: var(--art-cat-color, rgba(255,255,255,0.4)) !important;
+    }
+    .art-card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+    .art-cat-pill {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.07em;
+      text-transform: uppercase; color: var(--art-cat-color);
+    }
+    .art-title-row {
+      font-size: 0.83rem; font-weight: 600;
+      color: rgba(235,235,245,0.88); line-height: 1.4;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .art-meta-row {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.69rem; color: rgba(235,235,245,0.35); margin-top: 1px;
+    }
+    .art-thumb {
+      width: 58px; height: 58px; flex-shrink: 0;
+      border-radius: 7px; overflow: hidden;
+    }
+    .pro-locked-panel {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 14px; padding: 32px 24px; text-align: center;
+    }
+    .pro-locked-panel .lock-ico { font-size: 2rem; margin-bottom: 4px; }
+    .pro-locked-panel h4 { font-size: 0.95rem; font-weight: 700; color: rgba(235,235,245,0.88); margin: 0; }
+    .pro-locked-panel p  { font-size: 0.8rem; color: rgba(235,235,245,0.42); margin: 0; line-height: 1.65; }
+    .pro-cta-btn {
+      display: inline-block; padding: 8px 24px;
+      font-size: 0.8rem; font-weight: 700;
+      background: #e8344e; color: #fff; border-radius: 20px;
+      text-decoration: none; box-shadow: 0 2px 14px rgba(232,52,78,0.4);
+      transition: opacity 0.15s;
+    }
+    .pro-cta-btn:hover { opacity: 0.85; }
+    .forum-scroll {
+      flex: 1; overflow-y: auto; padding: 10px;
+      scrollbar-width: thin; scrollbar-color: rgba(84,84,88,0.3) transparent;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .forum-scroll::-webkit-scrollbar { width: 3px; }
+    .forum-scroll::-webkit-scrollbar-thumb { background: rgba(84,84,88,0.4); border-radius: 3px; }
+
+    /* 13 · Forum filter & card shared */
+    .forum-filter-bar {
+      background: transparent !important;
+      border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+      gap: 3px !important; padding: 6px 10px !important;
+      display: flex; overflow-x: auto; scrollbar-width: none; flex-shrink: 0;
+    }
+    .forum-filter-bar::-webkit-scrollbar { display: none; }
+    .forum-cat-btn {
+      border-radius: 20px !important; font-size: 0.67rem !important;
+      font-weight: 500 !important; text-transform: none !important;
+      letter-spacing: 0 !important; padding: 4px 11px !important;
+      transition: background 0.14s, color 0.14s !important; border: none !important;
+      flex-shrink: 0; white-space: nowrap;
+    }
+    .forum-cat-btn:not(.active) { background: transparent !important; color: rgba(235,235,245,0.35) !important; }
+    .forum-cat-btn:not(.active):hover { background: rgba(255,255,255,0.07) !important; color: rgba(235,235,245,0.82) !important; }
+    .forum-cat-btn.active { background: rgba(57,255,20,0.1) !important; color: #39ff14 !important; }
+    .forum-post-card {
+      background: #111113 !important; border: 1px solid rgba(255,255,255,0.06) !important;
+      border-radius: 10px !important; padding: 11px 13px !important;
+      transition: background 0.15s, border-color 0.15s !important; cursor: pointer; flex-shrink: 0;
+    }
+    .forum-post-card:hover { background: rgba(255,255,255,0.04) !important; border-color: rgba(255,255,255,0.12) !important; }
+    .forum-reply-card {
+      background: rgba(255,255,255,0.03) !important; border-radius: 8px !important;
+      border: 1px solid rgba(255,255,255,0.05) !important; padding: 10px 12px !important;
+    }
+
+    /* 14 · Article cards generic */
+    .article-card {
+      background: rgba(17,17,19,0.8) !important; border: 1px solid rgba(255,255,255,0.07) !important;
+      border-radius: 12px !important; transition: background 0.15s, box-shadow 0.15s !important;
+    }
+    .article-card:hover { background: rgba(26,26,28,0.95) !important; box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important; }
+
+    /* 15 · Modals */
+    .modal-overlay { background: rgba(0,0,0,0.72) !important; backdrop-filter: blur(10px) !important; -webkit-backdrop-filter: blur(10px) !important; }
+    .modal { background: #111113 !important; border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 16px !important; box-shadow: 0 24px 64px rgba(0,0,0,0.85) !important; }
+    #sr-help-modal .modal { background: #111113 !important; }
+    .modal input, .modal select, .modal textarea { background: rgba(0,0,0,0.55) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 10px !important; color: rgba(235,235,245,0.88) !important; }
+    .modal-close { border-radius: 50% !important; width: 28px !important; height: 28px !important; background: rgba(255,255,255,0.08) !important; border: none !important; color: rgba(235,235,245,0.6) !important; }
+
+    /* 16 · Buttons */
+    .btn-primary { border-radius: 20px !important; font-weight: 600 !important; letter-spacing: 0 !important; text-transform: none !important; }
+    .btn-outline  { border-radius: 20px !important; font-weight: 600 !important; letter-spacing: 0 !important; text-transform: none !important; border-color: rgba(255,255,255,0.14) !important; }
+
+    /* 17 · Admin FAB */
+    .admin-map-fab button { background: rgba(0,0,0,0.9) !important; border-radius: 10px !important; border: 1px solid rgba(255,255,255,0.12) !important; box-shadow: 0 4px 16px rgba(0,0,0,0.6) !important; }
+
+    /* 18 · Scrollbars */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(84,84,88,0.4); border-radius: 4px; }
+
+    /* 19 · Footer */
+    footer { background: #111113 !important; border-top: 1px solid rgba(255,255,255,0.06) !important; }
+
+    /* 20 · Hide old content area */
+    .sr-content { display: none !important; }
+    #community  { display: none !important; }
+
+    /* 21 · Responsive */
+    @media (max-width:1200px) { .sr-grid { grid-template-columns: 28% 1fr !important; } .sr-col-right { display: none; } }
+    @media (max-width:860px)  { .sr-grid { grid-template-columns: 1fr !important; } .sr-col-center { display: none; } .sr-map-row { height: 50vh; } }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ ANNOUNCEMENT BAR ═══════════════ -->
+<div class="sr-announce-bar" id="sr-announce-bar">
+  <strong>🔓 Abbonati per sbloccare le funzionalità Pro</strong>
+  <span style="color:rgba(255,255,255,0.15);">·</span>
+  <span>Analisi esclusive, dati in tempo reale, accesso al forum.</span>
+  <a href="register.html" class="sr-announce-cta">Abbonati ora</a>
+  <button class="dismiss-btn" onclick="document.getElementById('sr-announce-bar').style.display='none'" title="Chiudi">✕</button>
+</div>
+
+<!-- ═══════════════ SITUATION ROOM NAVBAR ═══════════════ -->
+<nav class="sr-navbar">
+  <div style="padding: 0 48px; height: 100%;">
+    <div class="sr-navbar-main" style="height:100%;">
+      <a href="index.html" class="navbar-logo">
+        <div class="logo-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 26" width="22" height="20"><line x1="7" y1="1" x2="7" y2="5" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/><rect x="3" y="5" width="8" height="13" rx="1.5" fill="white"/><line x1="7" y1="18" x2="7" y2="22" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/><line x1="21" y1="2" x2="21" y2="7" stroke="#e8344e" stroke-width="2" stroke-linecap="round"/><rect x="17" y="7" width="8" height="9" rx="1.5" fill="#e8344e"/><line x1="21" y1="16" x2="21" y2="22" stroke="#e8344e" stroke-width="2" stroke-linecap="round"/></svg></div>
+        analisy
+      </a>
+
+      <!-- Category links (moved from sub-nav) -->
+      <div class="sr-navbar-cats">
+        <span class="sr-subnav-link active" onclick="filterCategory('all',this)">Tutti</span>
+        <span class="sr-subnav-link" onclick="filterCategory('geopolitica',this)">Geopolitica</span>
+        <span class="sr-subnav-link" onclick="filterCategory('politica',this)">Politica</span>
+        <span class="sr-subnav-link" onclick="filterCategory('business',this)">Business</span>
+        <span class="sr-subnav-link" onclick="filterCategory('tecnologia',this)">Tecnologia</span>
+        <a href="javascript:switchToolTab('forum',document.getElementById('tn-forum'))" class="sr-subnav-link" style="color:var(--accent-green);">Community</a>
+      </div>
+
+      <div class="navbar-actions" id="navbar-actions">
+        <a id="subnav-subscribe-cta" href="register.html" class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:5px 14px;border-radius:0;">Abbonati a 2,99€ al mese</a>
+        <a href="login.html" class="btn-accedi">Accedi</a>
+        <button class="help-btn" title="Come funziona" onclick="openSrTutorial()">!</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Markets ticker -->
+<div style="margin-top:calc(var(--nav-h) + var(--announce-h));">
+  <div class="ticker-wrap">
+    <div class="ticker-track" id="ticker-track">
+      <!-- populated by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MAP + BRIEFS + CAM STRIP ═══════════════ -->
+<div class="sr-map-wrapper">
+
+<!-- Row: Map + Briefs panel -->
+<div class="sr-map-row">
+
+<!-- Map -->
+<div class="sr-map-section">
+  <div class="sr-map-container">
+    <div id="situation-map"></div>
+
+    <!-- ── Unified map panel (layers + legend) ── -->
+    <div id="map-unified-panel" class="map-unified-panel">
+
+      <!-- Header: title + tab bar + collapse button -->
+      <div class="mup-header">
+        <div class="mup-tabs" id="mup-tabs">
+          <button class="mup-tab active" onclick="switchMapTab('layers',this)">Layer</button>
+          <button class="mup-tab" onclick="switchMapTab('legend',this)">Legenda</button>
+        </div>
+        <button class="mup-collapse-btn" onclick="toggleUnifiedPanel()" title="Riduci pannello">
+          <svg id="mup-chevron" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="2,3 5,6.5 8,3"/></svg>
+        </button>
+      </div>
+
+      <!-- Body (collapsible) -->
+      <div class="mup-body" id="mup-body">
+
+        <!-- TAB: Layer controls -->
+        <div id="mup-tab-layers" class="mup-tab-pane">
+          <div class="mup-group-label">LAYER</div>
+          <div class="layer-toggle">
+            <div class="layer-label">
+              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#e8344e" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span>Eventi IA</span>
+            </div>
+            <div class="toggle-switch on" id="toggle-events" onclick="handleToggle('events',this)"></div>
+          </div>
+          <div style="margin-top:8px;font-size:0.67rem;color:rgba(235,235,245,0.28);line-height:1.5;">
+            Generati dall'IA ogni 6h monitorando notizie globali. Clicca un marker per il briefing analitico.
+          </div>
+        </div>
+
+        <!-- TAB: Legend -->
+        <div id="mup-tab-legend" class="mup-tab-pane" style="display:none;">
+
+          <!-- Colori = dominio tematico -->
+          <div class="mup-group-label">DOMINIO</div>
+          <div class="legend-items">
+            <div class="legend-item">
+              <div class="legend-circle" style="color:#e8344e;border-color:#e8344e;background:rgba(232,52,78,0.18);"></div>
+              <div>
+                <div style="color:rgba(235,235,245,0.8);">Geopolitica</div>
+                <div style="font-size:0.63rem;color:rgba(235,235,245,0.3);margin-top:1px;">Guerre, crisi militari, umanitarie</div>
+              </div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-circle" style="color:#4f9eff;border-color:#4f9eff;background:rgba(79,158,255,0.18);"></div>
+              <div>
+                <div style="color:rgba(235,235,245,0.8);">Politica</div>
+                <div style="font-size:0.63rem;color:rgba(235,235,245,0.3);margin-top:1px;">Elezioni, colpi di stato, proteste</div>
+              </div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-circle" style="color:#f5a623;border-color:#f5a623;background:rgba(245,166,35,0.18);"></div>
+              <div>
+                <div style="color:rgba(235,235,245,0.8);">Business</div>
+                <div style="font-size:0.63rem;color:rgba(235,235,245,0.3);margin-top:1px;">Sanzioni, trade war, energia</div>
+              </div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-circle" style="color:#a78bfa;border-color:#a78bfa;background:rgba(167,139,250,0.18);"></div>
+              <div>
+                <div style="color:rgba(235,235,245,0.8);">Tecnologia</div>
+                <div style="font-size:0.63rem;color:rgba(235,235,245,0.3);margin-top:1px;">Cyber, IA, semiconduttori</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Magnitudo = gravità dell'evento nel suo dominio -->
+          <div class="mup-group-label" style="margin-top:10px;">MAGNITUDO</div>
+          <div class="legend-items">
+            <div class="legend-item">
+              <div style="width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);flex-shrink:0;"></div>
+              <span><strong style="color:rgba(235,235,245,0.6);">1</strong> <span style="color:rgba(235,235,245,0.35);">— Bassa rilevanza</span></span>
+            </div>
+            <div class="legend-item">
+              <div style="width:13px;height:13px;border-radius:50%;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);flex-shrink:0;"></div>
+              <span><strong style="color:rgba(235,235,245,0.75);">2</strong> <span style="color:rgba(235,235,245,0.35);">— Moderata</span></span>
+            </div>
+            <div class="legend-item">
+              <div style="width:17px;height:17px;border-radius:50%;background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.5);flex-shrink:0;"></div>
+              <span><strong style="color:rgba(235,235,245,0.9);">3</strong> <span style="color:rgba(235,235,245,0.35);">— Alta</span></span>
+            </div>
+            <div class="legend-item">
+              <div style="width:22px;height:22px;border-radius:50%;background:rgba(232,52,78,0.22);border:2px solid #e8344e;box-shadow:0 0 7px rgba(232,52,78,0.5);flex-shrink:0;"></div>
+              <span><strong style="color:#e8344e;">4</strong> <span style="color:rgba(235,235,245,0.35);">— Critica</span></span>
+            </div>
+          </div>
+          <div style="margin-top:7px;font-size:0.63rem;color:rgba(235,235,245,0.22);line-height:1.5;">
+            Il colore indica il dominio; la dimensione indica la gravità.
+          </div>
+        </div>
+
+      </div><!-- /mup-body -->
+    </div><!-- /map-unified-panel -->
+
+    <!-- Admin FAB (only shown to admins) -->
+    <div id="admin-map-fab" class="admin-map-fab" style="display:none;">
+      <button class="btn btn-primary btn-sm" onclick="document.getElementById('admin-map-modal').classList.add('open')">
+        + Aggiungi evento
+      </button>
+    </div>
+  </div>
+</div><!-- /sr-map-section -->
+
+</div><!-- /sr-map-row -->
+</div><!-- /sr-map-wrapper -->
+
+
+<!-- ═══════════════ TOOL NAVBAR ═══════════════ -->
+<div class="sr-toolnav" id="sr-toolnav">
+
+  <!-- Left: right-column tabs (articles / pro / forum) -->
+  <button class="tn-tab active" id="tn-articles" onclick="switchToolTab('articles',this)" title="Articoli pubblici">
+    <!-- newspaper icon -->
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 10h10M4 14h16M4 18h10"/><rect x="2" y="3" width="20" height="18" rx="2"/></svg>
+    Articoli
+  </button>
+  <button class="tn-tab" id="tn-pro" onclick="switchToolTab('pro',this)" title="Analisi Pro">
+    <!-- lock icon -->
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    Pro
+  </button>
+  <button class="tn-tab" id="tn-forum" onclick="switchToolTab('forum',this)" title="Forum community">
+    <!-- chat icon -->
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    Forum
+  </button>
+
+  <div class="tn-divider"></div>
+
+  <!-- Utility icons -->
+  <button class="tn-btn" title="Filtra per categoria" onclick="document.querySelector('.sr-col-right .forum-filter-bar')?.scrollIntoView({behavior:'smooth'})">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+  </button>
+  <button class="tn-btn" title="Ricarica dati" onclick="loadBriefs();renderArticles(currentCategory);renderCitycams();">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+  </button>
+  <button class="tn-btn" title="Notifiche">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+  </button>
+  <button class="tn-btn active" id="tn-map-panel" title="Mostra/nascondi pannello mappa" onclick="toggleMapPanel(this)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+  </button>
+
+  <div class="tn-spacer"></div>
+
+  <!-- Right: center-column toggle (Cams / Mercati) -->
+  <button class="tn-toggle-btn active" id="tn-cams" onclick="switchCenter('cams',this)">
+    <!-- camera icon -->
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+    CityCams
+  </button>
+  <button class="tn-toggle-btn" id="tn-markets" onclick="switchCenter('markets',this)">
+    <!-- chart icon -->
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Mercati
+  </button>
+
+</div>
+
+<!-- ═══════════════ 3-COLUMN GRID ═══════════════ -->
+<div class="sr-grid">
+
+  <!-- ──── LEFT 25% — Scenari in Evoluzione ──── -->
+  <div class="sr-col-left">
+    <div class="sr-col-header">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="sr-col-title">Scenari in Evoluzione</span>
+        <span id="briefs-count" style="font-size:0.55rem;color:rgba(235,235,245,0.2);font-weight:400;"></span>
+      </div>
+      <span class="sr-live-badge"><span class="sr-live-dot"></span>LIVE</span>
+    </div>
+    <!-- Briefs filter -->
+    <div class="briefs-filter" id="briefs-filter-bar">
+      <button class="forum-cat-btn active" onclick="filterBriefs('all',this)">Tutti</button>
+      <button class="forum-cat-btn" onclick="filterBriefs('conflict',this)">Conflitti</button>
+      <button class="forum-cat-btn" onclick="filterBriefs('crisis',this)">Crisi</button>
+      <button class="forum-cat-btn" onclick="filterBriefs('tension',this)">Tensioni</button>
+      <button class="forum-cat-btn" onclick="filterBriefs('political',this)">Politico</button>
+    </div>
+    <!-- Briefs list -->
+    <div class="briefs-list-wrap" id="briefs-list">
+      <div style="padding:24px 14px;font-size:0.78rem;color:var(--text-muted);line-height:1.65;">
+        L'AI genera i brief automaticamente quando rileva eventi attivi.
+      </div>
+    </div>
+  </div>
+
+  <!-- ──── CENTER 35% — CityCams / Mercati ──── -->
+  <div class="sr-col-center">
+
+    <!-- CityCams panel -->
+    <div class="cams-panel active" id="center-cams">
+      <div class="sr-col-header">
+        <span class="sr-col-title">City Cam negli Hotspot di Interesse</span>
+        <span id="citycam-count" style="font-size:0.56rem;color:rgba(235,235,245,0.22);font-weight:500;"></span>
+      </div>
+      <div class="cam-grid-inner" id="citycam-grid"></div>
+    </div>
+
+    <!-- Markets panel -->
+    <div class="mkts-panel" id="center-markets">
+      <div class="sr-col-header" style="position:sticky;top:0;background:#111113;z-index:2;">
+        <span class="sr-col-title">Materie Prime</span>
+        <span style="font-size:0.56rem;color:rgba(235,235,245,0.22);">Dati simulati</span>
+      </div>
+      <div id="markets-list" style="display:flex;flex-direction:column;gap:4px;padding:8px 8px 12px;"></div>
+    </div>
+
+  </div>
+
+  <!-- ──── RIGHT 40% — Articles / Pro / Forum ──── -->
+  <div class="sr-col-right">
+
+    <!-- Tab: Articoli pubblici -->
+    <div class="sr-right-pane active" id="pane-articles">
+      <div class="sr-col-header">
+        <span class="sr-col-title">Proiezioni e Approfondimenti</span>
+        <span id="articles-count" style="font-size:0.56rem;color:rgba(235,235,245,0.22);font-weight:500;"></span>
+      </div>
+      <div class="forum-filter-bar" id="articles-filter-bar">
+        <button class="forum-cat-btn active" onclick="filterArticles('all',this)">Tutti</button>
+        <button class="forum-cat-btn" onclick="filterArticles('geopolitica',this)">Geopolitica</button>
+        <button class="forum-cat-btn" onclick="filterArticles('politica',this)">Politica</button>
+        <button class="forum-cat-btn" onclick="filterArticles('business',this)">Business</button>
+        <button class="forum-cat-btn" onclick="filterArticles('tecnologia',this)">Tech</button>
+      </div>
+      <div class="articles-scroll">
+        <div class="articles-grid" id="articles-grid"></div>
+      </div>
+    </div>
+
+    <!-- Tab: Pro Analysis -->
+    <div class="sr-right-pane" id="pane-pro">
+      <div class="sr-col-header">
+        <span class="sr-col-title">Analisi Pro</span>
+        <span style="font-size:0.56rem;font-weight:700;color:#e8344e;letter-spacing:0.05em;">PRO</span>
+      </div>
+      <div class="pro-locked-panel">
+        <div class="lock-ico">🔒</div>
+        <h4>Contenuto riservato agli abbonati Pro</h4>
+        <p>Le analisi approfondite, i report esclusivi e i dossier geopolitici sono disponibili solo per gli abbonati Pro.</p>
+        <a href="register.html" class="pro-cta-btn">Abbonati ora — da €2,99/mese</a>
+      </div>
+    </div>
+
+    <!-- Tab: Forum -->
+    <div class="sr-right-pane" id="pane-forum">
+      <div class="sr-col-header">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="sr-col-title">Community Forum</span>
+          <span id="forum-post-count" style="font-size:0.55rem;color:rgba(235,235,245,0.2);font-weight:400;"></span>
+        </div>
+        <button id="new-post-btn" onclick="openNewPostModal()" style="display:none;background:rgba(57,255,20,0.1);border:1px solid rgba(57,255,20,0.25);border-radius:20px;padding:3px 12px;font-size:0.68rem;font-weight:700;color:#39ff14;cursor:pointer;transition:opacity 0.15s;">
+          + Nuova
+        </button>
+      </div>
+      <div class="forum-filter-bar" id="forum-filter-bar">
+        <button class="forum-cat-btn active" onclick="filterForum('all',this)">Tutti</button>
+        <button class="forum-cat-btn" onclick="filterForum('geopolitica',this)">Geopolitica</button>
+        <button class="forum-cat-btn" onclick="filterForum('politica',this)">Politica</button>
+        <button class="forum-cat-btn" onclick="filterForum('business',this)">Business</button>
+        <button class="forum-cat-btn" onclick="filterForum('tecnologia',this)">Tech</button>
+        <button class="forum-cat-btn" onclick="filterForum('generale',this)">Generale</button>
+      </div>
+      <div class="forum-scroll" id="forum-posts-list">
+        <div style="padding:24px 0;text-align:center;color:var(--text-muted);font-size:0.82rem;">Caricamento discussioni...</div>
+      </div>
+      <!-- Login prompt -->
+      <div id="forum-login-prompt" style="display:none;padding:14px 16px;border-top:1px solid rgba(255,255,255,0.06);background:#000;">
+        <p style="font-size:0.78rem;color:var(--text-muted);margin:0 0 10px;">Accedi per partecipare alle discussioni.</p>
+        <div style="display:flex;gap:8px;">
+          <a href="login.html" style="padding:6px 18px;font-size:0.75rem;font-weight:700;background:#e8344e;color:#fff;border-radius:20px;text-decoration:none;">Accedi</a>
+          <a href="register.html" style="padding:6px 18px;font-size:0.75rem;font-weight:600;background:rgba(255,255,255,0.07);color:rgba(235,235,245,0.65);border:1px solid rgba(255,255,255,0.1);border-radius:20px;text-decoration:none;">Registrati</a>
+        </div>
+      </div>
+      <!-- Upgrade prompt -->
+      <div id="forum-upgrade-prompt" style="display:none;padding:14px 16px;border-top:1px solid rgba(255,255,255,0.06);background:#000;">
+        <p style="font-size:0.78rem;color:var(--text-muted);margin:0 0 10px;">Piano Pro richiesto per postare e rispondere.</p>
+        <a href="register.html" style="display:inline-block;padding:6px 18px;font-size:0.75rem;font-weight:700;background:#e8344e;color:#fff;border-radius:20px;text-decoration:none;">Passa a Pro</a>
+      </div>
+    </div>
+
+  </div><!-- /sr-col-right -->
+
+</div><!-- /sr-grid -->
+
+
+<!-- community section moved to pane-forum in sr-grid -->
+
+<!-- ── MODAL: Citycam viewer ── -->
+<div class="modal-overlay" id="citycam-view-modal" onclick="if(event.target===this)closeCitycamModal()">
+  <div class="modal" style="max-width:860px;width:95vw;padding:0;overflow:hidden;background:#111;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg-secondary);border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent-red);box-shadow:0 0 6px var(--accent-red);animation:pulse 1.5s infinite;"></span>
+        <span id="cv-title" style="font-weight:700;font-size:0.95rem;color:var(--text-primary);"></span>
+        <span style="font-size:0.72rem;font-weight:700;color:var(--accent-red);letter-spacing:0.08em;">LIVE</span>
+      </div>
+      <button class="modal-close" onclick="closeCitycamModal()">✕</button>
+    </div>
+    <div style="position:relative;width:100%;padding-top:56.25%;">
+      <iframe id="cv-iframe" style="position:absolute;inset:0;width:100%;height:100%;border:none;display:none;"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+      <div id="cv-no-stream" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:var(--bg-primary);">
+        <div style="font-size:3rem;">📡</div>
+        <p style="color:var(--text-muted);font-size:0.9rem;">Stream non ancora configurato per questa camera.</p>
+        <p style="color:var(--text-muted);font-size:0.8rem;">L'admin può aggiungere l'URL dal pannello di controllo.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Nuovo post ── -->
+<div class="modal-overlay" id="new-post-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-header">
+      <h3>Nuova discussione</h3>
+      <button class="modal-close" onclick="document.getElementById('new-post-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Titolo <span style="color:var(--accent-red);">*</span></label>
+      <input type="text" id="np-title" placeholder="Di cosa vuoi parlare?" />
+    </div>
+    <div class="form-group">
+      <label>Categoria</label>
+      <select id="np-category" style="background:var(--bg-secondary);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;font-size:0.95rem;color:var(--text-primary);width:100%;">
+        <option value="generale">Generale</option>
+        <option value="geopolitica">Geopolitica</option>
+        <option value="politica">Politica</option>
+        <option value="business">Business</option>
+        <option value="tecnologia">Tecnologia</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Testo <span style="color:var(--accent-red);">*</span></label>
+      <textarea id="np-body" class="rich-editor" style="min-height:140px;" placeholder="Scrivi il tuo contributo..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('new-post-modal').classList.remove('open')">Annulla</button>
+      <button class="btn btn-primary btn-sm" onclick="submitPost()">Pubblica</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Visualizza post + risposte ── -->
+<div class="modal-overlay" id="post-view-modal" onclick="if(event.target===this)this.classList.remove('open')" style="align-items:flex-start;padding-top:32px;">
+  <div class="modal" style="max-width:680px;max-height:88vh;overflow-y:auto;">
+    <div class="modal-header">
+      <h3 id="pv-title" style="font-size:1.1rem;line-height:1.35;max-width:90%;"></h3>
+      <button class="modal-close" onclick="document.getElementById('post-view-modal').classList.remove('open')">✕</button>
+    </div>
+    <div id="pv-meta" style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;"></div>
+    <div id="pv-body" style="font-size:0.92rem;color:var(--text-secondary);line-height:1.75;padding-bottom:20px;border-bottom:1px solid var(--border);margin-bottom:20px;"></div>
+
+    <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:14px;" id="pv-replies-label">Risposte</div>
+    <div id="pv-replies-list" style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px;"></div>
+
+    <div id="pv-reply-form" style="display:none;">
+      <textarea id="pv-reply-body" class="rich-editor" style="min-height:90px;" placeholder="Scrivi una risposta..."></textarea>
+      <div class="modal-footer" style="margin-top:12px;">
+        <button class="btn btn-primary btn-sm" onclick="submitReply()">Invia risposta</button>
+      </div>
+    </div>
+    <div id="pv-reply-login" style="display:none;text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;">
+      <a href="login.html" class="btn btn-primary btn-sm">Accedi per rispondere</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="navbar-logo" style="display:inline-flex;margin-bottom:12px;">
+          <div class="logo-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 26" width="22" height="20"><line x1="7" y1="1" x2="7" y2="5" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/><rect x="3" y="5" width="8" height="13" rx="1.5" fill="white"/><line x1="7" y1="18" x2="7" y2="22" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/><line x1="21" y1="2" x2="21" y2="7" stroke="#e8344e" stroke-width="2" stroke-linecap="round"/><rect x="17" y="7" width="8" height="9" rx="1.5" fill="#e8344e"/><line x1="21" y1="16" x2="21" y2="22" stroke="#e8344e" stroke-width="2" stroke-linecap="round"/></svg></div>
+          analisy
+        </div>
+        <p>La piattaforma di analisi geopolitica, business e tecnologia per chi vuole capire il mondo.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Prodotto</h4>
+        <ul>
+          <li><a href="situation-room.html">Situation Room</a></li>
+          <li><a href="index.html#perche-analisy">Perché Analisy</a></li>
+          <li><a href="index.html#come-funziona">Come funziona</a></li>
+          <li><a href="#">Prezzi</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Categorie</h4>
+        <ul>
+          <li><a href="#" onclick="filterCategory('geopolitica',null);return false;">Geopolitica</a></li>
+          <li><a href="#" onclick="filterCategory('politica',null);return false;">Politica Nazionale</a></li>
+          <li><a href="#" onclick="filterCategory('business',null);return false;">Business</a></li>
+          <li><a href="#" onclick="filterCategory('tecnologia',null);return false;">Tecnologia</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legale</h4>
+        <ul>
+          <li><a href="termini-condizioni.html">Termini e Condizioni</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="cookie-policy.html">Cookie Policy</a></li>
+          <li><a href="#">Contatti</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Analisy. Tutti i diritti riservati.</span>
+      <div class="footer-links">
+        <a href="privacy-policy.html">Privacy</a>
+        <a href="termini-condizioni.html">Termini</a>
+        <a href="cookie-policy.html">Cookie</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ── Admin quick-add event modal ── -->
+<div class="modal-overlay" id="admin-map-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Aggiungi evento sulla mappa</h3>
+      <button class="modal-close" onclick="document.getElementById('admin-map-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="form-group"><label>Titolo</label><input type="text" id="qev-title" placeholder="Titolo evento" /></div>
+    <div class="form-group"><label>Descrizione</label><input type="text" id="qev-desc" placeholder="Breve descrizione" /></div>
+    <div class="form-row">
+      <div class="form-group"><label>Latitudine</label><input type="number" id="qev-lat" placeholder="0.000" step="0.0001" /></div>
+      <div class="form-group"><label>Longitudine</label><input type="number" id="qev-lng" placeholder="0.000" step="0.0001" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Categoria</label>
+        <select id="qev-cat" style="background:var(--bg-secondary);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;font-size:0.95rem;color:var(--text-primary);width:100%;">
+          <option value="conflict">Conflitto</option>
+          <option value="tension">Tensione</option>
+          <option value="crisis">Crisi</option>
+          <option value="political">Politico</option>
+          <option value="economic">Economico</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Magnitudo</label>
+        <select id="qev-mag" style="background:var(--bg-secondary);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;font-size:0.95rem;color:var(--text-primary);width:100%;">
+          <option value="1">1 — Bassa</option>
+          <option value="2">2 — Media</option>
+          <option value="3" selected>3 — Alta</option>
+          <option value="4">4 — Critica</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('admin-map-modal').classList.remove('open')">Annulla</button>
+      <button class="btn btn-primary btn-sm" onclick="adminQuickAddEvent()">Aggiungi alla mappa</button>
+    </div>
+  </div>
+</div>
+
+<!-- Premium locked modal -->
+<div class="modal-overlay" id="locked-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" style="max-width:420px;text-align:center;">
+    <div style="font-size:2.5rem;margin-bottom:16px;">🔒</div>
+    <h3 style="margin-bottom:8px;">Contenuto per abbonati</h3>
+    <p style="margin-bottom:24px;font-size:0.9rem;">Questa analisi è disponibile solo per gli abbonati Premium e Pro. Sblocca l'accesso a tutte le analisi esclusive.</p>
+    <div style="display:flex;gap:12px;justify-content:center;">
+      <a href="register.html" class="btn btn-primary">Abbonati ora</a>
+      <button class="btn btn-outline" onclick="document.getElementById('locked-modal').classList.remove('open')">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SITUATION ROOM TUTORIAL ── -->
+<div class="modal-overlay" id="sr-help-modal" onclick="if(event.target===this)closeSrTutorial()">
+  <div class="modal" style="max-width:540px;padding:0;overflow:hidden;">
+
+    <!-- Progress bar -->
+    <div style="height:3px;background:rgba(255,255,255,0.06);">
+      <div id="sr-tour-progress" style="height:100%;background:#e8344e;transition:width 0.3s ease;width:20%;"></div>
+    </div>
+
+    <!-- Step counter + close -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0;">
+      <div style="display:flex;gap:6px;align-items:center;">
+        <span id="sr-tour-step-label" style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(235,235,245,0.28);">Passo 1 di 5</span>
+      </div>
+      <button class="modal-close" onclick="closeSrTutorial()">✕</button>
+    </div>
+
+    <!-- Slides -->
+    <div id="sr-tour-slides" style="overflow:hidden;">
+
+      <!-- STEP 1: Benvenuto -->
+      <div class="sr-tour-slide" data-step="1" style="padding:20px 24px 24px;">
+        <div style="text-align:center;margin-bottom:22px;">
+          <div style="font-size:2.8rem;margin-bottom:10px;">🌍</div>
+          <div style="font-size:1.1rem;font-weight:800;color:rgba(235,235,245,0.95);letter-spacing:-0.02em;margin-bottom:8px;">Benvenuto nella Situation Room</div>
+          <div style="font-size:0.84rem;color:rgba(235,235,245,0.45);line-height:1.65;">La tua centrale di intelligence geopolitica in tempo reale. Tutto ciò che vedi — eventi, analisi, articoli — è generato e aggiornato automaticamente dall'IA.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;">
+            <span style="font-size:1.2rem;flex-shrink:0;">🤖</span>
+            <div>
+              <div style="font-size:0.8rem;font-weight:600;color:rgba(235,235,245,0.8);margin-bottom:2px;">IA sempre attiva</div>
+              <div style="font-size:0.74rem;color:rgba(235,235,245,0.35);line-height:1.5;">Ogni 6 ore analizza migliaia di notizie globali e aggiorna la mappa. Ogni 30 minuti scrive nuovi articoli sugli eventi in corso.</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;">
+            <span style="font-size:1.2rem;flex-shrink:0;">🗺️</span>
+            <div>
+              <div style="font-size:0.8rem;font-weight:600;color:rgba(235,235,245,0.8);margin-bottom:2px;">4 aree di monitoraggio</div>
+              <div style="font-size:0.74rem;color:rgba(235,235,245,0.35);line-height:1.5;">Geopolitica, Politica, Business e Tecnologia — ogni dominio ha un colore dedicato sulla mappa.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: La Mappa -->
+      <div class="sr-tour-slide" data-step="2" style="display:none;padding:20px 24px 24px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:rgba(232,52,78,0.15);border:1.5px solid rgba(232,52,78,0.3);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">🗺️</div>
+          <div>
+            <div style="font-size:0.95rem;font-weight:800;color:rgba(235,235,245,0.92);">La Mappa Geopolitica</div>
+            <div style="font-size:0.72rem;color:rgba(235,235,245,0.3);margin-top:1px;">Occupa la sezione centrale — scorri e zooma liberamente</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:18px;">
+          <div style="font-size:0.78rem;color:rgba(235,235,245,0.5);line-height:1.65;">Ogni <strong style="color:rgba(235,235,245,0.8);">cerchio colorato</strong> è un evento geopolitico rilevante selezionato dall'IA. <strong style="color:rgba(235,235,245,0.8);">Clicca su un marker</strong> per leggere il brief analitico completo con contesto storico e scenari futuri.</div>
+        </div>
+        <!-- Colori -->
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px;">
+          <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(235,235,245,0.25);margin-bottom:10px;">Colore = dominio · Dimensione = gravità</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div style="display:flex;align-items:center;gap:8px;"><div style="width:10px;height:10px;border-radius:50%;background:#e8344e;box-shadow:0 0 5px rgba(232,52,78,0.5);flex-shrink:0;"></div><span style="font-size:0.76rem;color:rgba(235,235,245,0.6);">Geopolitica</span></div>
+            <div style="display:flex;align-items:center;gap:8px;"><div style="width:10px;height:10px;border-radius:50%;background:#4f9eff;box-shadow:0 0 5px rgba(79,158,255,0.4);flex-shrink:0;"></div><span style="font-size:0.76rem;color:rgba(235,235,245,0.6);">Politica</span></div>
+            <div style="display:flex;align-items:center;gap:8px;"><div style="width:10px;height:10px;border-radius:50%;background:#f5a623;box-shadow:0 0 5px rgba(245,166,35,0.4);flex-shrink:0;"></div><span style="font-size:0.76rem;color:rgba(235,235,245,0.6);">Business</span></div>
+            <div style="display:flex;align-items:center;gap:8px;"><div style="width:10px;height:10px;border-radius:50%;background:#a78bfa;box-shadow:0 0 5px rgba(167,139,250,0.4);flex-shrink:0;"></div><span style="font-size:0.76rem;color:rgba(235,235,245,0.6);">Tecnologia</span></div>
+          </div>
+          <div style="margin-top:10px;display:flex;align-items:center;gap:10px;">
+            <div style="display:flex;align-items:center;gap:4px;">
+              <div style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);"></div>
+              <span style="font-size:0.68rem;color:rgba(235,235,245,0.3);">Mag. 1</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:4px;">
+              <div style="width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);"></div>
+              <span style="font-size:0.68rem;color:rgba(235,235,245,0.3);">Mag. 2</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:4px;">
+              <div style="width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.5);"></div>
+              <span style="font-size:0.68rem;color:rgba(235,235,245,0.3);">Mag. 3</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:4px;">
+              <div style="width:22px;height:22px;border-radius:50%;background:rgba(232,52,78,0.25);border:2px solid #e8344e;box-shadow:0 0 6px rgba(232,52,78,0.5);"></div>
+              <span style="font-size:0.68rem;color:#e8344e;font-weight:600;">Critico</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Pannello mappa + Toolbar -->
+      <div class="sr-tour-slide" data-step="3" style="display:none;padding:20px 24px 24px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:rgba(57,255,20,0.1);border:1.5px solid rgba(57,255,20,0.25);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">🎛️</div>
+          <div>
+            <div style="font-size:0.95rem;font-weight:800;color:rgba(235,235,245,0.92);">Toolbar & Pannello Mappa</div>
+            <div style="font-size:0.72rem;color:rgba(235,235,245,0.3);margin-top:1px;">Controlli nella barra in alto a destra</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px;">
+          <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:26px;height:26px;border-radius:6px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(235,235,245,0.6)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+            </div>
+            <div>
+              <div style="font-size:0.78rem;font-weight:600;color:rgba(235,235,245,0.8);margin-bottom:3px;">Impostazioni mappa</div>
+              <div style="font-size:0.73rem;color:rgba(235,235,245,0.38);line-height:1.55;">Apre il pannello laterale con due tab: <strong style="color:rgba(235,235,245,0.6);">Layer</strong> (attiva/disattiva gli eventi) e <strong style="color:rgba(235,235,245,0.6);">Legenda</strong> (colori + scala magnitudo). Clicca di nuovo per chiuderlo.</div>
+            </div>
+          </div>
+          <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:26px;height:26px;border-radius:6px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:rgba(235,235,245,0.6);flex-shrink:0;">Cam</div>
+            <div>
+              <div style="font-size:0.78rem;font-weight:600;color:rgba(235,235,245,0.8);margin-bottom:3px;">CityCams</div>
+              <div style="font-size:0.73rem;color:rgba(235,235,245,0.38);line-height:1.55;">Feed live dalle città più vicine agli eventi critici. L'IA le ordina automaticamente per priorità geopolitica.</div>
+            </div>
+          </div>
+          <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:26px;height:26px;border-radius:6px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:rgba(235,235,245,0.6);flex-shrink:0;">Mkt</div>
+            <div>
+              <div style="font-size:0.78rem;font-weight:600;color:rgba(235,235,245,0.8);margin-bottom:3px;">Mercati</div>
+              <div style="font-size:0.73rem;color:rgba(235,235,245,0.38);line-height:1.55;">Prezzi in tempo reale delle materie prime geopolitiche: petrolio, gas naturale, oro, rame, grano.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4: Briefs & Articoli -->
+      <div class="sr-tour-slide" data-step="4" style="display:none;padding:20px 24px 24px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:rgba(79,158,255,0.12);border:1.5px solid rgba(79,158,255,0.3);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">📋</div>
+          <div>
+            <div style="font-size:0.95rem;font-weight:800;color:rgba(235,235,245,0.92);">Briefs, Articoli & Forum</div>
+            <div style="font-size:0.72rem;color:rgba(235,235,245,0.3);margin-top:1px;">Colonna sinistra e destra della Situation Room</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px;">
+          <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;">
+            <div style="font-size:0.78rem;font-weight:600;color:rgba(235,235,245,0.8);margin-bottom:4px;">📌 Briefs IA <span style="font-size:0.65rem;color:rgba(235,235,245,0.3);font-weight:400;">— colonna sinistra</span></div>
+            <div style="font-size:0.73rem;color:rgba(235,235,245,0.38);line-height:1.55;">Card degli eventi attivi con riassunto analitico, categoria e magnitudo. Generati dall'IA, aggiornati ad ogni scansione. Clicca una card per vedere il brief completo.</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;">
+            <div style="font-size:0.78rem;font-weight:600;color:rgba(235,235,245,0.8);margin-bottom:4px;">📰 Articoli <span style="font-size:0.65rem;color:rgba(235,235,245,0.3);font-weight:400;">— colonna destra · tab Articoli</span></div>
+            <div style="font-size:0.73rem;color:rgba(235,235,245,0.38);line-height:1.55;">Approfondimenti scritti dall'IA ogni 30 minuti sugli eventi in corso. Gli articoli con <span style="color:#e8344e;font-weight:600;">PRO</span> sono riservati agli abbonati.</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;">
+            <div style="display:flex;gap:8px;align-items:flex-start;">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:rgba(235,235,245,0.8);margin-bottom:4px;">🔒 Pro · 💬 Forum <span style="font-size:0.65rem;color:rgba(235,235,245,0.3);font-weight:400;">— tab colonna destra</span></div>
+                <div style="font-size:0.73rem;color:rgba(235,235,245,0.38);line-height:1.55;"><strong style="color:rgba(235,235,245,0.6);">Pro</strong>: analisi esclusive e briefing approfonditi. <strong style="color:rgba(235,235,245,0.6);">Forum</strong>: discussioni con la community degli abbonati.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5: Abbonamento -->
+      <div class="sr-tour-slide" data-step="5" style="display:none;padding:20px 24px 28px;text-align:center;">
+        <div style="font-size:2.4rem;margin-bottom:12px;">🚀</div>
+        <div style="font-size:1rem;font-weight:800;color:rgba(235,235,245,0.95);letter-spacing:-0.02em;margin-bottom:8px;">Sblocca tutto con Analisy Pro</div>
+        <div style="font-size:0.82rem;color:rgba(235,235,245,0.42);line-height:1.7;margin-bottom:22px;">Gli articoli premium, i brief Pro e il forum sono riservati agli abbonati. Con il piano Pro hai accesso completo a tutta l'intelligence generata dall'IA.</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:22px;text-align:left;">
+          <div style="display:flex;align-items:center;gap:10px;font-size:0.8rem;color:rgba(235,235,245,0.55);">
+            <span style="color:#39ff14;font-weight:700;flex-shrink:0;">✓</span> Tutti gli articoli IA senza limite
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:0.8rem;color:rgba(235,235,245,0.55);">
+            <span style="color:#39ff14;font-weight:700;flex-shrink:0;">✓</span> Brief Pro con analisi approfondite
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:0.8rem;color:rgba(235,235,245,0.55);">
+            <span style="color:#39ff14;font-weight:700;flex-shrink:0;">✓</span> Accesso al Forum community
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:0.8rem;color:rgba(235,235,245,0.55);">
+            <span style="color:#39ff14;font-weight:700;flex-shrink:0;">✓</span> Aggiornamenti in tempo reale
+          </div>
+        </div>
+        <a href="register.html" class="btn btn-primary" style="display:inline-block;border-radius:20px;padding:10px 28px;font-size:0.88rem;" onclick="closeSrTutorial()">Abbonati ora — 2,99€/mese</a>
+        <div style="margin-top:10px;">
+          <button onclick="closeSrTutorial()" style="background:none;border:none;font-size:0.76rem;color:rgba(235,235,245,0.28);cursor:pointer;">Continua senza abbonamento</button>
+        </div>
+      </div>
+
+    </div><!-- /slides -->
+
+    <!-- Navigation -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px 18px;border-top:1px solid rgba(255,255,255,0.06);">
+      <!-- Dot indicators -->
+      <div style="display:flex;gap:6px;align-items:center;">
+        <div class="sr-tour-dot active" data-dot="1" onclick="goToStep(1)" style="width:7px;height:7px;border-radius:50%;background:#e8344e;cursor:pointer;transition:all 0.2s;"></div>
+        <div class="sr-tour-dot" data-dot="2" onclick="goToStep(2)" style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.18);cursor:pointer;transition:all 0.2s;"></div>
+        <div class="sr-tour-dot" data-dot="3" onclick="goToStep(3)" style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.18);cursor:pointer;transition:all 0.2s;"></div>
+        <div class="sr-tour-dot" data-dot="4" onclick="goToStep(4)" style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.18);cursor:pointer;transition:all 0.2s;"></div>
+        <div class="sr-tour-dot" data-dot="5" onclick="goToStep(5)" style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.18);cursor:pointer;transition:all 0.2s;"></div>
+      </div>
+      <!-- Buttons -->
+      <div style="display:flex;gap:8px;">
+        <button id="sr-tour-prev" onclick="srTourStep(-1)" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:7px 16px;font-size:0.78rem;color:rgba(235,235,245,0.55);cursor:pointer;display:none;">← Indietro</button>
+        <button id="sr-tour-next" onclick="srTourStep(1)" style="background:#e8344e;border:none;border-radius:20px;padding:7px 18px;font-size:0.78rem;font-weight:600;color:#fff;cursor:pointer;">Avanti →</button>
+      </div>
+    </div>
+
+  </div><!-- /modal -->
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+<script src="js/map.js"></script>
+<script>
+
+/* ── MARKET DATA ── */
+const MARKETS = [
+  { name:'Petrolio Brent', ticker:'BRENT', price:'$88.42', change:'+1.2%', up:true  },
+  { name:'Gas Naturale',   ticker:'NATGAS', price:'$2.84',  change:'-0.8%', up:false },
+  { name:'Oro',            ticker:'GOLD',  price:'$2,345', change:'+0.4%', up:true  },
+  { name:'Argento',        ticker:'SILVER',price:'$29.12', change:'+0.9%', up:true  },
+  { name:'Rame',           ticker:'COPPER',price:'$4.45',  change:'-0.3%', up:false },
+  { name:'Grano',          ticker:'WHEAT', price:'$592',   change:'+2.1%', up:true  },
+  { name:'Litio (spot)',   ticker:'LI',    price:'$14,200',change:'-1.5%', up:false },
+  { name:'Uranio',         ticker:'UX',    price:'$85.50', change:'+0.7%', up:true  },
+  { name:'Palladio',       ticker:'PALL',  price:'$980',   change:'-0.2%', up:false },
+  { name:'Nichel',         ticker:'NICK',  price:'$17,890',change:'+1.8%', up:true  },
+];
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded', async () => {
+  await AppData.init();
+
+  // Map — eventi only (hide resources + routes)
+  initSituationMap('situation-map');
+  const HIDDEN_LAYERS = ['resources_oil','resources_gas','resources_lithium','resources_uranium','migration','maritime','oil_trade','submarine'];
+  HIDDEN_LAYERS.forEach(k => toggleLayer(k, false));
+
+  // Navbar
+  renderNavbar();
+
+  // Admin FAB
+  if (Auth.isAdmin()) {
+    document.getElementById('admin-map-fab').style.display = 'block';
+  }
+
+  // Hide subscribe CTAs if premium
+  if (Auth.isPremium()) {
+    const cta = document.getElementById('subscribe-cta');
+    if (cta) cta.style.display = 'none';
+    const navCta = document.getElementById('subnav-subscribe-cta');
+    if (navCta) navCta.style.display = 'none';
+  }
+
+  renderTicker();
+  loadBriefs();
+  renderArticles('all');
+  renderEventsSummary();
+  renderCitycams();
+  renderPodcasts();
+
+  // Forum
+  loadForumPosts();
+  if (Auth.isLoggedIn()) {
+    if (Auth.isForumMember()) {
+      const btn = document.getElementById('new-post-btn');
+      if (btn) btn.style.display = 'block';
+    } else {
+      const up = document.getElementById('forum-upgrade-prompt');
+      if (up) up.style.display = 'block';
+    }
+  } else {
+    const prompt = document.getElementById('forum-login-prompt');
+    if (prompt) prompt.style.display = 'block';
+  }
+
+  // Render markets
+  renderMarkets();
+
+  // Simulate market refresh
+  setInterval(updateMarketPrices, 8000);
+});
+
+/* ── TICKER ── */
+function renderTicker() {
+  const track = document.getElementById('ticker-track');
+  const items = [...MARKETS, ...MARKETS]; // duplicate for seamless loop
+  track.innerHTML = items.map(m => `
+    <div class="ticker-item">
+      <span class="ticker-name">${m.name}</span>
+      <span class="ticker-price">${m.price}</span>
+      <span class="${m.up ? 'ticker-up' : 'ticker-down'}">${m.change}</span>
+    </div>
+  `).join('');
+}
+
+/* ── MAP PANEL TOGGLE ── */
+function toggleMapPanel(btn) {
+  const panel = document.getElementById('map-unified-panel');
+  const hidden = panel.classList.toggle('sr-panel-hidden');
+  btn.classList.toggle('active', !hidden);
+}
+
+/* ── TOOL NAVBAR: right-column tab switcher ── */
+function switchToolTab(tab, el) {
+  document.querySelectorAll('.tn-tab').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.sr-right-pane').forEach(p => p.classList.remove('active'));
+  const pane = document.getElementById('pane-' + tab);
+  if (pane) pane.classList.add('active');
+}
+
+/* ── CENTER COLUMN: cam/markets toggle ── */
+function switchCenter(mode, el) {
+  document.querySelectorAll('.tn-toggle-btn').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('center-cams').classList.toggle('active', mode === 'cams');
+  document.getElementById('center-markets').classList.toggle('active', mode === 'markets');
+}
+
+/* ── MARKETS: render cards ── */
+function renderMarkets() {
+  const list = document.getElementById('markets-list');
+  if (!list) return;
+  list.innerHTML = MARKETS.map(m => `
+    <div class="mkt-card">
+      <div>
+        <div class="mkt-name">${m.name}</div>
+        <div class="mkt-ticker">${m.ticker}</div>
+      </div>
+      <div>
+        <div class="mkt-price">${m.price}</div>
+        <div class="${m.up ? 'mkt-up' : 'mkt-down'}">${m.change}</div>
+      </div>
+    </div>`).join('');
+}
+
+function updateMarketPrices() {
+  MARKETS.forEach(m => {
+    const delta = (Math.random() - 0.48) * 0.8;
+    m.up = delta >= 0;
+    m.change = (delta >= 0 ? '+' : '') + delta.toFixed(1) + '%';
+  });
+  renderMarkets();
+  renderTicker();
+}
+
+/* ── INTELLIGENCE BRIEFS ── */
+const BRIEF_CAT = {
+  conflict:   { label:'Conflitto',  color:'#ff4757' },
+  disaster:   { label:'Disastro',   color:'#ff8c00' },
+  migration:  { label:'Migrazione', color:'#ffb400' },
+  diplomatic: { label:'Diplomazia', color:'#4f9eff' },
+  political:  { label:'Politica',   color:'#9b59ff' },
+  tension:    { label:'Tensione',   color:'#f5c842' },
+  crisis:     { label:'Crisi',      color:'#ff7043' },
+  economic:   { label:'Economia',   color:'#00d4aa' },
+};
+const MAG_LABEL = ['','Basso','Medio','Alto','Critico'];
+const MAG_COLOR = ['','#4f9eff','#ffb400','#ff8c00','#ff4757'];
+
+let briefsData   = [];
+let briefsFilter = 'all';
+
+function filterBriefs(cat, el) {
+  briefsFilter = cat;
+  document.querySelectorAll('#briefs-filter-bar .forum-cat-btn').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderBriefs(briefsData);
+}
+
+async function loadBriefs() {
+  try {
+    briefsData = await Api.get('/api/map/events/briefs').catch(() => []);
+    if (!Array.isArray(briefsData)) briefsData = [];
+    renderBriefs(briefsData);
+    const el = document.getElementById('briefs-updated');
+    if (el) el.textContent = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+  } catch(e) {
+    briefsData = [];
+    renderBriefs([]);
+  }
+}
+
+function renderBriefs(events) {
+  const list = document.getElementById('briefs-list');
+  if (!list) return;
+
+  /* Update total count (unfiltered) */
+  const countEl = document.getElementById('briefs-count');
+  if (countEl) countEl.textContent = events.length ? `${events.length} event${events.length === 1 ? 'o' : 'i'}` : '';
+
+  /* Apply active filter */
+  const filtered = briefsFilter === 'all' ? events : events.filter(ev => ev.category === briefsFilter);
+
+  if (!filtered.length) {
+    list.innerHTML = `
+      <div style="padding:28px 0 28px 14px;border-left:2px solid rgba(255,255,255,0.06);font-size:0.8rem;color:var(--text-muted);line-height:1.6;">
+        ${events.length && briefsFilter !== 'all'
+          ? 'Nessun evento in questa categoria.'
+          : "L'AI genera i brief automaticamente quando rileva eventi geopolitici attivi."}
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(ev => {
+    const cat       = BRIEF_CAT[ev.category] || { label: ev.category || 'Evento', color:'#4f9eff' };
+    const ago       = ev.createdAt ? timeAgo(ev.createdAt) : '';
+    const briefText = ev.brief || ev.summary || '';
+    const magLabel  = MAG_LABEL[ev.magnitude] || '';
+    return `
+    <div class="brief-card" style="--cat-color:${cat.color};">
+      <div class="brief-eyebrow" style="color:${cat.color};">
+        ${cat.label.toUpperCase()}${magLabel ? ' · ' + magLabel.toUpperCase() : ''}
+      </div>
+      <div class="brief-title">${ev.title}</div>
+      ${briefText
+        ? `<div class="brief-text">${briefText}</div>`
+        : `<div class="brief-text brief-text-empty">Brief in elaborazione...</div>`
+      }
+      <div class="brief-meta">
+        ${ago ? `<span>${ago}</span>` : ''}
+        ${ev.sourceUrl ? `<a href="${ev.sourceUrl}" target="_blank" rel="noopener" class="brief-source-link">Fonte →</a>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function timeAgo(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 2)  return 'Ora';
+  if (m < 60) return `${m} min fa`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h fa`;
+  return `${Math.floor(h/24)}g fa`;
+}
+
+/* Auto-refresh briefs every 5 minutes */
+setInterval(loadBriefs, 5 * 60 * 1000);
+
+/* ── ARTICLES ── */
+let currentCategory = 'all';
+
+/* Called by top subnav links */
+function filterCategory(cat, el) {
+  currentCategory = cat;
+  document.querySelectorAll('.sr-subnav-link').forEach(a => a.classList.remove('active'));
+  if (el) el.classList.add('active');
+  /* Sync article tab bar */
+  document.querySelectorAll('#articles-filter-bar .forum-cat-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.trim().toLowerCase() === (cat === 'all' ? 'tutti' : cat));
+  });
+  renderArticles(cat);
+}
+
+/* Called by article tab bar */
+function filterArticles(cat, el) {
+  currentCategory = cat;
+  document.querySelectorAll('#articles-filter-bar .forum-cat-btn').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderArticles(cat);
+}
+
+function renderArticles(cat) {
+  const grid    = document.getElementById('articles-grid');
+  const allArts = getArticles();
+  const filtered = cat === 'all' ? allArts : allArts.filter(a => a.cat === cat);
+  /* Update count */
+  const countEl = document.getElementById('articles-count');
+  if (countEl) countEl.textContent = filtered.length ? `${filtered.length} articol${filtered.length === 1 ? 'o' : 'i'}` : '';
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div style="padding:28px 0 28px 0;font-size:0.82rem;color:var(--text-muted);">Nessun articolo in questa categoria.</div>`;
+    return;
+  }
+
+  const clockIcon = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="opacity:0.6;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+  const catColors  = { geopolitica:'#e8344e', politica:'#4f9eff', business:'#f5a623', tecnologia:'#a78bfa' };
+  const catLabels  = { geopolitica:'Geopolitica', politica:'Politica', business:'Business', tecnologia:'Tecnologia' };
+
+  // Gli articoli generati dall'IA sono sempre pubblici — nessun lock
+  grid.innerHTML = filtered.map(a => {
+    const catColor = catColors[a.cat] || 'rgba(255,255,255,0.15)';
+    const catLabel = catLabels[a.cat] || (a.cat_label || a.cat || '');
+    const readTime = a.read_time ? `<span>·</span><span>${a.read_time}</span>` : '';
+    const thumbHtml = a.image
+      ? `<img src="${a.image}" alt="" style="width:100%;height:100%;object-fit:cover;" />`
+      : `<div style="width:100%;height:100%;background:${a.imgGrad||'linear-gradient(135deg,#0d1525,#111827)'};display:flex;align-items:center;justify-content:center;font-size:1.4rem;">${a.imgEmoji||'📰'}</div>`;
+    return `
+      <div class="sr-article-card" style="--art-cat-color:${catColor};" onclick="openArticle('${a.id}')">
+        <div class="art-card-body">
+          <div class="art-cat-pill">${catLabel}</div>
+          <div class="art-title-row">${a.title}</div>
+          <div class="art-meta-row">${clockIcon}<span>${a.date || ''}</span>${readTime}</div>
+        </div>
+        <div class="art-thumb">${thumbHtml}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function openArticle(id) {
+  window.location.href = 'article.html?id=' + encodeURIComponent(id);
+}
+
+/* ── EVENTS SUMMARY ── */
+function renderEventsSummary() {
+  const el = document.getElementById('events-summary');
+  if (!el) return;
+  const events = getMapEvents().slice(0, 6);
+  const catColors = { conflict:'var(--accent-red)', tension:'var(--accent-yellow)', crisis:'var(--accent-orange)', political:'var(--accent-blue)', economic:'var(--accent-green)' };
+  const catLabels = { conflict:'Conflitto', tension:'Tensione', crisis:'Crisi', political:'Politico', economic:'Economico' };
+
+  el.innerHTML = events.map(ev => `
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:var(--transition);"
+         onclick="panToEvent(${ev.lat},${ev.lng})"
+         onmouseenter="this.style.borderColor='var(--border-hover)'"
+         onmouseleave="this.style.borderColor='var(--border)'">
+      <div style="width:8px;height:8px;border-radius:50%;background:${catColors[ev.category]||'#fff'};box-shadow:0 0 6px ${catColors[ev.category]||'#fff'};margin-top:4px;flex-shrink:0;"></div>
+      <div>
+        <div style="font-size:0.82rem;font-weight:600;color:var(--text-primary);line-height:1.3;">${ev.title}</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">${catLabels[ev.category]||ev.category} · mag. ${ev.magnitude}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function panToEvent(lat, lng) {
+  if (situationMap) {
+    situationMap.flyTo([lat, lng], 5, { duration: 1.2 });
+  }
+}
+
+/* ── LAYER TOGGLE HANDLER ── */
+function handleToggle(layerKey, el) {
+  const isOn = el.classList.contains('on');
+  el.classList.toggle('on', !isOn);
+  toggleLayer(layerKey, !isOn);
+}
+
+/* ── CITYCAMS ── */
+const CAM_CAT_COLOR = {
+  conflict:   '#e8344e', crisis:     '#ff7043', tension:    '#f5c842',
+  diplomatic: '#4f9eff', political:  '#9b59ff', economic:   '#00d4aa',
+  disaster:   '#ff8c00', migration:  '#ffb400',
+};
+
+function renderCitycams() {
+  const cams = getCitycams();
+  const el   = document.getElementById('citycam-grid');
+  if (!el) return;
+
+  el.innerHTML = cams.map(c => {
+    const sep       = c.embedUrl && c.embedUrl.includes('?') ? '&' : '?';
+    const iframeSrc = c.embedUrl ? `${c.embedUrl}${sep}autoplay=1&mute=1&controls=0&loop=1&playsinline=1` : '';
+
+    /* AI event overlay — shown only if cam is linked to an active event */
+    const evColor   = CAM_CAT_COLOR[c.aiEventCategory] || '#4f9eff';
+    const evOverlay = c.aiEventId && c.aiEventTitle
+      ? `<div style="
+            position:absolute;bottom:0;left:0;right:0;
+            background:linear-gradient(to top, rgba(0,0,0,0.88) 0%, transparent 100%);
+            padding:5px 5px 4px;
+            border-left:2px solid ${evColor};
+            pointer-events:none;
+         ">
+           <div style="font-size:0.5rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:${evColor};margin-bottom:1px;">
+             ${(c.aiEventCategory||'').toUpperCase()}
+           </div>
+           <div style="font-size:0.56rem;color:rgba(255,255,255,0.85);line-height:1.25;
+                       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+             ${c.aiEventTitle}
+           </div>
+         </div>`
+      : '';
+
+    /* Country code extracted from flag emoji (regional indicators → ASCII) */
+    const countryCode = (c.flag || '').replace(/./gu, ch => {
+      const cp = ch.codePointAt(0);
+      return (cp >= 0x1F1E6 && cp <= 0x1F1FF) ? String.fromCharCode(cp - 0x1F1E6 + 65) : '';
+    }) || c.name.slice(0, 2).toUpperCase();
+
+    /* City name and country split */
+    const nameParts  = c.name.split(',');
+    const cityShort  = nameParts[0].trim();
+    const countryStr = nameParts[1] ? nameParts[1].trim() : '';
+
+    const preview = c.embedUrl
+      ? `<iframe src="${iframeSrc}"
+            style="position:absolute;top:-25%;left:0;width:100%;height:150%;border:none;pointer-events:none;"
+            allow="autoplay;encrypted-media;picture-in-picture"
+            allowfullscreen loading="lazy"></iframe>
+         <div class="citycam-live-badge">LIVE</div>
+         ${evOverlay}
+         <div style="position:absolute;inset:0;cursor:pointer;"></div>`
+      : `<div class="cam-overlay"></div>
+         <div class="city-icon" style="font-family:monospace;font-size:1.4rem;font-weight:800;letter-spacing:0.06em;color:rgba(255,255,255,0.18);z-index:1;">${countryCode}</div>
+         <div class="citycam-live-badge" style="opacity:0.3;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);box-shadow:none;">NO SIG</div>
+         ${evOverlay}`;
+
+    return `
+    <div class="citycam-card" onclick="openCitycam('${c.id}')" title="${c.name}"
+         style="${c.aiEventId ? '--cam-ev-color:' + evColor + ';border-left:2px solid ' + evColor + ';' : ''}">
+      <div class="citycam-preview" style="position:relative;overflow:hidden;">${preview}</div>
+      <div class="citycam-name">
+        <span style="color:rgba(255,255,255,0.55);font-size:0.56rem;font-family:monospace;font-weight:700;margin-right:5px;letter-spacing:0.05em;">${countryCode}</span>${cityShort}${countryStr ? `<span style="color:rgba(255,255,255,0.28);margin-left:4px;font-size:0.52rem;">${countryStr}</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openCitycam(id) {
+  const cam = getCitycams().find(c => c.id === id);
+  if (!cam) return;
+  const modal = document.getElementById('citycam-view-modal');
+  document.getElementById('cv-title').textContent = `${cam.flag || '🌍'} ${cam.name}`;
+  const frame = document.getElementById('cv-iframe');
+  if (cam.embedUrl) {
+    frame.src = cam.embedUrl + (cam.embedUrl.includes('?') ? '&' : '?') + 'autoplay=1&mute=1';
+    frame.style.display = 'block';
+    document.getElementById('cv-no-stream').style.display = 'none';
+  } else {
+    frame.src = 'about:blank';
+    frame.style.display = 'none';
+    document.getElementById('cv-no-stream').style.display = 'flex';
+  }
+  modal.classList.add('open');
+}
+
+function closeCitycamModal() {
+  document.getElementById('cv-iframe').src = 'about:blank';
+  document.getElementById('citycam-view-modal').classList.remove('open');
+}
+
+/* ── PODCASTS ── */
+function renderPodcasts() {
+  const pods = getPodcasts();
+  const el   = document.getElementById('podcast-list');
+  if (!el) return;
+
+  /* Update count */
+  const countEl = document.getElementById('podcast-count');
+  if (countEl) countEl.textContent = pods.length ? `${pods.length} episod${pods.length === 1 ? 'io' : 'i'}` : '';
+
+  el.innerHTML = pods.map(p => `
+    <div class="podcast-item">
+      <div class="podcast-thumb">🎙️<div class="play-icon">▶</div></div>
+      <div class="podcast-info">
+        <h4>${p.title}</h4>
+        <div class="pod-meta">${p.date} · ${p.duration} · ${p.author}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* ── FORUM ── */
+let forumPosts = [];
+let forumFilter = 'all';
+let currentPostId = null;
+
+function filterForum(cat, el) {
+  forumFilter = cat;
+  document.querySelectorAll('#forum-filter-bar .forum-cat-btn').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderForumPosts();
+}
+
+function renderForumPosts() {
+  const list = forumFilter === 'all' ? forumPosts : forumPosts.filter(p => p.category === forumFilter);
+  const el   = document.getElementById('forum-posts-list');
+  if (!el) return;
+
+  /* Update post count */
+  const countEl = document.getElementById('forum-post-count');
+  if (countEl) countEl.textContent = list.length ? `${list.length} discussion${list.length === 1 ? 'e' : 'i'}` : '';
+
+  if (!list.length) {
+    el.innerHTML = `
+      <div style="padding:40px 0 40px 16px;border-left:2px solid rgba(255,255,255,0.06);color:var(--text-muted);font-size:0.82rem;">
+        Nessuna discussione in questa categoria. Sii il primo a iniziarne una!
+      </div>`;
+    return;
+  }
+
+  const catColors = {
+    geopolitica: 'var(--accent-red)',
+    politica:    'var(--accent-blue)',
+    business:    'var(--accent-green)',
+    tecnologia:  'var(--accent-purple)',
+    generale:    'rgba(255,255,255,0.2)'
+  };
+  const catLabels = {
+    geopolitica: 'Geopolitica',
+    politica:    'Politica',
+    business:    'Business',
+    tecnologia:  'Tecnologia',
+    generale:    'Generale'
+  };
+
+  const me = Auth.get();
+  el.innerHTML = list.map(p => {
+    const color     = catColors[p.category]  || 'rgba(255,255,255,0.2)';
+    const label     = catLabels[p.category]  || p.category;
+    const date      = new Date(p.created_at).toLocaleDateString('it-IT', {day:'2-digit',month:'short',year:'numeric'});
+    const excerpt   = p.body.length > 180 ? p.body.slice(0,180) + '…' : p.body;
+    const isOwn     = me?.id === p.author_id;
+    const isAdm     = Auth.isAdmin();
+    const canReport = Auth.isLoggedIn() && !isOwn;
+    const replies   = p.replies_count || 0;
+    return `
+      <div class="forum-post-card" style="--forum-cat-color:${color};" onclick="openPost('${p.id}')">
+        <div class="brief-eyebrow" style="color:${color};">
+          ${label.toUpperCase()}
+          <span style="margin-left:auto;display:flex;align-items:center;gap:10px;">
+            ${canReport ? `<button style="font-size:0.62rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-muted);background:none;border:none;cursor:pointer;padding:0;" onclick="event.stopPropagation();reportContent('post','${p.id}','${p.author_id}','${p.author_name}')">Segnala</button>` : ''}
+            ${isOwn||isAdm ? `<button style="font-size:0.62rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--accent-red);background:none;border:none;cursor:pointer;padding:0;" onclick="event.stopPropagation();deletePost('${p.id}')">Elimina</button>` : ''}
+          </span>
+        </div>
+        <div style="font-size:0.93rem;font-weight:700;color:var(--text-primary);margin-bottom:6px;line-height:1.35;">${p.title}</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:10px;line-height:1.55;">${excerpt}</div>
+        <div style="font-size:0.65rem;color:var(--text-muted);display:flex;align-items:center;gap:8px;">
+          <span>${p.author_name}</span>
+          <span style="opacity:0.35;">·</span>
+          <span>${date}</span>
+          <span style="opacity:0.35;">·</span>
+          <span>${replies} rispost${replies === 1 ? 'a' : 'e'}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function loadForumPosts() {
+  try {
+    const data = await Api.fn('forum-posts', { action: 'list' });
+    forumPosts = Array.isArray(data) ? data : [];
+    renderForumPosts();
+  } catch(e) {
+    document.getElementById('forum-posts-list').innerHTML =
+      '<div style="text-align:center;padding:32px;color:var(--text-muted);">Errore nel caricamento delle discussioni.</div>';
+  }
+}
+
+function openNewPostModal() {
+  document.getElementById('np-title').value    = '';
+  document.getElementById('np-body').value     = '';
+  document.getElementById('np-category').value = 'generale';
+  document.getElementById('new-post-modal').classList.add('open');
+}
+
+async function submitPost() {
+  if (!Auth.isForumMember()) { showToast('Serve un abbonamento Pro per pubblicare nel forum.', 'error'); return; }
+  const title    = document.getElementById('np-title').value.trim();
+  const body     = document.getElementById('np-body').value.trim();
+  const category = document.getElementById('np-category').value;
+  if (!title) { showToast('Il titolo è obbligatorio', 'error'); return; }
+  if (!body)  { showToast('Il testo è obbligatorio', 'error'); return; }
+  try {
+    const post = await Api.fn('forum-posts', { action: 'create', title, body, category });
+    forumPosts.unshift(post);
+    document.getElementById('new-post-modal').classList.remove('open');
+    filterForum('all', document.querySelector('.forum-cat-btn'));
+    showToast('Discussione pubblicata!', 'success');
+  } catch(e) {
+    showToast(e.message || 'Errore nella pubblicazione', 'error');
+  }
+}
+
+async function deletePost(id) {
+  if (!confirm('Eliminare questa discussione?')) return;
+  try {
+    await Api.fn('forum-posts', { action: 'delete', id });
+    forumPosts = forumPosts.filter(p => p.id !== id);
+    renderForumPosts();
+    showToast('Discussione eliminata.', 'success');
+  } catch(e) {
+    showToast(e.message || 'Errore', 'error');
+  }
+}
+
+async function openPost(id) {
+  currentPostId = id;
+  const post = forumPosts.find(p => p.id === id);
+  if (!post) return;
+
+  const catLabels = { geopolitica:'Geopolitica', politica:'Politica', business:'Business', tecnologia:'Tecnologia', generale:'Generale' };
+  const date = new Date(post.created_at).toLocaleDateString('it-IT', {day:'2-digit',month:'short',year:'numeric'});
+
+  document.getElementById('pv-title').textContent = post.title;
+  document.getElementById('pv-meta').innerHTML = `
+    <span>✍️ ${post.author_name}</span>
+    <span>·</span><span>${date}</span>
+    <span>·</span><span style="color:var(--accent-blue);">${catLabels[post.category]||post.category}</span>`;
+  document.getElementById('pv-body').innerHTML = post.body.split('\n').filter(l=>l.trim()).map(l=>`<p style="margin-bottom:10px;">${l}</p>`).join('');
+
+  const isLoggedIn = Auth.isLoggedIn();
+  document.getElementById('pv-reply-form').style.display  = isLoggedIn ? 'block' : 'none';
+  document.getElementById('pv-reply-login').style.display = isLoggedIn ? 'none'  : 'block';
+  document.getElementById('pv-reply-body').value = '';
+
+  document.getElementById('pv-replies-list').innerHTML = '<div style="color:var(--text-muted);font-size:0.85rem;">Caricamento...</div>';
+  document.getElementById('post-view-modal').classList.add('open');
+
+  try {
+    const replies = await Api.fn('forum-replies', { action: 'list', postId: id });
+    renderReplies(replies, post);
+  } catch(e) {
+    document.getElementById('pv-replies-list').innerHTML = '<div style="color:var(--text-muted);font-size:0.85rem;">Errore nel caricamento delle risposte.</div>';
+  }
+}
+
+function renderReplies(replies, post) {
+  const el    = document.getElementById('pv-replies-list');
+  const label = document.getElementById('pv-replies-label');
+  label.textContent = `Risposte (${replies.length})`;
+
+  if (!replies.length) {
+    el.innerHTML = `<div style="padding:12px 0 12px 12px;border-left:2px solid rgba(255,255,255,0.06);color:var(--text-muted);font-size:0.82rem;">Ancora nessuna risposta. Sii il primo!</div>`;
+    return;
+  }
+  const me = Auth.get();
+  el.innerHTML = replies.map(r => {
+    const d         = new Date(r.created_at).toLocaleDateString('it-IT', {day:'2-digit',month:'short',year:'numeric'});
+    const isOwn     = me?.id === r.author_id;
+    const canDel    = isOwn || Auth.isAdmin();
+    const canReport = Auth.isLoggedIn() && !isOwn;
+    return `
+    <div class="forum-reply-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-secondary);">${r.author_name}</span>
+        <span style="font-size:0.62rem;color:var(--text-muted);opacity:0.55;">${d}</span>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:10px;">
+          ${canReport ? `<button style="font-size:0.62rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);background:none;border:none;cursor:pointer;padding:0;" onclick="reportContent('reply','${r.id}','${r.author_id}','${r.author_name}')">Segnala</button>` : ''}
+          ${canDel    ? `<button style="font-size:0.65rem;color:var(--accent-red);background:none;border:none;cursor:pointer;padding:0;line-height:1;" onclick="deleteReply('${r.id}','${r.post_id}')">✕</button>` : ''}
+        </div>
+      </div>
+      <p style="font-size:0.87rem;color:var(--text-secondary);line-height:1.68;margin:0;">${r.body}</p>
+    </div>`;
+  }).join('');
+}
+
+async function submitReply() {
+  if (!Auth.isForumMember()) { showToast('Serve un abbonamento Pro per rispondere.', 'error'); return; }
+  const body = document.getElementById('pv-reply-body').value.trim();
+  if (!body) { showToast('Scrivi qualcosa prima di inviare', 'error'); return; }
+  try {
+    await Api.fn('forum-replies', { action: 'create', postId: currentPostId, body });
+    document.getElementById('pv-reply-body').value = '';
+    const post = forumPosts.find(p => p.id === currentPostId);
+    if (post) post.replies_count = (post.replies_count || 0) + 1;
+    const replies = await Api.fn('forum-replies', { action: 'list', postId: currentPostId });
+    renderReplies(replies, post);
+    renderForumPosts();
+    showToast('Risposta inviata!', 'success');
+  } catch(e) {
+    showToast(e.message || 'Errore nell\'invio', 'error');
+  }
+}
+
+async function deleteReply(replyId, postId) {
+  if (!confirm('Eliminare questa risposta?')) return;
+  try {
+    await Api.fn('forum-replies', { action: 'delete', id: replyId });
+    const post = forumPosts.find(p => p.id === postId);
+    if (post) post.replies_count = Math.max(0, (post.replies_count || 1) - 1);
+    const replies = await Api.fn('forum-replies', { action: 'list', postId });
+    renderReplies(replies, post);
+    renderForumPosts();
+    showToast('Risposta eliminata.', 'success');
+  } catch(e) {
+    showToast(e.message || 'Errore', 'error');
+  }
+}
+
+/* ── MAP UNIFIED PANEL ── */
+let _mupCollapsed = false;
+
+function toggleUnifiedPanel() {
+  _mupCollapsed = !_mupCollapsed;
+  const body    = document.getElementById('mup-body');
+  const tabs    = document.getElementById('mup-tabs');
+  const chevron = document.getElementById('mup-chevron');
+  body.style.display  = _mupCollapsed ? 'none' : '';
+  tabs.style.display  = _mupCollapsed ? 'none' : '';
+  chevron.style.transform = _mupCollapsed ? 'rotate(180deg)' : '';
+}
+
+function switchMapTab(tab, el) {
+  document.querySelectorAll('.mup-tab').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('mup-tab-layers').style.display = tab === 'layers' ? '' : 'none';
+  document.getElementById('mup-tab-legend').style.display = tab === 'legend' ? '' : 'none';
+}
+
+/* ── REPORT CONTENT ── */
+async function reportContent(contentType, contentId, authorId, authorName) {
+  const reason = prompt(`Motivo della segnalazione contro "${authorName}":\n(es. spam, contenuto offensivo, violazione norme)`);
+  if (reason === null) return;
+  if (!reason.trim()) { showToast('Inserisci un motivo per la segnalazione.', 'error'); return; }
+  let contentText = '';
+  if (contentType === 'post') {
+    const p = forumPosts.find(x => x.id === contentId);
+    contentText = p ? p.body : '';
+  }
+  try {
+    await Api.fn('forum-reports', { contentType, contentId, authorId, authorName, contentText, reason: reason.trim() });
+    showToast('Segnalazione inviata. Grazie per la tua collaborazione.', 'success');
+  } catch(e) {
+    showToast(e.message || 'Errore nell\'invio della segnalazione', 'error');
+  }
+}
+
+/* ── ADMIN QUICK ADD EVENT ── */
+async function adminQuickAddEvent() {
+  const title = document.getElementById('qev-title').value.trim();
+  const desc  = document.getElementById('qev-desc').value.trim();
+  const lat   = parseFloat(document.getElementById('qev-lat').value);
+  const lng   = parseFloat(document.getElementById('qev-lng').value);
+  const cat   = document.getElementById('qev-cat').value;
+  const mag   = parseInt(document.getElementById('qev-mag').value);
+
+  if (!title || isNaN(lat) || isNaN(lng)) {
+    showToast('Compila tutti i campi obbligatori', 'error'); return;
+  }
+
+  try {
+    const ev = await Api.post('/api/map/events', { title, desc, lat, lng, category: cat, magnitude: mag });
+    AppData.mapEvents.push(ev);
+    addEventMarker(ev);
+    document.getElementById('admin-map-modal').classList.remove('open');
+    renderEventsSummary();
+    situationMap.flyTo([lat, lng], 5);
+    showToast('Evento aggiunto alla mappa!', 'success');
+    ['qev-title','qev-desc','qev-lat','qev-lng'].forEach(id => document.getElementById(id).value = '');
+  } catch(e) {
+    showToast(e.message || 'Errore nel salvataggio', 'error');
+  }
+}
+
+/* ── SITUATION ROOM TUTORIAL ── */
+let _srTourStep = 1;
+const SR_TOUR_TOTAL = 5;
+
+function openSrTutorial() {
+  _srTourStep = 1;
+  _srTourRender();
+  document.getElementById('sr-help-modal').classList.add('open');
+}
+
+function closeSrTutorial() {
+  document.getElementById('sr-help-modal').classList.remove('open');
+}
+
+function srTourStep(dir) {
+  const next = _srTourStep + dir;
+  if (next < 1 || next > SR_TOUR_TOTAL) return;
+  _srTourStep = next;
+  _srTourRender();
+}
+
+function goToStep(n) {
+  _srTourStep = n;
+  _srTourRender();
+}
+
+function _srTourRender() {
+  const n     = _srTourStep;
+  const total = SR_TOUR_TOTAL;
+
+  // Slides
+  document.querySelectorAll('.sr-tour-slide').forEach(s => {
+    s.style.display = parseInt(s.dataset.step) === n ? '' : 'none';
+  });
+
+  // Progress bar
+  const prog = document.getElementById('sr-tour-progress');
+  if (prog) prog.style.width = (n / total * 100) + '%';
+
+  // Step label
+  const lbl = document.getElementById('sr-tour-step-label');
+  if (lbl) lbl.textContent = `Passo ${n} di ${total}`;
+
+  // Dots
+  document.querySelectorAll('.sr-tour-dot').forEach(d => {
+    const active = parseInt(d.dataset.dot) === n;
+    d.style.width      = active ? '7px' : '6px';
+    d.style.height     = active ? '7px' : '6px';
+    d.style.background = active ? '#e8344e' : 'rgba(255,255,255,0.18)';
+  });
+
+  // Prev button
+  const prev = document.getElementById('sr-tour-prev');
+  if (prev) prev.style.display = n > 1 ? '' : 'none';
+
+  // Next button
+  const nextBtn = document.getElementById('sr-tour-next');
+  if (nextBtn) {
+    if (n === total) {
+      nextBtn.style.display = 'none';
+    } else {
+      nextBtn.style.display = '';
+      nextBtn.textContent   = n === total - 1 ? 'Concludi →' : 'Avanti →';
+    }
+  }
+}
+</script>
+<script src="js/cookie-banner.js"></script>
+</body>
+</html>
