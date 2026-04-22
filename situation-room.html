@@ -293,8 +293,8 @@
       height: calc(100vh - 60vh - 36px - 34px - var(--announce-h));
       min-height: 480px;
     }
-    .sr-col-left   { background: #000; border-right: 1px solid rgba(255,255,255,0.06); overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
-    .sr-col-center { background: #111113; border-right: 1px solid rgba(255,255,255,0.06); overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
+    .sr-col-left   { background: #000; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
+    .sr-col-center { background: #111113; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
     .sr-col-right  { background: #000; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
     .sr-col-header {
       display: flex; align-items: center; justify-content: space-between;
@@ -735,6 +735,11 @@
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     Forum
   </button>
+  <button class="tn-tab" id="tn-podcast" onclick="switchToolTab('podcast',this)" title="Podcast Analisy">
+    <!-- headphones icon -->
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+    Podcast
+  </button>
 
   <div class="tn-divider"></div>
 
@@ -892,6 +897,22 @@
       <div id="forum-upgrade-prompt" style="display:none;padding:14px 16px;border-top:1px solid rgba(255,255,255,0.06);background:#000;">
         <p style="font-size:0.78rem;color:var(--text-muted);margin:0 0 10px;">Piano Pro richiesto per postare e rispondere.</p>
         <a href="register.html" style="display:inline-block;padding:6px 18px;font-size:0.75rem;font-weight:700;background:#e8344e;color:#fff;border-radius:20px;text-decoration:none;">Passa a Pro</a>
+      </div>
+    </div>
+
+    <!-- PODCAST pane -->
+    <div class="sr-right-pane" id="pane-podcast">
+      <div class="sr-col-header">
+        <span class="sr-col-title">Podcast Analisy</span>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:16px;text-align:center;">
+        <div style="width:56px;height:56px;border-radius:50%;background:rgba(79,158,255,0.1);border:1.5px solid rgba(79,158,255,0.2);display:flex;align-items:center;justify-content:center;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4f9eff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+        </div>
+        <div>
+          <div style="font-size:0.88rem;font-weight:700;color:rgba(235,235,245,0.85);margin-bottom:6px;">Podcast in arrivo</div>
+          <div style="font-size:0.72rem;color:rgba(235,235,245,0.35);line-height:1.6;">Analisi audio geopolitiche settimanali.<br>Presto disponibili sulla piattaforma.</div>
+        </div>
       </div>
     </div>
 
