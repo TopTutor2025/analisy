@@ -11,17 +11,17 @@ Deno.serve(async (req) => {
   const authHeader = req.headers.get('Authorization');
   if (!authHeader) return errorResponse('Autenticazione richiesta', 401);
 
-  const supabase = createClient(
+  // Client autenticato — solo per verificare il ruolo
+  const authedClient = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_ANON_KEY')!,
     { global: { headers: { Authorization: authHeader } } }
   );
 
-  // Verifica admin
-  const { data: { user }, error: authErr } = await supabase.auth.getUser();
+  const { data: { user }, error: authErr } = await authedClient.auth.getUser();
   if (authErr || !user) return errorResponse('Token non valido', 401);
 
-  const { data: profile } = await supabase
+  const { data: profile } = await authedClient
     .from('profiles')
     .select('role')
     .eq('id', user.id)
@@ -29,28 +29,38 @@ Deno.serve(async (req) => {
 
   if (profile?.role !== 'admin') return errorResponse('Accesso riservato agli admin', 403);
 
+  // Service role per la scrittura (bypassa RLS)
+  const adminClient = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  );
+
   const body = await req.json().catch(() => ({}));
-  const { cam } = body;
 
-  if (!cam?.id || !cam?.name) return errorResponse('Dati cam mancanti (id, name)', 400);
+  // Accetta sia { cam: {...} } che payload flat
+  const cam  = (body.cam && typeof body.cam === 'object') ? body.cam : body;
+  const name = (cam.name || '').trim();
+  if (!name) return errorResponse('Il nome è obbligatorio', 400);
 
-  // Upsert: aggiorna se esiste, inserisce se non esiste
-  const { error } = await supabase
+  // Genera UUID per le cam nuove
+  const id = cam.id || crypto.randomUUID();
+
+  const { error } = await adminClient
     .from('citycams')
     .upsert({
-      id:               cam.id,
-      name:             cam.name,
-      flag:             cam.flag             || '',
-      embed_url:        cam.embed_url        || '',
-      lat:              cam.lat              ?? null,
-      lng:              cam.lng              ?? null,
-      ai_priority:      cam.ai_priority      ?? 50,
-      ai_event_title:   cam.ai_event_title   || '',
-      ai_event_category:cam.ai_event_category|| '',
-      ai_lock:          cam.ai_lock          ?? false,
-      active:           cam.active           ?? true,
+      id,
+      name,
+      flag:               cam.flag              || '',
+      embed_url:          cam.embed_url || cam.embedUrl || '',
+      lat:                cam.lat               ?? null,
+      lng:                cam.lng               ?? null,
+      ai_priority:        cam.ai_priority       ?? cam.aiPriority       ?? 50,
+      ai_event_title:     cam.ai_event_title    || cam.aiEventTitle     || '',
+      ai_event_category:  cam.ai_event_category || cam.aiEventCategory  || '',
+      ai_lock:            cam.ai_lock           ?? cam.aiLock           ?? false,
+      active:             cam.active            ?? true,
     }, { onConflict: 'id' });
 
   if (error) return errorResponse(error.message, 500);
-  return corsResponse({ ok: true });
+  return corsResponse({ ok: true, id });
 });

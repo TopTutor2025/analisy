@@ -1738,7 +1738,7 @@ function renderCitycams() {
 
     /* AI event overlay — shown only if cam is linked to an active event */
     const evColor   = CAM_CAT_COLOR[c.aiEventCategory] || '#4f9eff';
-    const evOverlay = c.aiEventId && c.aiEventTitle
+    const evOverlay = c.aiEventTitle
       ? `<div style="
             position:absolute;bottom:0;left:0;right:0;
             background:linear-gradient(to top, rgba(0,0,0,0.88) 0%, transparent 100%);
@@ -1782,7 +1782,7 @@ function renderCitycams() {
 
     return `
     <div class="citycam-card" onclick="openCitycam('${c.id}')" title="${c.name}"
-         style="${c.aiEventId ? '--cam-ev-color:' + evColor + ';border-left:2px solid ' + evColor + ';' : ''}">
+         style="${c.aiEventTitle ? '--cam-ev-color:' + evColor + ';border-left:2px solid ' + evColor + ';' : ''}">
       <div class="citycam-preview" style="position:relative;overflow:hidden;">${preview}</div>
       <div class="citycam-name">
         <span style="color:rgba(255,255,255,0.55);font-size:0.56rem;font-family:monospace;font-weight:700;margin-right:5px;letter-spacing:0.05em;">${countryCode}</span>${cityShort}${countryStr ? `<span style="color:rgba(255,255,255,0.28);margin-left:4px;font-size:0.52rem;">${countryStr}</span>` : ''}

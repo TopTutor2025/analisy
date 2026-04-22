@@ -199,6 +199,23 @@ const Api = {
    (es. /functions/v1/articles) oppure alla REST API
    nativa di Supabase (Api.table()).
    ========================================================= */
+/* ── Normalizza citycam da snake_case (DB) a camelCase (frontend) ── */
+function mapCam(c) {
+  return {
+    id:              c.id,
+    name:            c.name            || '',
+    flag:            c.flag            || '',
+    embedUrl:        c.embed_url       || c.embedUrl       || '',
+    lat:             c.lat             ?? null,
+    lng:             c.lng             ?? null,
+    aiPriority:      c.ai_priority     ?? c.aiPriority     ?? 0,
+    aiEventTitle:    c.ai_event_title  || c.aiEventTitle   || '',
+    aiEventCategory: c.ai_event_category || c.aiEventCategory || '',
+    aiLock:          c.ai_lock         ?? c.aiLock         ?? false,
+    active:          c.active          !== false,
+  };
+}
+
 const AppData = {
   articles:    [],
   podcasts:    [],
@@ -217,7 +234,7 @@ const AppData = {
       ]);
       this.articles     = Array.isArray(arts) ? arts : [];
       this.podcasts     = Array.isArray(pods) ? pods : [];
-      this.citycams     = Array.isArray(cams) ? cams : [];
+      this.citycams     = Array.isArray(cams) ? cams.map(mapCam) : [];
       this.mapEvents    = Array.isArray(evs)  ? evs  : [];
       this.mapResources = Array.isArray(res)  ? res  : [];
     } catch(e) {
@@ -237,7 +254,7 @@ const AppData = {
       ]);
       this.articles     = Array.isArray(arts)  ? arts  : [];
       this.podcasts     = Array.isArray(pods)  ? pods  : [];
-      this.citycams     = Array.isArray(cams)  ? cams  : [];
+      this.citycams     = Array.isArray(cams)  ? cams.map(mapCam) : [];
       this.mapEvents    = Array.isArray(evs)   ? evs   : [];
       this.mapResources = Array.isArray(res)   ? res   : [];
       this.users        = Array.isArray(users) ? users : [];
