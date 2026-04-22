@@ -154,7 +154,7 @@ Rispondi SOLO con un array JSON valido, senza markdown, senza testo aggiuntivo. 
   "category": "geopolitica|politica|business|tecnologia",
   "magnitude": 1|2|3|4,
   "ai_summary": "riassunto analitico max 220 caratteri",
-  "ai_brief": "analisi approfondita 350–550 parole in italiano, contesto storico incluso",
+  "ai_brief": "analisi approfondita 150–250 parole in italiano, contesto storico incluso",
   "source_url": "url fonte principale",
   "relevance_score": numero 0-100,
   "expires_at": "data ISO 8601"
@@ -169,10 +169,10 @@ Rispondi SOLO con un array JSON valido, senza markdown, senza testo aggiuntivo. 
     },
     body: JSON.stringify({
       model:      'claude-haiku-4-5',
-      max_tokens: 4096,
+      max_tokens: 8000,
       messages:   [{ role: 'user', content: prompt }],
     }),
-    signal: AbortSignal.timeout(90000),
+    signal: AbortSignal.timeout(120000),
   });
 
   if (!response.ok) {
@@ -182,12 +182,23 @@ Rispondi SOLO con un array JSON valido, senza markdown, senza testo aggiuntivo. 
   }
 
   const claude = await response.json();
-  const text   = claude.content?.[0]?.text || '[]';
+  const rawText = claude.content?.[0]?.text || '';
+  console.log(`[ai-run] Claude risposta: ${rawText.length} caratteri, stop_reason=${claude.stop_reason}`);
 
-  const jsonMatch = text.match(/\[[\s\S]*\]/);
-  if (!jsonMatch) throw new Error('Claude non ha restituito JSON valido');
+  // Estrai JSON array — gestisce markdown, testo prima/dopo
+  const jsonMatch = rawText.match(/\[[\s\S]*\]/);
+  if (!jsonMatch) {
+    console.error(`[ai-run] Nessun array JSON trovato. Inizio risposta: ${rawText.slice(0, 300)}`);
+    throw new Error('Claude non ha restituito JSON valido');
+  }
 
-  const events: MapEvent[] = JSON.parse(jsonMatch[0]);
+  let events: MapEvent[] = [];
+  try {
+    events = JSON.parse(jsonMatch[0]);
+  } catch (parseErr) {
+    console.error(`[ai-run] JSON.parse fallito: ${parseErr}. Testo: ${jsonMatch[0].slice(0, 200)}`);
+    throw new Error(`JSON parse error: ${parseErr}`);
+  }
   return events.filter(e =>
     e.title && typeof e.lat === 'number' && typeof e.lng === 'number' &&
     ['geopolitica','politica','business','tecnologia'].includes(e.category) &&
