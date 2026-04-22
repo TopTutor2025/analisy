@@ -29,18 +29,9 @@ import { corsHeaders, corsResponse, errorResponse } from '../_shared/cors.ts';
 
 const GDELT_API = 'https://api.gdeltproject.org/api/v2/doc/doc';
 
-// Query GDELT per coprire tutti e 4 i domini
+// Query GDELT semplificata per evitare errori di query troppo lunga
 const GDELT_PARAMS = new URLSearchParams({
-  query: [
-    // Geopolitica
-    'war OR conflict OR military OR troops OR attack OR invasion OR airstrike OR humanitarian',
-    // Politica
-    'election OR coup OR protest OR government OR parliament OR president OR sanction',
-    // Business geopolitico
-    'trade war OR tariff OR embargo OR energy crisis OR oil prices OR supply chain',
-    // Tecnologia geopolitica
-    'cyberattack OR artificial intelligence OR semiconductor OR disinformation OR surveillance',
-  ].join(' OR '),
+  query:      'war OR conflict OR election OR sanction OR cyberattack OR crisis OR military',
   mode:       'artlist',
   maxrecords: '40',
   sort:       'hybridrel',
@@ -72,10 +63,15 @@ interface MapEvent {
 // ─── Fetch notizie da GDELT ───────────────────────────────
 async function fetchGdeltArticles(): Promise<GdeltArticle[]> {
   const res = await fetch(`${GDELT_API}?${GDELT_PARAMS}`, {
-    signal: AbortSignal.timeout(15000),
+    signal: AbortSignal.timeout(20000),
   });
   if (!res.ok) throw new Error(`GDELT error ${res.status}`);
-  const json = await res.json();
+  const text = await res.text();
+  // GDELT restituisce testo di errore se la query non è valida
+  if (!text.trim().startsWith('{') && !text.trim().startsWith('[')) {
+    throw new Error(`GDELT risposta non valida: ${text.slice(0, 120)}`);
+  }
+  const json = JSON.parse(text);
   return json.articles || [];
 }
 
@@ -142,8 +138,8 @@ Rispondi SOLO con un array JSON valido, senza markdown, senza testo aggiuntivo. 
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model:      'claude-opus-4-5',
-      max_tokens: 6000,
+      model:      'claude-3-5-sonnet-20241022',
+      max_tokens: 4096,
       messages:   [{ role: 'user', content: prompt }],
     }),
     signal: AbortSignal.timeout(90000),
