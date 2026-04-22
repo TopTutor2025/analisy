@@ -1133,11 +1133,10 @@
         <div class="form-group">
           <label>Categoria</label>
           <select id="ev-cat" style="background:var(--bg-secondary);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;font-size:0.95rem;color:var(--text-primary);width:100%;">
-            <option value="conflict">Conflitto</option>
-            <option value="tension">Tensione</option>
-            <option value="crisis">Crisi</option>
-            <option value="political">Politico</option>
-            <option value="economic">Economico</option>
+            <option value="geopolitica">Geopolitica</option>
+            <option value="politica">Politica</option>
+            <option value="business">Business</option>
+            <option value="tecnologia">Tecnologia</option>
           </select>
         </div>
         <div class="form-group">
@@ -1507,8 +1506,8 @@
   /* ── MAP EVENTS TABLE ── */
   function renderEvents() {
     const events = AppData.mapEvents || [];
-    const catLabels = { conflict:'Conflitto', tension:'Tensione', crisis:'Crisi', political:'Politico', economic:'Economico' };
-    const catColors = { conflict:'var(--accent-red)', tension:'var(--accent-yellow)', crisis:'var(--accent-orange)', political:'var(--accent-blue)', economic:'var(--accent-green)' };
+    const catLabels = { geopolitica:'Geopolitica', politica:'Politica', business:'Business', tecnologia:'Tecnologia' };
+    const catColors = { geopolitica:'var(--accent-red)', politica:'var(--accent-blue)', business:'var(--accent-yellow)', tecnologia:'#a78bfa' };
     document.getElementById('events-tbody').innerHTML = events.map(ev => `
       <tr>
         <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${ev.title}</td>
@@ -1543,10 +1542,10 @@
     document.getElementById('event-modal-title').textContent = ev ? 'Modifica evento' : 'Aggiungi evento';
     document.getElementById('ev-id').value    = ev ? ev.id : '';
     document.getElementById('ev-title').value = ev ? ev.title : '';
-    document.getElementById('ev-desc').value  = ev ? ev.desc : '';
+    document.getElementById('ev-desc').value  = ev ? (ev.description || ev.desc || '') : '';
     document.getElementById('ev-lat').value   = ev ? ev.lat : '';
     document.getElementById('ev-lng').value   = ev ? ev.lng : '';
-    document.getElementById('ev-cat').value   = ev ? ev.category : 'conflict';
+    document.getElementById('ev-cat').value   = ev ? ev.category : 'geopolitica';
     document.getElementById('ev-mag').value   = ev ? ev.magnitude : '3';
     document.getElementById('event-modal').classList.add('open');
   }
@@ -1554,12 +1553,14 @@
   async function saveEvent() {
     const id = document.getElementById('ev-id').value;
     const ev = {
-      title:     document.getElementById('ev-title').value.trim(),
-      desc:      document.getElementById('ev-desc').value.trim(),
-      lat:       parseFloat(document.getElementById('ev-lat').value),
-      lng:       parseFloat(document.getElementById('ev-lng').value),
-      category:  document.getElementById('ev-cat').value,
-      magnitude: parseInt(document.getElementById('ev-mag').value),
+      title:       document.getElementById('ev-title').value.trim(),
+      description: document.getElementById('ev-desc').value.trim(),
+      lat:         parseFloat(document.getElementById('ev-lat').value),
+      lng:         parseFloat(document.getElementById('ev-lng').value),
+      category:    document.getElementById('ev-cat').value,
+      magnitude:   parseInt(document.getElementById('ev-mag').value),
+      status:      'active',
+      manual_lock: true,
     };
     if (!ev.title || isNaN(ev.lat) || isNaN(ev.lng)) {
       showToast('Compila tutti i campi obbligatori', 'error'); return;
