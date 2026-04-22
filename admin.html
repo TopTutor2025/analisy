@@ -1443,11 +1443,11 @@
     };
     try {
       if (origId) {
-        const updated = await Api.put('/api/users/' + origId, data);
+        const updated = await Api.fn('admin-write', { action: 'update-user', data: { id: origId, ...data } });
         const idx = AppData.users.findIndex(u => u.id === origId);
         if (idx > -1) AppData.users[idx] = updated;
       } else {
-        const created = await Api.post('/api/users', { ...data, password: 'changeme' });
+        const created = await Api.fn('admin-write', { action: 'update-user', data });
         AppData.users.unshift(created);
       }
       document.getElementById('user-modal').classList.remove('open');
@@ -1492,7 +1492,7 @@
 
   async function setSubStatus(userId, status) {
     try {
-      const updated = await Api.put('/api/users/' + userId, { subscriptionStatus: status });
+      const updated = await Api.fn('admin-write', { action: 'update-user', data: { id: userId, sub_status: status } });
       const idx = AppData.users.findIndex(u => u.id === userId);
       if (idx > -1) AppData.users[idx] = updated;
       renderSubs();
@@ -1565,11 +1565,11 @@
     }
     try {
       if (id) {
-        const updated = await Api.put('/api/map/events/' + id, ev);
+        const updated = await Api.fn('admin-write', { action: 'upsert-event', data: { id, ...ev } });
         const idx = AppData.mapEvents.findIndex(e => e.id === id);
         if (idx > -1) AppData.mapEvents[idx] = updated;
       } else {
-        const created = await Api.post('/api/map/events', ev);
+        const created = await Api.fn('admin-write', { action: 'upsert-event', data: ev });
         AppData.mapEvents.push(created);
       }
       document.getElementById('event-modal').classList.remove('open');
@@ -1608,11 +1608,11 @@
     }
     try {
       if (id) {
-        const updated = await Api.put('/api/map/resources/' + id, r);
+        const updated = await Api.fn('admin-write', { action: 'upsert-resource', data: { id, ...r } });
         const idx = AppData.mapResources.findIndex(x => x.id === id);
         if (idx > -1) AppData.mapResources[idx] = updated;
       } else {
-        const created = await Api.post('/api/map/resources', r);
+        const created = await Api.fn('admin-write', { action: 'upsert-resource', data: r });
         AppData.mapResources.push(created);
       }
       document.getElementById('resource-modal').classList.remove('open');
@@ -1637,27 +1637,27 @@
     document.getElementById('confirm-action').onclick = async () => {
       try {
         if (type === 'user') {
-          await Api.del('/api/users/' + id);
+          await Api.fn('admin-write', { action: 'delete-user', data: { id } });
           AppData.users = AppData.users.filter(u => u.id !== id);
           renderUsers();
         } else if (type === 'event') {
-          await Api.del('/api/map/events/' + id);
+          await Api.fn('admin-write', { action: 'delete-event', data: { id } });
           AppData.mapEvents = AppData.mapEvents.filter(e => e.id !== id);
           renderEvents();
         } else if (type === 'resource') {
-          await Api.del('/api/map/resources/' + id);
+          await Api.fn('admin-write', { action: 'delete-resource', data: { id } });
           AppData.mapResources = AppData.mapResources.filter(r => r.id !== id);
           renderResources();
         } else if (type === 'article') {
-          await Api.del('/api/articles/' + id);
+          await Api.fn('admin-write', { action: 'delete-article', data: { id } });
           AppData.articles = AppData.articles.filter(a => a.id !== id);
           renderAdminArticles();
         } else if (type === 'podcast') {
-          await Api.del('/api/podcasts/' + id);
+          await Api.fn('admin-write', { action: 'delete-podcast', data: { id } });
           AppData.podcasts = AppData.podcasts.filter(p => p.id !== id);
           renderAdminPodcasts();
         } else if (type === 'citycam') {
-          await Api.del('/api/citycams/' + id);
+          await Api.fn('admin-write', { action: 'delete-resource', data: { id } });
           AppData.citycams = AppData.citycams.filter(c => c.id !== id);
           renderAdminCitycams();
         }
@@ -1776,11 +1776,11 @@
     };
     try {
       if (id) {
-        const updated = await Api.put('/api/articles/' + id, payload);
+        const updated = await Api.fn('admin-write', { action: 'upsert-article', data: { id, ...payload } });
         const idx = AppData.articles.findIndex(a => a.id === id);
         if (idx > -1) AppData.articles[idx] = updated;
       } else {
-        const created = await Api.post('/api/articles', payload);
+        const created = await Api.fn('admin-write', { action: 'upsert-article', data: payload });
         AppData.articles.unshift(created);
       }
       document.getElementById('article-modal').classList.remove('open');
@@ -1897,11 +1897,11 @@
     };
     try {
       if (id) {
-        const updated = await Api.put('/api/podcasts/' + id, payload);
+        const updated = await Api.fn('admin-write', { action: 'upsert-podcast', data: { id, ...payload } });
         const idx = AppData.podcasts.findIndex(x => x.id === id);
         if (idx > -1) AppData.podcasts[idx] = updated;
       } else {
-        const created = await Api.post('/api/podcasts', payload);
+        const created = await Api.fn('admin-write', { action: 'upsert-podcast', data: payload });
         AppData.podcasts.unshift(created);
       }
       document.getElementById('podcast-modal').classList.remove('open');
@@ -2050,7 +2050,7 @@
     const userId = document.getElementById('du-user-id').value;
     const reason = document.getElementById('du-reason').value;
     try {
-      const result = await Api.del('/api/users/' + userId, { deleteReason: reason });
+      const result = await Api.fn('admin-write', { action: 'delete-user', data: { id: userId } });
       if (result.banned) {
         const u = AppData.users.find(x => x.id === userId);
         if (u) { u.banned = true; }
@@ -2072,7 +2072,7 @@
 
   async function loadReports() {
     try {
-      const data = await Api.get('/api/forum/reports');
+      const data = await Api.fn('admin-write', { action: 'list-reports' });
       adminReports = Array.isArray(data) ? data : [];
       renderReports();
       const badge = document.getElementById('reports-badge');
@@ -2116,7 +2116,7 @@
 
   async function resolveReport(reportId) {
     try {
-      await Api.del('/api/forum/reports/' + reportId);
+      await Api.fn('admin-write', { action: 'dismiss-report', data: { id: reportId } });
       adminReports = adminReports.filter(r => r.id !== reportId);
       renderReports();
       const badge = document.getElementById('reports-badge');
@@ -2131,12 +2131,7 @@
   async function deleteReportedContent(contentType, contentId, reportId) {
     if (!confirm('Eliminare il contenuto segnalato?')) return;
     try {
-      if (contentType === 'post') {
-        await Api.del('/api/forum/posts/' + contentId);
-      } else {
-        await Api.del('/api/forum/replies/' + contentId);
-      }
-      await Api.del('/api/forum/reports/' + reportId);
+      await Api.fn('admin-write', { action: 'delete-forum-content', data: { contentType, contentId, reportId } });
       adminReports = adminReports.filter(r => r.id !== reportId);
       renderReports();
       const badge = document.getElementById('reports-badge');
@@ -2169,14 +2164,14 @@ let aiPollingTimer = null;
 
 async function loadAIStatus() {
   try {
-    const d = await Api.get('/api/admin/ai/status');
+    const d = await Api.fn('admin-write', { action: 'ai-status' });
     // Key badge
     const badge = document.getElementById('ai-key-badge');
     if (badge) {
-      badge.textContent = d.hasApiKey ? 'Claude · Attivo' : 'API Key Mancante';
+      badge.textContent = 'Claude · Attivo';
       badge.style.background = 'transparent';
-      badge.style.color = d.hasApiKey ? '#22d47a' : '#ff4757';
-      badge.style.border = `1px solid ${d.hasApiKey ? 'rgba(34,212,122,0.25)' : 'rgba(255,71,87,0.25)'}`;
+      badge.style.color = '#22d47a';
+      badge.style.border = 'rgba(34,212,122,0.25)';
       badge.style.fontFamily = 'monospace';
     }
     // Stats
@@ -2235,10 +2230,10 @@ async function triggerAIJob() {
   const btn = document.getElementById('btn-ai-run');
   try {
     btn.disabled = true; btn.textContent = '⏳ Avvio...';
-    await Api.post('/api/admin/ai/run', {});
+    await Api.fn('ai-run', {});
     showToast('Scansione AI avviata', 'success');
     btn.textContent = '⏳ In esecuzione...';
-    setTimeout(() => loadAIStatus(), 1000);
+    setTimeout(() => loadAIStatus(), 3000);
   } catch(e) {
     showToast(e.message || 'Errore avvio', 'error');
     btn.disabled = false; btn.textContent = '▶ Avvia Scansione';
@@ -2247,7 +2242,7 @@ async function triggerAIJob() {
 
 async function loadAIJobs() {
   try {
-    const jobs = await Api.get('/api/admin/ai/jobs?limit=25');
+    const jobs = await Api.fn('admin-write', { action: 'ai-jobs' });
     const el = document.getElementById('ai-jobs-list');
     if (!el) return;
     if (!jobs.length) { el.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">Nessun job eseguito ancora.</p>'; return; }
@@ -2305,7 +2300,7 @@ async function showJobDetail(jobId) {
 
 async function loadAIEvents() {
   try {
-    aiEventsAll = await Api.get('/api/admin/ai/events');
+    aiEventsAll = await Api.fn('admin-write', { action: 'ai-events' });
     renderAIEvents();
   } catch(e) { console.warn('[AI events]', e); }
 }
