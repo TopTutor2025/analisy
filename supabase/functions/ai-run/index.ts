@@ -31,7 +31,7 @@ const GDELT_API = 'https://api.gdeltproject.org/api/v2/doc/doc';
 
 // Query GDELT minimale e veloce
 const GDELT_PARAMS = new URLSearchParams({
-  query:      'war OR conflict OR election OR crisis OR military',
+  query:      '(war OR conflict OR election OR crisis OR military)',
   mode:       'artlist',
   maxrecords: '20',
   sort:       'datedesc',
@@ -168,7 +168,7 @@ Rispondi SOLO con un array JSON valido, senza markdown, senza testo aggiuntivo. 
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model:      'claude-3-haiku-20240307',
+      model:      'claude-haiku-4-5',
       max_tokens: 4096,
       messages:   [{ role: 'user', content: prompt }],
     }),

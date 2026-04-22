@@ -2276,26 +2276,37 @@ async function loadAIJobs() {
 
 async function showJobDetail(jobId) {
   try {
-    const articles = await Api.get(`/api/admin/ai/jobs/${jobId}/articles`);
-    const actions = { created:'➕ Creato', renewed:'🔄 Rinnovato', resolved:'✅ Risolto', ignored:'— Ignorato' };
-    const aColors = { created:'#22d47a', renewed:'#4f9eff', resolved:'#ffb400', ignored:'rgba(255,255,255,0.3)' };
+    const jobs = await Api.fn('admin-write', { action: 'ai-jobs' });
+    const j = jobs.find(x => x.id == jobId);
+    if (!j) { showToast('Job non trovato', 'error'); return; }
+    const dur = j.finished_at ? Math.round((new Date(j.finished_at)-new Date(j.started_at))/1000)+'s' : '—';
+    const stColors = {completed:'#22d47a', failed:'#ff4757', running:'#4f9eff'};
     const html = `
-      <div style="max-height:70vh;overflow-y:auto;">
-        <table class="admin-table" style="font-size:0.78rem;">
-          <thead><tr><th>Rilevante</th><th>Azione</th><th>Titolo Articolo</th><th>Fonte</th></tr></thead>
-          <tbody>
-            ${articles.map(a => `<tr>
-              <td style="text-align:center;">${a.is_relevant ? '🟢' : '⚪'}</td>
-              <td style="color:${aColors[a.action]||'#fff'};font-weight:600;white-space:nowrap;">${actions[a.action]||a.action}</td>
-              <td>${a.url ? `<a href="${a.url}" target="_blank" style="color:#4f9eff;text-decoration:none;">${(a.title||'').slice(0,80)}</a>` : (a.title||'').slice(0,80)}</td>
-              <td style="color:var(--text-muted);">${a.source}</td>
-            </tr>`).join('')}
-          </tbody>
-        </table>
-        ${!articles.length ? '<p style="color:var(--text-muted);padding:12px;text-align:center;">Nessun articolo registrato per questo job.</p>' : ''}
-      </div>`;
-    showModal(`📋 Dettaglio Job #${jobId} — ${articles.length} articoli`, html);
-  } catch(e) { showToast('Errore caricamento dettaglio', 'error'); }
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:12px;">
+          <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:4px;">STATO</div>
+          <div style="font-weight:700;color:${stColors[j.status]||'#fff'};">${j.status?.toUpperCase()}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:12px;">
+          <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:4px;">DURATA</div>
+          <div style="font-weight:700;">${dur}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:12px;">
+          <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:4px;">ARTICOLI ELABORATI</div>
+          <div style="font-weight:700;">${j.articles_processed ?? 0}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:12px;">
+          <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:4px;">EVENTI CREATI / RINNOVATI</div>
+          <div style="font-weight:700;color:#22d47a;">${j.events_created ?? 0} <span style="color:var(--text-muted);">/</span> <span style="color:#4f9eff;">${j.events_renewed ?? 0}</span></div>
+        </div>
+      </div>
+      ${j.error_message ? `
+        <div style="background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.3);border-radius:8px;padding:14px;">
+          <div style="font-size:0.72rem;color:#ff4757;font-weight:700;margin-bottom:8px;">⚠️ ERRORE COMPLETO</div>
+          <pre style="font-size:0.72rem;color:#ff8a93;white-space:pre-wrap;word-break:break-all;margin:0;max-height:300px;overflow-y:auto;">${j.error_message}</pre>
+        </div>` : '<p style="color:#22d47a;text-align:center;">✅ Nessun errore — job completato con successo.</p>'}`;
+    showModal(`📋 Dettaglio Job #${jobId}`, html);
+  } catch(e) { showToast('Errore caricamento dettaglio: ' + e.message, 'error'); }
 }
 
 async function loadAIEvents() {
