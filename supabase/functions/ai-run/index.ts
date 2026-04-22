@@ -31,7 +31,7 @@ const GDELT_API = 'https://api.gdeltproject.org/api/v2/doc/doc';
 
 // Query GDELT semplificata per evitare errori di query troppo lunga
 const GDELT_PARAMS = new URLSearchParams({
-  query:      'war OR conflict OR election OR sanction OR cyberattack OR crisis OR military',
+  query:      '(war OR conflict OR election OR sanction OR cyberattack OR crisis OR military)',
   mode:       'artlist',
   maxrecords: '40',
   sort:       'hybridrel',
