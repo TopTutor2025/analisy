@@ -111,54 +111,24 @@ async function analyzeWithClaude(articles: GdeltArticle[]): Promise<MapEvent[]> 
   }
 
   const headlines = articles
-    .slice(0, 25)
-    .map((a, i) => `${i + 1}. [${a.domain || 'news'}] ${a.title}  →  ${a.url}`)
+    .slice(0, 15)
+    .map((a, i) => `${i + 1}. ${a.title}`)
     .join('\n');
 
-  const prompt = `Sei un sistema di intelligence geopolitica professionale. Il tuo compito è analizzare notizie globali e identificare gli eventi più rilevanti da rappresentare su una mappa interattiva di geopolitica mondiale.
+  const today = new Date().toISOString().slice(0, 10);
 
-NOTIZIE IN INGRESSO:
+  const prompt = `Sei un sistema di intelligence geopolitica. Analizza queste notizie e restituisci i 5 eventi più importanti.
+
+NOTIZIE:
 ${headlines}
 
----
+Rispondi SOLO con un array JSON, senza markdown, senza testo extra. Ogni oggetto:
+{"title":"max 60 car","description":"max 120 car","lat":0.0,"lng":0.0,"category":"geopolitica|politica|business|tecnologia","magnitude":1|2|3|4,"ai_summary":"max 200 car in italiano","ai_brief":"2-3 frasi di contesto in italiano","source_url":"https://...","relevance_score":0-100,"expires_at":"${today}"}
 
-ISTRUZIONI:
-
-Identifica i 6–10 eventi più significativi e classificali in uno di questi 4 DOMINI TEMATICI:
-
-• "geopolitica"  → conflitti armati, operazioni militari, crisi umanitarie, tensioni tra stati, invasioni, occupazioni, attentati di rilievo internazionale
-• "politica"     → elezioni critiche, colpi di stato, crisi di governo, proteste di massa, cambi di regime, politica nazionale con impatto internazionale
-• "business"     → sanzioni economiche, guerre commerciali, dazi, crisi energetiche, default sovrani, mercati con impatto geopolitico diretto
-• "tecnologia"   → cyberattacchi statali, corsa all'IA militare, guerre sui semiconduttori, sorveglianza di massa, disinformazione coordinata, space race
-
-La MAGNITUDO (1–4) misura la gravità dell'evento NEL SUO DOMINIO:
-• 1 = Bassa rilevanza (sviluppo minore, aggiornamento di routine)
-• 2 = Moderata (sviluppo degno di nota, monitorare)
-• 3 = Alta (evento significativo, impatto regionale/internazionale)
-• 4 = Critica (breaking news, impatto globale immediato, potenziale escalation)
-
-IMPORTANTE:
-- Non usare le vecchie categorie (conflict, tension, crisis, political, economic). Usa SOLO: geopolitica, politica, business, tecnologia.
-- Un conflitto armato in corso È geopolitica con magnitudo 3 o 4, non una categoria a sé.
-- Un'elezione importante È politica, non geopolitica.
-- La magnitudo descrive quanto è GRAVE l'evento, non il dominio.
-- Scrivi title, description, ai_summary e ai_brief in ITALIANO.
-- expires_at: eventi magnitudo 4 scadono dopo 30 giorni, magnitudo 3 dopo 21 giorni, ≤2 dopo 14 giorni.
-
-Rispondi SOLO con un array JSON valido, senza markdown, senza testo aggiuntivo. Struttura di ogni oggetto:
-{
-  "title": "stringa max 65 caratteri",
-  "description": "stringa max 130 caratteri",
-  "lat": numero,
-  "lng": numero,
-  "category": "geopolitica|politica|business|tecnologia",
-  "magnitude": 1|2|3|4,
-  "ai_summary": "riassunto analitico max 220 caratteri",
-  "ai_brief": "analisi approfondita 150–250 parole in italiano, contesto storico incluso",
-  "source_url": "url fonte principale",
-  "relevance_score": numero 0-100,
-  "expires_at": "data ISO 8601"
-}`;
+Regole categoria: geopolitica=guerre/conflitti, politica=elezioni/governi, business=economia/sanzioni, tecnologia=cyber/AI/spazio.
+Magnitudo: 1=bassa, 2=moderata, 3=alta, 4=critica.
+expires_at: +30 giorni se mag 4, +21 se mag 3, +14 se mag ≤2.
+Tutti i testi in ITALIANO. Rispondi solo con l'array JSON.`;
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -169,7 +139,7 @@ Rispondi SOLO con un array JSON valido, senza markdown, senza testo aggiuntivo. 
     },
     body: JSON.stringify({
       model:      'claude-haiku-4-5',
-      max_tokens: 8000,
+      max_tokens: 4096,
       messages:   [{ role: 'user', content: prompt }],
     }),
     signal: AbortSignal.timeout(120000),
