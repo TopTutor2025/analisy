@@ -2206,11 +2206,11 @@ async function loadAIStatus() {
             ${dur !== null ? `<span style="color:var(--text-muted);margin-left:8px;">(${dur}s)</span>` : ''}
           </div>
           <div style="margin-left:auto;display:flex;gap:18px;font-size:0.78rem;">
-            <span>📰 <strong style="color:#f0f4ff;">${j.articlesFetched}</strong> articoli</span>
-            <span>➕ <strong style="color:#22d47a;">${j.eventsCreated}</strong> creati</span>
-            <span>🔄 <strong style="color:#4f9eff;">${j.eventsRenewed}</strong> rinnovati</span>
-            <span>✅ <strong style="color:#ffb400;">${j.eventsResolved}</strong> risolti</span>
-            ${j.errorText ? `<span style="color:#ff4757;">⚠️ ${j.errorText.slice(0,60)}</span>` : ''}
+            <span>📰 <strong style="color:#f0f4ff;">${j.articles_processed ?? 0}</strong> articoli</span>
+            <span>➕ <strong style="color:#22d47a;">${j.events_created ?? 0}</strong> creati</span>
+            <span>🔄 <strong style="color:#4f9eff;">${j.events_renewed ?? 0}</strong> rinnovati</span>
+            <span>✅ <strong style="color:#ffb400;">${j.events_resolved ?? 0}</strong> risolti</span>
+            ${j.error_message ? `<span style="color:#ff4757;">⚠️ ${j.error_message.slice(0,80)}</span>` : ''}
           </div>
         </div>`;
     }
@@ -2261,7 +2261,7 @@ async function loadAIJobs() {
               <td><span style="color:${stColors[j.status]||'#fff'};font-weight:600;font-size:0.8rem;">${j.status.toUpperCase()}</span></td>
               <td style="font-size:0.78rem;color:var(--text-muted);">${j.started_at ? new Date(j.started_at).toLocaleString('it-IT') : '—'}</td>
               <td style="color:var(--text-muted);">${dur}</td>
-              <td style="text-align:center;">${j.articles_fetched}</td>
+              <td style="text-align:center;">${j.articles_processed ?? 0}</td>
               <td style="text-align:center;color:#22d47a;font-weight:600;">${j.events_created}</td>
               <td style="text-align:center;color:#4f9eff;">${j.events_renewed}</td>
               <td style="text-align:center;color:#ffb400;">${j.events_resolved}</td>
