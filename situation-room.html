@@ -560,28 +560,7 @@
       </div>
 
       <div class="navbar-actions" id="navbar-actions">
-        <a id="subnav-subscribe-cta" href="register.html" class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:5px 14px;border-radius:0;">Abbonati a 2,99€ al mese</a>
-        <a href="login.html" class="btn-accedi" id="sr-login-btn">Accedi</a>
-        <!-- bottone tutorial (? sempre visibile) -->
-        <button style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(235,235,245,0.55);font-size:0.72rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s,color 0.15s;flex-shrink:0;"
-          title="Tutorial — Come funziona" onclick="openSrTutorial()"
-          onmouseenter="this.style.background='rgba(255,255,255,0.13)';this.style.color='#fff'"
-          onmouseleave="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(235,235,245,0.55)'">?</button>
-        <!-- avatar dropdown (visibile solo da loggati — iniettato da JS) -->
-        <div class="sr-avatar-wrap" id="sr-avatar-wrap" style="display:none;">
-          <div class="sr-avatar" id="sr-avatar-btn" onclick="toggleAvatarMenu(event)">U</div>
-          <div class="sr-avatar-menu" id="sr-avatar-menu">
-            <a id="sr-dashboard-link" href="dashboard.html">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-              Dashboard
-            </a>
-            <div style="height:1px;background:rgba(255,255,255,0.07);margin:4px 0;"></div>
-            <button class="logout" onclick="Auth.logout()">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-              Logout
-            </button>
-          </div>
-        </div>
+        <!-- popolato da renderSrNavbar() -->
       </div>
     </div>
   </div>
@@ -1328,25 +1307,50 @@ const MARKETS = [
   { name:'Nichel',         ticker:'NICK',  price:'$17,890',change:'+1.8%', up:true  },
 ];
 
-/* ── INIT ── */
-/* ── SR Navbar custom ── */
+/* ── SR Navbar custom ──
+   Sovrascrive renderNavbar() di app.js che inietta il btn "Situation Room".
+   Deve essere dichiarata PRIMA del DOMContentLoaded di app.js,
+   ma app.js fa: document.addEventListener('DOMContentLoaded', renderNavbar)
+   quindi qui la rimpiazziamo con una no-op per questa pagina,
+   e gestiamo tutto con renderSrNavbar() chiamata dal nostro DOMContentLoaded.
+── */
+function renderNavbar() { /* disabilitata nella SR — usa renderSrNavbar() */ }
+
 function renderSrNavbar() {
-  const user = Auth.get();
-  const loginBtn   = document.getElementById('sr-login-btn');
-  const avatarWrap = document.getElementById('sr-avatar-wrap');
-  const avatarBtn  = document.getElementById('sr-avatar-btn');
-  const dashLink   = document.getElementById('sr-dashboard-link');
+  const user    = Auth.get();
+  const actions = document.getElementById('navbar-actions');
+  if (!actions) return;
+
+  const tutorialBtn = `<button style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(235,235,245,0.55);font-size:0.72rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s,color 0.15s;flex-shrink:0;"
+    title="Tutorial — Come funziona" onclick="openSrTutorial()"
+    onmouseenter="this.style.background='rgba(255,255,255,0.13)';this.style.color='#fff'"
+    onmouseleave="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(235,235,245,0.55)'">?</button>`;
 
   if (user) {
-    // Nascondi "Accedi", mostra avatar
-    if (loginBtn)   loginBtn.style.display   = 'none';
-    if (avatarWrap) avatarWrap.style.display  = 'flex';
-    if (avatarBtn)  avatarBtn.textContent     = (user.nome || 'U')[0].toUpperCase();
-    if (dashLink)   dashLink.href = user.role === 'admin' ? 'admin.html' : 'dashboard.html';
-    if (dashLink)   dashLink.querySelector('span') && (dashLink.querySelector('span').textContent = user.role === 'admin' ? 'Admin' : 'Dashboard');
+    const initial   = (user.nome || 'U')[0].toUpperCase();
+    const dashHref  = user.role === 'admin' ? 'admin.html' : 'dashboard.html';
+    const dashLabel = user.role === 'admin' ? 'Admin' : 'Dashboard';
+    actions.innerHTML = `
+      ${tutorialBtn}
+      <div class="sr-avatar-wrap" style="position:relative;display:flex;">
+        <div class="sr-avatar" onclick="toggleAvatarMenu(event)">${initial}</div>
+        <div class="sr-avatar-menu" id="sr-avatar-menu">
+          <a href="${dashHref}">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            ${dashLabel}
+          </a>
+          <div style="height:1px;background:rgba(255,255,255,0.07);margin:4px 0;"></div>
+          <button class="logout" onclick="Auth.logout()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Logout
+          </button>
+        </div>
+      </div>`;
   } else {
-    if (loginBtn)   loginBtn.style.display   = '';
-    if (avatarWrap) avatarWrap.style.display  = 'none';
+    actions.innerHTML = `
+      <a id="subnav-subscribe-cta" href="register.html" class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:5px 14px;border-radius:0;">Abbonati a 2,99€</a>
+      <a href="login.html" class="btn-accedi">Accedi</a>
+      ${tutorialBtn}`;
   }
 }
 
