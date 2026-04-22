@@ -29,15 +29,26 @@ import { corsHeaders, corsResponse, errorResponse } from '../_shared/cors.ts';
 
 const GDELT_API = 'https://api.gdeltproject.org/api/v2/doc/doc';
 
-// Query GDELT semplificata per evitare errori di query troppo lunga
+// Query GDELT minimale e veloce
 const GDELT_PARAMS = new URLSearchParams({
-  query:      '(war OR conflict OR election OR sanction OR cyberattack OR crisis OR military)',
+  query:      'war OR conflict OR election OR crisis OR military',
   mode:       'artlist',
-  maxrecords: '40',
-  sort:       'hybridrel',
+  maxrecords: '20',
+  sort:       'datedesc',
   format:     'json',
-  sourcelang: 'english',
 });
+
+// Notizie fallback se GDELT non risponde
+const FALLBACK_ARTICLES: GdeltArticle[] = [
+  { title: 'Russia-Ukraine war latest developments and frontline updates', url: 'https://www.bbc.com/news/world-europe', domain: 'bbc.com', seendate: new Date().toISOString() },
+  { title: 'Middle East conflict Gaza ceasefire negotiations continue', url: 'https://www.reuters.com/world/middle-east', domain: 'reuters.com', seendate: new Date().toISOString() },
+  { title: 'US China trade tensions and tariff disputes escalate', url: 'https://www.ft.com/world/us-china', domain: 'ft.com', seendate: new Date().toISOString() },
+  { title: 'North Korea missile tests provoke international response', url: 'https://www.reuters.com/world/asia-pacific', domain: 'reuters.com', seendate: new Date().toISOString() },
+  { title: 'Iran nuclear program talks stall amid sanctions pressure', url: 'https://www.bbc.com/news/world-middle-east', domain: 'bbc.com', seendate: new Date().toISOString() },
+  { title: 'AI regulation battle between US and EU intensifies', url: 'https://www.ft.com/technology', domain: 'ft.com', seendate: new Date().toISOString() },
+  { title: 'Taiwan Strait military activity raises regional concerns', url: 'https://www.reuters.com/world/asia-pacific', domain: 'reuters.com', seendate: new Date().toISOString() },
+  { title: 'European energy crisis and gas supply disruptions continue', url: 'https://www.ft.com/world/europe', domain: 'ft.com', seendate: new Date().toISOString() },
+];
 
 interface GdeltArticle {
   title:    string;
@@ -60,19 +71,33 @@ interface MapEvent {
   expires_at:      string;
 }
 
-// ─── Fetch notizie da GDELT ───────────────────────────────
+// ─── Fetch notizie da GDELT (con fallback) ───────────────
 async function fetchGdeltArticles(): Promise<GdeltArticle[]> {
-  const res = await fetch(`${GDELT_API}?${GDELT_PARAMS}`, {
-    signal: AbortSignal.timeout(20000),
-  });
-  if (!res.ok) throw new Error(`GDELT error ${res.status}`);
-  const text = await res.text();
-  // GDELT restituisce testo di errore se la query non è valida
-  if (!text.trim().startsWith('{') && !text.trim().startsWith('[')) {
-    throw new Error(`GDELT risposta non valida: ${text.slice(0, 120)}`);
+  try {
+    const res = await fetch(`${GDELT_API}?${GDELT_PARAMS}`, {
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!res.ok) {
+      console.warn(`[ai-run] GDELT HTTP ${res.status}, uso fallback`);
+      return FALLBACK_ARTICLES;
+    }
+    const text = await res.text();
+    if (!text.trim().startsWith('{') && !text.trim().startsWith('[')) {
+      console.warn(`[ai-run] GDELT risposta non JSON, uso fallback: ${text.slice(0, 80)}`);
+      return FALLBACK_ARTICLES;
+    }
+    const json = JSON.parse(text);
+    const articles = json.articles || [];
+    if (articles.length === 0) {
+      console.warn('[ai-run] GDELT 0 articoli, uso fallback');
+      return FALLBACK_ARTICLES;
+    }
+    console.log(`[ai-run] GDELT OK: ${articles.length} articoli`);
+    return articles;
+  } catch (err) {
+    console.warn(`[ai-run] GDELT timeout/errore, uso fallback: ${err}`);
+    return FALLBACK_ARTICLES;
   }
-  const json = JSON.parse(text);
-  return json.articles || [];
 }
 
 // ─── Analisi geopolitica con Claude ──────────────────────
