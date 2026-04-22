@@ -715,18 +715,18 @@
       </div>
       <span class="sr-live-badge"><span class="sr-live-dot"></span>LIVE</span>
     </div>
-    <!-- Briefs filter -->
+    <!-- Scenari filter -->
     <div class="briefs-filter" id="briefs-filter-bar">
       <button class="forum-cat-btn active" onclick="filterBriefs('all',this)">Tutti</button>
-      <button class="forum-cat-btn" onclick="filterBriefs('conflict',this)">Conflitti</button>
-      <button class="forum-cat-btn" onclick="filterBriefs('crisis',this)">Crisi</button>
-      <button class="forum-cat-btn" onclick="filterBriefs('tension',this)">Tensioni</button>
-      <button class="forum-cat-btn" onclick="filterBriefs('political',this)">Politico</button>
+      <button class="forum-cat-btn" onclick="filterBriefs('geopolitica',this)">Geopolitica</button>
+      <button class="forum-cat-btn" onclick="filterBriefs('politica',this)">Politica</button>
+      <button class="forum-cat-btn" onclick="filterBriefs('business',this)">Business</button>
+      <button class="forum-cat-btn" onclick="filterBriefs('tecnologia',this)">Tech</button>
     </div>
-    <!-- Briefs list -->
+    <!-- Scenari list -->
     <div class="briefs-list-wrap" id="briefs-list">
       <div style="padding:24px 14px;font-size:0.78rem;color:var(--text-muted);line-height:1.65;">
-        L'AI genera i brief automaticamente quando rileva eventi attivi.
+        Caricamento scenari in corso...
       </div>
     </div>
   </div>
@@ -1374,6 +1374,13 @@ const MAG_COLOR = ['','#4f9eff','#ffb400','#ff8c00','#ff4757'];
 let briefsData   = [];
 let briefsFilter = 'all';
 
+const SCENARIO_CAT = {
+  geopolitica: { label:'Geopolitica', color:'#e8344e' },
+  politica:    { label:'Politica',    color:'#4f9eff' },
+  business:    { label:'Business',    color:'#f5a623' },
+  tecnologia:  { label:'Tecnologia',  color:'#a78bfa' },
+};
+
 function filterBriefs(cat, el) {
   briefsFilter = cat;
   document.querySelectorAll('#briefs-filter-bar .forum-cat-btn').forEach(b => b.classList.remove('active'));
@@ -1383,8 +1390,8 @@ function filterBriefs(cat, el) {
 
 async function loadBriefs() {
   try {
-    briefsData = await Api.get('/api/map/events/briefs').catch(() => []);
-    if (!Array.isArray(briefsData)) briefsData = [];
+    const raw = await Api.fn('articles', { filter: 'published' });
+    briefsData = Array.isArray(raw) ? raw : [];
     renderBriefs(briefsData);
     const el = document.getElementById('briefs-updated');
     if (el) el.textContent = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
@@ -1394,45 +1401,42 @@ async function loadBriefs() {
   }
 }
 
-function renderBriefs(events) {
+function renderBriefs(articles) {
   const list = document.getElementById('briefs-list');
   if (!list) return;
 
-  /* Update total count (unfiltered) */
   const countEl = document.getElementById('briefs-count');
-  if (countEl) countEl.textContent = events.length ? `${events.length} event${events.length === 1 ? 'o' : 'i'}` : '';
+  const filtered = briefsFilter === 'all' ? articles : articles.filter(a => a.cat === briefsFilter);
 
-  /* Apply active filter */
-  const filtered = briefsFilter === 'all' ? events : events.filter(ev => ev.category === briefsFilter);
+  if (countEl) countEl.textContent = filtered.length ? `${filtered.length} scenario${filtered.length===1?'':'i'}` : '';
 
   if (!filtered.length) {
-    list.innerHTML = `
-      <div style="padding:28px 0 28px 14px;border-left:2px solid rgba(255,255,255,0.06);font-size:0.8rem;color:var(--text-muted);line-height:1.6;">
-        ${events.length && briefsFilter !== 'all'
-          ? 'Nessun evento in questa categoria.'
-          : "L'AI genera i brief automaticamente quando rileva eventi geopolitici attivi."}
-      </div>`;
+    list.innerHTML = `<div style="padding:28px 14px;font-size:0.78rem;color:var(--text-muted);line-height:1.65;">
+      ${articles.length && briefsFilter !== 'all' ? 'Nessuno scenario in questa categoria.' : "L'AI aggiorna gli scenari ogni 30 minuti monitorando le notizie globali."}
+    </div>`;
     return;
   }
 
-  list.innerHTML = filtered.map(ev => {
-    const cat       = BRIEF_CAT[ev.category] || { label: ev.category || 'Evento', color:'#4f9eff' };
-    const ago       = ev.createdAt ? timeAgo(ev.createdAt) : '';
-    const briefText = ev.brief || ev.summary || '';
-    const magLabel  = MAG_LABEL[ev.magnitude] || '';
+  list.innerHTML = filtered.map(a => {
+    const cat   = SCENARIO_CAT[a.cat] || { label: a.cat_label || a.cat || 'Analisi', color:'#4f9eff' };
+    const ago   = a.published_at ? timeAgo(a.published_at) : (a.created_at ? timeAgo(a.created_at) : '');
+    // Estrai testo pulito dall'HTML del contenuto
+    const rawContent = a.content || a.excerpt || '';
+    const plainText  = rawContent.replace(/<[^>]+>/g, ' ').replace(/\s+/g,' ').trim();
+    const excerpt    = a.excerpt || plainText.slice(0, 220);
     return `
-    <div class="brief-card" style="--cat-color:${cat.color};">
+    <div class="brief-card" style="--cat-color:${cat.color};cursor:default;" id="scenario-${a.id}">
       <div class="brief-eyebrow" style="color:${cat.color};">
-        ${cat.label.toUpperCase()}${magLabel ? ' · ' + magLabel.toUpperCase() : ''}
+        ⚡ ${cat.label.toUpperCase()} · FLASH UPDATE
       </div>
-      <div class="brief-title">${ev.title}</div>
-      ${briefText
-        ? `<div class="brief-text">${briefText}</div>`
-        : `<div class="brief-text brief-text-empty">Brief in elaborazione...</div>`
-      }
-      <div class="brief-meta">
-        ${ago ? `<span>${ago}</span>` : ''}
-        ${ev.sourceUrl ? `<a href="${ev.sourceUrl}" target="_blank" rel="noopener" class="brief-source-link">Fonte →</a>` : ''}
+      <div class="brief-title">${a.title || ''}</div>
+      ${a.subtitle ? `<div style="font-size:0.72rem;color:rgba(235,235,245,0.45);margin:4px 0 8px;font-style:italic;">${a.subtitle}</div>` : ''}
+      <div class="brief-text" style="display:block;">
+        ${plainText || excerpt}
+      </div>
+      <div class="brief-meta" style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:0.65rem;color:rgba(235,235,245,0.25);">${ago ? '🕐 ' + ago : ''} ${a.read_time ? '· ' + a.read_time : ''}</span>
+        ${a.source_url ? `<a href="${a.source_url}" target="_blank" rel="noopener" class="brief-source-link" style="font-size:0.65rem;">Fonte →</a>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -1448,8 +1452,8 @@ function timeAgo(dateStr) {
   return `${Math.floor(h/24)}g fa`;
 }
 
-/* Auto-refresh briefs every 5 minutes */
-setInterval(loadBriefs, 5 * 60 * 1000);
+/* Auto-refresh scenari ogni 30 minuti */
+setInterval(loadBriefs, 30 * 60 * 1000);
 
 /* ── ARTICLES ── */
 let currentCategory = 'all';

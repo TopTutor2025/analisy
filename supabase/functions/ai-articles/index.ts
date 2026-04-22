@@ -36,37 +36,28 @@ interface MapEvent {
 
 // ─── Genera articolo per un evento ───────────────────────
 async function generateArticle(ev: MapEvent, apiKey: string) {
-  const prompt = `Sei un giornalista e analista geopolitico di alto livello che scrive per una testata di intelligence italiana.
+  const prompt = `Sei un analista di intelligence geopolitica. Scrivi un FLASH UPDATE in italiano su questo evento da mostrare in tempo reale su una piattaforma di analisi geopolitica.
 
-Scrivi un articolo professionale e approfondito basato su questo evento:
-
-TITOLO EVENTO: ${ev.title}
+EVENTO: ${ev.title}
 CATEGORIA: ${CATEGORY_LABELS[ev.category] || ev.category}
-MAGNITUDO: ${ev.magnitude}/4
-DESCRIZIONE: ${ev.description}
-BRIEF ANALITICO: ${ev.ai_brief || ev.ai_summary}
-FONTE: ${ev.source_url}
+CONTESTO: ${ev.description}
+ANALISI: ${ev.ai_brief || ev.ai_summary}
 
-L'articolo deve:
-- Essere scritto in italiano, tono professionale e autorevole
-- Avere un TITOLO giornalistico efficace (max 90 caratteri)
-- Avere un SOTTOTITOLO che aggiunge contesto (max 150 caratteri)
-- Avere un CONTENUTO di 500–800 parole in formato HTML semplice (<p>, <h3>, <strong>)
-  - Paragrafo 1: contesto e fatto principale
-  - Paragrafo 2: background storico e cause
-  - Paragrafo 3: impatti e scenari possibili
-  - Paragrafo 4: implicazioni per l'Europa / Italia (se rilevante)
-- Avere un EXCERPT (estratto) di max 180 caratteri
-- Avere un READ_TIME stimato (es. "5 min")
+Il flash update deve:
+- Titolo giornalistico incisivo (max 85 caratteri)
+- Sottotitolo che sintetizza il punto chiave (max 140 caratteri)
+- Testo principale: ESATTAMENTE 12-15 frasi in italiano, tono autorevole da intelligence briefing. Struttura: 3 frasi sul fatto attuale → 3 frasi sul contesto storico → 3 frasi sugli attori coinvolti → 3 frasi sugli scenari possibili e impatti. NO immagini, NO titoletti interni, solo testo continuo fluente.
+- Excerpt: 1 frase di 160-180 caratteri che cattura l'essenza
+- Read time: "4 min"
 
-Rispondi SOLO con JSON valido:
+Rispondi SOLO con JSON valido, nessun testo fuori dal JSON:
 {
   "title": "...",
   "subtitle": "...",
-  "content": "<p>...</p>",
+  "content": "testo delle 12-15 frasi senza tag HTML",
   "excerpt": "...",
-  "read_time": "X min",
-  "author": "Redazione Analisy"
+  "read_time": "4 min",
+  "author": "AI Intelligence · Analisy"
 }`;
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
