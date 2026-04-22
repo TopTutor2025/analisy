@@ -104,6 +104,11 @@ async function fetchGdeltArticles(): Promise<GdeltArticle[]> {
 async function analyzeWithClaude(articles: GdeltArticle[]): Promise<MapEvent[]> {
   const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
   if (!apiKey) throw new Error('ANTHROPIC_API_KEY non configurato nelle impostazioni Supabase');
+  // Debug: log formato chiave (solo prefisso sicuro)
+  console.log(`[ai-run] API key presente: lunghezza=${apiKey.length}, inizio="${apiKey.slice(0, 18)}..."`);
+  if (!apiKey.startsWith('sk-ant-')) {
+    throw new Error(`ANTHROPIC_API_KEY formato non valido: inizia con "${apiKey.slice(0, 10)}" invece di "sk-ant-"`);
+  }
 
   const headlines = articles
     .slice(0, 25)
@@ -172,7 +177,8 @@ Rispondi SOLO con un array JSON valido, senza markdown, senza testo aggiuntivo. 
 
   if (!response.ok) {
     const err = await response.text();
-    throw new Error(`Claude API ${response.status}: ${err.slice(0, 200)}`);
+    console.error(`[ai-run] Claude errore completo: ${err}`);
+    throw new Error(`Claude API ${response.status}: ${err.slice(0, 500)}`);
   }
 
   const claude = await response.json();
