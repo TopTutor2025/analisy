@@ -181,60 +181,100 @@
     #situation-map  { width: 100%; height: 100%; }
 
     /* 7 · Map unified panel — LEFT, black */
+    /* ── Legend panel — cresce dal basso verso l'alto ── */
     .map-unified-panel {
-      position: absolute; top: 14px; left: 14px; z-index: 800;
-      width: 206px;
-      background: rgba(0,0,0,0.94) !important;
-      border: 1px solid rgba(255,255,255,0.09) !important;
-      border-radius: 12px !important;
-      backdrop-filter: blur(20px) !important;
-      -webkit-backdrop-filter: blur(20px) !important;
+      position: absolute;
+      bottom: 0; left: 14px;
+      z-index: 800;
+      width: 210px;
+      display: flex; flex-direction: column;
+      background: rgba(6,6,8,0.96);
+      border: 1px solid rgba(255,255,255,0.11);
+      border-radius: 10px 10px 0 0;
+      border-bottom: none;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: -2px -6px 24px rgba(0,0,0,0.7), 0 -1px 0 rgba(255,255,255,0.06);
+      transition: all 0.22s ease;
       overflow: hidden;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.8) !important;
+    }
+    /* Collapsed: solo il tab folder in rilievo */
+    .map-unified-panel.mup-collapsed {
+      width: 90px;
+      border-radius: 8px 8px 0 0;
+      box-shadow: -1px -4px 14px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08);
+      background: rgba(18,18,22,0.98);
     }
     .mup-header {
-      display: flex; align-items: center; height: 34px;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-      padding: 0 10px 0 12px;
+      display: flex; align-items: center; height: 30px;
+      padding: 0 8px 0 12px; gap: 6px;
+      cursor: pointer; user-select: none;
       background: rgba(255,255,255,0.02);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
     }
+    .mup-collapsed .mup-header { border-bottom: none; }
     .mup-title {
       font-size: 0.56rem; font-weight: 700;
       letter-spacing: 0.07em; text-transform: uppercase;
-      color: rgba(235,235,245,0.2); margin-right: 8px; white-space: nowrap;
+      color: rgba(235,235,245,0.35); flex: 1; white-space: nowrap;
     }
-    .mup-tabs { display: flex; flex: 1; gap: 4px; height: 100%; align-items: center; }
-    .mup-tab {
-      padding: 3px 9px !important; border: none !important; border-bottom: none !important;
-      border-radius: 6px !important; background: transparent;
-      font-size: 0.63rem !important; font-weight: 600 !important;
-      letter-spacing: 0 !important; text-transform: none !important;
-      color: rgba(235,235,245,0.35); cursor: pointer;
-      transition: background 0.12s, color 0.12s;
-      margin-bottom: 0 !important; white-space: nowrap;
-    }
-    .mup-tab:hover { background: rgba(255,255,255,0.08) !important; color: rgba(235,235,245,0.82) !important; }
-    .mup-tab.active { background: rgba(57,255,20,0.13) !important; color: #39ff14 !important; border-bottom-color: transparent !important; }
     .mup-collapse-btn {
-      width: 20px; height: 20px; background: transparent;
-      border: 1px solid rgba(255,255,255,0.1); border-radius: 5px !important;
+      width: 18px; height: 18px; background: transparent;
+      border: none; border-radius: 4px;
       display: flex; align-items: center; justify-content: center;
-      color: rgba(235,235,245,0.22); cursor: pointer; flex-shrink: 0;
-      transition: color 0.15s, border-color 0.15s; margin-left: 6px;
+      color: rgba(235,235,245,0.3); cursor: pointer; flex-shrink: 0;
+      transition: color 0.15s;
     }
-    .mup-collapse-btn:hover { color: rgba(235,235,245,0.8); border-color: rgba(255,255,255,0.3); }
-    .mup-collapse-btn svg { transition: transform 0.2s ease; }
-    .mup-body { padding: 10px 11px 10px; background: #000; }
+    .mup-collapse-btn:hover { color: rgba(235,235,245,0.8); }
+    .mup-collapse-btn svg { transition: transform 0.22s ease; }
+    .mup-collapsed .mup-collapse-btn svg { transform: rotate(180deg); }
+    .mup-body {
+      padding: 10px 11px 12px;
+      background: transparent;
+      transition: all 0.22s ease;
+    }
+    .mup-collapsed .mup-body { display: none; }
     .mup-group-label {
-      font-size: 0.55rem; font-weight: 700; text-transform: uppercase;
+      font-size: 0.54rem; font-weight: 700; text-transform: uppercase;
       letter-spacing: 0.07em; color: rgba(235,235,245,0.18);
       margin-bottom: 6px; padding-bottom: 4px;
       border-bottom: 1px solid rgba(255,255,255,0.06);
     }
     .map-unified-panel .legend-items { gap: 5px; }
-    .map-unified-panel .legend-item  { font-size: 0.72rem; color: rgba(235,235,245,0.52); }
+    .map-unified-panel .legend-item  { font-size: 0.7rem; color: rgba(235,235,245,0.52); }
 
-    /* Map panel hidden state */
+    /* ── AI toggle switch in toolbar ── */
+    .sr-ai-switch {
+      display: flex; align-items: center; gap: 5px;
+      padding: 0 8px; cursor: pointer; height: 100%;
+      border-radius: 0;
+    }
+    .sr-ai-switch-track {
+      width: 28px; height: 15px; border-radius: 8px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.18);
+      position: relative; transition: background 0.2s, border-color 0.2s;
+      flex-shrink: 0;
+    }
+    .sr-ai-switch.on .sr-ai-switch-track {
+      background: rgba(57,255,20,0.2); border-color: rgba(57,255,20,0.6);
+    }
+    .sr-ai-switch-thumb {
+      width: 11px; height: 11px; border-radius: 50%;
+      background: rgba(255,255,255,0.35);
+      position: absolute; top: 1px; left: 1px;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .sr-ai-switch.on .sr-ai-switch-thumb {
+      transform: translateX(13px); background: #39ff14;
+    }
+    .sr-ai-switch-label {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em;
+      color: rgba(235,235,245,0.35); transition: color 0.2s;
+    }
+    .sr-ai-switch.on .sr-ai-switch-label { color: #39ff14; }
+
+    /* Map panel hidden state (legacy) */
     .sr-panel-hidden { display: none !important; }
 
     /* 8 · Tool navbar */
@@ -589,37 +629,22 @@
     <!-- ── Unified map panel (layers + legend) ── -->
     <div id="map-unified-panel" class="map-unified-panel">
 
-      <!-- Header: title + tab bar + collapse button -->
-      <div class="mup-header">
-        <div class="mup-tabs" id="mup-tabs">
-          <button class="mup-tab active" onclick="switchMapTab('layers',this)">Layer</button>
-          <button class="mup-tab" onclick="switchMapTab('legend',this)">Legenda</button>
-        </div>
-        <button class="mup-collapse-btn" onclick="toggleUnifiedPanel()" title="Riduci pannello">
+      <!-- Header: title + collapse button -->
+      <div class="mup-header" onclick="toggleUnifiedPanel()" style="cursor:pointer;">
+        <span class="mup-title">Legenda Mappa</span>
+        <button class="mup-collapse-btn" title="Riduci pannello" onclick="event.stopPropagation();toggleUnifiedPanel()">
           <svg id="mup-chevron" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="2,3 5,6.5 8,3"/></svg>
         </button>
       </div>
 
+      <!-- Hidden toggle (synced by toolbar switch) -->
+      <div class="toggle-switch on" id="toggle-events" style="display:none;" onclick="handleToggle('events',this)"></div>
+
       <!-- Body (collapsible) -->
       <div class="mup-body" id="mup-body">
 
-        <!-- TAB: Layer controls -->
-        <div id="mup-tab-layers" class="mup-tab-pane">
-          <div class="mup-group-label">LAYER</div>
-          <div class="layer-toggle">
-            <div class="layer-label">
-              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#e8344e" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              <span>Eventi IA</span>
-            </div>
-            <div class="toggle-switch on" id="toggle-events" onclick="handleToggle('events',this)"></div>
-          </div>
-          <div style="margin-top:8px;font-size:0.67rem;color:rgba(235,235,245,0.28);line-height:1.5;">
-            Generati dall'IA ogni 6h monitorando notizie globali. Clicca un marker per il briefing analitico.
-          </div>
-        </div>
-
-        <!-- TAB: Legend -->
-        <div id="mup-tab-legend" class="mup-tab-pane" style="display:none;">
+        <!-- Legend only -->
+        <div id="mup-tab-legend" class="mup-tab-pane">
 
           <!-- Colori = dominio tematico -->
           <div class="mup-group-label">DOMINIO</div>
@@ -738,11 +763,13 @@
 
   <div class="tn-spacer"></div>
 
-  <!-- Switch eventi AI -->
-  <button class="tn-btn" id="tn-ai-events" title="Attiva/disattiva eventi AI sulla mappa" onclick="handleToggle('events', document.getElementById('toggle-events'))" style="position:relative;">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-    <span style="font-size:0.6rem;font-weight:700;letter-spacing:0.04em;">AI</span>
-  </button>
+  <!-- Switch eventi AI — toggle pill -->
+  <div class="sr-ai-switch on" id="sr-ai-switch" onclick="toggleAiSwitch()" title="Attiva/disattiva eventi AI sulla mappa" role="switch" aria-checked="true" style="cursor:pointer;">
+    <div class="sr-ai-switch-track">
+      <div class="sr-ai-switch-thumb"></div>
+    </div>
+    <span class="sr-ai-switch-label">AI</span>
+  </div>
 
   <div class="tn-divider"></div>
 
@@ -1432,11 +1459,11 @@ function renderTicker() {
   `).join('');
 }
 
-/* ── MAP PANEL TOGGLE ── */
+/* ── MAP PANEL: show/hide via toolbar grid button ── */
 function toggleMapPanel(btn) {
-  const panel = document.getElementById('map-unified-panel');
+  const panel  = document.getElementById('map-unified-panel');
   const hidden = panel.classList.toggle('sr-panel-hidden');
-  btn.classList.toggle('active', !hidden);
+  if (btn) btn.classList.toggle('active', !hidden);
 }
 
 /* ── TOOL NAVBAR: right-column tab switcher ── */
@@ -2017,23 +2044,25 @@ async function deleteReply(replyId, postId) {
 }
 
 /* ── MAP UNIFIED PANEL ── */
-let _mupCollapsed = false;
-
+/* ── MAP PANEL: folder-tab collapse ── */
 function toggleUnifiedPanel() {
-  _mupCollapsed = !_mupCollapsed;
-  const body    = document.getElementById('mup-body');
-  const tabs    = document.getElementById('mup-tabs');
-  const chevron = document.getElementById('mup-chevron');
-  body.style.display  = _mupCollapsed ? 'none' : '';
-  tabs.style.display  = _mupCollapsed ? 'none' : '';
-  chevron.style.transform = _mupCollapsed ? 'rotate(180deg)' : '';
+  document.getElementById('map-unified-panel').classList.toggle('mup-collapsed');
 }
 
-function switchMapTab(tab, el) {
-  document.querySelectorAll('.mup-tab').forEach(b => b.classList.remove('active'));
-  if (el) el.classList.add('active');
-  document.getElementById('mup-tab-layers').style.display = tab === 'layers' ? '' : 'none';
-  document.getElementById('mup-tab-legend').style.display = tab === 'legend' ? '' : 'none';
+/* ── AI EVENTS SWITCH in toolbar ── */
+function toggleAiSwitch() {
+  const sw     = document.getElementById('sr-ai-switch');
+  const hidden = document.getElementById('toggle-events');
+  const isOn   = sw.classList.toggle('on');
+  sw.setAttribute('aria-checked', isOn);
+  // Sync with underlying toggle (which drives the map layer)
+  if (hidden) {
+    const wasOn = hidden.classList.contains('on');
+    if (wasOn !== isOn) {
+      hidden.classList.toggle('on', isOn);
+      toggleLayer('events', isOn);
+    }
+  }
 }
 
 /* ── REPORT CONTENT ── */
