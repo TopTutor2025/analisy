@@ -1391,7 +1391,9 @@ function filterBriefs(cat, el) {
 async function loadBriefs() {
   try {
     const raw = await Api.fn('articles', { filter: 'published' });
-    briefsData = Array.isArray(raw) ? raw : [];
+    const all = Array.isArray(raw) ? raw : [];
+    // Solo scenari generati dall'AI
+    briefsData = all.filter(a => a.author === 'AI Intelligence · Analisy');
     renderBriefs(briefsData);
     const el = document.getElementById('briefs-updated');
     if (el) el.textContent = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
@@ -1480,7 +1482,8 @@ function filterArticles(cat, el) {
 
 function renderArticles(cat) {
   const grid    = document.getElementById('articles-grid');
-  const allArts = getArticles();
+  // Solo articoli umani — esclude scenari AI
+  const allArts = getArticles().filter(a => a.author !== 'AI Intelligence · Analisy');
   const filtered = cat === 'all' ? allArts : allArts.filter(a => a.cat === cat);
   /* Update count */
   const countEl = document.getElementById('articles-count');

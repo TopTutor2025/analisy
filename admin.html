@@ -1684,7 +1684,8 @@
 
   function renderAdminArticles() {
     const q    = (document.getElementById('art-search')?.value || '').toLowerCase();
-    let list   = AppData.articles || [];
+    // Mostra SOLO articoli umani — esclude scenari AI generati automaticamente
+    let list   = (AppData.articles || []).filter(a => a.author !== 'AI Intelligence · Analisy');
     if (adminArticleFilter !== 'all') list = list.filter(a => a.cat === adminArticleFilter);
     if (q) list = list.filter(a => (a.title + a.author).toLowerCase().includes(q));
 

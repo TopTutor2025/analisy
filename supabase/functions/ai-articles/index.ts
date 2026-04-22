@@ -124,47 +124,57 @@ Deno.serve(async (req) => {
   if (evError) return errorResponse(evError.message, 500);
   if (!events || events.length === 0) return corsResponse({ ok: true, message: 'Nessun evento attivo da elaborare.' });
 
-  // Carica titoli articoli esistenti per evitare duplicati (ultimi 2 giorni)
-  const since = new Date(Date.now() - 48 * 3600000).toISOString();
-  const { data: recentArticles } = await adminClient
+  // Carica tutti gli scenari AI esistenti (per aggiornare invece di duplicare)
+  const { data: existingAI } = await adminClient
     .from('articles')
-    .select('title')
-    .gte('created_at', since);
+    .select('id, title')
+    .eq('author', 'AI Intelligence · Analisy');
 
-  const recentTitles = new Set(
-    (recentArticles || []).map(a => a.title.toLowerCase().slice(0, 40))
+  // Mappa: chiave titolo → id articolo esistente
+  const existingMap = new Map(
+    (existingAI || []).map(a => [a.title.toLowerCase().slice(0, 40), a.id])
   );
 
   let created = 0;
-  let skipped = 0;
+  let updated = 0;
   const results: string[] = [];
 
   // Elabora al massimo 5 eventi per esecuzione (evita timeout)
   for (const ev of (events as MapEvent[]).slice(0, 5)) {
-    const key = ev.title.toLowerCase().slice(0, 40);
-    if (recentTitles.has(key)) { skipped++; continue; }
-
     try {
       const article = await generateArticle(ev, apiKey);
-      const isPremium = ev.magnitude >= 3; // articoli su eventi critici sono premium
+      const AI_AUTHOR = 'AI Intelligence · Analisy';
 
-      await adminClient.from('articles').insert({
+      // Cerca se esiste già uno scenario per questo evento (per titolo)
+      const evKey  = ev.title.toLowerCase().slice(0, 40);
+      const artKey = article.title.toLowerCase().slice(0, 40);
+      const existingId = existingMap.get(evKey) || existingMap.get(artKey);
+
+      const payload = {
         title:        article.title,
         subtitle:     article.subtitle || '',
         content:      article.content  || '',
         excerpt:      article.excerpt  || '',
-        read_time:    article.read_time || '5 min',
-        author:       article.author || 'Redazione Analisy',
+        read_time:    article.read_time || '4 min',
+        author:       AI_AUTHOR,
         cat:          ev.category,
         cat_label:    CATEGORY_LABELS[ev.category] || ev.category,
-        premium:      isPremium,
+        premium:      false,   // scenari AI sempre pubblici
         status:       'published',
         published_at: new Date().toISOString(),
-        image:        '',  // nessuna immagine di default per articoli IA
-      });
+        image:        '',
+      };
 
-      recentTitles.add(key);
-      created++;
+      if (existingId) {
+        // AGGIORNA lo scenario esistente
+        await adminClient.from('articles').update(payload).eq('id', existingId);
+        updated++;
+      } else {
+        // CREA nuovo scenario
+        const { data: inserted } = await adminClient.from('articles').insert(payload).select('id, title').single();
+        if (inserted) existingMap.set(artKey, inserted.id);
+        created++;
+      }
       results.push(article.title);
     } catch (err) {
       console.error('[ai-articles] Errore per evento', ev.id, err);
@@ -174,7 +184,7 @@ Deno.serve(async (req) => {
   return corsResponse({
     ok:      true,
     created,
-    skipped,
+    updated,
     articles: results,
   });
 });

@@ -301,15 +301,27 @@ Deno.serve(async (req) => {
         }
       }
 
-      // 5. Archivia eventi scaduti
+      // 5. Archivia eventi scaduti e cancella i loro scenari AI
       const { data: expired } = await adminClient
         .from('map_events')
         .update({ status: 'expired' })
         .lt('expires_at', new Date().toISOString())
         .eq('status', 'active')
         .eq('manual_lock', false)
-        .select('id');
+        .select('id, title');
       eventsResolved = (expired || []).length;
+
+      // Cancella gli scenari AI legati agli eventi scaduti
+      for (const ev of (expired || [])) {
+        const titleKey = ev.title?.toLowerCase().slice(0, 40);
+        if (titleKey) {
+          await adminClient
+            .from('articles')
+            .delete()
+            .eq('author', 'AI Intelligence · Analisy')
+            .ilike('title', `%${ev.title.slice(0, 30)}%`);
+        }
+      }
 
       // 6. Aggiorna citycams in base ai nuovi eventi
       await updateCitycams(adminClient, newEvents);
