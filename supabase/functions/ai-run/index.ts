@@ -29,25 +29,27 @@ import { corsHeaders, corsResponse, errorResponse } from '../_shared/cors.ts';
 
 const GDELT_API = 'https://api.gdeltproject.org/api/v2/doc/doc';
 
-// Query GDELT minimale e veloce
+// Query GDELT con termini geopolitici attuali
 const GDELT_PARAMS = new URLSearchParams({
-  query:      '(war OR conflict OR election OR crisis OR military)',
+  query:      '(war OR conflict OR Hormuz OR Iran OR Gaza OR Ukraine OR tariff OR sanctions OR missile OR coup)',
   mode:       'artlist',
   maxrecords: '20',
   sort:       'datedesc',
   format:     'json',
 });
 
-// Notizie fallback se GDELT non risponde
+// Notizie fallback aggiornate ad aprile 2026
 const FALLBACK_ARTICLES: GdeltArticle[] = [
-  { title: 'Russia-Ukraine war latest developments and frontline updates', url: 'https://www.bbc.com/news/world-europe', domain: 'bbc.com', seendate: new Date().toISOString() },
-  { title: 'Middle East conflict Gaza ceasefire negotiations continue', url: 'https://www.reuters.com/world/middle-east', domain: 'reuters.com', seendate: new Date().toISOString() },
-  { title: 'US China trade tensions and tariff disputes escalate', url: 'https://www.ft.com/world/us-china', domain: 'ft.com', seendate: new Date().toISOString() },
-  { title: 'North Korea missile tests provoke international response', url: 'https://www.reuters.com/world/asia-pacific', domain: 'reuters.com', seendate: new Date().toISOString() },
-  { title: 'Iran nuclear program talks stall amid sanctions pressure', url: 'https://www.bbc.com/news/world-middle-east', domain: 'bbc.com', seendate: new Date().toISOString() },
-  { title: 'AI regulation battle between US and EU intensifies', url: 'https://www.ft.com/technology', domain: 'ft.com', seendate: new Date().toISOString() },
-  { title: 'Taiwan Strait military activity raises regional concerns', url: 'https://www.reuters.com/world/asia-pacific', domain: 'reuters.com', seendate: new Date().toISOString() },
-  { title: 'European energy crisis and gas supply disruptions continue', url: 'https://www.ft.com/world/europe', domain: 'ft.com', seendate: new Date().toISOString() },
+  { title: 'Iran threatens to close Strait of Hormuz amid US sanctions escalation', url: 'https://www.reuters.com/world/middle-east/', domain: 'reuters.com', seendate: new Date().toISOString() },
+  { title: 'Russia Ukraine war frontline update Kursk offensive developments', url: 'https://www.bbc.com/news/world-europe', domain: 'bbc.com', seendate: new Date().toISOString() },
+  { title: 'Trump tariffs on China escalate global trade war concerns', url: 'https://www.ft.com/world/us', domain: 'ft.com', seendate: new Date().toISOString() },
+  { title: 'Gaza ceasefire negotiations collapse as military operations resume', url: 'https://www.reuters.com/world/middle-east/', domain: 'reuters.com', seendate: new Date().toISOString() },
+  { title: 'Taiwan Strait tensions rise as China conducts military drills', url: 'https://www.reuters.com/world/asia-pacific/', domain: 'reuters.com', seendate: new Date().toISOString() },
+  { title: 'North Korea launches ballistic missile over Japanese waters', url: 'https://www.bbc.com/news/world-asia', domain: 'bbc.com', seendate: new Date().toISOString() },
+  { title: 'AI arms race accelerates US China semiconductor export controls', url: 'https://www.ft.com/technology', domain: 'ft.com', seendate: new Date().toISOString() },
+  { title: 'European energy security concerns grow amid Russia gas supply cuts', url: 'https://www.ft.com/world/europe', domain: 'ft.com', seendate: new Date().toISOString() },
+  { title: 'Sudan civil war humanitarian crisis worsens millions displaced', url: 'https://www.bbc.com/news/world-africa', domain: 'bbc.com', seendate: new Date().toISOString() },
+  { title: 'Pakistan India border tensions escalate military buildup reported', url: 'https://www.reuters.com/world/asia-pacific/', domain: 'reuters.com', seendate: new Date().toISOString() },
 ];
 
 interface GdeltArticle {

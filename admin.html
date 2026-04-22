@@ -638,6 +638,7 @@
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
           <div id="ai-key-badge" style="font-size:0.68rem;padding:3px 8px;border-radius:0;font-weight:700;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.3);font-family:monospace;"></div>
+          <button class="btn btn-outline btn-sm" onclick="triggerAIArticles()" id="btn-ai-articles" style="border-color:rgba(79,158,255,0.4);color:#4f9eff;">📰 Genera Articoli</button>
           <button class="btn btn-primary btn-sm" onclick="triggerAIJob()" id="btn-ai-run">▶ Avvia Scansione</button>
         </div>
       </div>
@@ -2237,6 +2238,20 @@ async function triggerAIJob() {
   } catch(e) {
     showToast(e.message || 'Errore avvio', 'error');
     btn.disabled = false; btn.textContent = '▶ Avvia Scansione';
+  }
+}
+
+async function triggerAIArticles() {
+  const btn = document.getElementById('btn-ai-articles');
+  try {
+    btn.disabled = true; btn.textContent = '⏳ Generazione...';
+    const result = await Api.fn('ai-articles', {});
+    showToast(`Articoli generati: ${result.created ?? 0} nuovi, ${result.skipped ?? 0} già esistenti`, 'success');
+    btn.disabled = false; btn.textContent = '📰 Genera Articoli';
+    setTimeout(() => loadAdminStats(), 2000);
+  } catch(e) {
+    showToast(e.message || 'Errore generazione articoli', 'error');
+    btn.disabled = false; btn.textContent = '📰 Genera Articoli';
   }
 }
 
