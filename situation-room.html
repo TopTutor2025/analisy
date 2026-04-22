@@ -129,6 +129,51 @@
     .help-btn   { border-radius: 50% !important; }
     .btn-accedi { border-radius: 20px !important; font-weight: 500 !important; }
 
+    /* ── SR avatar override ── */
+    .sr-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #000;
+      border: 1.5px solid rgba(255,255,255,0.18);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; font-weight: 700; color: #fff;
+      cursor: pointer; position: relative; flex-shrink: 0;
+      transition: border-color 0.15s;
+      user-select: none;
+    }
+    .sr-avatar:hover { border-color: rgba(255,255,255,0.5); }
+
+    /* Dropdown */
+    .sr-avatar-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      min-width: 160px;
+      background: #111113;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 6px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+      z-index: 9999;
+    }
+    .sr-avatar-menu.open { display: block; }
+    .sr-avatar-menu a, .sr-avatar-menu button {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%; padding: 8px 10px;
+      font-size: 0.78rem; color: rgba(235,235,245,0.75);
+      background: none; border: none; cursor: pointer;
+      border-radius: 7px; text-decoration: none;
+      transition: background 0.12s, color 0.12s;
+      text-align: left;
+    }
+    .sr-avatar-menu a:hover, .sr-avatar-menu button:hover {
+      background: rgba(255,255,255,0.07); color: #fff;
+    }
+    .sr-avatar-menu button.logout { color: #ff4757; }
+    .sr-avatar-menu button.logout:hover { background: rgba(255,71,87,0.1); }
+    .sr-avatar-wrap { position: relative; }
+
     /* 6 · Map layout */
     .sr-map-wrapper { display: flex; flex-direction: column; border-bottom: 1px solid rgba(255,255,255,0.06); background: #000; }
     .sr-map-row     { display: flex; height: 60vh; min-height: 380px; }
@@ -516,8 +561,27 @@
 
       <div class="navbar-actions" id="navbar-actions">
         <a id="subnav-subscribe-cta" href="register.html" class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:5px 14px;border-radius:0;">Abbonati a 2,99€ al mese</a>
-        <a href="login.html" class="btn-accedi">Accedi</a>
-        <button class="help-btn" title="Come funziona" onclick="openSrTutorial()">!</button>
+        <a href="login.html" class="btn-accedi" id="sr-login-btn">Accedi</a>
+        <!-- bottone tutorial (? sempre visibile) -->
+        <button style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(235,235,245,0.55);font-size:0.72rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s,color 0.15s;flex-shrink:0;"
+          title="Tutorial — Come funziona" onclick="openSrTutorial()"
+          onmouseenter="this.style.background='rgba(255,255,255,0.13)';this.style.color='#fff'"
+          onmouseleave="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(235,235,245,0.55)'">?</button>
+        <!-- avatar dropdown (visibile solo da loggati — iniettato da JS) -->
+        <div class="sr-avatar-wrap" id="sr-avatar-wrap" style="display:none;">
+          <div class="sr-avatar" id="sr-avatar-btn" onclick="toggleAvatarMenu(event)">U</div>
+          <div class="sr-avatar-menu" id="sr-avatar-menu">
+            <a id="sr-dashboard-link" href="dashboard.html">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              Dashboard
+            </a>
+            <div style="height:1px;background:rgba(255,255,255,0.07);margin:4px 0;"></div>
+            <button class="logout" onclick="Auth.logout()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Logout
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1244,6 +1308,39 @@ const MARKETS = [
 ];
 
 /* ── INIT ── */
+/* ── SR Navbar custom ── */
+function renderSrNavbar() {
+  const user = Auth.get();
+  const loginBtn   = document.getElementById('sr-login-btn');
+  const avatarWrap = document.getElementById('sr-avatar-wrap');
+  const avatarBtn  = document.getElementById('sr-avatar-btn');
+  const dashLink   = document.getElementById('sr-dashboard-link');
+
+  if (user) {
+    // Nascondi "Accedi", mostra avatar
+    if (loginBtn)   loginBtn.style.display   = 'none';
+    if (avatarWrap) avatarWrap.style.display  = 'flex';
+    if (avatarBtn)  avatarBtn.textContent     = (user.nome || 'U')[0].toUpperCase();
+    if (dashLink)   dashLink.href = user.role === 'admin' ? 'admin.html' : 'dashboard.html';
+    if (dashLink)   dashLink.querySelector('span') && (dashLink.querySelector('span').textContent = user.role === 'admin' ? 'Admin' : 'Dashboard');
+  } else {
+    if (loginBtn)   loginBtn.style.display   = '';
+    if (avatarWrap) avatarWrap.style.display  = 'none';
+  }
+}
+
+function toggleAvatarMenu(e) {
+  e.stopPropagation();
+  const menu = document.getElementById('sr-avatar-menu');
+  if (menu) menu.classList.toggle('open');
+}
+
+// Chiudi dropdown cliccando fuori
+document.addEventListener('click', () => {
+  const menu = document.getElementById('sr-avatar-menu');
+  if (menu) menu.classList.remove('open');
+});
+
 document.addEventListener('DOMContentLoaded', async () => {
   await AppData.init();
 
@@ -1252,8 +1349,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const HIDDEN_LAYERS = ['resources_oil','resources_gas','resources_lithium','resources_uranium','migration','maritime','oil_trade','submarine'];
   HIDDEN_LAYERS.forEach(k => toggleLayer(k, false));
 
-  // Navbar
-  renderNavbar();
+  // Navbar SR — versione custom (no btn "Situation Room", avatar piccolo+dropdown)
+  renderSrNavbar();
 
   // Admin FAB
   if (Auth.isAdmin()) {
