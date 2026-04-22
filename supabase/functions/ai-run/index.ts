@@ -163,7 +163,7 @@ Rispondi SOLO con un array JSON valido, senza markdown, senza testo aggiuntivo. 
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model:      'claude-3-5-sonnet-20241022',
+      model:      'claude-3-haiku-20240307',
       max_tokens: 4096,
       messages:   [{ role: 'user', content: prompt }],
     }),
