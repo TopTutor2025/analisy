@@ -200,10 +200,10 @@
     }
     /* Collapsed: solo il tab folder in rilievo */
     .map-unified-panel.mup-collapsed {
-      width: 90px;
+      width: 112px;
       border-radius: 8px 8px 0 0;
-      box-shadow: -1px -4px 14px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08);
-      background: rgba(18,18,22,0.98);
+      box-shadow: -1px -5px 18px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.12);
+      background: rgba(20,20,26,0.99);
     }
     .mup-header {
       display: flex; align-items: center; height: 30px;
@@ -211,8 +211,17 @@
       cursor: pointer; user-select: none;
       background: rgba(255,255,255,0.02);
       border-bottom: 1px solid rgba(255,255,255,0.06);
+      overflow: hidden;
     }
-    .mup-collapsed .mup-header { border-bottom: none; }
+    .mup-collapsed .mup-header {
+      border-bottom: none;
+      background: rgba(255,255,255,0.04);
+    }
+    .mup-collapsed .mup-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: rgba(235,235,245,0.5);
+    }
     .mup-title {
       font-size: 0.56rem; font-weight: 700;
       letter-spacing: 0.07em; text-transform: uppercase;
@@ -631,7 +640,7 @@
 
       <!-- Header: title + collapse button -->
       <div class="mup-header" onclick="toggleUnifiedPanel()" style="cursor:pointer;">
-        <span class="mup-title">Legenda Mappa</span>
+        <span class="mup-title">Legenda</span>
         <button class="mup-collapse-btn" title="Riduci pannello" onclick="event.stopPropagation();toggleUnifiedPanel()">
           <svg id="mup-chevron" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="2,3 5,6.5 8,3"/></svg>
         </button>
@@ -1394,15 +1403,15 @@ document.addEventListener('click', () => {
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // ★ Navbar subito — usa Auth da localStorage, non aspetta la rete
+  renderSrNavbar();
+
   await AppData.init();
 
   // Map — eventi only (hide resources + routes)
   initSituationMap('situation-map');
   const HIDDEN_LAYERS = ['resources_oil','resources_gas','resources_lithium','resources_uranium','migration','maritime','oil_trade','submarine'];
   HIDDEN_LAYERS.forEach(k => toggleLayer(k, false));
-
-  // Navbar SR — versione custom (no btn "Situation Room", avatar piccolo+dropdown)
-  renderSrNavbar();
 
   // Admin FAB
   if (Auth.isAdmin()) {
