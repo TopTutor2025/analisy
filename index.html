@@ -30,7 +30,6 @@
       <div class="navbar-actions" id="navbar-actions">
         <!-- populated by app.js based on auth state -->
         <a href="login.html" class="btn-accedi">Accedi</a>
-        <button class="theme-toggle-btn" id="theme-toggle-btn" title="Cambia tema" onclick="toggleTheme()">🌙</button>
         <button class="help-btn" title="Aiuto" onclick="document.getElementById('help-modal').classList.add('open')">?</button>
         <a href="situation-room.html" class="btn btn-primary btn-sm">Situation Room</a>
       </div>
@@ -626,21 +625,6 @@
       .bindPopup(`<div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:${ev.color};margin-bottom:2px;">${ev.type}</div><div style="font-size:0.85rem;font-weight:600;">${ev.title}</div>`, { maxWidth: 160 });
   });
 
-  // Navbar scroll effect
-  // Theme toggle (hero map tiles stay dark regardless)
-  function toggleTheme() {
-    const isLight = document.body.classList.toggle('light-mode');
-    localStorage.setItem('analisy_theme', isLight ? 'light' : 'dark');
-    document.getElementById('theme-toggle-btn').textContent = isLight ? '☀️' : '🌙';
-  }
-  // Restore saved theme
-  (function() {
-    if (localStorage.getItem('analisy_theme') === 'light') {
-      document.body.classList.add('light-mode');
-      const btn = document.getElementById('theme-toggle-btn');
-      if (btn) btn.textContent = '☀️';
-    }
-  })();
 </script>
 <script src="js/cookie-banner.js"></script>
 </body>
