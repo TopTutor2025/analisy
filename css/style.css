@@ -1996,8 +1996,8 @@ footer {
   display: none;
   width: 36px; height: 36px;
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.04);
+  border: none;
+  background: transparent;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -2107,7 +2107,7 @@ footer {
     height: 180px;
     border-radius: 12px;
     overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: none;
   }
   #hero-map { height: 180px !important; border-radius: 12px; }
 
