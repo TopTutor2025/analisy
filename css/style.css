@@ -178,8 +178,8 @@ p { color: var(--text-secondary); line-height: 1.7; }
 }
 .navbar-logo .logo-icon {
   width: 34px; height: 34px;
-  background: rgba(0,0,0,0.8);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: transparent;
+  border: none;
   border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
@@ -1006,8 +1006,8 @@ footer {
 }
 .sidebar-logo a .logo-icon {
   width: 30px; height: 30px;
-  background: rgba(6,14,26,0.85);
-  border: 1px solid rgba(79,158,255,0.3);
+  background: transparent;
+  border: none;
   border-radius: 7px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
