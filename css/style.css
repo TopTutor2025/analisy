@@ -2072,9 +2072,10 @@ footer {
 @media (max-width: 768px) {
 
   /* Navbar: nascondi desktop, mostra mobile */
-  .navbar-nav      { display: none !important; }
-  .navbar-actions  { display: none !important; }
+  .navbar-nav          { display: none !important; }
+  .navbar-actions      { display: none !important; }
   .navbar-mobile-right { display: flex !important; }
+  .hamburger-btn       { display: flex !important; }
 
   .container { padding: 0 20px; }
 
@@ -2102,16 +2103,14 @@ footer {
   }
   #hero-map { height: 170px !important; border-radius: 12px; }
 
-  /* Bottoni CTA — larghezza automatica, centrati */
+  /* Bottoni CTA — stessa larghezza, allineati a sinistra come il testo */
   .hero-cta {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     gap: 10px;
+    max-width: 320px;
   }
   .hero-cta .btn {
-    width: auto;
-    min-width: 220px;
-    max-width: 300px;
     justify-content: center;
     text-align: center;
   }
