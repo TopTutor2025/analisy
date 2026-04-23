@@ -287,9 +287,15 @@ p { color: var(--text-secondary); line-height: 1.7; }
 .hero-inner {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 64px;
-  align-items: center;
+  grid-template-areas:
+    "top    visual"
+    "bottom visual";
+  gap: 0 64px;
+  align-items: start;
 }
+.hero-top    { grid-area: top;    padding-bottom: 24px; }
+.hero-bottom { grid-area: bottom; }
+.hero-visual { grid-area: visual; align-self: center; }
 .hero-badge {
   display: inline-flex;
   align-items: center;
@@ -415,7 +421,7 @@ p { color: var(--text-secondary); line-height: 1.7; }
 /* ============================================================
    FEATURES SECTION
    ============================================================ */
-.features-section { background: var(--bg-secondary); }
+.features-section { background: var(--bg-secondary); width: 100%; overflow-x: hidden; }
 .section-header { margin-bottom: 60px; }
 .section-header h2 { margin-bottom: 12px; }
 .section-header p { font-size: 1.05rem; max-width: 560px; }
@@ -2079,29 +2085,31 @@ footer {
 
   .container { padding: 0 20px; }
 
-  /* Hero: mostra mappa, stacca in colonne */
+  /* Hero: layout mobile flex colonna */
   .hero {
     padding-top: calc(var(--nav-h) + 32px);
     padding-bottom: 48px;
   }
   .hero-inner {
-    grid-template-columns: 1fr;
-    gap: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
   }
+  /* Ordine: hero-top → hero-visual → hero-bottom (DOM order naturale) */
+  .hero-top    { padding-bottom: 0; }
   .hero-visual {
     display: flex !important;
-    justify-content: center;
-    order: 2;            /* mappa SOTTO il testo */
+    justify-content: flex-start;
   }
   .hero-map-wrapper {
-    width: 80%;
-    max-width: 320px;
-    height: 170px;
+    width: 100%;
+    max-width: 100%;
+    height: 180px;
     border-radius: 12px;
     overflow: hidden;
     border: 1px solid rgba(255,255,255,0.08);
   }
-  #hero-map { height: 170px !important; border-radius: 12px; }
+  #hero-map { height: 180px !important; border-radius: 12px; }
 
   /* Bottoni CTA — stessa larghezza, allineati a sinistra come il testo */
   .hero-cta {
