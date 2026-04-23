@@ -1988,34 +1988,35 @@ footer {
 /* ── Hamburger button ── */
 .hamburger-btn {
   display: none;
-  width: 34px; height: 34px;
+  width: 36px; height: 36px;
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: transparent;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.04);
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 5px;
   cursor: pointer;
   flex-shrink: 0;
 }
 .hamburger-btn span {
-  width: 15px; height: 1.5px;
-  background: rgba(235,235,245,0.75);
+  width: 18px; height: 2px;
+  background: rgba(235,235,245,0.9);
   border-radius: 2px;
   display: block;
   transition: transform 0.22s ease, opacity 0.22s ease;
 }
 /* X quando aperto */
-.hamburger-btn.open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+.hamburger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
 .hamburger-btn.open span:nth-child(2) { opacity: 0; }
-.hamburger-btn.open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
+.hamburger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
 /* Mobile right group (hamburger + ?) */
 .navbar-mobile-right {
   display: none;
   align-items: center;
   gap: 8px;
+  margin-left: auto;
 }
 .help-btn-mobile {
   width: 30px; height: 30px;
@@ -2088,26 +2089,29 @@ footer {
   }
   .hero-visual {
     display: flex !important;
-    order: -1;           /* mappa sopra il testo */
+    justify-content: center;
+    order: 2;            /* mappa SOTTO il testo */
   }
   .hero-map-wrapper {
-    width: 100%;
-    max-width: 100%;
-    height: 200px;
+    width: 80%;
+    max-width: 320px;
+    height: 170px;
     border-radius: 12px;
     overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
   }
-  #hero-map { height: 200px !important; border-radius: 12px; }
+  #hero-map { height: 170px !important; border-radius: 12px; }
 
-  /* Bottoni CTA stessa larghezza */
+  /* Bottoni CTA — larghezza automatica, centrati */
   .hero-cta {
     flex-direction: column;
-    align-items: stretch;
+    align-items: center;
     gap: 10px;
-    width: 100%;
   }
   .hero-cta .btn {
-    width: 100%;
+    width: auto;
+    min-width: 220px;
+    max-width: 300px;
     justify-content: center;
     text-align: center;
   }
