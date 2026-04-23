@@ -2109,24 +2109,28 @@ footer {
     grid-area: unset !important;
     width: 100%;
     min-width: 0;
+    max-width: 100%;
     padding-bottom: 0;
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
-  /* Testo: font un po' più piccolo su schermi stretti */
-  .hero-title { font-size: clamp(1.9rem, 8vw, 2.6rem); }
+  /* Testo: nasconde i <br> forzati e lascia andare a capo naturalmente */
+  .hero-title br { display: none; }
+  .hero-title { font-size: clamp(1.8rem, 7.5vw, 2.4rem); word-break: break-word; }
 
   .hero-visual {
     display: flex !important;
     justify-content: center;
   }
   .hero-map-wrapper {
-    width: 95%;
+    width: 100%;
     max-width: 100%;
     height: 190px;
     border-radius: 12px;
     overflow: hidden;
     border: none;
   }
-  #hero-map { height: 190px !important; border-radius: 12px; }
+  #hero-map { height: 190px !important; border-radius: 0; }
 
   /* Bottoni CTA — stessa larghezza, allineati a sinistra come il testo */
   .hero-cta {
