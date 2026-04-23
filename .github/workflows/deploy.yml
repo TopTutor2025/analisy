@@ -34,9 +34,15 @@ jobs:
         uses: actions/deploy-pages@v4
 
   # ── 2. Deploy Edge Functions su Supabase ────────────────
+  #  Gira SOLO se vengono modificati file in supabase/functions/
   deploy-functions:
     runs-on: ubuntu-latest
     needs: []   # esegue in parallelo al frontend
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      contains(toJSON(github.event.commits.*.modified), 'supabase/functions') ||
+      contains(toJSON(github.event.commits.*.added),    'supabase/functions') ||
+      contains(toJSON(github.event.commits.*.removed),  'supabase/functions')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
