@@ -2096,25 +2096,37 @@ footer {
     padding-bottom: 48px;
   }
   .hero-inner {
-    display: flex;
+    display: flex !important;
     flex-direction: column;
     gap: 20px;
+    width: 100%;
+    min-width: 0;
   }
-  /* Ordine: hero-top → hero-visual → hero-bottom (DOM order naturale) */
-  .hero-top    { padding-bottom: 0; }
+  /* Reset grid-area + larghezza piena su tutti i figli */
+  .hero-top,
+  .hero-visual,
+  .hero-bottom {
+    grid-area: unset !important;
+    width: 100%;
+    min-width: 0;
+    padding-bottom: 0;
+  }
+  /* Testo: font un po' più piccolo su schermi stretti */
+  .hero-title { font-size: clamp(1.9rem, 8vw, 2.6rem); }
+
   .hero-visual {
     display: flex !important;
-    justify-content: flex-start;
+    justify-content: center;
   }
   .hero-map-wrapper {
-    width: 100%;
+    width: 95%;
     max-width: 100%;
-    height: 180px;
+    height: 190px;
     border-radius: 12px;
     overflow: hidden;
     border: none;
   }
-  #hero-map { height: 180px !important; border-radius: 12px; }
+  #hero-map { height: 190px !important; border-radius: 12px; }
 
   /* Bottoni CTA — stessa larghezza, allineati a sinistra come il testo */
   .hero-cta {
