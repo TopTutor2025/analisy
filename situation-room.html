@@ -647,9 +647,141 @@
     .sr-content { display: none !important; }
     #community  { display: none !important; }
 
-    /* 21 · Responsive */
+    /* 21 · Responsive desktop */
     @media (max-width:1200px) { .sr-grid { grid-template-columns: 28% 1fr !important; } .sr-col-right { display: none; } }
     @media (max-width:860px)  { .sr-grid { grid-template-columns: 1fr !important; } .sr-col-center { display: none; } .sr-map-row { height: 50vh; } }
+
+    /* ═══════════════════════════════════════════
+       22 · MOBILE (≤768px) — Option A layout
+       ═══════════════════════════════════════════ */
+
+    /* Elementi mobile aggiuntivi — nascosti su desktop */
+    .sr-navbar-mobile-right {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+    .sr-mob-hamburger {
+      width: 32px; height: 32px;
+      border: none; border-radius: 8px;
+      background: rgba(232,52,78,0.12);
+      color: #e8344e;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .sr-mob-hamburger:hover { background: rgba(232,52,78,0.22); }
+
+    /* Mobile menu overlay */
+    .sr-mobile-menu {
+      display: none;
+      position: fixed;
+      top: 52px; left: 0; right: 0;
+      background: #111113;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-direction: column;
+      padding: 6px;
+      z-index: 1049;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+    }
+    .sr-mobile-menu.open { display: flex; }
+    .sr-mobile-menu a, .sr-mobile-menu button {
+      padding: 11px 14px; font-size: 0.88rem;
+      color: rgba(235,235,245,0.7); text-decoration: none;
+      border-radius: 8px; transition: background 0.12s;
+      background: none; border: none; cursor: pointer; text-align: left;
+      font-family: inherit;
+    }
+    .sr-mobile-menu a:hover, .sr-mobile-menu button:hover { background: rgba(255,255,255,0.05); }
+    .sr-mobile-menu-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 4px 6px; }
+    .sr-mob-menu-cta {
+      background: #e8344e !important; color: #fff !important;
+      border-radius: 20px !important; font-weight: 700 !important;
+      text-align: center !important; margin: 4px 6px !important;
+    }
+
+    /* Mobile tab switcher — nascosto su desktop */
+    .sr-mobile-tabs {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      /* Reset announce-h */
+      :root { --announce-h: 0px; }
+
+      /* 1 · Nascondi sponsor bar */
+      .sr-announce-bar { display: none !important; }
+
+      /* 2 · Navbar compatta */
+      .sr-navbar { top: 0 !important; }
+      .sr-navbar > div { padding: 0 14px !important; }
+      .sr-navbar-cats { display: none !important; }
+      .navbar-actions { display: none !important; }
+      .sr-navbar-mobile-right { display: flex !important; }
+
+      /* 3 · Ticker — mantieni, adatta margin-top */
+      .ticker-wrap { font-size: 0.7rem !important; }
+
+      /* 4 · Mappa 45vh, nascondi legenda */
+      .sr-map-row { height: 45vh !important; min-height: 260px !important; }
+      .map-unified-panel { display: none !important; }
+      .admin-map-fab { display: none !important; }
+
+      /* 5 · Nascondi toolbar */
+      .sr-toolnav { display: none !important; }
+
+      /* 6 · Mostra tab switcher mobile */
+      .sr-mobile-tabs {
+        display: flex !important;
+        height: 42px;
+        background: #0a0a0e;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        flex-shrink: 0;
+      }
+      .sr-mob-tab {
+        flex: 1;
+        display: flex; align-items: center; justify-content: center; gap: 5px;
+        font-size: 0.68rem; font-weight: 600;
+        color: rgba(235,235,245,0.32);
+        border: none; background: transparent; cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: color 0.15s, border-color 0.15s;
+        letter-spacing: -0.01em; white-space: nowrap;
+        font-family: inherit;
+      }
+      .sr-mob-tab svg { width: 11px; height: 11px; flex-shrink: 0; }
+      .sr-mob-tab.active { color: #39ff14; border-bottom-color: #39ff14; }
+
+      /* 7 · Grid → colonna singola, altezza auto */
+      .sr-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+        min-height: 0 !important;
+        background: #000 !important;
+      }
+
+      /* Tutte le colonne nascoste, solo quella .mob-active visibile */
+      .sr-col-left,
+      .sr-col-center,
+      .sr-col-right {
+        display: none !important;
+        width: 100% !important;
+        min-height: 420px !important;
+        height: auto !important;
+      }
+      .sr-col-left.mob-active,
+      .sr-col-center.mob-active,
+      .sr-col-right.mob-active { display: flex !important; }
+
+      /* Cam grid → 2 col su mobile */
+      .cam-grid-inner { grid-template-columns: 1fr 1fr !important; gap: 6px !important; padding: 8px !important; }
+
+      /* Market cards */
+      .mkts-panel { padding: 0 !important; }
+      #markets-list { padding: 8px !important; }
+    }
   </style>
 </head>
 <body>
@@ -819,9 +951,28 @@
       <div class="navbar-actions" id="navbar-actions">
         <!-- popolato da renderSrNavbar() -->
       </div>
+
+      <!-- Mobile: hamburger -->
+      <div class="sr-navbar-mobile-right">
+        <button class="sr-mob-hamburger" id="sr-hamburger-btn" onclick="toggleSrMobileMenu()" aria-label="Menu">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
     </div>
   </div>
 </nav>
+
+<!-- Mobile menu -->
+<div class="sr-mobile-menu" id="sr-mobile-menu">
+  <span onclick="filterCategory('all',this);closeSrMobileMenu()" style="padding:11px 14px;font-size:0.88rem;color:rgba(235,235,245,0.7);border-radius:8px;cursor:pointer;display:block;">Tutti gli eventi</span>
+  <span onclick="filterCategory('geopolitica',this);closeSrMobileMenu()" style="padding:11px 14px;font-size:0.88rem;color:rgba(235,235,245,0.7);border-radius:8px;cursor:pointer;display:block;">Geopolitica</span>
+  <span onclick="filterCategory('politica',this);closeSrMobileMenu()" style="padding:11px 14px;font-size:0.88rem;color:rgba(235,235,245,0.7);border-radius:8px;cursor:pointer;display:block;">Politica</span>
+  <span onclick="filterCategory('business',this);closeSrMobileMenu()" style="padding:11px 14px;font-size:0.88rem;color:rgba(235,235,245,0.7);border-radius:8px;cursor:pointer;display:block;">Business</span>
+  <span onclick="filterCategory('tecnologia',this);closeSrMobileMenu()" style="padding:11px 14px;font-size:0.88rem;color:rgba(235,235,245,0.7);border-radius:8px;cursor:pointer;display:block;">Tecnologia</span>
+  <div class="sr-mobile-menu-divider"></div>
+  <a href="index.html" style="padding:11px 14px;font-size:0.88rem;color:rgba(235,235,245,0.5);border-radius:8px;display:block;">← Torna alla home</a>
+  <div id="sr-mob-auth-area" style="padding:6px;"></div>
+</div>
 
 <!-- Markets ticker -->
 <div style="margin-top:calc(var(--nav-h) + var(--announce-h));">
@@ -998,6 +1149,26 @@
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
   </button>
 
+</div>
+
+<!-- ═══════════════ MOBILE TAB SWITCHER ═══════════════ -->
+<div class="sr-mobile-tabs" id="sr-mobile-tabs">
+  <button class="sr-mob-tab active" data-mob-tab="scenari" onclick="switchMobileTab('scenari',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+    Scenari
+  </button>
+  <button class="sr-mob-tab" data-mob-tab="articoli" onclick="switchMobileTab('articoli',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 10h10M4 14h16M4 18h10"/></svg>
+    Articoli
+  </button>
+  <button class="sr-mob-tab" data-mob-tab="live" onclick="switchMobileTab('live',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+    Live
+  </button>
+  <button class="sr-mob-tab" data-mob-tab="forum" onclick="switchMobileTab('forum',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    Forum
+  </button>
 </div>
 
 <!-- ═══════════════ 3-COLUMN GRID ═══════════════ -->
@@ -2393,6 +2564,88 @@ function _srTourRender() {
     }
   }
 }
+
+
+// ══════════════════════════════════════════
+//  MOBILE NAVIGATION — Situation Room
+// ══════════════════════════════════════════
+
+function toggleSrMobileMenu() {
+  const menu = document.getElementById('sr-mobile-menu');
+  const btn  = document.getElementById('sr-hamburger-btn');
+  menu.classList.toggle('open');
+  // cambia icona hamburger → X quando aperto
+  btn.innerHTML = menu.classList.contains('open')
+    ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`
+    : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`;
+}
+
+function closeSrMobileMenu() {
+  const menu = document.getElementById('sr-mobile-menu');
+  const btn  = document.getElementById('sr-hamburger-btn');
+  menu.classList.remove('open');
+  btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`;
+}
+
+function switchMobileTab(tab, el) {
+  if (window.innerWidth > 768) return;
+
+  // aggiorna stato tab
+  document.querySelectorAll('.sr-mob-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+
+  // nascondi tutte le colonne
+  const left   = document.querySelector('.sr-col-left');
+  const center = document.querySelector('.sr-col-center');
+  const right  = document.querySelector('.sr-col-right');
+  [left, center, right].forEach(c => c.classList.remove('mob-active'));
+
+  if (tab === 'scenari') {
+    left.classList.add('mob-active');
+
+  } else if (tab === 'articoli') {
+    right.classList.add('mob-active');
+    // attiva pane articoli
+    document.querySelectorAll('.sr-right-pane').forEach(p => p.classList.remove('active'));
+    const pane = document.getElementById('pane-articles');
+    if (pane) pane.classList.add('active');
+
+  } else if (tab === 'live') {
+    center.classList.add('mob-active');
+    // assicura che cams panel sia attivo di default
+    const cams = document.getElementById('center-cams');
+    const mkts = document.getElementById('center-markets');
+    if (cams) { cams.classList.add('active'); }
+    if (mkts) { mkts.classList.remove('active'); }
+
+  } else if (tab === 'forum') {
+    right.classList.add('mob-active');
+    // attiva pane forum
+    document.querySelectorAll('.sr-right-pane').forEach(p => p.classList.remove('active'));
+    const paneF = document.getElementById('pane-forum');
+    if (paneF) paneF.classList.add('active');
+  }
+
+  // scroll morbido al contenuto
+  document.getElementById('sr-mobile-tabs').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Init: su mobile mostra il primo tab (Scenari) all'avvio
+(function initMobileTabs() {
+  if (window.innerWidth <= 768) {
+    const left = document.querySelector('.sr-col-left');
+    if (left) left.classList.add('mob-active');
+  }
+})();
+
+// Chiudi menu mobile se si clicca fuori
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('sr-mobile-menu');
+  const btn  = document.getElementById('sr-hamburger-btn');
+  if (menu && menu.classList.contains('open') && !menu.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+    closeSrMobileMenu();
+  }
+});
 </script>
 <script src="js/cookie-banner.js"></script>
 </body>
