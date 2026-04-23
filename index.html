@@ -34,9 +34,28 @@
         <a href="situation-room.html" class="btn btn-primary btn-sm">Situation Room</a>
       </div>
 
+      <!-- Hamburger — solo mobile -->
+      <div class="navbar-mobile-right">
+        <button class="help-btn help-btn-mobile" title="Aiuto" onclick="document.getElementById('help-modal').classList.add('open')">?</button>
+        <button class="hamburger-btn" id="hamburger-btn" onclick="toggleMobileMenu()" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+
     </div>
   </div>
 </nav>
+
+<!-- Mobile menu -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#perche-analisy"   onclick="closeMobileMenu()">Perché Analisy</a>
+  <a href="#come-funziona"    onclick="closeMobileMenu()">Come funziona</a>
+  <a href="situation-room.html">Situation Room</a>
+  <a href="situation-room.html#community" onclick="closeMobileMenu()">Community</a>
+  <div class="mobile-menu-divider"></div>
+  <a href="login.html" class="mobile-menu-accedi">Accedi</a>
+  <a href="situation-room.html" class="mobile-menu-cta">Entra nella Situation Room →</a>
+</div>
 
 
 <!-- ═══════════════════════════ HERO ═══════════════════════════ -->
@@ -627,5 +646,17 @@
 
 </script>
 <script src="js/cookie-banner.js"></script>
+<script>
+  function toggleMobileMenu() {
+    const menu = document.getElementById('mobile-menu');
+    const btn  = document.getElementById('hamburger-btn');
+    const open = menu.classList.toggle('open');
+    btn.classList.toggle('open', open);
+  }
+  function closeMobileMenu() {
+    document.getElementById('mobile-menu').classList.remove('open');
+    document.getElementById('hamburger-btn').classList.remove('open');
+  }
+</script>
 </body>
 </html>
