@@ -2159,11 +2159,11 @@ footer {
     max-width: 100%;
   }
 
-  /* Feature items — testo wrappable */
+  /* Feature items — icona allineata in alto, testo wrappa nel suo spazio */
   .hero-feature-item {
     font-size: 0.88rem;
     align-items: flex-start;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
   }
 
   /* Features grid — colonna singola */
