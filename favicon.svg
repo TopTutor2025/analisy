@@ -1,9 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <rect width="32" height="32" rx="6" fill="#060e1a"/>
-  <line x1="9" y1="3" x2="9" y2="7" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/>
-  <rect x="5" y="7" width="8" height="13" rx="1.5" fill="white"/>
-  <line x1="9" y1="20" x2="9" y2="24" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/>
-  <line x1="23" y1="4" x2="23" y2="9" stroke="#e8344e" stroke-width="2" stroke-linecap="round"/>
-  <rect x="19" y="9" width="8" height="9" rx="1.5" fill="#e8344e"/>
-  <line x1="23" y1="18" x2="23" y2="24" stroke="#e8344e" stroke-width="2" stroke-linecap="round"/>
+  <rect width="32" height="32" rx="7" fill="#000000"/>
+  <!-- Gambe della A -->
+  <line x1="16" y1="3" x2="4"  y2="27" stroke="rgba(255,255,255,0.85)" stroke-width="2.4" stroke-linecap="round"/>
+  <line x1="16" y1="3" x2="28" y2="27" stroke="rgba(255,255,255,0.85)" stroke-width="2.4" stroke-linecap="round"/>
+  <!-- Crossbar pulse -->
+  <polyline points="7,18 10,18 12.5,10 16,22 19.5,18 25,18"
+            stroke="rgba(255,255,255,0.85)" stroke-width="2" fill="none"
+            stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Picco rosso -->
+  <polyline points="12.5,10 16,22"
+            stroke="#e8344e" stroke-width="2.4" fill="none"
+            stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Dot picco -->
+  <circle cx="12.5" cy="10" r="2.6" fill="#e8344e"/>
+  <circle cx="12.5" cy="10" r="1.1" fill="white"/>
 </svg>

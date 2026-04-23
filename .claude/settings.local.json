@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(node -e ' *)",
-      "Bash(not exist *)"
+      "Bash(not exist *)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(start \"\" \"C:\\\\Users\\\\Medicina\\\\Desktop\\\\Analisy site\\\\logo-preview.html\")"
     ]
   }
 }
