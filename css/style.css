@@ -2144,13 +2144,11 @@ footer {
     text-align: center;
   }
 
-  /* Testo garanzia — font piccolo, va a capo solo se necessario */
+  /* Testo garanzia — una sola riga */
   .hero-guarantee {
-    font-size: 0.68rem;
-    white-space: normal;
-    overflow: hidden;
+    font-size: 0.72rem;
+    white-space: nowrap;
     max-width: 100%;
-    flex-wrap: wrap;
   }
 
   /* Desc — non supera la larghezza del contenitore */
