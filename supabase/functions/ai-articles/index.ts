@@ -2,16 +2,22 @@
 //  Edge Function: ai-articles
 //  Genera e aggiorna articoli IA basati sugli eventi attivi
 // =========================================================
-//  Eseguita ogni 30 minuti (pg_cron) o manualmente.
+//  Eseguita ogni 2 ore (pg_cron) o manualmente.
 //  Logica:
 //    1. Legge gli eventi attivi con magnitudo ≥ 2
-//    2. Per gli eventi senza articolo o con articolo > 30 min:
-//       chiede a Claude di scrivere un articolo giornalistico
-//    3. Salva in tabella articles con status='published'
+//    2. Per ogni evento cerca un articolo AI esistente tramite
+//       source_event_id (match stabile — NON per titolo)
+//    3. Se esiste: AGGIORNA il contenuto dell'articolo
+//       Se non esiste: CREA un nuovo articolo
+//    4. Elimina articoli AI orfani (eventi non più attivi/top-5)
 //
 //  Segreti necessari:
 //    ANTHROPIC_API_KEY
 //    SUPABASE_SERVICE_ROLE_KEY
+//
+//  Prerequisito DB:
+//    ALTER TABLE articles ADD COLUMN IF NOT EXISTS
+//      source_event_id UUID REFERENCES map_events(id) ON DELETE CASCADE;
 // =========================================================
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders, corsResponse, errorResponse } from '../_shared/cors.ts';
@@ -122,57 +128,83 @@ Deno.serve(async (req) => {
     .limit(10);
 
   if (evError) return errorResponse(evError.message, 500);
-  if (!events || events.length === 0) return corsResponse({ ok: true, message: 'Nessun evento attivo da elaborare.' });
+  if (!events || events.length === 0) {
+    // Nessun evento attivo: elimina tutti gli articoli AI orfani
+    await adminClient
+      .from('articles')
+      .delete()
+      .eq('author', 'AI Intelligence · Analisy');
+    return corsResponse({ ok: true, message: 'Nessun evento attivo. Articoli AI rimossi.' });
+  }
 
-  // Carica tutti gli scenari AI esistenti (per aggiornare invece di duplicare)
+  // Elabora al massimo 5 eventi per esecuzione (evita timeout)
+  const activeEvents = (events as MapEvent[]).slice(0, 5);
+  const activeEventIds = activeEvents.map(ev => ev.id);
+
+  // Carica articoli AI esistenti — indicizzati per source_event_id (match stabile)
   const { data: existingAI } = await adminClient
     .from('articles')
-    .select('id, title')
-    .eq('author', 'AI Intelligence · Analisy');
+    .select('id, source_event_id')
+    .eq('author', 'AI Intelligence · Analisy')
+    .not('source_event_id', 'is', null);
 
-  // Mappa: chiave titolo → id articolo esistente
-  const existingMap = new Map(
-    (existingAI || []).map(a => [a.title.toLowerCase().slice(0, 40), a.id])
+  // Mappa: source_event_id → article id
+  const existingMap = new Map<string, string>(
+    (existingAI || []).map(a => [a.source_event_id as string, a.id as string])
   );
+
+  // ── Elimina articoli AI orfani (evento non più nel batch attivo) ──
+  const orphanIds = (existingAI || [])
+    .filter(a => !activeEventIds.includes(a.source_event_id))
+    .map(a => a.id);
+
+  if (orphanIds.length > 0) {
+    await adminClient
+      .from('articles')
+      .delete()
+      .in('id', orphanIds);
+    console.log(`[ai-articles] Eliminati ${orphanIds.length} articoli AI orfani`);
+  }
 
   let created = 0;
   let updated = 0;
   const results: string[] = [];
 
-  // Elabora al massimo 5 eventi per esecuzione (evita timeout)
-  for (const ev of (events as MapEvent[]).slice(0, 5)) {
+  for (const ev of activeEvents) {
     try {
       const article = await generateArticle(ev, apiKey);
       const AI_AUTHOR = 'AI Intelligence · Analisy';
 
-      // Cerca se esiste già uno scenario per questo evento (per titolo)
-      const evKey  = ev.title.toLowerCase().slice(0, 40);
-      const artKey = article.title.toLowerCase().slice(0, 40);
-      const existingId = existingMap.get(evKey) || existingMap.get(artKey);
-
       const payload = {
-        title:        article.title,
-        subtitle:     article.subtitle || '',
-        content:      article.content  || '',
-        excerpt:      article.excerpt  || '',
-        read_time:    article.read_time || '4 min',
-        author:       AI_AUTHOR,
-        cat:          ev.category,
-        cat_label:    CATEGORY_LABELS[ev.category] || ev.category,
-        premium:      false,   // scenari AI sempre pubblici
-        status:       'published',
-        published_at: new Date().toISOString(),
-        image:        '',
+        title:           article.title,
+        subtitle:        article.subtitle || '',
+        content:         article.content  || '',
+        excerpt:         article.excerpt  || '',
+        read_time:       article.read_time || '4 min',
+        author:          AI_AUTHOR,
+        cat:             ev.category,
+        cat_label:       CATEGORY_LABELS[ev.category] || ev.category,
+        premium:         false,
+        status:          'published',
+        published_at:    new Date().toISOString(),
+        image:           '',
+        source_event_id: ev.id,   // chiave stabile per deduplicazione
       };
 
+      const existingId = existingMap.get(ev.id);
+
       if (existingId) {
-        // AGGIORNA lo scenario esistente
+        // AGGIORNA lo scenario esistente (stesso evento, contenuto fresco)
         await adminClient.from('articles').update(payload).eq('id', existingId);
         updated++;
       } else {
-        // CREA nuovo scenario
-        const { data: inserted } = await adminClient.from('articles').insert(payload).select('id, title').single();
-        if (inserted) existingMap.set(artKey, inserted.id);
+        // CREA nuovo scenario e registra nella mappa
+        const { data: inserted } = await adminClient
+          .from('articles')
+          .insert(payload)
+          .select('id')
+          .single();
+        if (inserted) existingMap.set(ev.id, inserted.id);
         created++;
       }
       results.push(article.title);
@@ -185,6 +217,7 @@ Deno.serve(async (req) => {
     ok:      true,
     created,
     updated,
+    orphans_deleted: orphanIds.length,
     articles: results,
   });
 });

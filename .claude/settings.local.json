@@ -4,7 +4,11 @@
       "Bash(node -e ' *)",
       "Bash(not exist *)",
       "mcp__Claude_in_Chrome__tabs_context_mcp",
-      "Bash(start \"\" \"C:\\\\Users\\\\Medicina\\\\Desktop\\\\Analisy site\\\\logo-preview.html\")"
+      "Bash(start \"\" \"C:\\\\Users\\\\Medicina\\\\Desktop\\\\Analisy site\\\\logo-preview.html\")",
+      "Bash(gh run *)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(Get-Content \"C:\\\\Users\\\\Medicina\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-Medicina-Desktop-Analisy-site\\\\2235aecf-00a8-4bde-a498-f0c4bfe24a55\\\\tasks\\\\blee5kdwa.output\" -Wait)",
+      "Bash(Select-String --line-buffered \".\")"
     ]
   }
 }

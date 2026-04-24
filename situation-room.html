@@ -666,12 +666,32 @@
     .sr-mob-hamburger {
       width: 32px; height: 32px;
       border: none; border-radius: 8px;
-      background: rgba(232,52,78,0.12);
-      color: #e8344e;
+      background: rgba(255,255,255,0.06);
+      color: rgba(235,235,245,0.7);
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; transition: background 0.15s;
     }
-    .sr-mob-hamburger:hover { background: rgba(232,52,78,0.22); }
+    .sr-mob-hamburger:active { background: rgba(255,255,255,0.12); }
+
+    /* Tutorial "?" button in mobile navbar */
+    .sr-mob-tutorial-btn {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(235,235,245,0.55); font-size: 0.72rem; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: background 0.15s; font-family: inherit;
+    }
+    .sr-mob-tutorial-btn:active { background: rgba(255,255,255,0.16); color: #fff; }
+
+    /* Mobile avatar (small, in navbar) */
+    .sr-mob-avatar-btn {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--accent-red); color: #fff;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: -0.02em;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0; border: none;
+    }
 
     /* Mobile menu overlay */
     .sr-mobile-menu {
@@ -700,6 +720,87 @@
       border-radius: 20px !important; font-weight: 700 !important;
       text-align: center !important; margin: 4px 6px !important;
     }
+    .sr-mob-menu-user-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 14px; font-size: 0.88rem;
+      color: rgba(235,235,245,0.85);
+    }
+    .sr-mob-menu-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--accent-red); color: #fff;
+      font-size: 0.8rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* ── Bottom sheet ── */
+    .sr-mob-sheet-overlay {
+      display: none; position: fixed; inset: 0; z-index: 1048;
+      background: rgba(0,0,0,0.55);
+    }
+    .sr-mob-bottom-sheet {
+      display: none; position: fixed; left: 0; right: 0;
+      bottom: 42px; /* sopra la tab bar */
+      z-index: 1049;
+      background: #111113;
+      border-radius: 14px 14px 0 0;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 -8px 40px rgba(0,0,0,0.8);
+      transform: translateY(100%);
+      transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .sr-mob-bottom-sheet.open { transform: translateY(0); }
+    .sr-mob-sheet-handle {
+      display: flex; align-items: center; justify-content: center;
+      padding: 12px 0 4px;
+    }
+    .sr-mob-sheet-handle::before {
+      content: ''; display: block; width: 36px; height: 4px;
+      background: rgba(255,255,255,0.18); border-radius: 2px;
+    }
+    .sr-mob-sheet-title {
+      padding: 4px 18px 10px;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em;
+      color: rgba(235,235,245,0.25); text-transform: uppercase;
+    }
+    .sr-mob-sheet-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; padding: 0 14px 20px;
+    }
+    .sr-mob-sheet-item {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px; padding: 16px 12px;
+      cursor: pointer; transition: background 0.15s, border-color 0.15s;
+      display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
+      font-family: inherit;
+    }
+    .sr-mob-sheet-item:active { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.15); }
+    .sr-mob-sheet-item-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sr-mob-sheet-item-label {
+      font-size: 0.8rem; font-weight: 600;
+      color: rgba(235,235,245,0.85); line-height: 1.2;
+    }
+    .sr-mob-sheet-item-desc {
+      font-size: 0.65rem; color: rgba(235,235,245,0.35); line-height: 1.3;
+    }
+
+    /* FAB trigger sul bordo mappa */
+    .sr-mob-sheet-fab {
+      display: none; position: absolute;
+      bottom: 10px; right: 10px; z-index: 499;
+      background: rgba(10,10,14,0.88);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px; padding: 5px 12px 5px 10px;
+      color: rgba(235,235,245,0.65); font-size: 0.68rem; font-weight: 600;
+      cursor: pointer; align-items: center; gap: 5px;
+      backdrop-filter: blur(10px); font-family: inherit;
+      letter-spacing: 0.02em; transition: background 0.15s;
+    }
+    .sr-mob-sheet-fab:active { background: rgba(30,30,40,0.95); }
 
     /* Mobile tab switcher — nascosto su desktop */
     .sr-mobile-tabs {
@@ -738,17 +839,20 @@
         background: #0a0a0e;
         border-bottom: 1px solid rgba(255,255,255,0.06);
         flex-shrink: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
       }
+      .sr-mobile-tabs::-webkit-scrollbar { display: none; }
       .sr-mob-tab {
-        flex: 1;
-        display: flex; align-items: center; justify-content: center; gap: 5px;
-        font-size: 0.68rem; font-weight: 600;
+        flex: 1; min-width: 68px;
+        display: flex; align-items: center; justify-content: center; gap: 4px;
+        font-size: 0.65rem; font-weight: 600;
         color: rgba(235,235,245,0.32);
         border: none; background: transparent; cursor: pointer;
         border-bottom: 2px solid transparent;
         transition: color 0.15s, border-color 0.15s;
         letter-spacing: -0.01em; white-space: nowrap;
-        font-family: inherit;
+        font-family: inherit; padding: 0 6px;
       }
       .sr-mob-tab svg { width: 11px; height: 11px; flex-shrink: 0; }
       .sr-mob-tab.active { color: #39ff14; border-bottom-color: #39ff14; }
@@ -781,6 +885,10 @@
       /* Market cards */
       .mkts-panel { padding: 0 !important; }
       #markets-list { padding: 8px !important; }
+
+      /* Bottom sheet & FAB visibili su mobile */
+      .sr-mob-sheet-fab { display: flex !important; }
+      .sr-mob-bottom-sheet { display: block !important; }
     }
   </style>
 </head>
@@ -952,8 +1060,13 @@
         <!-- popolato da renderSrNavbar() -->
       </div>
 
-      <!-- Mobile: hamburger -->
+      <!-- Mobile: tutorial + avatar + hamburger -->
       <div class="sr-navbar-mobile-right">
+        <!-- Tutorial "?" -->
+        <button class="sr-mob-tutorial-btn" onclick="openSrTutorial()" title="Come funziona">?</button>
+        <!-- Avatar (popolato da renderSrNavbar) -->
+        <div id="sr-mob-user-area"></div>
+        <!-- Hamburger -->
         <button class="sr-mob-hamburger" id="sr-hamburger-btn" onclick="toggleSrMobileMenu()" aria-label="Menu">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
@@ -964,14 +1077,10 @@
 
 <!-- Mobile menu -->
 <div class="sr-mobile-menu" id="sr-mobile-menu">
-  <span onclick="filterCategory('all',this);closeSrMobileMenu()" style="padding:11px 14px;font-size:0.88rem;color:rgba(235,235,245,0.7);border-radius:8px;cursor:pointer;display:block;">Tutti gli eventi</span>
-  <span onclick="filterCategory('geopolitica',this);closeSrMobileMenu()" style="padding:11px 14px;font-size:0.88rem;color:rgba(235,235,245,0.7);border-radius:8px;cursor:pointer;display:block;">Geopolitica</span>
-  <span onclick="filterCategory('politica',this);closeSrMobileMenu()" style="padding:11px 14px;font-size:0.88rem;color:rgba(235,235,245,0.7);border-radius:8px;cursor:pointer;display:block;">Politica</span>
-  <span onclick="filterCategory('business',this);closeSrMobileMenu()" style="padding:11px 14px;font-size:0.88rem;color:rgba(235,235,245,0.7);border-radius:8px;cursor:pointer;display:block;">Business</span>
-  <span onclick="filterCategory('tecnologia',this);closeSrMobileMenu()" style="padding:11px 14px;font-size:0.88rem;color:rgba(235,235,245,0.7);border-radius:8px;cursor:pointer;display:block;">Tecnologia</span>
+  <!-- Auth area: popolata da renderSrNavbar() -->
+  <div id="sr-mob-menu-auth"></div>
   <div class="sr-mobile-menu-divider"></div>
-  <a href="index.html" style="padding:11px 14px;font-size:0.88rem;color:rgba(235,235,245,0.5);border-radius:8px;display:block;">← Torna alla home</a>
-  <div id="sr-mob-auth-area" style="padding:6px;"></div>
+  <a href="index.html" onclick="closeSrMobileMenu()">← Torna alla home</a>
 </div>
 
 <!-- Markets ticker -->
@@ -1081,11 +1190,74 @@
         + Aggiungi evento
       </button>
     </div>
+
+    <!-- Mobile: FAB "Altro" sul bordo inferiore della mappa -->
+    <button class="sr-mob-sheet-fab" id="sr-mob-sheet-fab" onclick="toggleBottomSheet()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+      Altro
+    </button>
+
   </div>
 </div><!-- /sr-map-section -->
 
 </div><!-- /sr-map-row -->
 </div><!-- /sr-map-wrapper -->
+
+<!-- Mobile bottom sheet overlay -->
+<div class="sr-mob-sheet-overlay" id="sr-mob-sheet-overlay" onclick="closeBottomSheet()"></div>
+
+<!-- Mobile bottom sheet panel -->
+<div class="sr-mob-bottom-sheet" id="sr-mob-bottom-sheet">
+  <div class="sr-mob-sheet-handle"></div>
+  <div class="sr-mob-sheet-title">Funzioni</div>
+  <div class="sr-mob-sheet-grid">
+
+    <!-- Podcast -->
+    <button class="sr-mob-sheet-item" onclick="sheetGoTo('podcast')">
+      <div class="sr-mob-sheet-item-icon" style="background:rgba(191,90,242,0.15);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bf5af2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M6.6 18.4a9 9 0 1 1 10.8 0"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+      </div>
+      <div>
+        <div class="sr-mob-sheet-item-label">Podcast</div>
+        <div class="sr-mob-sheet-item-desc">Analisi audio</div>
+      </div>
+    </button>
+
+    <!-- Articoli Premium -->
+    <button class="sr-mob-sheet-item" onclick="sheetGoTo('pro')">
+      <div class="sr-mob-sheet-item-icon" style="background:rgba(255,214,10,0.12);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffd60a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </div>
+      <div>
+        <div class="sr-mob-sheet-item-label">Premium</div>
+        <div class="sr-mob-sheet-item-desc">Analisi esclusive</div>
+      </div>
+    </button>
+
+    <!-- Mercati -->
+    <button class="sr-mob-sheet-item" onclick="sheetGoTo('markets')">
+      <div class="sr-mob-sheet-item-icon" style="background:rgba(10,132,255,0.14);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0a84ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+      </div>
+      <div>
+        <div class="sr-mob-sheet-item-label">Mercati</div>
+        <div class="sr-mob-sheet-item-desc">Dati finanziari</div>
+      </div>
+    </button>
+
+    <!-- Community -->
+    <button class="sr-mob-sheet-item" onclick="sheetGoTo('forum')">
+      <div class="sr-mob-sheet-item-icon" style="background:rgba(57,255,20,0.10);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#39ff14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div>
+        <div class="sr-mob-sheet-item-label">Community</div>
+        <div class="sr-mob-sheet-item-desc">Forum geopolitico</div>
+      </div>
+    </button>
+
+  </div>
+</div>
 
 
 <!-- ═══════════════ TOOL NAVBAR ═══════════════ -->
@@ -1164,6 +1336,10 @@
   <button class="sr-mob-tab" data-mob-tab="live" onclick="switchMobileTab('live',this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
     Live
+  </button>
+  <button class="sr-mob-tab" data-mob-tab="podcast" onclick="switchMobileTab('podcast',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M6.6 18.4a9 9 0 1 1 10.8 0"/></svg>
+    Podcast
   </button>
   <button class="sr-mob-tab" data-mob-tab="forum" onclick="switchMobileTab('forum',this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -1741,6 +1917,7 @@ function renderSrNavbar() {
     onmouseenter="this.style.background='rgba(255,255,255,0.13)';this.style.color='#fff'"
     onmouseleave="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(235,235,245,0.55)'">?</button>`;
 
+  // ── Desktop navbar ──
   if (user) {
     const initial   = (user.nome || 'U')[0].toUpperCase();
     const dashHref  = user.role === 'admin' ? 'admin.html' : 'dashboard.html';
@@ -1761,11 +1938,47 @@ function renderSrNavbar() {
           </button>
         </div>
       </div>`;
+
+    // ── Mobile: avatar nel navbar + menu auth ──
+    const mobUserArea = document.getElementById('sr-mob-user-area');
+    if (mobUserArea) {
+      mobUserArea.innerHTML = `<button class="sr-mob-avatar-btn" onclick="toggleSrMobileMenu()">${initial}</button>`;
+    }
+    const mobMenuAuth = document.getElementById('sr-mob-menu-auth');
+    if (mobMenuAuth) {
+      mobMenuAuth.innerHTML = `
+        <div class="sr-mob-menu-user-row">
+          <div class="sr-mob-menu-avatar">${initial}</div>
+          <span>${user.nome || 'Utente'}</span>
+        </div>
+        <a href="${dashHref}" onclick="closeSrMobileMenu()"
+          style="padding:11px 14px;font-size:0.88rem;color:rgba(235,235,245,0.7);border-radius:8px;display:flex;align-items:center;gap:8px;text-decoration:none;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          ${dashLabel}
+        </a>
+        <button onclick="logout()" style="padding:11px 14px;font-size:0.88rem;color:rgba(232,52,78,0.8);border-radius:8px;display:flex;align-items:center;gap:8px;background:none;border:none;cursor:pointer;font-family:inherit;width:100%;text-align:left;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </button>`;
+    }
   } else {
     actions.innerHTML = `
       <a id="subnav-subscribe-cta" href="register.html" class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:5px 14px;border-radius:0;">Abbonati a 2,99€</a>
       <a href="login.html" class="btn-accedi">Accedi</a>
       ${tutorialBtn}`;
+
+    // ── Mobile: nessun avatar, menu mostra login/register ──
+    const mobUserArea = document.getElementById('sr-mob-user-area');
+    if (mobUserArea) mobUserArea.innerHTML = '';
+    const mobMenuAuth = document.getElementById('sr-mob-menu-auth');
+    if (mobMenuAuth) {
+      mobMenuAuth.innerHTML = `
+        <a href="login.html" class="sr-mob-menu-cta" onclick="closeSrMobileMenu()">Accedi</a>
+        <a href="register.html" onclick="closeSrMobileMenu()"
+          style="padding:11px 14px;font-size:0.82rem;color:rgba(235,235,245,0.45);border-radius:8px;display:block;text-align:center;text-decoration:none;">
+          Abbonati a 2,99€/mese
+        </a>`;
+    }
   }
 }
 
@@ -2618,6 +2831,12 @@ function switchMobileTab(tab, el) {
     if (cams) { cams.classList.add('active'); }
     if (mkts) { mkts.classList.remove('active'); }
 
+  } else if (tab === 'podcast') {
+    right.classList.add('mob-active');
+    document.querySelectorAll('.sr-right-pane').forEach(p => p.classList.remove('active'));
+    const paneP = document.getElementById('pane-podcast');
+    if (paneP) paneP.classList.add('active');
+
   } else if (tab === 'forum') {
     right.classList.add('mob-active');
     // attiva pane forum
@@ -2627,6 +2846,60 @@ function switchMobileTab(tab, el) {
   }
 
   // scroll morbido al contenuto
+  document.getElementById('sr-mobile-tabs').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── Bottom Sheet ──────────────────────────────────────
+function toggleBottomSheet() {
+  const sheet   = document.getElementById('sr-mob-bottom-sheet');
+  const overlay = document.getElementById('sr-mob-sheet-overlay');
+  const fab     = document.getElementById('sr-mob-sheet-fab');
+  const isOpen  = sheet.classList.contains('open');
+  sheet.classList.toggle('open', !isOpen);
+  overlay.classList.toggle('open', !isOpen);
+  if (fab) fab.style.opacity = isOpen ? '1' : '0.4';
+}
+
+function closeBottomSheet() {
+  document.getElementById('sr-mob-bottom-sheet').classList.remove('open');
+  document.getElementById('sr-mob-sheet-overlay').classList.remove('open');
+  const fab = document.getElementById('sr-mob-sheet-fab');
+  if (fab) fab.style.opacity = '1';
+}
+
+// Tap su un item del bottom sheet → vai al pane corrispondente
+function sheetGoTo(pane) {
+  closeBottomSheet();
+  if (pane === 'markets') {
+    // Attiva colonna centro con tab mercati
+    const center = document.querySelector('.sr-col-center');
+    const left   = document.querySelector('.sr-col-left');
+    const right  = document.querySelector('.sr-col-right');
+    [left, center, right].forEach(c => c.classList.remove('mob-active'));
+    center.classList.add('mob-active');
+    const cams = document.getElementById('center-cams');
+    const mkts = document.getElementById('center-markets');
+    if (cams) cams.classList.remove('active');
+    if (mkts) mkts.classList.add('active');
+    // aggiorna tab bar
+    document.querySelectorAll('.sr-mob-tab').forEach(t => t.classList.remove('active'));
+    const liveTab = document.querySelector('[data-mob-tab="live"]');
+    if (liveTab) liveTab.classList.add('active');
+  } else {
+    // podcast, pro, forum → colonna destra
+    const left   = document.querySelector('.sr-col-left');
+    const center = document.querySelector('.sr-col-center');
+    const right  = document.querySelector('.sr-col-right');
+    [left, center, right].forEach(c => c.classList.remove('mob-active'));
+    right.classList.add('mob-active');
+    document.querySelectorAll('.sr-right-pane').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById('pane-' + pane);
+    if (target) target.classList.add('active');
+    // aggiorna tab bar se possibile
+    document.querySelectorAll('.sr-mob-tab').forEach(t => t.classList.remove('active'));
+    const matchTab = document.querySelector(`[data-mob-tab="${pane}"]`);
+    if (matchTab) matchTab.classList.add('active');
+  }
   document.getElementById('sr-mobile-tabs').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 

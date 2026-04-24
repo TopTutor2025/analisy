@@ -30,10 +30,10 @@ SELECT cron.schedule(
   )
 );
 
--- ─── ai-articles: ogni 30 minuti ─────────────────────────
+-- ─── ai-articles: ogni 2 ore ─────────────────────────────
 SELECT cron.schedule(
   'ai-articles-update',
-  '*/30 * * * *',
+  '0 */2 * * *',
   format(
     $$
     SELECT net.http_post(
