@@ -1,62 +1,38 @@
 // =========================================================
 //  Edge Function: ai-run
-//  Pipeline IA completa: GDELT → Claude → map_events + citycams
+//  Pipeline IA completa: RSS feeds → Claude → map_events + citycams
 // =========================================================
 //  Eseguita ogni 6 ore (pg_cron) oppure manualmente dall'admin.
+//
+//  Sorgenti notizie (in ordine di priorità):
+//    1. BBC World News RSS
+//    2. Reuters World RSS
+//    3. Al Jazeera RSS
+//    4. NYT World RSS
+//    5. The Guardian World RSS
+//  (nessuna API key necessaria — feed pubblici)
 //
 //  Segreti necessari:
 //    ANTHROPIC_API_KEY         — chiave Claude API
 //    SUPABASE_SERVICE_ROLE_KEY — disponibile automaticamente
-//
-//  Logica categorie:
-//    geopolitica  — guerre, operazioni militari, crisi umanitarie,
-//                   tensioni tra stati, conflitti armati
-//    politica     — elezioni, colpi di stato, crisi di governo,
-//                   proteste di massa, politica nazionale
-//    business     — sanzioni economiche, guerre commerciali,
-//                   crisi energetiche, mercati con impatto geopolitico
-//    tecnologia   — cyberattacchi statali, corsa all'IA, guerre sui
-//                   semiconduttori, disinformazione, spazio
-//
-//  Magnitudo (1–4) = gravità dell'evento nel suo dominio:
-//    1 = Bassa rilevanza
-//    2 = Moderata
-//    3 = Alta
-//    4 = Critica (breaking, impatto globale immediato)
 // =========================================================
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders, corsResponse, errorResponse } from '../_shared/cors.ts';
 
-const GDELT_API = 'https://api.gdeltproject.org/api/v2/doc/doc';
-
-// Query GDELT con termini geopolitici attuali
-const GDELT_PARAMS = new URLSearchParams({
-  query:      '(war OR conflict OR Hormuz OR Iran OR Gaza OR Ukraine OR tariff OR sanctions OR missile OR coup)',
-  mode:       'artlist',
-  maxrecords: '20',
-  sort:       'datedesc',
-  format:     'json',
-});
-
-// Notizie fallback aggiornate ad aprile 2026
-const FALLBACK_ARTICLES: GdeltArticle[] = [
-  { title: 'Iran threatens to close Strait of Hormuz amid US sanctions escalation', url: 'https://www.reuters.com/world/middle-east/', domain: 'reuters.com', seendate: new Date().toISOString() },
-  { title: 'Russia Ukraine war frontline update Kursk offensive developments', url: 'https://www.bbc.com/news/world-europe', domain: 'bbc.com', seendate: new Date().toISOString() },
-  { title: 'Trump tariffs on China escalate global trade war concerns', url: 'https://www.ft.com/world/us', domain: 'ft.com', seendate: new Date().toISOString() },
-  { title: 'Gaza ceasefire negotiations collapse as military operations resume', url: 'https://www.reuters.com/world/middle-east/', domain: 'reuters.com', seendate: new Date().toISOString() },
-  { title: 'Taiwan Strait tensions rise as China conducts military drills', url: 'https://www.reuters.com/world/asia-pacific/', domain: 'reuters.com', seendate: new Date().toISOString() },
-  { title: 'North Korea launches ballistic missile over Japanese waters', url: 'https://www.bbc.com/news/world-asia', domain: 'bbc.com', seendate: new Date().toISOString() },
-  { title: 'AI arms race accelerates US China semiconductor export controls', url: 'https://www.ft.com/technology', domain: 'ft.com', seendate: new Date().toISOString() },
-  { title: 'European energy security concerns grow amid Russia gas supply cuts', url: 'https://www.ft.com/world/europe', domain: 'ft.com', seendate: new Date().toISOString() },
-  { title: 'Sudan civil war humanitarian crisis worsens millions displaced', url: 'https://www.bbc.com/news/world-africa', domain: 'bbc.com', seendate: new Date().toISOString() },
-  { title: 'Pakistan India border tensions escalate military buildup reported', url: 'https://www.reuters.com/world/asia-pacific/', domain: 'reuters.com', seendate: new Date().toISOString() },
+// ─── Feed RSS pubblici (nessuna API key) ─────────────────
+const RSS_FEEDS = [
+  { url: 'https://feeds.bbci.co.uk/news/world/rss.xml',             source: 'BBC World'     },
+  { url: 'https://feeds.reuters.com/reuters/worldNews',             source: 'Reuters'       },
+  { url: 'https://www.aljazeera.com/xml/rss/all.xml',              source: 'Al Jazeera'    },
+  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', source: 'NYT World'     },
+  { url: 'https://www.theguardian.com/world/rss',                  source: 'The Guardian'  },
 ];
 
-interface GdeltArticle {
+interface NewsArticle {
   title:    string;
   url:      string;
-  domain?:  string;
-  seendate: string;
+  source:   string;
+  pubDate:  string;
 }
 
 interface MapEvent {
@@ -73,64 +49,134 @@ interface MapEvent {
   expires_at:      string;
 }
 
-// ─── Fetch notizie da GDELT (con fallback) ───────────────
-async function fetchGdeltArticles(): Promise<GdeltArticle[]> {
-  try {
-    const res = await fetch(`${GDELT_API}?${GDELT_PARAMS}`, {
-      signal: AbortSignal.timeout(15000),
-    });
-    if (!res.ok) {
-      console.warn(`[ai-run] GDELT HTTP ${res.status}, uso fallback`);
-      return FALLBACK_ARTICLES;
+// ─── Parse RSS/Atom XML senza librerie esterne ───────────
+function parseRssItems(xml: string, source: string): NewsArticle[] {
+  const items: NewsArticle[] = [];
+
+  // Supporta sia RSS <item> che Atom <entry>
+  const itemRegex = /<(?:item|entry)>([\s\S]*?)<\/(?:item|entry)>/g;
+  let match;
+
+  while ((match = itemRegex.exec(xml)) !== null) {
+    const block = match[1];
+
+    // Titolo: gestisce CDATA e testo puro
+    const titleMatch =
+      block.match(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/) ||
+      block.match(/<title[^>]*>([\s\S]*?)<\/title>/);
+    const title = titleMatch?.[1]?.replace(/<[^>]+>/g, '').trim();
+
+    // URL: <link>, <link href="...">, <guid>
+    const linkMatch =
+      block.match(/<link[^>]+href="([^"]+)"/) ||
+      block.match(/<link>(https?:\/\/[^<]+)<\/link>/) ||
+      block.match(/<guid[^>]*>(https?:\/\/[^<]+)<\/guid>/);
+    const url = linkMatch?.[1]?.trim();
+
+    // Data
+    const dateMatch =
+      block.match(/<pubDate>([\s\S]*?)<\/pubDate>/) ||
+      block.match(/<published>([\s\S]*?)<\/published>/) ||
+      block.match(/<updated>([\s\S]*?)<\/updated>/);
+    const pubDate = dateMatch?.[1]?.trim() || new Date().toUTCString();
+
+    if (title && url && title.length > 10) {
+      items.push({ title, url, source, pubDate });
     }
-    const text = await res.text();
-    if (!text.trim().startsWith('{') && !text.trim().startsWith('[')) {
-      console.warn(`[ai-run] GDELT risposta non JSON, uso fallback: ${text.slice(0, 80)}`);
-      return FALLBACK_ARTICLES;
-    }
-    const json = JSON.parse(text);
-    const articles = json.articles || [];
-    if (articles.length === 0) {
-      console.warn('[ai-run] GDELT 0 articoli, uso fallback');
-      return FALLBACK_ARTICLES;
-    }
-    console.log(`[ai-run] GDELT OK: ${articles.length} articoli`);
-    return articles;
-  } catch (err) {
-    console.warn(`[ai-run] GDELT timeout/errore, uso fallback: ${err}`);
-    return FALLBACK_ARTICLES;
   }
+
+  return items;
+}
+
+// ─── Fetch notizie da tutti i feed RSS ───────────────────
+async function fetchNewsFromRss(): Promise<NewsArticle[]> {
+  const allArticles: NewsArticle[] = [];
+  const errors: string[] = [];
+
+  const fetchPromises = RSS_FEEDS.map(async ({ url, source }) => {
+    try {
+      const res = await fetch(url, {
+        signal: AbortSignal.timeout(12000),
+        headers: { 'User-Agent': 'Analisy/1.0 news aggregator' },
+      });
+      if (!res.ok) {
+        errors.push(`${source}: HTTP ${res.status}`);
+        return;
+      }
+      const xml = await res.text();
+      const items = parseRssItems(xml, source);
+      console.log(`[ai-run] ${source}: ${items.length} articoli`);
+      allArticles.push(...items);
+    } catch (err) {
+      errors.push(`${source}: ${err}`);
+      console.warn(`[ai-run] Feed ${source} fallito: ${err}`);
+    }
+  });
+
+  // Fetch parallelo con timeout globale 20s
+  await Promise.allSettled(fetchPromises);
+
+  if (errors.length > 0) {
+    console.warn(`[ai-run] Feed con errori: ${errors.join(' | ')}`);
+  }
+
+  if (allArticles.length === 0) {
+    console.error('[ai-run] Nessun feed RSS disponibile — pipeline interrotta');
+    throw new Error('Nessun feed RSS disponibile. Verifica la connettività di rete.');
+  }
+
+  // Ordina per data (più recenti prima) e deduplicata per titolo simile
+  allArticles.sort((a, b) => {
+    const da = new Date(a.pubDate).getTime() || 0;
+    const db = new Date(b.pubDate).getTime() || 0;
+    return db - da;
+  });
+
+  // Deduplicazione: titoli con le prime 50 lettere identiche → tieni il più recente
+  const seen = new Set<string>();
+  const unique = allArticles.filter(a => {
+    const key = a.title.toLowerCase().slice(0, 50);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  console.log(`[ai-run] Feed totale: ${allArticles.length} articoli, unici: ${unique.length}`);
+  return unique;
 }
 
 // ─── Analisi geopolitica con Claude ──────────────────────
-async function analyzeWithClaude(articles: GdeltArticle[]): Promise<MapEvent[]> {
+async function analyzeWithClaude(articles: NewsArticle[]): Promise<MapEvent[]> {
   const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
-  if (!apiKey) throw new Error('ANTHROPIC_API_KEY non configurato nelle impostazioni Supabase');
-  // Debug: log formato chiave (solo prefisso sicuro)
-  console.log(`[ai-run] API key presente: lunghezza=${apiKey.length}, inizio="${apiKey.slice(0, 18)}..."`);
+  if (!apiKey) throw new Error('ANTHROPIC_API_KEY non configurato');
   if (!apiKey.startsWith('sk-ant-')) {
-    throw new Error(`ANTHROPIC_API_KEY formato non valido: inizia con "${apiKey.slice(0, 10)}" invece di "sk-ant-"`);
+    throw new Error(`ANTHROPIC_API_KEY formato non valido: inizia con "${apiKey.slice(0, 10)}"`);
   }
 
+  // Prendi i 20 titoli più recenti con fonte e data
   const headlines = articles
-    .slice(0, 15)
-    .map((a, i) => `${i + 1}. ${a.title}`)
+    .slice(0, 20)
+    .map((a, i) => `${i + 1}. [${a.source}] ${a.title}`)
     .join('\n');
 
   const today = new Date().toISOString().slice(0, 10);
 
-  const prompt = `Sei un sistema di intelligence geopolitica. Analizza queste notizie e restituisci i 5 eventi più importanti.
+  const prompt = `Sei un sistema di intelligence geopolitica. Analizza SOLO queste notizie reali di OGGI (${today}) e seleziona i 5 eventi più rilevanti geopoliticamente.
 
-NOTIZIE:
+NOTIZIE (fonti: BBC, Reuters, Al Jazeera, NYT, The Guardian):
 ${headlines}
 
-Rispondi SOLO con un array JSON, senza markdown, senza testo extra. Ogni oggetto:
-{"title":"max 60 car","description":"max 120 car","lat":0.0,"lng":0.0,"category":"geopolitica|politica|business|tecnologia","magnitude":1|2|3|4,"ai_summary":"max 200 car in italiano","ai_brief":"2-3 frasi di contesto in italiano","source_url":"https://...","relevance_score":0-100,"expires_at":"${today}"}
+IMPORTANTE: Usa ESCLUSIVAMENTE le informazioni presenti nelle notizie sopra. Non aggiungere fatti dal tuo training. Ogni evento deve riflettere esattamente ciò che è riportato nelle notizie.
 
-Regole categoria: geopolitica=guerre/conflitti, politica=elezioni/governi, business=economia/sanzioni, tecnologia=cyber/AI/spazio.
-Magnitudo: 1=bassa, 2=moderata, 3=alta, 4=critica.
-expires_at: +30 giorni se mag 4, +21 se mag 3, +14 se mag ≤2.
-Tutti i testi in ITALIANO. Rispondi solo con l'array JSON.`;
+Rispondi SOLO con un array JSON, senza markdown, senza testo extra. Ogni oggetto:
+{"title":"max 60 car in italiano","description":"max 120 car in italiano","lat":0.0,"lng":0.0,"category":"geopolitica|politica|business|tecnologia","magnitude":1|2|3|4,"ai_summary":"max 200 car in italiano basato sulla notizia","ai_brief":"2-3 frasi di contesto in italiano basate sulla notizia","source_url":"url dalla notizia","relevance_score":0-100,"expires_at":"${today}"}
+
+Regole:
+- Categoria: geopolitica=guerre/conflitti/tensioni tra stati, politica=elezioni/governi/proteste, business=economia/sanzioni/energia, tecnologia=cyber/AI/spazio
+- Magnitudo: 1=bassa, 2=moderata, 3=alta, 4=critica/breaking
+- expires_at: +30gg se mag 4, +21gg se mag 3, +14gg se mag ≤2
+- Tutti i testi in ITALIANO
+- Rispondi solo con l'array JSON`;
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -149,30 +195,23 @@ Tutti i testi in ITALIANO. Rispondi solo con l'array JSON.`;
 
   if (!response.ok) {
     const err = await response.text();
-    console.error(`[ai-run] Claude errore completo: ${err}`);
     throw new Error(`Claude API ${response.status}: ${err.slice(0, 500)}`);
   }
 
-  const claude = await response.json();
+  const claude  = await response.json();
   const rawText = claude.content?.[0]?.text || '';
-  console.log(`[ai-run] Claude risposta: ${rawText.length} caratteri, stop_reason=${claude.stop_reason}`);
+  console.log(`[ai-run] Claude: ${rawText.length} car, stop_reason=${claude.stop_reason}`);
 
-  // Estrai JSON array — gestisce markdown, testo prima/dopo
   const jsonMatch = rawText.match(/\[[\s\S]*\]/);
   if (!jsonMatch) {
-    console.error(`[ai-run] Nessun array JSON trovato. Inizio risposta: ${rawText.slice(0, 300)}`);
+    console.error(`[ai-run] Nessun JSON array. Inizio: ${rawText.slice(0, 300)}`);
     throw new Error('Claude non ha restituito JSON valido');
   }
 
-  let events: MapEvent[] = [];
-  try {
-    events = JSON.parse(jsonMatch[0]);
-  } catch (parseErr) {
-    console.error(`[ai-run] JSON.parse fallito: ${parseErr}. Testo: ${jsonMatch[0].slice(0, 200)}`);
-    throw new Error(`JSON parse error: ${parseErr}`);
-  }
+  const events: MapEvent[] = JSON.parse(jsonMatch[0]);
   return events.filter(e =>
-    e.title && typeof e.lat === 'number' && typeof e.lng === 'number' &&
+    e.title &&
+    typeof e.lat === 'number' && typeof e.lng === 'number' &&
     ['geopolitica','politica','business','tecnologia'].includes(e.category) &&
     e.magnitude >= 1 && e.magnitude <= 4
   );
@@ -183,20 +222,18 @@ async function updateCitycams(
   adminClient: ReturnType<typeof createClient>,
   events: MapEvent[]
 ) {
-  // Filtra solo eventi con alta rilevanza (magnitudo ≥ 3)
   const highPriority = events
     .filter(e => e.magnitude >= 3)
     .sort((a, b) => b.magnitude - a.magnitude || b.relevance_score - a.relevance_score)
     .slice(0, 8);
 
   for (const ev of highPriority) {
-    // Cerca citycam vicine (±5 gradi) che NON abbiano il blocco manuale attivo
     const { data: nearby } = await adminClient
       .from('citycams')
       .select('id, ai_lock')
       .gte('lat', ev.lat - 5).lte('lat', ev.lat + 5)
       .gte('lng', ev.lng - 5).lte('lng', ev.lng + 5)
-      .eq('ai_lock', false)   // ← salta le cam con override manuale
+      .eq('ai_lock', false)
       .eq('active', true)
       .limit(1);
 
@@ -220,7 +257,7 @@ Deno.serve(async (req) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   );
 
-  // Verifica autorizzazione (admin loggato oppure service role interno)
+  // Verifica autorizzazione
   const authHeader = req.headers.get('Authorization');
   if (authHeader) {
     const authedClient = createClient(
@@ -238,7 +275,7 @@ Deno.serve(async (req) => {
     }
   }
 
-  // Crea il job di log
+  // Crea job di log
   const { data: job, error: jobError } = await adminClient
     .from('ai_jobs')
     .insert({ status: 'running' })
@@ -246,16 +283,16 @@ Deno.serve(async (req) => {
   if (jobError) return errorResponse(jobError.message, 500);
   const jobId = job.id;
 
-  // Pipeline in background (risponde subito, elabora dopo)
+  // Pipeline in background
   (async () => {
     let articlesProcessed = 0, eventsCreated = 0, eventsRenewed = 0, eventsResolved = 0;
     try {
-      // 1. Recupera notizie globali
-      const gdeltArticles = await fetchGdeltArticles();
-      articlesProcessed   = gdeltArticles.length;
+      // 1. Recupera notizie dai feed RSS
+      const newsArticles   = await fetchNewsFromRss();
+      articlesProcessed    = newsArticles.length;
 
       // 2. Analisi con Claude → eventi strutturati
-      const newEvents = await analyzeWithClaude(gdeltArticles);
+      const newEvents = await analyzeWithClaude(newsArticles);
 
       // 3. Carica eventi attivi non bloccati manualmente
       const { data: existing } = await adminClient
@@ -272,7 +309,6 @@ Deno.serve(async (req) => {
       for (const ev of newEvents) {
         const key = ev.title.toLowerCase().slice(0, 35);
         if (existingMap.has(key)) {
-          const match = existingMap.get(key)!;
           await adminClient.from('map_events').update({
             magnitude:       ev.magnitude,
             ai_summary:      ev.ai_summary,
@@ -280,7 +316,7 @@ Deno.serve(async (req) => {
             relevance_score: ev.relevance_score,
             expires_at:      ev.expires_at,
             source_url:      ev.source_url,
-          }).eq('id', match.id);
+          }).eq('id', existingMap.get(key)!.id);
           eventsRenewed++;
         } else {
           await adminClient.from('map_events').insert({
@@ -301,7 +337,7 @@ Deno.serve(async (req) => {
         }
       }
 
-      // 5. Archivia eventi scaduti e cancella i loro scenari AI
+      // 5. Archivia eventi scaduti
       const { data: expired } = await adminClient
         .from('map_events')
         .update({ status: 'expired' })
@@ -311,19 +347,7 @@ Deno.serve(async (req) => {
         .select('id, title');
       eventsResolved = (expired || []).length;
 
-      // Cancella gli scenari AI legati agli eventi scaduti
-      for (const ev of (expired || [])) {
-        const titleKey = ev.title?.toLowerCase().slice(0, 40);
-        if (titleKey) {
-          await adminClient
-            .from('articles')
-            .delete()
-            .eq('author', 'AI Intelligence · Analisy')
-            .ilike('title', `%${ev.title.slice(0, 30)}%`);
-        }
-      }
-
-      // 6. Aggiorna citycams in base ai nuovi eventi
+      // 6. Aggiorna citycams
       await updateCitycams(adminClient, newEvents);
 
       // 7. Segna job completato
