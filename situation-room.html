@@ -4012,14 +4012,6 @@ function initMobMapHero() {
     live.innerHTML = '<div class="mob-live-dot"></div>LIVE';
     section.appendChild(live);
   }
-  // Expand pill
-  if (!section.querySelector('.mob-map-expand-pill')) {
-    const expand = document.createElement('div');
-    expand.className = 'mob-map-expand-pill';
-    expand.innerHTML = `<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg> Espandi`;
-    expand.onclick = openMobMapFs;
-    section.appendChild(expand);
-  }
 
 }
 
@@ -4506,9 +4498,7 @@ function moveDeskMap() {
   const slot = document.getElementById('desk-map-slot');
   const wrapper = document.querySelector('.sr-map-wrapper');
   if (!slot || !wrapper) return;
-  // Sposta il wrapper dentro il slot (prima del pulsante espandi)
-  const expandBtn = document.getElementById('desk-map-expand-btn');
-  slot.insertBefore(wrapper, expandBtn);
+  slot.appendChild(wrapper);
   // Forza Leaflet a ricalcolare la dimensione
   setTimeout(() => {
     if (typeof situationMap !== 'undefined' && situationMap) {
@@ -5085,10 +5075,6 @@ document.addEventListener('mapEventsLoaded', function() {
   <div id="desk-main">
     <!-- Map slot: la mappa verrà spostata qui da JS -->
     <div id="desk-map-slot">
-      <div id="desk-map-expand-btn" onclick="toggleDeskMapExpand()">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-        Espandi mappa
-      </div>
     </div>
 
     <!-- Legend bar -->
