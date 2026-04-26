@@ -1559,8 +1559,8 @@
   /* ── Sidebar ── */
   #desk-sidebar {
     width: 220px; flex-shrink: 0;
-    background: #08090f;
-    border-right: 1px solid rgba(255,255,255,0.05);
+    background: #000;
+    border-right: 1px solid rgba(255,255,255,0.07);
     overflow-y: auto; overflow-x: hidden;
     display: flex; flex-direction: column;
     padding: 16px 0;
@@ -1688,6 +1688,10 @@
   .desk-leg-dot {
     width: 6px; height: 6px; border-radius: 50%;
   }
+
+  /* Pane switching */
+  .desk-main-pane { display: none; }
+  .desk-main-pane.active { display: block; }
 
   /* Feed articoli */
   #desk-feed { padding: 18px 18px 32px; }
@@ -4570,8 +4574,87 @@ function switchDeskNav(pane, el) {
   if (window.innerWidth <= 768) return;
   document.querySelectorAll('.desk-nav-item').forEach(b => b.classList.remove('active'));
   if (el) el.classList.add('active');
-  // Per ora mostra sempre il feed articoli — future sezioni live/podcast/forum
-  // potrebbero essere implementate qui
+
+  // Nascondi tutti i pane, mostra quello selezionato
+  document.querySelectorAll('.desk-main-pane').forEach(p => p.classList.remove('active'));
+
+  if (pane === 'articles') {
+    document.getElementById('desk-feed').classList.add('active');
+    document.getElementById('desk-right').style.display = '';
+    renderDeskArticles(deskCurrentCat);
+  } else if (pane === 'live') {
+    document.getElementById('desk-pane-live').classList.add('active');
+    document.getElementById('desk-right').style.display = 'none';
+    renderDeskCams();
+  } else if (pane === 'markets') {
+    document.getElementById('desk-pane-markets').classList.add('active');
+    document.getElementById('desk-right').style.display = 'none';
+    renderDeskMarkets();
+  } else if (pane === 'podcast') {
+    document.getElementById('desk-pane-podcast').classList.add('active');
+    document.getElementById('desk-right').style.display = 'none';
+  } else if (pane === 'forum') {
+    document.getElementById('desk-pane-forum').classList.add('active');
+    document.getElementById('desk-right').style.display = 'none';
+    renderDeskForum();
+  }
+}
+
+/* ── Render CityCams desktop ── */
+function renderDeskCams() {
+  if (window.innerWidth <= 768) return;
+  const grid = document.getElementById('desk-cams-grid');
+  if (!grid) return;
+  const cams = (typeof AppData !== 'undefined' && AppData.citycams) ? AppData.citycams : [];
+  if (!cams.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;padding:30px;text-align:center;font-size:0.72rem;color:rgba(255,255,255,0.2);">Nessuna city cam disponibile.</div>`;
+    return;
+  }
+  grid.innerHTML = cams.slice(0, 12).map(c => {
+    const isLive = c.stream_url || c.embed_url;
+    return `<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;cursor:pointer;aspect-ratio:16/9;position:relative;display:flex;align-items:center;justify-content:center;" onclick="${isLive ? `window.open('${c.stream_url||c.embed_url}','_blank')` : ''}">
+      ${c.thumbnail ? `<img src="${c.thumbnail}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;" alt="">` : ''}
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.7) 0%,transparent 50%);"></div>
+      ${isLive ? `<div style="position:absolute;top:8px;left:8px;background:#e8344e;color:white;font-size:0.5rem;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:0.08em;">LIVE</div>` : ''}
+      <div style="position:absolute;bottom:8px;left:8px;right:8px;">
+        <div style="font-size:0.65rem;font-weight:700;color:white;line-height:1.3;">${c.city || c.name || ''}</div>
+        ${c.country ? `<div style="font-size:0.55rem;color:rgba(255,255,255,0.4);">${c.country}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── Render Markets desktop ── */
+function renderDeskMarkets() {
+  if (window.innerWidth <= 768) return;
+  const feed = document.getElementById('desk-markets-feed');
+  if (!feed) return;
+  // Riusa il contenuto del markets-list esistente
+  const existing = document.getElementById('markets-list');
+  if (existing && existing.innerHTML.trim()) {
+    feed.innerHTML = existing.innerHTML;
+  } else {
+    // Trigger caricamento mercati e poi copia
+    if (typeof renderMarkets === 'function') renderMarkets();
+    setTimeout(() => {
+      const m = document.getElementById('markets-list');
+      if (m) feed.innerHTML = m.innerHTML || `<div style="padding:30px;text-align:center;font-size:0.72rem;color:rgba(255,255,255,0.2);">Dati mercati non disponibili.</div>`;
+    }, 800);
+  }
+}
+
+/* ── Render Forum desktop ── */
+function renderDeskForum() {
+  if (window.innerWidth <= 768) return;
+  const feed = document.getElementById('desk-forum-feed');
+  if (!feed) return;
+  // Riusa il contenuto del pane-forum esistente
+  const existing = document.getElementById('pane-forum');
+  if (existing) {
+    feed.innerHTML = existing.innerHTML;
+  } else {
+    feed.innerHTML = `<div style="padding:30px;text-align:center;font-size:0.72rem;color:rgba(255,255,255,0.2);">Forum non disponibile.</div>`;
+  }
 }
 
 /* ── Filter categoria ── */
@@ -4835,6 +4918,10 @@ document.addEventListener('mapEventsLoaded', function() {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M6.6 18.4a9 9 0 1 1 10.8 0"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
         Podcast
       </button>
+      <button class="desk-nav-item" data-desk-pane="markets" onclick="switchDeskNav('markets',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        Mercati
+      </button>
       <button class="desk-nav-item" data-desk-pane="forum" onclick="switchDeskNav('forum',this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Forum
@@ -4892,12 +4979,44 @@ document.addEventListener('mapEventsLoaded', function() {
     </div>
 
     <!-- Feed articoli -->
-    <div id="desk-feed">
+    <div id="desk-feed" class="desk-main-pane active">
       <div id="desk-feed-header">
         <span class="desk-feed-title" id="desk-feed-title">Notizie Globali</span>
         <button class="desk-feed-viewall" onclick="closeDeskArtReader()">Vedi tutti &rarr;</button>
       </div>
       <div id="desk-articles-feed"></div>
+    </div>
+
+    <!-- Pane: Live / CityCams -->
+    <div id="desk-pane-live" class="desk-main-pane" style="padding:18px;">
+      <div id="desk-feed-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <span class="desk-feed-title">City Cam Live</span>
+      </div>
+      <div id="desk-cams-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
+    </div>
+
+    <!-- Pane: Mercati -->
+    <div id="desk-pane-markets" class="desk-main-pane" style="padding:18px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <span class="desk-feed-title">Mercati & Materie Prime</span>
+      </div>
+      <div id="desk-markets-feed"></div>
+    </div>
+
+    <!-- Pane: Podcast -->
+    <div id="desk-pane-podcast" class="desk-main-pane" style="padding:18px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <span class="desk-feed-title">Podcast</span>
+      </div>
+      <div id="desk-podcast-feed" style="font-size:0.75rem;color:rgba(255,255,255,0.25);text-align:center;padding:40px 0;">Nessun podcast disponibile al momento.</div>
+    </div>
+
+    <!-- Pane: Forum -->
+    <div id="desk-pane-forum" class="desk-main-pane" style="padding:18px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <span class="desk-feed-title">Community & Forum</span>
+      </div>
+      <div id="desk-forum-feed"></div>
     </div>
   </div>
 
