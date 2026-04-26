@@ -1451,6 +1451,453 @@
   font-weight: 800;
   letter-spacing: -0.03em;
 }
+
+/* ═══════════════════════════════════════════════
+   DESKTOP SPOTIFY LAYOUT (>768px)
+═══════════════════════════════════════════════ */
+
+/* Nascosto su mobile */
+#desk-topbar, #desk-body, #desk-art-reader, #desk-map-fullscreen { display: none; }
+
+@media (min-width: 769px) {
+
+  /* ── Nascondi struttura vecchia su desktop ── */
+  .sr-announce-bar  { display: none !important; }
+  .sr-navbar        { display: none !important; }
+  .ticker-wrap      { display: none !important; }
+  .sr-toolnav       { display: none !important; }
+  .sr-mobile-tabs   { display: none !important; }
+  .sr-grid          { display: none !important; }
+  .sr-map-wrapper   { display: none !important; }
+  footer            { display: none !important; }
+  .sr-mob-bottom-sheet, .sr-mob-sheet-overlay { display: none !important; }
+  .map-unified-panel { display: none !important; }
+  .admin-map-fab    { display: none !important; }
+  /* Nascondi mobile v2 su desktop */
+  #mob-top-bar, #mob-scenari-section, #mob-content-area,
+  #mob-bottom-nav, #mob-map-fs, #mob-art-reader,
+  #mob-event-sheet  { display: none !important; }
+
+  /* ── Layout body ── */
+  html, body { overflow: hidden !important; height: 100% !important; margin: 0 !important; }
+
+  /* ── Top bar ── */
+  #desk-topbar {
+    display: flex;
+    align-items: center;
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    height: 52px;
+    background: rgba(6,6,12,0.97);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    padding: 0 20px;
+    gap: 12px;
+  }
+  .desk-logo {
+    display: flex; align-items: center; gap: 8px;
+    text-decoration: none; flex-shrink: 0;
+  }
+  .desk-logo-text {
+    font-size: 1.05rem; font-weight: 800; letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #e8344e, #ff6b6b);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .desk-room-badge {
+    font-size: 0.52rem; font-weight: 700; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.3); text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 2px 7px; border-radius: 4px; flex-shrink: 0;
+  }
+  .desk-topbar-center {
+    flex: 1; display: flex; align-items: center;
+  }
+  #desk-live-pill {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.5);
+  }
+  .desk-live-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #e8344e;
+    box-shadow: 0 0 6px #e8344e;
+    animation: deskLivePulse 2s ease-in-out infinite;
+  }
+  @keyframes deskLivePulse {
+    0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+  }
+  #desk-topbar-right {
+    display: flex; align-items: center; gap: 10px;
+    margin-left: auto; flex-shrink: 0;
+  }
+  .desk-avatar-btn {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, #e8344e, #ff6b6b);
+    border: none; cursor: pointer;
+    font-size: 0.75rem; font-weight: 700; color: white;
+    font-family: inherit; display: flex; align-items: center; justify-content: center;
+  }
+  .desk-accedi-btn {
+    font-size: 0.7rem; font-weight: 600;
+    color: rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; padding: 5px 12px;
+    cursor: pointer; font-family: inherit;
+    text-decoration: none; transition: all 0.15s;
+  }
+  .desk-accedi-btn:hover { background: rgba(255,255,255,0.12); }
+
+  /* ── Body ── */
+  #desk-body {
+    display: flex !important;
+    position: fixed; top: 52px; left: 0; right: 0; bottom: 0; z-index: 999;
+    background: #020508;
+    overflow: hidden;
+  }
+
+  /* ── Sidebar ── */
+  #desk-sidebar {
+    width: 220px; flex-shrink: 0;
+    background: #08090f;
+    border-right: 1px solid rgba(255,255,255,0.05);
+    overflow-y: auto; overflow-x: hidden;
+    display: flex; flex-direction: column;
+    padding: 16px 0;
+    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.06) transparent;
+  }
+  #desk-sidebar::-webkit-scrollbar { width: 3px; }
+  #desk-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
+
+  .desk-nav-section-label {
+    font-size: 0.52rem; font-weight: 700; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.2); text-transform: uppercase;
+    padding: 0 18px 8px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  #desk-nav { padding-bottom: 8px; }
+  .desk-nav-item {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 9px 18px;
+    font-size: 0.8rem; font-weight: 500;
+    color: rgba(255,255,255,0.4);
+    background: none; border: none; cursor: pointer;
+    font-family: inherit; text-align: left;
+    border-radius: 0; transition: all 0.15s;
+    position: relative;
+  }
+  .desk-nav-item:hover { color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.04); }
+  .desk-nav-item.active {
+    color: white;
+    background: rgba(232,52,78,0.08);
+  }
+  .desk-nav-item.active::before {
+    content: '';
+    position: absolute; left: 0; top: 20%; bottom: 20%;
+    width: 3px; border-radius: 0 2px 2px 0;
+    background: #e8344e;
+  }
+
+  .desk-sidebar-divider {
+    margin: 10px 18px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  #desk-filters { padding-bottom: 8px; }
+  .desk-filter-item {
+    display: flex; align-items: center; gap: 9px;
+    width: 100%; padding: 7px 18px;
+    font-size: 0.75rem; font-weight: 500;
+    color: rgba(255,255,255,0.35);
+    background: none; border: none; cursor: pointer;
+    font-family: inherit; transition: all 0.15s;
+  }
+  .desk-filter-item:hover { color: rgba(255,255,255,0.7); }
+  .desk-filter-item.active { color: rgba(255,255,255,0.9); font-weight: 600; }
+  .desk-filter-dot {
+    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  #desk-live-events-sidebar { padding-bottom: 16px; }
+  .desk-live-dot-sm {
+    display: inline-block;
+    width: 5px; height: 5px; border-radius: 50%;
+    background: #e8344e; box-shadow: 0 0 5px #e8344e;
+  }
+  .desk-live-event-item {
+    padding: 5px 18px;
+    font-size: 0.68rem; color: rgba(255,255,255,0.35);
+    line-height: 1.4; cursor: pointer; transition: color 0.15s;
+  }
+  .desk-live-event-item:hover { color: rgba(255,255,255,0.65); }
+  .desk-live-event-dot {
+    display: inline-block; width: 6px; height: 6px;
+    border-radius: 50%; margin-right: 6px; flex-shrink: 0;
+    vertical-align: middle;
+  }
+
+  /* ── Main center ── */
+  #desk-main {
+    flex: 1; min-width: 0;
+    overflow-y: auto; overflow-x: hidden;
+    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.06) transparent;
+  }
+  #desk-main::-webkit-scrollbar { width: 4px; }
+  #desk-main::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 2px; }
+
+  /* Map slot */
+  #desk-map-slot {
+    height: 360px; position: relative;
+    background: #060c1a;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  #desk-map-slot .sr-map-wrapper {
+    display: flex !important;
+    height: 100% !important; width: 100% !important;
+    margin: 0 !important; border: none !important;
+  }
+  #desk-map-slot .sr-map-row {
+    height: 100% !important; min-height: unset !important;
+  }
+  #desk-map-slot .sr-map-section {
+    height: 100% !important; border-radius: 0 !important;
+  }
+  #desk-map-expand-btn {
+    position: absolute; top: 12px; right: 12px; z-index: 500;
+    display: flex; align-items: center; gap: 5px;
+    font-size: 0.6rem; font-weight: 600; color: rgba(255,255,255,0.6);
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 6px 10px; border-radius: 8px; cursor: pointer;
+    transition: all 0.15s;
+  }
+  #desk-map-expand-btn:hover { color: white; background: rgba(0,0,0,0.7); }
+
+  /* Legend bar */
+  #desk-map-legend-bar {
+    display: flex; align-items: center; gap: 14px;
+    padding: 8px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    background: rgba(0,0,0,0.3);
+  }
+  .desk-leg-item {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 0.62rem; color: rgba(255,255,255,0.4);
+  }
+  .desk-leg-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+  }
+
+  /* Feed articoli */
+  #desk-feed { padding: 18px 18px 32px; }
+  #desk-feed-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .desk-feed-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em;
+    text-transform: uppercase; color: rgba(255,255,255,0.5);
+  }
+  .desk-feed-viewall {
+    font-size: 0.65rem; color: rgba(255,255,255,0.25);
+    background: none; border: none; cursor: pointer;
+    font-family: inherit; transition: color 0.15s;
+  }
+  .desk-feed-viewall:hover { color: rgba(255,255,255,0.6); }
+
+  .desk-art-card {
+    display: flex; align-items: stretch;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px;
+    margin-bottom: 7px;
+    overflow: hidden; cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .desk-art-card:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.1);
+  }
+  .desk-art-card-stripe { width: 3px; flex-shrink: 0; }
+  .desk-art-card-thumb {
+    width: 52px; height: 52px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; font-weight: 800; color: rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.04);
+    margin: 10px 0 10px 10px; border-radius: 8px;
+    overflow: hidden;
+  }
+  .desk-art-card-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .desk-art-card-body {
+    flex: 1; padding: 10px 12px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .desk-art-card-meta {
+    display: flex; align-items: center; gap: 7px;
+    margin-bottom: 4px;
+  }
+  .desk-art-card-cat {
+    font-size: 0.58rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+  .desk-art-card-ai {
+    font-size: 0.5rem; font-weight: 700; letter-spacing: 0.06em;
+    background: rgba(232,52,78,0.15); color: #e8344e;
+    padding: 1px 5px; border-radius: 3px;
+  }
+  .desk-art-card-time {
+    font-size: 0.58rem; color: rgba(255,255,255,0.2);
+    margin-left: auto;
+  }
+  .desk-art-card-title {
+    font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.9);
+    line-height: 1.35;
+  }
+  .desk-art-card-excerpt {
+    font-size: 0.68rem; color: rgba(255,255,255,0.35);
+    line-height: 1.5; margin-top: 3px;
+    display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .desk-art-card-right {
+    width: 48px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.1);
+  }
+  .desk-art-readtime {
+    font-size: 0.55rem; color: rgba(255,255,255,0.18); text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+
+  /* ── Right panel ── */
+  #desk-right {
+    width: 288px; flex-shrink: 0;
+    background: #08090f;
+    border-left: 1px solid rgba(255,255,255,0.05);
+    overflow-y: auto; overflow-x: hidden;
+    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.06) transparent;
+  }
+  #desk-right::-webkit-scrollbar { width: 3px; }
+  #desk-right::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
+  .desk-right-header {
+    position: sticky; top: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 16px 12px;
+    background: rgba(8,9,15,0.95); backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 2;
+  }
+  .desk-right-title {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; color: rgba(255,255,255,0.5);
+  }
+  .desk-right-badge {
+    font-size: 0.55rem; font-weight: 700;
+    background: rgba(232,52,78,0.15); color: #e8344e;
+    padding: 2px 6px; border-radius: 4px;
+  }
+
+  .desk-scenari-card {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    cursor: pointer; transition: background 0.15s;
+  }
+  .desk-scenari-card:hover { background: rgba(255,255,255,0.03); }
+  .desk-scenari-card-top {
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 6px;
+  }
+  .desk-scenari-cat {
+    font-size: 0.52rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.09em;
+  }
+  .desk-scenari-mag {
+    display: flex; gap: 2px; margin-left: auto;
+  }
+  .desk-scenari-mag-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+  }
+  .desk-scenari-title {
+    font-size: 0.78rem; font-weight: 700; color: rgba(255,255,255,0.88);
+    line-height: 1.35; margin-bottom: 5px;
+  }
+  .desk-scenari-excerpt {
+    font-size: 0.65rem; color: rgba(255,255,255,0.32);
+    line-height: 1.5;
+    display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .desk-scenari-time {
+    font-size: 0.58rem; color: rgba(255,255,255,0.18); margin-top: 6px;
+  }
+
+  /* ── Article reader overlay ── */
+  #desk-art-reader {
+    position: fixed; top: 52px; right: 0; bottom: 0;
+    width: 480px; z-index: 1100;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.32,0.72,0,1);
+    background: linear-gradient(160deg, #0d1220 0%, #060a14 100%);
+    border-left: 1px solid rgba(255,255,255,0.07);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  #desk-art-reader.open { display: flex !important; transform: translateX(0); }
+  #desk-art-reader-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+  #desk-art-close {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: none; cursor: pointer; color: rgba(255,255,255,0.6);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  #desk-art-close:hover { background: rgba(255,255,255,0.12); color: white; }
+  #desk-art-cat-badge {
+    font-size: 0.55rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 4px;
+  }
+  #desk-art-hero {
+    padding: 24px 24px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    flex-shrink: 0;
+  }
+  #desk-art-body {
+    flex: 1; overflow-y: auto; padding: 20px 24px 32px;
+    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.06) transparent;
+  }
+  #desk-art-body::-webkit-scrollbar { width: 3px; }
+  #desk-art-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 2px; }
+
+  /* ── Map fullscreen overlay ── */
+  #desk-map-fullscreen {
+    position: fixed; inset: 52px 0 0 0; z-index: 2000;
+    background: #020508;
+    transform: scale(0.95); opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.32,0.72,0,1);
+  }
+  #desk-map-fullscreen.open {
+    display: block !important;
+    transform: scale(1); opacity: 1;
+    pointer-events: all;
+  }
+  #desk-map-fs-inner { width: 100%; height: 100%; position: relative; }
+  #desk-map-fs-close {
+    position: absolute; top: 14px; right: 14px; z-index: 10;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.15);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  #desk-map-fs-close:hover { background: rgba(0,0,0,0.85); }
+
+}
   </style>
 </head>
 <body>
@@ -2559,6 +3006,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ★ Navbar subito — usa Auth da localStorage, non aspetta la rete
   renderSrNavbar();
   initMobileV2();
+  if (window.innerWidth > 768) initDeskLayout();
 
   await AppData.init();
 
@@ -3913,6 +4361,301 @@ document.addEventListener('mapEventSelected', function(e) {
     updateMobFsPanel(e.detail);
   }
 });
+
+/* ════════════════════════════════════════════
+   DESKTOP SPOTIFY LAYOUT — funzioni
+════════════════════════════════════════════ */
+
+const DESK_CAT_COLORS = {
+  geopolitica: '#e8344e', politica: '#4f9eff',
+  business: '#ffd700',    tecnologia: '#a78bfa'
+};
+const DESK_CAT_LABELS = {
+  geopolitica: 'Geopolitica', politica: 'Politica',
+  business: 'Business',       tecnologia: 'Tecnologia'
+};
+
+let deskCurrentCat = 'all';
+let deskMapExpanded = false;
+
+/* ── Top bar avatar ── */
+function renderDeskTopbar() {
+  if (window.innerWidth <= 768) return;
+  const el = document.getElementById('desk-topbar-right');
+  if (!el) return;
+  const user = typeof getUser === 'function' ? getUser() : null;
+  if (user) {
+    const initials = (user.user_metadata?.full_name || user.email || 'U')
+      .split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    el.innerHTML = `<button class="desk-avatar-btn" title="${user.email || ''}">${initials}</button>`;
+  } else {
+    el.innerHTML = `<a href="login.html" class="desk-accedi-btn">Accedi</a>`;
+  }
+}
+
+/* ── Sposta la mappa nel desk-map-slot ── */
+function moveDeskMap() {
+  if (window.innerWidth <= 768) return;
+  const slot = document.getElementById('desk-map-slot');
+  const wrapper = document.querySelector('.sr-map-wrapper');
+  if (!slot || !wrapper) return;
+  // Sposta il wrapper dentro il slot (prima del pulsante espandi)
+  const expandBtn = document.getElementById('desk-map-expand-btn');
+  slot.insertBefore(wrapper, expandBtn);
+  // Forza Leaflet a ricalcolare la dimensione
+  setTimeout(() => {
+    if (typeof situationMap !== 'undefined' && situationMap) {
+      situationMap.invalidateSize();
+    }
+  }, 150);
+}
+
+/* ── Render scenari nel pannello destro ── */
+function renderDeskScenari(data) {
+  if (window.innerWidth <= 768) return;
+  const list = document.getElementById('desk-scenari-list');
+  const countEl = document.getElementById('desk-scenari-count');
+  if (!list) return;
+  const arr = data || briefsData || [];
+  if (countEl) countEl.textContent = arr.length ? `${arr.length} attivi` : '';
+  if (!arr.length) {
+    list.innerHTML = `<div style="padding:20px 16px;font-size:0.7rem;color:rgba(255,255,255,0.2);text-align:center;">Aggiornamento in corso\u2026</div>`;
+    return;
+  }
+  list.innerHTML = arr.map(a => {
+    const color = DESK_CAT_COLORS[a.cat || a.category] || '#4f9eff';
+    const label = DESK_CAT_LABELS[a.cat || a.category] || (a.cat_label || '');
+    const mag = Math.min(Math.max(parseInt(a.magnitude) || 2, 1), 4);
+    const magDots = [1,2,3,4].map(i =>
+      `<div class="desk-scenari-mag-dot" style="background:${i<=mag ? color : 'rgba(255,255,255,0.1)'};"></div>`
+    ).join('');
+    const excerpt = a.excerpt || (a.content||'').replace(/<[^>]+>/g,' ').slice(0,100);
+    const ago = a.published_at ? timeAgo(a.published_at) : '';
+    return `
+      <div class="desk-scenari-card" onclick="openDeskArtReader(${JSON.stringify(a).replace(/"/g,'&quot;')})">
+        <div class="desk-scenari-card-top">
+          <span class="desk-scenari-cat" style="color:${color};">${label}</span>
+          <div class="desk-scenari-mag">${magDots}</div>
+        </div>
+        <div class="desk-scenari-title">${a.title || ''}</div>
+        ${excerpt ? `<div class="desk-scenari-excerpt">${excerpt}</div>` : ''}
+        ${ago ? `<div class="desk-scenari-time">${ago}</div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+/* ── Render articoli nel feed centrale ── */
+function renderDeskArticles(cat) {
+  if (window.innerWidth <= 768) return;
+  const feed = document.getElementById('desk-articles-feed');
+  const titleEl = document.getElementById('desk-feed-title');
+  if (!feed) return;
+  const allArts = typeof getArticles === 'function' ? getArticles() : [];
+  const humanArts = allArts.filter(a => a.author !== 'AI Intelligence \u00B7 Analisy');
+  const filtered = cat && cat !== 'all' ? humanArts.filter(a => a.cat === cat) : humanArts;
+  if (titleEl) titleEl.textContent = cat && cat !== 'all' ? DESK_CAT_LABELS[cat] || 'Notizie' : 'Notizie Globali';
+  if (!filtered.length) {
+    feed.innerHTML = `<div style="padding:20px;font-size:0.7rem;color:rgba(255,255,255,0.2);text-align:center;">Nessun articolo disponibile</div>`;
+    return;
+  }
+  feed.innerHTML = filtered.map(a => {
+    const color = DESK_CAT_COLORS[a.cat] || '#4f9eff';
+    const label = DESK_CAT_LABELS[a.cat] || (a.cat_label || a.cat || '');
+    const ago = a.published_at ? timeAgo(a.published_at) : '';
+    const excerpt = a.excerpt || (a.content||'').replace(/<[^>]+>/g,' ').slice(0,130);
+    const initials = (a.title || 'N').slice(0,2).toUpperCase();
+    const imgHtml = a.image
+      ? `<img src="${a.image}" alt="" onerror="this.style.display='none';this.nextSibling.style.display='flex';">
+         <span style="display:none;">${initials}</span>`
+      : initials;
+    return `
+      <div class="desk-art-card" onclick="openDeskArtReader(${JSON.stringify(a).replace(/"/g,'&quot;')})">
+        <div class="desk-art-card-stripe" style="background:${color};"></div>
+        <div class="desk-art-card-thumb">${imgHtml}</div>
+        <div class="desk-art-card-body">
+          <div class="desk-art-card-meta">
+            <span class="desk-art-card-cat" style="color:${color};">${label}</span>
+            ${ago ? `<span class="desk-art-card-time">${ago}</span>` : ''}
+          </div>
+          <div class="desk-art-card-title">${a.title || ''}</div>
+          ${excerpt ? `<div class="desk-art-card-excerpt">${excerpt}</div>` : ''}
+        </div>
+        <div class="desk-art-card-right">
+          <div class="desk-art-readtime">
+            ${a.read_time ? `<span>${a.read_time}</span>` : ''}
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ── Article reader desktop ── */
+function openDeskArtReader(article) {
+  if (window.innerWidth <= 768) return;
+  const reader = document.getElementById('desk-art-reader');
+  const hero = document.getElementById('desk-art-hero');
+  const body = document.getElementById('desk-art-body');
+  const catBadge = document.getElementById('desk-art-cat-badge');
+  if (!reader || !hero || !body) return;
+
+  const color = DESK_CAT_COLORS[article.cat || article.category] || '#4f9eff';
+  const label = DESK_CAT_LABELS[article.cat || article.category] || (article.cat_label || '');
+  const isAI = article.author === 'AI Intelligence \u00B7 Analisy';
+
+  if (catBadge) {
+    catBadge.textContent = label;
+    catBadge.style.background = color + '22';
+    catBadge.style.color = color;
+  }
+
+  hero.style.background = `radial-gradient(ellipse at 30% 50%, ${color}22 0%, transparent 70%)`;
+  hero.innerHTML = `
+    <div style="font-size:1.05rem;font-weight:800;color:#f0f4ff;line-height:1.35;margin-bottom:8px;">${article.title || ''}</div>
+    ${article.subtitle ? `<div style="font-size:0.8rem;color:rgba(255,255,255,0.45);line-height:1.5;margin-bottom:10px;">${article.subtitle}</div>` : ''}
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      ${isAI ? `<span style="font-size:0.58rem;font-weight:700;background:rgba(232,52,78,0.15);color:#e8344e;padding:2px 6px;border-radius:3px;">AI Intelligence \u00B7 Analisy</span>` : `<span style="font-size:0.65rem;color:rgba(255,255,255,0.3);">${article.author || ''}</span>`}
+      ${article.read_time ? `<span style="font-size:0.62rem;color:rgba(255,255,255,0.2);">${article.read_time}</span>` : ''}
+    </div>`;
+
+  const content = (article.content || article.excerpt || '')
+    .replace(/<[^>]+>/g, ' ').trim();
+
+  body.innerHTML = `
+    ${article.excerpt && content !== article.excerpt ? `<p style="font-size:0.82rem;color:rgba(255,255,255,0.5);font-style:italic;line-height:1.6;margin-bottom:16px;">${article.excerpt}</p>` : ''}
+    <div style="font-size:0.8rem;color:rgba(255,255,255,0.7);line-height:1.75;">${content.replace(/\. /g,'.<br><br>').slice(0, 3000) || 'Contenuto non disponibile.'}</div>
+    ${article.source_url || article.sourceUrl ? `<a href="${article.source_url||article.sourceUrl}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;margin-top:20px;font-size:0.68rem;color:${color};text-decoration:none;opacity:0.7;transition:opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">\u2197 Leggi la fonte originale</a>` : ''}
+  `;
+
+  reader.classList.add('open');
+}
+
+function closeDeskArtReader() {
+  if (window.innerWidth <= 768) return;
+  const reader = document.getElementById('desk-art-reader');
+  if (reader) reader.classList.remove('open');
+}
+
+/* ── Map fullscreen ── */
+function toggleDeskMapExpand() {
+  if (window.innerWidth <= 768) return;
+  deskMapExpanded = !deskMapExpanded;
+  const fs = document.getElementById('desk-map-fullscreen');
+  const fsInner = document.getElementById('desk-map-fs-inner');
+  const wrapper = document.querySelector('.sr-map-wrapper');
+  if (!fs || !fsInner || !wrapper) return;
+
+  if (deskMapExpanded) {
+    fsInner.insertBefore(wrapper, fsInner.firstChild);
+    fs.classList.add('open');
+    document.getElementById('desk-map-expand-btn').innerHTML = `
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg>
+      Riduci mappa`;
+  } else {
+    const slot = document.getElementById('desk-map-slot');
+    const expandBtn = document.getElementById('desk-map-expand-btn');
+    slot.insertBefore(wrapper, expandBtn);
+    fs.classList.remove('open');
+    document.getElementById('desk-map-expand-btn').innerHTML = `
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+      Espandi mappa`;
+  }
+  setTimeout(() => {
+    if (typeof situationMap !== 'undefined' && situationMap) situationMap.invalidateSize();
+  }, 350);
+}
+
+/* ── Nav sidebar ── */
+function switchDeskNav(pane, el) {
+  if (window.innerWidth <= 768) return;
+  document.querySelectorAll('.desk-nav-item').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  // Per ora mostra sempre il feed articoli — future sezioni live/podcast/forum
+  // potrebbero essere implementate qui
+}
+
+/* ── Filter categoria ── */
+function deskFilterCat(cat, el) {
+  if (window.innerWidth <= 768) return;
+  deskCurrentCat = cat;
+  document.querySelectorAll('.desk-filter-item').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderDeskArticles(cat);
+  // Sincronizza anche il filtro originale
+  if (typeof filterCategory === 'function') {
+    const origEl = document.querySelector(`.sr-subnav-link[onclick*="'${cat}'"]`);
+    filterCategory(cat, origEl);
+  }
+}
+
+/* ── Live events in sidebar ── */
+function renderDeskLiveEvents() {
+  if (window.innerWidth <= 768) return;
+  const list = document.getElementById('desk-live-events-list');
+  if (!list) return;
+  const events = (typeof AppData !== 'undefined' && AppData.mapEvents)
+    ? AppData.mapEvents.filter(e => e.status === 'active').slice(0, 5)
+    : [];
+  const countEl = document.getElementById('desk-events-count');
+  if (countEl) countEl.textContent = events.length ? `${events.length} eventi attivi` : '';
+  if (!events.length) {
+    list.innerHTML = `<div style="padding:4px 18px;font-size:0.65rem;color:rgba(255,255,255,0.15);">Nessun evento attivo</div>`;
+    return;
+  }
+  list.innerHTML = events.map(ev => {
+    const color = DESK_CAT_COLORS[ev.category] || '#4f9eff';
+    return `<div class="desk-live-event-item" onclick="document.dispatchEvent(new CustomEvent('mapEventSelected',{detail:${JSON.stringify(ev).replace(/"/g,'&quot;')}}))"
+      ><span class="desk-live-event-dot" style="background:${color};box-shadow:0 0 4px ${color};"></span>${ev.title || ''}</div>`;
+  }).join('');
+
+  // Aggiorna contatori nella legend bar
+  const counts = { geopolitica: 0, politica: 0, business: 0, tecnologia: 0 };
+  events.forEach(e => { if (counts[e.category] !== undefined) counts[e.category]++; });
+  ['geo','pol','bus','tec'].forEach((k,i) => {
+    const cats = ['geopolitica','politica','business','tecnologia'];
+    const el = document.getElementById(`desk-count-${k}`);
+    if (el) el.textContent = counts[cats[i]];
+  });
+}
+
+/* ── Init desktop layout ── */
+function initDeskLayout() {
+  if (window.innerWidth <= 768) return;
+  moveDeskMap();
+  renderDeskTopbar();
+  renderDeskLiveEvents();
+  renderDeskScenari(briefsData || []);
+  renderDeskArticles('all');
+
+  // Aggiorna timestamp mappa
+  const updated = document.getElementById('desk-map-updated');
+  if (updated) updated.textContent = `Dati aggiornati alle ${new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}`;
+}
+
+/* ── Hook nelle funzioni esistenti ── */
+// Aggiorna scenari desk quando i briefs si ricaricano
+const _deskOrigRenderBriefs = typeof renderBriefs === 'function' ? renderBriefs : null;
+if (_deskOrigRenderBriefs) {
+  window.renderBriefs = function(data) {
+    _deskOrigRenderBriefs(data);
+    if (window.innerWidth > 768) renderDeskScenari(data);
+  };
+}
+
+// Aggiorna articoli desk quando gli articoli si ricaricano
+const _deskOrigRenderArticles = typeof renderArticles === 'function' ? renderArticles : null;
+if (_deskOrigRenderArticles) {
+  const _prevRenderArticles = window.renderArticles;
+  window.renderArticles = function(cat) {
+    _prevRenderArticles(cat);
+    if (window.innerWidth > 768) renderDeskArticles(deskCurrentCat);
+  };
+}
+
+// Aggiorna live events quando gli eventi mappa si caricano
+document.addEventListener('mapEventsLoaded', function() {
+  if (window.innerWidth > 768) renderDeskLiveEvents();
+});
 </script>
 <script src="js/cookie-banner.js"></script>
 
@@ -4044,6 +4787,152 @@ document.addEventListener('mapEventSelected', function(e) {
   <div id="mob-event-sheet-card">
     <div class="mob-sheet-handle-bar"></div>
     <div id="mob-event-sheet-inner"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     DESKTOP SPOTIFY LAYOUT (>768px)
+═══════════════════════════════════════════════ -->
+
+<!-- Top bar desktop -->
+<div id="desk-topbar">
+  <a href="index.html" class="desk-logo">
+    <div class="desk-logo-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" width="18" height="16"><line x1="14" y1="2" x2="3" y2="22" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="2" x2="25" y2="22" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round"/><polyline points="6,14 9,14 11,8 14,18 17,14 22,14" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/><polyline points="11,8 14,18" stroke="#e8344e" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="8" r="2.2" fill="#e8344e"/><circle cx="11" cy="8" r="1" fill="white"/></svg></div>
+    <span class="desk-logo-text">ANALISY</span>
+  </a>
+  <span class="desk-room-badge">Situation Room</span>
+  <div class="desk-topbar-center">
+    <div id="desk-live-pill">
+      <div class="desk-live-dot"></div>
+      <span>LIVE</span>
+    </div>
+    <span id="desk-events-count" style="font-size:0.65rem;color:rgba(255,255,255,0.3);margin-left:10px;"></span>
+  </div>
+  <div id="desk-topbar-right">
+    <!-- avatar / accedi — popolato da JS -->
+  </div>
+</div>
+
+<!-- Body: sidebar + main + right -->
+<div id="desk-body">
+
+  <!-- ──── SIDEBAR ──── -->
+  <div id="desk-sidebar">
+    <nav id="desk-nav">
+      <div class="desk-nav-section-label">NAVIGAZIONE</div>
+      <button class="desk-nav-item active" data-desk-pane="articles" onclick="switchDeskNav('articles',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+        Scenari
+      </button>
+      <button class="desk-nav-item" data-desk-pane="articles" onclick="switchDeskNav('articles',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 10h10M4 14h16M4 18h10"/></svg>
+        Articoli
+      </button>
+      <button class="desk-nav-item" data-desk-pane="live" onclick="switchDeskNav('live',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+        Live Feed
+      </button>
+      <button class="desk-nav-item" data-desk-pane="podcast" onclick="switchDeskNav('podcast',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M6.6 18.4a9 9 0 1 1 10.8 0"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+        Podcast
+      </button>
+      <button class="desk-nav-item" data-desk-pane="forum" onclick="switchDeskNav('forum',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Forum
+      </button>
+    </nav>
+
+    <div class="desk-sidebar-divider"></div>
+
+    <div id="desk-filters">
+      <div class="desk-nav-section-label">FILTRI</div>
+      <button class="desk-filter-item active" data-cat="all" onclick="deskFilterCat('all',this)">
+        <span class="desk-filter-dot" style="background:rgba(255,255,255,0.4);"></span>Tutti
+      </button>
+      <button class="desk-filter-item" data-cat="geopolitica" onclick="deskFilterCat('geopolitica',this)">
+        <span class="desk-filter-dot" style="background:#e8344e;"></span>Geopolitica
+      </button>
+      <button class="desk-filter-item" data-cat="politica" onclick="deskFilterCat('politica',this)">
+        <span class="desk-filter-dot" style="background:#4f9eff;"></span>Politica
+      </button>
+      <button class="desk-filter-item" data-cat="business" onclick="deskFilterCat('business',this)">
+        <span class="desk-filter-dot" style="background:#ffd700;"></span>Business
+      </button>
+      <button class="desk-filter-item" data-cat="tecnologia" onclick="deskFilterCat('tecnologia',this)">
+        <span class="desk-filter-dot" style="background:#a78bfa;"></span>Tecnologia
+      </button>
+    </div>
+
+    <div class="desk-sidebar-divider"></div>
+
+    <div id="desk-live-events-sidebar">
+      <div class="desk-nav-section-label">
+        <span class="desk-live-dot-sm"></span> LIVE NOW
+      </div>
+      <div id="desk-live-events-list"></div>
+    </div>
+  </div>
+
+  <!-- ──── MAIN ──── -->
+  <div id="desk-main">
+    <!-- Map slot: la mappa verrà spostata qui da JS -->
+    <div id="desk-map-slot">
+      <div id="desk-map-expand-btn" onclick="toggleDeskMapExpand()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        Espandi mappa
+      </div>
+    </div>
+
+    <!-- Legend bar -->
+    <div id="desk-map-legend-bar">
+      <span class="desk-leg-item"><span class="desk-leg-dot" style="background:#e8344e;"></span><span id="desk-count-geo">0</span> Crisi geo</span>
+      <span class="desk-leg-item"><span class="desk-leg-dot" style="background:#ffd700;"></span><span id="desk-count-bus">0</span> Business</span>
+      <span class="desk-leg-item"><span class="desk-leg-dot" style="background:#4f9eff;"></span><span id="desk-count-pol">0</span> Politica</span>
+      <span class="desk-leg-item"><span class="desk-leg-dot" style="background:#a78bfa;"></span><span id="desk-count-tec">0</span> Tech</span>
+      <span id="desk-map-updated" style="margin-left:auto;font-size:0.6rem;color:rgba(255,255,255,0.2);"></span>
+    </div>
+
+    <!-- Feed articoli -->
+    <div id="desk-feed">
+      <div id="desk-feed-header">
+        <span class="desk-feed-title" id="desk-feed-title">Notizie Globali</span>
+        <button class="desk-feed-viewall" onclick="closeDeskArtReader()">Vedi tutti &rarr;</button>
+      </div>
+      <div id="desk-articles-feed"></div>
+    </div>
+  </div>
+
+  <!-- ──── RIGHT PANEL ──── -->
+  <div id="desk-right">
+    <div class="desk-right-header">
+      <span class="desk-right-title">Scenari AI</span>
+      <span id="desk-scenari-count" class="desk-right-badge"></span>
+    </div>
+    <div id="desk-scenari-list"></div>
+  </div>
+
+</div><!-- /desk-body -->
+
+<!-- Article reader overlay desktop -->
+<div id="desk-art-reader">
+  <div id="desk-art-reader-inner">
+    <div id="desk-art-reader-header">
+      <button id="desk-art-close" onclick="closeDeskArtReader()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <span id="desk-art-cat-badge"></span>
+    </div>
+    <div id="desk-art-hero"></div>
+    <div id="desk-art-body"></div>
+  </div>
+</div>
+
+<!-- Map fullscreen overlay desktop -->
+<div id="desk-map-fullscreen" onclick="if(event.target===this)toggleDeskMapExpand()">
+  <div id="desk-map-fs-inner">
+    <button id="desk-map-fs-close" onclick="toggleDeskMapExpand()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
   </div>
 </div>
 </body>
