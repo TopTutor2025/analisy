@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SR Mobile Concept — Analisy</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-font-smoothing:antialiased; }
+body {
+  background: #0a0a0f;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 48px;
+  padding: 40px 24px 80px;
+  min-height: 100vh;
+  flex-wrap: wrap;
+}
+
+/* ── Phone frame ── */
+.phone-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.phone-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+}
+.phone {
+  width: 375px;
+  height: 812px;
+  background: #000;
+  border-radius: 48px;
+  border: 8px solid #1c1c1e;
+  overflow: hidden;
+  position: relative;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.08),
+    0 40px 80px rgba(0,0,0,0.8),
+    inset 0 0 0 1px rgba(255,255,255,0.04);
+}
+
+/* ── Notch ── */
+.notch {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 28px;
+  background: #1c1c1e;
+  border-radius: 0 0 20px 20px;
+  z-index: 100;
+}
+
+/* ── Screen ── */
+.screen {
+  width: 100%; height: 100%;
+  background: #000;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ═══════════════════════════════════════
+   SCREEN A — Default: Mappa + Scroll
+═══════════════════════════════════════ */
+.sr-screen {
+  width: 100%; height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #000;
+  position: absolute;
+  top: 0; left: 0;
+  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+              opacity 0.3s ease;
+}
+.sr-screen.hidden { transform: translateX(-100%); opacity: 0; }
+.sr-screen.slide-right { transform: translateX(100%); opacity: 0; }
+
+/* Status bar */
+.status-bar {
+  height: 44px;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 0 24px 8px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+.status-time { font-size: 0.9rem; font-weight: 700; }
+.status-icons { display: flex; align-items: center; gap: 6px; }
+.status-icons svg { opacity: 0.9; }
+
+/* Navbar compatta */
+.mob-nav {
+  height: 44px;
+  display: flex; align-items: center;
+  padding: 0 18px;
+  gap: 12px;
+  flex-shrink: 0;
+  position: relative; z-index: 10;
+}
+.mob-nav-logo {
+  font-size: 1.05rem; font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #e8344e, #ff6b6b);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.mob-nav-badge {
+  font-size: 0.55rem; font-weight: 700; letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.3); text-transform: uppercase;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 2px 6px; border-radius: 4px; margin-top: 1px;
+}
+.mob-nav-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.mob-avatar {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: #e8344e; color: #fff;
+  font-size: 0.65rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ── HERO MAP CARD ── */
+.map-hero {
+  margin: 6px 14px 0;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.map-hero:active { transform: scale(0.98); }
+.map-bg {
+  width: 100%; height: 210px;
+  background:
+    radial-gradient(ellipse at 30% 40%, rgba(232,52,78,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 60%, rgba(57,255,20,0.08) 0%, transparent 50%),
+    linear-gradient(160deg, #0a0f1a 0%, #060a10 100%);
+  position: relative;
+  overflow: hidden;
+}
+/* Fake map grid */
+.map-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+/* Map markers */
+.map-dot {
+  position: absolute; border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+.map-dot.red {
+  width: 10px; height: 10px;
+  background: #e8344e;
+  box-shadow: 0 0 0 4px rgba(232,52,78,0.25), 0 0 16px rgba(232,52,78,0.5);
+}
+.map-dot.red::after {
+  content: ''; position: absolute; inset: -8px; border-radius: 50%;
+  border: 1px solid rgba(232,52,78,0.3);
+  animation: pulse 2s ease-out infinite;
+}
+.map-dot.orange {
+  width: 8px; height: 8px;
+  background: #ff9f0a;
+  box-shadow: 0 0 0 3px rgba(255,159,10,0.2);
+}
+.map-dot.yellow {
+  width: 6px; height: 6px;
+  background: #ffd60a;
+  box-shadow: 0 0 6px rgba(255,214,10,0.4);
+}
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+/* Map overlay gradient bottom */
+.map-overlay {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
+  background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+}
+/* Map bottom info bar */
+.map-info-bar {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 10px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.map-live-pill {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(232,52,78,0.9);
+  border-radius: 20px; padding: 3px 8px;
+  font-size: 0.6rem; font-weight: 800; letter-spacing: 0.08em;
+}
+.live-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #fff; animation: blink 1s ease-in-out infinite alternate;
+}
+@keyframes blink { from { opacity: 1; } to { opacity: 0.3; } }
+.map-event-count {
+  font-size: 0.65rem; color: rgba(255,255,255,0.6); font-weight: 500;
+}
+/* Expand hint */
+.map-expand-hint {
+  position: absolute; top: 10px; right: 10px;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px; padding: 4px 8px;
+  font-size: 0.6rem; color: rgba(255,255,255,0.5);
+  display: flex; align-items: center; gap: 4px;
+  backdrop-filter: blur(8px);
+}
+
+/* ── SECTION HEADER ── */
+.section-header {
+  padding: 16px 18px 10px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.section-title {
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: rgba(255,255,255,0.4);
+}
+.section-filter {
+  display: flex; gap: 6px;
+}
+.filter-chip {
+  font-size: 0.6rem; font-weight: 600;
+  padding: 3px 8px; border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.4); cursor: pointer;
+}
+.filter-chip.active {
+  background: rgba(57,255,20,0.12);
+  border-color: rgba(57,255,20,0.3);
+  color: #39ff14;
+}
+
+/* ── SCROLL AREA ── */
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 14px 100px;
+  scrollbar-width: none;
+}
+.scroll-area::-webkit-scrollbar { display: none; }
+
+/* ── ARTICLE CARD — Spotify style ── */
+.article-card {
+  display: flex;
+  align-items: stretch;
+  background: rgba(255,255,255,0.04);
+  border-radius: 14px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.12s ease;
+  border: 1px solid rgba(255,255,255,0.05);
+  position: relative;
+}
+.article-card:active { background: rgba(255,255,255,0.08); transform: scale(0.99); }
+/* Left accent stripe (categoria) */
+.card-stripe {
+  width: 3px; flex-shrink: 0;
+  border-radius: 0; /* sharp edges on left */
+}
+.card-stripe.geo { background: linear-gradient(to bottom, #e8344e, #c2203a); }
+.card-stripe.pol { background: linear-gradient(to bottom, #0a84ff, #0066cc); }
+.card-stripe.biz { background: linear-gradient(to bottom, #ff9f0a, #cc7a00); }
+.card-stripe.tec { background: linear-gradient(to bottom, #bf5af2, #9b40d0); }
+
+/* Card content */
+.card-body {
+  flex: 1;
+  padding: 12px 12px 12px 14px;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.card-meta {
+  display: flex; align-items: center; gap: 6px;
+}
+.card-cat {
+  font-size: 0.55rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.card-cat.geo { color: #e8344e; }
+.card-cat.pol { color: #0a84ff; }
+.card-cat.biz { color: #ff9f0a; }
+.card-cat.tec { color: #bf5af2; }
+.card-ai-badge {
+  font-size: 0.5rem; font-weight: 700;
+  background: rgba(57,255,20,0.12);
+  color: #39ff14;
+  padding: 1px 5px; border-radius: 4px;
+  letter-spacing: 0.06em;
+}
+.card-time {
+  font-size: 0.55rem; color: rgba(255,255,255,0.25);
+  margin-left: auto;
+}
+.card-title {
+  font-size: 0.82rem; font-weight: 600;
+  line-height: 1.3;
+  color: rgba(255,255,255,0.9);
+}
+.card-excerpt {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.38);
+  line-height: 1.4;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+/* Right: read time + arrow */
+.card-right {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 12px 12px 12px 0;
+  gap: 8px;
+}
+.card-read-time {
+  font-size: 0.55rem; color: rgba(255,255,255,0.2); font-weight: 500;
+  white-space: nowrap;
+}
+.card-arrow {
+  color: rgba(255,255,255,0.15);
+}
+
+/* ── SCENARI CARDS (horizontal scroll) ── */
+.scenari-scroll {
+  display: flex; gap: 10px;
+  overflow-x: auto; padding: 0 14px 2px;
+  scrollbar-width: none; flex-shrink: 0;
+}
+.scenari-scroll::-webkit-scrollbar { display: none; }
+.scenari-card {
+  flex-shrink: 0; width: 160px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px; padding: 14px;
+  cursor: pointer; transition: background 0.15s;
+}
+.scenari-card:active { background: rgba(255,255,255,0.08); }
+.scenari-card-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 10px;
+}
+.scenari-card-title {
+  font-size: 0.72rem; font-weight: 600; line-height: 1.3;
+  color: rgba(255,255,255,0.85); margin-bottom: 4px;
+}
+.scenari-card-mag {
+  display: flex; gap: 2px; margin-top: 8px;
+}
+.mag-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.12); }
+.mag-dot.filled { background: #e8344e; }
+
+/* ── BOTTOM NAV — Spotify style ── */
+.bottom-nav {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 82px;
+  background: rgba(10,10,14,0.95);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255,255,255,0.07);
+  display: flex; align-items: flex-start;
+  padding-top: 10px;
+  z-index: 50;
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+  cursor: pointer; transition: opacity 0.15s;
+  padding: 2px 0;
+}
+.nav-item.active .nav-label { color: #fff; }
+.nav-item.active svg { opacity: 1; }
+.nav-item svg { opacity: 0.35; transition: opacity 0.15s; }
+.nav-label {
+  font-size: 0.55rem; font-weight: 600;
+  color: rgba(255,255,255,0.35); letter-spacing: 0.02em;
+  transition: color 0.15s;
+}
+.nav-item.active .nav-dot { opacity: 1; }
+.nav-dot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: #fff; opacity: 0; margin-top: 0;
+  transition: opacity 0.15s;
+}
+
+/* ═══════════════════════════════════════
+   SCREEN B — Mappa full screen
+═══════════════════════════════════════ */
+.map-fullscreen {
+  position: absolute; inset: 0; z-index: 200;
+  background: #000;
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  display: flex; flex-direction: column;
+}
+.map-fullscreen.open { transform: translateY(0); }
+
+.mapfs-bg {
+  flex: 1;
+  background:
+    radial-gradient(ellipse at 25% 35%, rgba(232,52,78,0.2) 0%, transparent 55%),
+    radial-gradient(ellipse at 65% 55%, rgba(57,255,20,0.08) 0%, transparent 45%),
+    radial-gradient(ellipse at 80% 20%, rgba(10,132,255,0.1) 0%, transparent 40%),
+    linear-gradient(160deg, #060c1a 0%, #020508 100%);
+  position: relative; overflow: hidden;
+}
+.mapfs-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+/* Fake routes on full map */
+.map-route {
+  position: absolute;
+  border-top: 1px dashed;
+  transform-origin: left center;
+  opacity: 0.25;
+}
+.mapfs-close {
+  position: absolute; top: 54px; right: 16px;
+  width: 32px; height: 32px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 10; backdrop-filter: blur(8px);
+  color: rgba(255,255,255,0.8); font-size: 0;
+}
+/* Selected event panel (slides from bottom) */
+.mapfs-event-panel {
+  background: rgba(12,12,16,0.96);
+  border-radius: 20px 20px 0 0;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 14px 18px 36px;
+  backdrop-filter: blur(20px);
+}
+.mapfs-event-handle {
+  width: 36px; height: 4px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  margin: 0 auto 14px;
+}
+.mapfs-event-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: #e8344e;
+  margin-bottom: 6px;
+}
+.mapfs-event-dot { width: 6px; height: 6px; border-radius: 50%; background: #e8344e; }
+.mapfs-event-title {
+  font-size: 0.92rem; font-weight: 700; line-height: 1.3;
+  color: rgba(255,255,255,0.92); margin-bottom: 8px;
+}
+.mapfs-event-desc {
+  font-size: 0.7rem; color: rgba(255,255,255,0.4); line-height: 1.5;
+  margin-bottom: 12px;
+}
+.mapfs-event-actions {
+  display: flex; gap: 8px;
+}
+.mapfs-btn {
+  flex: 1; height: 36px; border-radius: 10px;
+  font-size: 0.72rem; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border: none; font-family: inherit;
+}
+.mapfs-btn.primary { background: #e8344e; color: #fff; }
+.mapfs-btn.secondary {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.6);
+}
+
+/* ═══════════════════════════════════════
+   SCREEN C — Articolo full screen
+═══════════════════════════════════════ */
+.article-fullscreen {
+  position: absolute; inset: 0; z-index: 200;
+  background: #000;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.article-fullscreen.open { transform: translateX(0); }
+
+.artfs-hero {
+  height: 240px; flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+.artfs-hero-bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, #1a0510 0%, #0a0014 50%, #000a1a 100%);
+}
+.artfs-hero-glow {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 40% 60%, rgba(232,52,78,0.35) 0%, transparent 65%);
+}
+.artfs-hero-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.artfs-back {
+  position: absolute; top: 52px; left: 16px;
+  width: 32px; height: 32px;
+  background: rgba(0,0,0,0.5); border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.12);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; backdrop-filter: blur(8px);
+}
+.artfs-hero-content {
+  position: absolute; bottom: 16px; left: 18px; right: 18px;
+}
+.artfs-cat {
+  font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #e8344e;
+  display: flex; align-items: center; gap: 5px; margin-bottom: 8px;
+}
+.artfs-hero-title {
+  font-size: 1.15rem; font-weight: 800; line-height: 1.25;
+  color: #fff; letter-spacing: -0.02em;
+}
+.artfs-body {
+  flex: 1; overflow-y: auto; padding: 18px 18px 40px;
+  scrollbar-width: none;
+}
+.artfs-body::-webkit-scrollbar { display: none; }
+.artfs-subtitle {
+  font-size: 0.82rem; font-weight: 500;
+  color: rgba(255,255,255,0.55); line-height: 1.5;
+  margin-bottom: 16px; padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.artfs-meta {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px;
+}
+.artfs-author-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(57,255,20,0.08);
+  border: 1px solid rgba(57,255,20,0.15);
+  border-radius: 20px; padding: 4px 10px;
+}
+.artfs-author-dot { width: 5px; height: 5px; border-radius: 50%; background: #39ff14; }
+.artfs-author-name { font-size: 0.6rem; font-weight: 600; color: #39ff14; }
+.artfs-read-time { font-size: 0.6rem; color: rgba(255,255,255,0.25); }
+.artfs-text-block {
+  font-size: 0.78rem; line-height: 1.7;
+  color: rgba(255,255,255,0.65);
+}
+.artfs-text-block p { margin-bottom: 12px; }
+.artfs-text-block p:first-child {
+  font-size: 0.85rem; color: rgba(255,255,255,0.8); font-weight: 400;
+}
+
+/* ── Desc pagina ── */
+.page-desc {
+  text-align: center;
+  max-width: 340px;
+}
+.page-desc h2 {
+  font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+.page-desc p {
+  font-size: 0.8rem; color: rgba(255,255,255,0.4); line-height: 1.6;
+}
+
+/* Page title top */
+.concept-title {
+  width: 100%; text-align: center;
+  padding-bottom: 8px;
+}
+.concept-title h1 {
+  font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #fff 40%, rgba(255,255,255,0.4));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 6px;
+}
+.concept-title p { font-size: 0.8rem; color: rgba(255,255,255,0.35); }
+</style>
+</head>
+<body>
+
+<div class="concept-title">
+  <h1>Situation Room — Mobile Concept</h1>
+  <p>Ispirato a Spotify · Tap sulle card per interagire</p>
+</div>
+
+<!-- ════════════════════════════
+     PHONE 1 — Home / Feed
+════════════════════════════ -->
+<div class="phone-wrap">
+  <div class="phone-label">Schermata principale</div>
+  <div class="phone" id="phone1">
+    <div class="notch"></div>
+    <div class="screen">
+
+      <!-- MAP FULLSCREEN OVERLAY -->
+      <div class="map-fullscreen" id="mapFullscreen">
+        <div class="mapfs-bg">
+          <div class="mapfs-grid"></div>
+          <!-- Routes -->
+          <div class="map-route" style="top:35%;left:15%;width:200px;transform:rotate(15deg);border-color:#39ff14;"></div>
+          <div class="map-route" style="top:50%;left:30%;width:160px;transform:rotate(-8deg);border-color:#0a84ff;"></div>
+          <div class="map-route" style="top:42%;left:50%;width:140px;transform:rotate(22deg);border-color:#e8344e;"></div>
+          <!-- Dots -->
+          <div class="map-dot red" style="top:38%;left:32%;"></div>
+          <div class="map-dot red" style="top:52%;left:62%;"></div>
+          <div class="map-dot orange" style="top:28%;left:55%;"></div>
+          <div class="map-dot orange" style="top:60%;left:40%;"></div>
+          <div class="map-dot yellow" style="top:45%;left:75%;"></div>
+          <div class="map-dot yellow" style="top:70%;left:22%;"></div>
+        </div>
+        <button class="mapfs-close" onclick="closeMap()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <!-- Event panel -->
+        <div class="mapfs-event-panel">
+          <div class="mapfs-event-handle"></div>
+          <div class="mapfs-event-tag"><div class="mapfs-event-dot"></div>GEOPOLITICA · CRITICO</div>
+          <div class="mapfs-event-title">Escalation nello Stretto di Hormuz — Iran mobilita flotta</div>
+          <div class="mapfs-event-desc">Teheran dispone 12 unità navali nelle acque contese. USA risponde con la portaerei Lincoln nel Golfo Persico.</div>
+          <div class="mapfs-event-actions">
+            <button class="mapfs-btn primary">Leggi scenario</button>
+            <button class="mapfs-btn secondary">Fonte</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ARTICLE FULLSCREEN OVERLAY -->
+      <div class="article-fullscreen" id="articleFullscreen">
+        <div class="artfs-hero">
+          <div class="artfs-hero-bg"></div>
+          <div class="artfs-hero-glow"></div>
+          <div class="artfs-hero-grid"></div>
+          <button class="artfs-back" onclick="closeArticle()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div class="artfs-hero-content">
+            <div class="artfs-cat">
+              <div style="width:5px;height:5px;border-radius:50%;background:#e8344e;"></div>
+              Geopolitica
+            </div>
+            <div class="artfs-hero-title">Escalation nello Stretto di Hormuz: Iran mobilita flotta nel Golfo Persico</div>
+          </div>
+        </div>
+        <div class="artfs-body">
+          <div class="artfs-subtitle">Teheran ha dispiegato 12 unità navali nelle acque contese mentre gli USA rispondono con la portaerei Lincoln. Rischio chiusura dello stretto per il 20% del petrolio mondiale.</div>
+          <div class="artfs-meta">
+            <div class="artfs-author-pill">
+              <div class="artfs-author-dot"></div>
+              <span class="artfs-author-name">AI Intelligence · Analisy</span>
+            </div>
+            <span class="artfs-read-time">4 min lettura</span>
+          </div>
+          <div class="artfs-text-block">
+            <p>La tensione nello Stretto di Hormuz ha raggiunto livelli critici nelle ultime ore, con la Marina iraniana che ha dispiegato un contingente navale significativo nelle acque strategicamente vitali del Golfo Persico.</p>
+            <p>Lo stretto rappresenta il passaggio obbligato per circa il 20% del commercio petrolifero mondiale. Una sua chiusura anche temporanea provocherebbe un'impennata immediata dei prezzi del greggio sui mercati internazionali.</p>
+            <p>Gli attori regionali osservano con preoccupazione l'escalation, mentre i canali diplomatici lavorano silenziosamente per evitare un'ulteriore degenerazione della crisi.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN SCREEN -->
+      <div class="sr-screen" id="mainScreen">
+        <!-- Status bar -->
+        <div class="status-bar">
+          <span class="status-time">9:41</span>
+          <div class="status-icons">
+            <svg width="14" height="10" viewBox="0 0 14 10"><rect x="0" y="4" width="2" height="6" rx="1" fill="white"/><rect x="3" y="2.5" width="2" height="7.5" rx="1" fill="white"/><rect x="6" y="1" width="2" height="9" rx="1" fill="white"/><rect x="9" y="0" width="2" height="10" rx="1" fill="white" opacity="0.3"/></svg>
+            <svg width="16" height="10" viewBox="0 0 16 10" fill="none"><rect x="0.5" y="0.5" width="13" height="9" rx="2" stroke="white" stroke-opacity="0.35"/><rect x="14" y="3" width="2" height="4" rx="1" fill="white" fill-opacity="0.4"/><rect x="1.5" y="1.5" width="9" height="7" rx="1" fill="white"/></svg>
+          </div>
+        </div>
+
+        <!-- Navbar -->
+        <div class="mob-nav">
+          <span class="mob-nav-logo">ANALISY</span>
+          <span class="mob-nav-badge">SITUATION ROOM</span>
+          <div class="mob-nav-right">
+            <div class="mob-avatar">M</div>
+          </div>
+        </div>
+
+        <!-- Map Hero -->
+        <div class="map-hero" onclick="openMap()">
+          <div class="map-bg">
+            <div class="map-grid"></div>
+            <div class="map-dot red" style="top:42%;left:35%;"></div>
+            <div class="map-dot red" style="top:55%;left:65%;"></div>
+            <div class="map-dot orange" style="top:30%;left:58%;"></div>
+            <div class="map-dot orange" style="top:62%;left:42%;"></div>
+            <div class="map-dot yellow" style="top:48%;left:78%;"></div>
+            <div class="map-overlay"></div>
+            <div class="map-expand-hint">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+              Espandi
+            </div>
+            <div class="map-info-bar">
+              <div class="map-live-pill"><div class="live-dot"></div>LIVE</div>
+              <span class="map-event-count">8 eventi attivi · aggiornato ora</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scenari section -->
+        <div class="section-header">
+          <span class="section-title">Scenari in evoluzione</span>
+          <div class="section-filter">
+            <span class="filter-chip active">Tutti</span>
+            <span class="filter-chip">Geo</span>
+            <span class="filter-chip">Biz</span>
+          </div>
+        </div>
+
+        <!-- Scenari horizontal scroll -->
+        <div class="scenari-scroll">
+          <div class="scenari-card">
+            <div class="scenari-card-icon" style="background:rgba(232,52,78,0.15);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e8344e" stroke-width="2" stroke-linecap="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+            </div>
+            <div class="scenari-card-title">Stretto di Hormuz — Escalation navale</div>
+            <div class="scenari-card-mag">
+              <div class="mag-dot filled"></div><div class="mag-dot filled"></div>
+              <div class="mag-dot filled"></div><div class="mag-dot filled"></div>
+            </div>
+          </div>
+          <div class="scenari-card">
+            <div class="scenari-card-icon" style="background:rgba(10,132,255,0.15);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0a84ff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </div>
+            <div class="scenari-card-title">Taiwan — Manovre militari cinesi</div>
+            <div class="scenari-card-mag">
+              <div class="mag-dot filled"></div><div class="mag-dot filled"></div>
+              <div class="mag-dot filled"></div><div class="mag-dot"></div>
+            </div>
+          </div>
+          <div class="scenari-card">
+            <div class="scenari-card-icon" style="background:rgba(255,159,10,0.15);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff9f0a" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div class="scenari-card-title">Dazi USA-Cina — Guerra commerciale</div>
+            <div class="scenari-card-mag">
+              <div class="mag-dot filled"></div><div class="mag-dot filled"></div>
+              <div class="mag-dot filled"></div><div class="mag-dot"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Articles section -->
+        <div class="section-header" style="padding-top:14px;">
+          <span class="section-title">Flash Update</span>
+        </div>
+
+        <!-- Scroll articles -->
+        <div class="scroll-area">
+
+          <div class="article-card" onclick="openArticle()">
+            <div class="card-stripe geo"></div>
+            <div class="card-body">
+              <div class="card-meta">
+                <span class="card-cat geo">Geopolitica</span>
+                <span class="card-ai-badge">AI</span>
+                <span class="card-time">2 min fa</span>
+              </div>
+              <div class="card-title">Iran mobilita flotta nello Stretto di Hormuz</div>
+              <div class="card-excerpt">Teheran dispone 12 unità navali. USA risponde con la portaerei Lincoln nel Golfo Persico.</div>
+            </div>
+            <div class="card-right">
+              <span class="card-read-time">4 min</span>
+              <svg class="card-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+
+          <div class="article-card">
+            <div class="card-stripe pol"></div>
+            <div class="card-body">
+              <div class="card-meta">
+                <span class="card-cat pol">Politica</span>
+                <span class="card-ai-badge">AI</span>
+                <span class="card-time">18 min fa</span>
+              </div>
+              <div class="card-title">Elezioni in Corea del Sud — risultati serrata</div>
+              <div class="card-excerpt">Il partito di opposizione ottiene il 48% nelle proiezioni preliminari, sfida aperta.</div>
+            </div>
+            <div class="card-right">
+              <span class="card-read-time">4 min</span>
+              <svg class="card-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+
+          <div class="article-card">
+            <div class="card-stripe biz"></div>
+            <div class="card-body">
+              <div class="card-meta">
+                <span class="card-cat biz">Business</span>
+                <span class="card-ai-badge">AI</span>
+                <span class="card-time">45 min fa</span>
+              </div>
+              <div class="card-title">Dazi USA-Cina salgono al 145% — mercati in rosso</div>
+              <div class="card-excerpt">Shanghai perde il 3.2%, futures europei in caduta. Fed valuta intervento d'emergenza.</div>
+            </div>
+            <div class="card-right">
+              <span class="card-read-time">4 min</span>
+              <svg class="card-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+
+          <div class="article-card" style="border-color:rgba(255,214,10,0.15);background:rgba(255,214,10,0.04);">
+            <div class="card-stripe" style="background:linear-gradient(to bottom,#ffd60a,#cc9900);"></div>
+            <div class="card-body">
+              <div class="card-meta">
+                <span class="card-cat" style="color:#ffd60a;">⭐ Premium</span>
+                <span class="card-time">1 ora fa</span>
+              </div>
+              <div class="card-title">Analisi esclusiva: scenari post-conflitto in Medio Oriente</div>
+              <div class="card-excerpt">Intelligence briefing completo sui quattro scenari geopolitici per i prossimi 6 mesi.</div>
+            </div>
+            <div class="card-right">
+              <span class="card-read-time">8 min</span>
+              <svg class="card-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,214,10,0.5)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+
+          <div class="article-card">
+            <div class="card-stripe tec"></div>
+            <div class="card-body">
+              <div class="card-meta">
+                <span class="card-cat tec">Tecnologia</span>
+                <span class="card-ai-badge">AI</span>
+                <span class="card-time">2 ore fa</span>
+              </div>
+              <div class="card-title">Cyberattacco alle infrastrutture ucraine — Sandworm</div>
+              <div class="card-excerpt">Gruppo russo colpisce rete elettrica di tre regioni. Kiev attiva protocolli di emergenza.</div>
+            </div>
+            <div class="card-right">
+              <span class="card-read-time">4 min</span>
+              <svg class="card-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+
+        </div><!-- /scroll-area -->
+
+        <!-- Bottom Nav -->
+        <div class="bottom-nav">
+          <div class="nav-item active">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+            <span class="nav-label">Scenari</span>
+            <div class="nav-dot"></div>
+          </div>
+          <div class="nav-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 10h10M4 14h16M4 18h10"/></svg>
+            <span class="nav-label">Articoli</span>
+            <div class="nav-dot"></div>
+          </div>
+          <div class="nav-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+            <span class="nav-label">Live</span>
+            <div class="nav-dot"></div>
+          </div>
+          <div class="nav-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M6.6 18.4a9 9 0 1 1 10.8 0"/></svg>
+            <span class="nav-label">Podcast</span>
+            <div class="nav-dot"></div>
+          </div>
+          <div class="nav-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span class="nav-label">Forum</span>
+            <div class="nav-dot"></div>
+          </div>
+        </div>
+
+      </div><!-- /sr-screen -->
+    </div><!-- /screen -->
+  </div><!-- /phone -->
+
+  <div class="page-desc">
+    <h2>Home Feed</h2>
+    <p>Mappa hero compatta in cima.<br>
+    Tap → si espande a schermo intero.<br>
+    Scenari in scroll orizzontale.<br>
+    Articoli impilati a tutta larghezza.<br>
+    Nav bar fissa in basso.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════
+     PHONE 2 — Mappa full screen
+════════════════════════════ -->
+<div class="phone-wrap">
+  <div class="phone-label">Mappa espansa</div>
+  <div class="phone" id="phone2">
+    <div class="notch"></div>
+    <div class="screen">
+      <div style="width:100%;height:100%;display:flex;flex-direction:column;background:#000;">
+        <!-- Map full -->
+        <div style="flex:1;position:relative;overflow:hidden;">
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 25% 35%, rgba(232,52,78,0.2) 0%, transparent 55%),radial-gradient(ellipse at 65% 55%, rgba(57,255,20,0.08) 0%, transparent 45%),linear-gradient(160deg,#060c1a 0%,#020508 100%);"></div>
+          <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:32px 32px;"></div>
+          <!-- Routes -->
+          <div style="position:absolute;top:38%;left:18%;width:180px;border-top:1px dashed rgba(57,255,20,0.3);transform:rotate(12deg);"></div>
+          <div style="position:absolute;top:50%;left:35%;width:150px;border-top:1px dashed rgba(10,132,255,0.3);transform:rotate(-6deg);"></div>
+          <div style="position:absolute;top:44%;left:52%;width:130px;border-top:1px dashed rgba(232,52,78,0.3);transform:rotate(20deg);"></div>
+          <!-- Dots -->
+          <div class="map-dot red" style="top:40%;left:34%;"></div>
+          <div class="map-dot red" style="top:54%;left:64%;"></div>
+          <div class="map-dot orange" style="top:29%;left:57%;"></div>
+          <div class="map-dot orange" style="top:61%;left:41%;"></div>
+          <div class="map-dot yellow" style="top:47%;left:76%;"></div>
+          <div class="map-dot yellow" style="top:68%;left:23%;"></div>
+          <!-- Status bar -->
+          <div style="position:absolute;top:0;left:0;right:0;height:44px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 24px 8px;z-index:10;">
+            <span style="font-size:0.9rem;font-weight:700;">9:41</span>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <svg width="14" height="10" viewBox="0 0 14 10"><rect x="0" y="4" width="2" height="6" rx="1" fill="white"/><rect x="3" y="2.5" width="2" height="7.5" rx="1" fill="white"/><rect x="6" y="1" width="2" height="9" rx="1" fill="white"/></svg>
+              <svg width="16" height="10" viewBox="0 0 16 10" fill="none"><rect x="0.5" y="0.5" width="13" height="9" rx="2" stroke="white" stroke-opacity="0.35"/><rect x="14" y="3" width="2" height="4" rx="1" fill="white" fill-opacity="0.4"/><rect x="1.5" y="1.5" width="9" height="7" rx="1" fill="white"/></svg>
+            </div>
+          </div>
+          <!-- Close btn -->
+          <div style="position:absolute;top:52px;right:16px;width:32px;height:32px;background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </div>
+          <!-- Filter pills on map -->
+          <div style="position:absolute;top:52px;left:16px;display:flex;gap:6px;">
+            <div style="background:rgba(232,52,78,0.85);border-radius:20px;padding:4px 10px;font-size:0.58rem;font-weight:700;letter-spacing:0.06em;display:flex;align-items:center;gap:4px;">
+              <div style="width:5px;height:5px;border-radius:50%;background:#fff;"></div>
+              LIVE
+            </div>
+            <div style="background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:4px 10px;font-size:0.58rem;font-weight:600;color:rgba(255,255,255,0.7);backdrop-filter:blur(8px);">8 eventi</div>
+          </div>
+        </div>
+        <!-- Event panel bottom -->
+        <div style="background:rgba(8,8,12,0.97);border-radius:20px 20px 0 0;border-top:1px solid rgba(255,255,255,0.08);padding:14px 18px 36px;backdrop-filter:blur(20px);">
+          <div style="width:36px;height:4px;background:rgba(255,255,255,0.15);border-radius:2px;margin:0 auto 14px;"></div>
+          <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#e8344e;display:flex;align-items:center;gap:5px;margin-bottom:6px;">
+            <div style="width:6px;height:6px;border-radius:50%;background:#e8344e;"></div>
+            GEOPOLITICA · MAG 4
+          </div>
+          <div style="font-size:0.92rem;font-weight:700;line-height:1.3;color:rgba(255,255,255,0.92);margin-bottom:8px;">Iran mobilita flotta nello Stretto di Hormuz</div>
+          <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);line-height:1.5;margin-bottom:12px;">Teheran dispone 12 unità navali. USA risponde con la portaerei Lincoln nel Golfo Persico.</div>
+          <div style="display:flex;gap:8px;">
+            <button style="flex:1;height:36px;border-radius:10px;background:#e8344e;color:#fff;font-size:0.72rem;font-weight:600;border:none;cursor:pointer;font-family:inherit;">Leggi scenario</button>
+            <button style="flex:1;height:36px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);font-size:0.72rem;font-weight:600;cursor:pointer;font-family:inherit;">Fonte →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-desc">
+    <h2>Mappa espansa</h2>
+    <p>Tap sulla mappa → full screen.<br>
+    Tap su un marker → evento nel pannello inferiore.<br>
+    Filtri flottanti sulla mappa.<br>
+    Swipe down per tornare al feed.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════
+     PHONE 3 — Articolo full screen
+════════════════════════════ -->
+<div class="phone-wrap">
+  <div class="phone-label">Articolo aperto</div>
+  <div class="phone" id="phone3">
+    <div class="notch"></div>
+    <div class="screen">
+      <div style="width:100%;height:100%;display:flex;flex-direction:column;background:#000;overflow:hidden;">
+        <!-- Hero -->
+        <div style="height:240px;flex-shrink:0;position:relative;overflow:hidden;">
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg,#1a0510 0%,#0a0014 50%,#000a1a 100%);"></div>
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 40% 60%, rgba(232,52,78,0.35) 0%, transparent 65%);"></div>
+          <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:24px 24px;"></div>
+          <!-- Back btn -->
+          <div style="position:absolute;top:52px;left:16px;width:32px;height:32px;background:rgba(0,0,0,0.5);border-radius:50%;border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </div>
+          <div style="position:absolute;bottom:16px;left:18px;right:18px;">
+            <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e8344e;display:flex;align-items:center;gap:5px;margin-bottom:8px;">
+              <div style="width:5px;height:5px;border-radius:50%;background:#e8344e;"></div>
+              Geopolitica
+            </div>
+            <div style="font-size:1.1rem;font-weight:800;line-height:1.25;color:#fff;letter-spacing:-0.02em;">Escalation nello Stretto di Hormuz: Iran mobilita flotta nel Golfo Persico</div>
+          </div>
+        </div>
+        <!-- Body -->
+        <div style="flex:1;overflow-y:auto;padding:18px 18px 40px;scrollbar-width:none;">
+          <div style="font-size:0.82rem;font-weight:500;color:rgba(255,255,255,0.55);line-height:1.5;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.07);">Teheran ha dispiegato 12 unità navali nelle acque contese mentre gli USA rispondono con la portaerei Lincoln.</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+            <div style="display:flex;align-items:center;gap:6px;background:rgba(57,255,20,0.08);border:1px solid rgba(57,255,20,0.15);border-radius:20px;padding:4px 10px;">
+              <div style="width:5px;height:5px;border-radius:50%;background:#39ff14;"></div>
+              <span style="font-size:0.6rem;font-weight:600;color:#39ff14;">AI Intelligence · Analisy</span>
+            </div>
+            <span style="font-size:0.6rem;color:rgba(255,255,255,0.25);">4 min</span>
+          </div>
+          <div style="font-size:0.78rem;line-height:1.7;color:rgba(255,255,255,0.6);">
+            <p style="font-size:0.85rem;color:rgba(255,255,255,0.8);margin-bottom:12px;">La tensione nello Stretto di Hormuz ha raggiunto livelli critici nelle ultime ore, con la Marina iraniana che ha dispiegato un contingente navale nel Golfo Persico.</p>
+            <p style="margin-bottom:12px;">Lo stretto rappresenta il passaggio obbligato per circa il 20% del commercio petrolifero mondiale. Una sua chiusura anche temporanea provocherebbe un'impennata dei prezzi del greggio.</p>
+            <p style="margin-bottom:12px;">Washington ha risposto mobilitando la portaerei USS Abraham Lincoln e due cacciatorpediniere nell'area. Il Pentagono ha definito la situazione "monitorata con la massima attenzione".</p>
+            <p style="color:rgba(255,255,255,0.4);">Gli attori regionali osservano con preoccupazione l'escalation, mentre i canali diplomatici lavorano silenziosamente per evitare ulteriori degenerazioni della crisi.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-desc">
+    <h2>Articolo aperto</h2>
+    <p>Hero immersivo con glow di categoria.<br>
+    Testo a tutto schermo, scroll fluido.<br>
+    Badge AI verde + tempo di lettura.<br>
+    Swipe left per tornare al feed.</p>
+  </div>
+</div>
+
+<script>
+function openMap() {
+  document.getElementById('mapFullscreen').style.transform = 'translateY(0)';
+}
+function closeMap() {
+  document.getElementById('mapFullscreen').style.transform = 'translateY(100%)';
+}
+function openArticle() {
+  document.getElementById('articleFullscreen').style.transform = 'translateX(0)';
+}
+function closeArticle() {
+  document.getElementById('articleFullscreen').style.transform = 'translateX(100%)';
+}
+</script>
+</body>
+</html>

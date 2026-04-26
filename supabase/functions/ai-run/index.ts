@@ -153,23 +153,26 @@ async function analyzeWithClaude(articles: NewsArticle[]): Promise<MapEvent[]> {
     throw new Error(`ANTHROPIC_API_KEY formato non valido: inizia con "${apiKey.slice(0, 10)}"`);
   }
 
-  // Prendi i 20 titoli più recenti con fonte e data
-  const headlines = articles
-    .slice(0, 20)
-    .map((a, i) => `${i + 1}. [${a.source}] ${a.title}`)
+  // Prendi i 20 articoli più recenti — passa titolo + URL reale a Claude
+  const top = articles.slice(0, 20);
+  const headlines = top
+    .map((a, i) => `${i + 1}. [${a.source}] ${a.title}\n   URL: ${a.url}`)
     .join('\n');
 
   const today = new Date().toISOString().slice(0, 10);
 
   const prompt = `Sei un sistema di intelligence geopolitica. Analizza SOLO queste notizie reali di OGGI (${today}) e seleziona i 5 eventi più rilevanti geopoliticamente.
 
-NOTIZIE (fonti: BBC, Reuters, Al Jazeera, NYT, The Guardian):
+NOTIZIE con URL reali (fonti: BBC, Reuters, Al Jazeera, NYT, The Guardian):
 ${headlines}
 
-IMPORTANTE: Usa ESCLUSIVAMENTE le informazioni presenti nelle notizie sopra. Non aggiungere fatti dal tuo training. Ogni evento deve riflettere esattamente ciò che è riportato nelle notizie.
+REGOLE FONDAMENTALI:
+1. Usa ESCLUSIVAMENTE le informazioni presenti nelle notizie sopra — zero fatti dal training
+2. Per "source_url" usa ESATTAMENTE l'URL fornito accanto alla notizia scelta — non inventare URL
+3. Ogni evento deve corrispondere a una notizia specifica della lista
 
 Rispondi SOLO con un array JSON, senza markdown, senza testo extra. Ogni oggetto:
-{"title":"max 60 car in italiano","description":"max 120 car in italiano","lat":0.0,"lng":0.0,"category":"geopolitica|politica|business|tecnologia","magnitude":1|2|3|4,"ai_summary":"max 200 car in italiano basato sulla notizia","ai_brief":"2-3 frasi di contesto in italiano basate sulla notizia","source_url":"url dalla notizia","relevance_score":0-100,"expires_at":"${today}"}
+{"title":"max 60 car in italiano","description":"max 120 car in italiano","lat":0.0,"lng":0.0,"category":"geopolitica|politica|business|tecnologia","magnitude":1|2|3|4,"ai_summary":"max 200 car in italiano basato sulla notizia","ai_brief":"2-3 frasi di contesto in italiano basate sulla notizia","source_url":"URL ESATTO dalla lista sopra","relevance_score":0-100,"expires_at":"${today}"}
 
 Regole:
 - Categoria: geopolitica=guerre/conflitti/tensioni tra stati, politica=elezioni/governi/proteste, business=economia/sanzioni/energia, tecnologia=cyber/AI/spazio

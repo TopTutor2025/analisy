@@ -890,6 +890,479 @@
       .sr-mob-sheet-fab { display: flex !important; }
       .sr-mob-bottom-sheet { display: block !important; }
     }
+  /* ═══════════════════════════════════════════
+   MOBILE v2 — Spotify Layout (≤768px)
+═══════════════════════════════════════════ */
+
+/* Elementi mobile v2 — nascosti su desktop */
+#mob-top-bar,
+#mob-scenari-section,
+#mob-content-area,
+#mob-bottom-nav,
+#mob-map-fs,
+#mob-art-reader { display: none; }
+
+@media (max-width: 768px) {
+
+  /* ── Nascondi tutto il vecchio layout mobile ── */
+  :root { --announce-h: 0px; }
+  .sr-announce-bar  { display: none !important; }
+  .sr-navbar        { display: none !important; }
+  .ticker-wrap      { display: none !important; }
+  .sr-toolnav       { display: none !important; }
+  .sr-mobile-tabs   { display: none !important; }
+  .sr-mob-bottom-sheet, .sr-mob-sheet-overlay { display: none !important; }
+  .sr-mob-sheet-fab { display: none !important; }
+  .sr-mobile-menu   { display: none !important; }
+  .map-unified-panel { display: none !important; }
+  .admin-map-fab    { display: none !important; }
+
+  /* Nascondi la vecchia struttura grid/colonne */
+  .sr-grid { display: none !important; }
+  .sr-map-wrapper { margin-top: 52px !important; }
+
+  /* ── Mappa restyled come hero card ── */
+  .sr-map-row {
+    height: 218px !important;
+    min-height: unset !important;
+    padding: 0 14px !important;
+    background: transparent !important;
+  }
+  .sr-map-section {
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    width: 100% !important;
+    height: 218px !important;
+    cursor: pointer;
+    position: relative !important;
+  }
+  .sr-map-section::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 55%);
+    pointer-events: none;
+    border-radius: 20px;
+    z-index: 400;
+  }
+
+  /* ── Top bar mobile ── */
+  #mob-top-bar {
+    display: flex !important;
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1100;
+    height: 52px;
+    background: rgba(0,0,0,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    align-items: center;
+    padding: 0 16px;
+    gap: 8px;
+  }
+  .mob-logo {
+    font-size: 1.0rem; font-weight: 800; letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #e8344e, #ff6b6b);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    flex-shrink: 0;
+  }
+  .mob-sr-badge {
+    font-size: 0.52rem; font-weight: 700; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.25); text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 2px 6px; border-radius: 4px; flex-shrink: 0;
+  }
+  #mob-nav-right {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .mob-avatar-btn {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #e8344e; color: #fff;
+    font-size: 0.72rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border: none; flex-shrink: 0; font-family: inherit;
+    text-decoration: none;
+  }
+  .mob-login-btn {
+    font-size: 0.72rem; font-weight: 600;
+    color: rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px; padding: 4px 12px;
+    cursor: pointer; font-family: inherit;
+    text-decoration: none; white-space: nowrap;
+  }
+  .mob-tutorial-btn {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(235,235,245,0.5); font-size: 0.68rem; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-family: inherit; flex-shrink: 0;
+  }
+
+  /* ── Map expand pill (sopra la mappa) ── */
+  .mob-map-expand-pill {
+    position: absolute; bottom: 10px; right: 10px; z-index: 450;
+    background: rgba(0,0,0,0.62);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 16px; padding: 4px 10px;
+    font-size: 0.6rem; font-weight: 600;
+    color: rgba(255,255,255,0.55);
+    display: flex; align-items: center; gap: 4px;
+    backdrop-filter: blur(8px);
+    cursor: pointer; pointer-events: all;
+  }
+  .mob-map-live-pill {
+    position: absolute; bottom: 10px; left: 10px; z-index: 450;
+    background: rgba(232,52,78,0.88);
+    border-radius: 16px; padding: 3px 8px;
+    font-size: 0.58rem; font-weight: 800; letter-spacing: 0.07em;
+    display: flex; align-items: center; gap: 4px;
+    pointer-events: none;
+  }
+  .mob-live-dot {
+    width: 5px; height: 5px; border-radius: 50%; background: #fff;
+    animation: mobBlink 1s ease-in-out infinite alternate;
+  }
+  @keyframes mobBlink { from { opacity: 1; } to { opacity: 0.2; } }
+
+  /* ── Scenari horizontal ── */
+  #mob-scenari-section {
+    display: block !important;
+    margin-top: 4px;
+  }
+  .mob-section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px 8px;
+  }
+  .mob-section-title {
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; color: rgba(255,255,255,0.35);
+  }
+  .mob-scenari-scroll {
+    display: flex; gap: 10px;
+    overflow-x: auto; padding: 0 14px 4px;
+    scrollbar-width: none;
+  }
+  .mob-scenari-scroll::-webkit-scrollbar { display: none; }
+  .mob-scenari-card {
+    flex-shrink: 0; width: 152px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px; padding: 13px;
+    cursor: pointer; transition: background 0.15s;
+    font-family: inherit;
+  }
+  .mob-scenari-card:active { background: rgba(255,255,255,0.08); }
+  .mob-sc-icon {
+    width: 34px; height: 34px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 9px;
+  }
+  .mob-sc-title {
+    font-size: 0.72rem; font-weight: 600; line-height: 1.3;
+    color: rgba(255,255,255,0.85); margin-bottom: 6px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .mob-sc-mag {
+    display: flex; gap: 3px; align-items: center;
+  }
+  .mob-sc-mag-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+  }
+  .mob-sc-mag-dot.on { background: #e8344e; }
+
+  /* ── Content area ── */
+  #mob-content-area {
+    display: block !important;
+    padding-bottom: 90px;
+  }
+  .mob-content-section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px 10px;
+  }
+  .mob-art-filters {
+    display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+    padding: 0 14px 10px;
+  }
+  .mob-art-filters::-webkit-scrollbar { display: none; }
+  .mob-art-filter-chip {
+    flex-shrink: 0;
+    font-size: 0.6rem; font-weight: 600;
+    padding: 4px 10px; border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.4);
+    background: none; cursor: pointer;
+    font-family: inherit; transition: all 0.15s;
+  }
+  .mob-art-filter-chip.active {
+    background: rgba(57,255,20,0.1);
+    border-color: rgba(57,255,20,0.3);
+    color: #39ff14;
+  }
+
+  /* ── Article card Spotify style ── */
+  .mob-article-card {
+    display: flex; align-items: stretch;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 14px;
+    margin: 0 14px 8px;
+    overflow: hidden; cursor: pointer;
+    transition: background 0.15s;
+    text-decoration: none;
+  }
+  .mob-article-card:active { background: rgba(255,255,255,0.08); }
+  .mob-card-stripe { width: 3px; flex-shrink: 0; }
+  .mob-card-body { flex: 1; padding: 11px 10px 11px 13px; }
+  .mob-card-meta {
+    display: flex; align-items: center; gap: 6px; margin-bottom: 5px;
+  }
+  .mob-card-cat {
+    font-size: 0.54rem; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+  .mob-card-ai {
+    font-size: 0.5rem; font-weight: 700;
+    background: rgba(57,255,20,0.12); color: #39ff14;
+    padding: 1px 5px; border-radius: 4px; letter-spacing: 0.05em;
+  }
+  .mob-card-premium {
+    font-size: 0.5rem; font-weight: 700;
+    background: rgba(255,214,10,0.12); color: #ffd60a;
+    padding: 1px 5px; border-radius: 4px;
+  }
+  .mob-card-time {
+    font-size: 0.54rem; color: rgba(255,255,255,0.22);
+    margin-left: auto;
+  }
+  .mob-card-title {
+    font-size: 0.81rem; font-weight: 600; line-height: 1.3;
+    color: rgba(255,255,255,0.88); margin-bottom: 4px;
+  }
+  .mob-card-excerpt {
+    font-size: 0.67rem; color: rgba(255,255,255,0.36); line-height: 1.4;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .mob-card-right {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 10px 12px 10px 0; gap: 6px;
+  }
+  .mob-card-readtime {
+    font-size: 0.52rem; color: rgba(255,255,255,0.18);
+    white-space: nowrap;
+  }
+
+  /* ── Bottom nav ── */
+  #mob-bottom-nav {
+    display: flex !important;
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 1100;
+    height: 80px;
+    background: rgba(8,8,12,0.96);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255,255,255,0.07);
+    align-items: flex-start;
+    padding-top: 10px;
+  }
+  .mob-nav-item {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; gap: 4px;
+    cursor: pointer; padding: 2px 0;
+    border: none; background: none; font-family: inherit;
+    transition: opacity 0.15s;
+  }
+  .mob-nav-item svg { opacity: 0.3; transition: opacity 0.15s; }
+  .mob-nav-item.active svg { opacity: 1; }
+  .mob-nav-label {
+    font-size: 0.54rem; font-weight: 600;
+    color: rgba(255,255,255,0.3); letter-spacing: 0.02em;
+    transition: color 0.15s;
+  }
+  .mob-nav-item.active .mob-nav-label { color: #fff; }
+  .mob-nav-dot {
+    width: 4px; height: 4px; border-radius: 50%;
+    background: #fff; opacity: 0; transition: opacity 0.15s;
+  }
+  .mob-nav-item.active .mob-nav-dot { opacity: 1; }
+
+  /* ── Fullscreen map overlay ── */
+  #mob-map-fs {
+    display: flex !important;
+    position: fixed; inset: 0; z-index: 1200;
+    background: #000;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  #mob-map-fs.open { transform: translateY(0); }
+  #mob-map-fs-inner {
+    flex: 1; position: relative; overflow: hidden;
+  }
+  #mob-map-fs-close {
+    position: absolute; top: 52px; right: 16px; z-index: 10;
+    width: 32px; height: 32px;
+    background: rgba(0,0,0,0.65);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; backdrop-filter: blur(8px);
+    color: rgba(255,255,255,0.7); font-size: 0;
+  }
+  #mob-map-fs-live {
+    position: absolute; top: 52px; left: 16px; z-index: 10;
+    background: rgba(232,52,78,0.9);
+    border-radius: 16px; padding: 3px 9px;
+    font-size: 0.58rem; font-weight: 800; letter-spacing: 0.07em;
+    display: flex; align-items: center; gap: 4px;
+  }
+  #mob-map-fs-panel {
+    background: rgba(8,8,12,0.97);
+    border-radius: 20px 20px 0 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 14px 18px 40px;
+  }
+  .mob-fs-handle {
+    width: 36px; height: 4px;
+    background: rgba(255,255,255,0.15); border-radius: 2px;
+    margin: 0 auto 14px;
+  }
+  .mob-fs-event-tag {
+    font-size: 0.57rem; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 5px;
+    margin-bottom: 7px;
+  }
+  .mob-fs-event-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .mob-fs-event-title {
+    font-size: 0.9rem; font-weight: 700; line-height: 1.3;
+    color: rgba(255,255,255,0.92); margin-bottom: 7px;
+  }
+  .mob-fs-event-desc {
+    font-size: 0.7rem; color: rgba(255,255,255,0.4); line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  .mob-fs-actions { display: flex; gap: 8px; }
+  .mob-fs-btn {
+    flex: 1; height: 36px; border-radius: 10px;
+    font-size: 0.72rem; font-weight: 600;
+    border: none; cursor: pointer; font-family: inherit;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mob-fs-btn.primary { background: #e8344e; color: #fff; }
+  .mob-fs-btn.secondary {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.6);
+  }
+
+  /* ── Article reader overlay ── */
+  #mob-art-reader {
+    display: flex !important;
+    position: fixed; inset: 0; z-index: 1200;
+    background: #000;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    overflow: hidden;
+  }
+  #mob-art-reader.open { transform: translateX(0); }
+  .mob-art-hero {
+    height: 230px; flex-shrink: 0; position: relative; overflow: hidden;
+  }
+  .mob-art-hero-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #1a0510 0%, #0a0014 50%, #000a1a 100%);
+  }
+  .mob-art-hero-glow {
+    position: absolute; inset: 0;
+  }
+  .mob-art-hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .mob-art-back {
+    position: absolute; top: 52px; left: 16px; z-index: 10;
+    width: 32px; height: 32px;
+    background: rgba(0,0,0,0.5); border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.12);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; backdrop-filter: blur(8px);
+    color: rgba(255,255,255,0.7); font-size: 0;
+  }
+  .mob-art-hero-content {
+    position: absolute; bottom: 16px; left: 18px; right: 18px;
+  }
+  .mob-art-cat {
+    font-size: 0.57rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 5px; margin-bottom: 8px;
+  }
+  .mob-art-cat-dot { width: 5px; height: 5px; border-radius: 50%; }
+  .mob-art-hero-title {
+    font-size: 1.1rem; font-weight: 800; line-height: 1.25;
+    color: #fff; letter-spacing: -0.02em;
+  }
+  .mob-art-body {
+    flex: 1; overflow-y: auto;
+    padding: 18px 18px 48px;
+    scrollbar-width: none;
+  }
+  .mob-art-body::-webkit-scrollbar { display: none; }
+  .mob-art-subtitle {
+    font-size: 0.82rem; color: rgba(255,255,255,0.52);
+    line-height: 1.5; margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .mob-art-meta {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+  }
+  .mob-art-author-pill {
+    display: flex; align-items: center; gap: 5px;
+    background: rgba(57,255,20,0.08);
+    border: 1px solid rgba(57,255,20,0.15);
+    border-radius: 20px; padding: 3px 9px;
+  }
+  .mob-art-author-dot { width: 5px; height: 5px; border-radius: 50%; background: #39ff14; }
+  .mob-art-author-name { font-size: 0.58rem; font-weight: 600; color: #39ff14; }
+  .mob-art-read-time { font-size: 0.58rem; color: rgba(255,255,255,0.22); }
+  .mob-art-text {
+    font-size: 0.78rem; line-height: 1.75;
+    color: rgba(255,255,255,0.62);
+  }
+  .mob-art-text p { margin-bottom: 14px; }
+  .mob-art-text p:first-child {
+    font-size: 0.85rem; color: rgba(255,255,255,0.8);
+  }
+  .mob-art-source {
+    margin-top: 20px; padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+  }
+  .mob-art-source-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 0.7rem; color: rgba(255,255,255,0.35);
+    text-decoration: none;
+  }
+
+  /* ── Empty state ── */
+  .mob-empty-state {
+    padding: 40px 20px;
+    text-align: center;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.25);
+    line-height: 1.6;
+  }
+
+  /* Panes mobili non attive: nascondi */
+  .mob-pane { display: none; }
+  .mob-pane.active { display: block; }
+}
   </style>
 </head>
 <body>
@@ -1997,6 +2470,7 @@ document.addEventListener('click', () => {
 document.addEventListener('DOMContentLoaded', async () => {
   // ★ Navbar subito — usa Auth da localStorage, non aspetta la rete
   renderSrNavbar();
+  initMobileV2();
 
   await AppData.init();
 
@@ -2919,7 +3393,495 @@ document.addEventListener('click', function(e) {
     closeSrMobileMenu();
   }
 });
+
+// ══════════════════════════════════════════════════
+//  MOBILE v2 — Spotify Layout
+// ══════════════════════════════════════════════════
+
+let mobCurrentCat = 'all';
+let mobCurrentPane = 'articles';
+
+const CAT_COLORS_MOB = {
+  geopolitica: '#e8344e',
+  politica:    '#0a84ff',
+  business:    '#ff9f0a',
+  tecnologia:  '#bf5af2',
+};
+const CAT_LABELS_MOB = {
+  geopolitica: 'Geopolitica',
+  politica:    'Politica',
+  business:    'Business',
+  tecnologia:  'Tecnologia',
+};
+
+/* ── Top bar: popola avatar / login ── */
+function renderMobTopBar() {
+  if (window.innerWidth > 768) return;
+  const user = Auth.get();
+  const right = document.getElementById('mob-nav-right');
+  if (!right) return;
+  if (user) {
+    const initial = (user.nome || 'U')[0].toUpperCase();
+    const dashHref = user.role === 'admin' ? 'admin.html' : 'dashboard.html';
+    right.innerHTML = `
+      <button class="mob-tutorial-btn" onclick="openSrTutorial()">?</button>
+      <a href="${dashHref}" class="mob-avatar-btn">${initial}</a>`;
+  } else {
+    right.innerHTML = `
+      <button class="mob-tutorial-btn" onclick="openSrTutorial()">?</button>
+      <a href="login.html" class="mob-login-btn">Accedi</a>`;
+  }
+}
+
+/* ── Mappa hero: aggiungi overlay pill ── */
+function initMobMapHero() {
+  if (window.innerWidth > 768) return;
+  const section = document.querySelector('.sr-map-section');
+  if (!section) return;
+
+  // Live pill
+  if (!section.querySelector('.mob-map-live-pill')) {
+    const live = document.createElement('div');
+    live.className = 'mob-map-live-pill';
+    live.innerHTML = '<div class="mob-live-dot"></div>LIVE';
+    section.appendChild(live);
+  }
+  // Expand pill
+  if (!section.querySelector('.mob-map-expand-pill')) {
+    const expand = document.createElement('div');
+    expand.className = 'mob-map-expand-pill';
+    expand.innerHTML = `<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg> Espandi`;
+    expand.onclick = openMobMapFs;
+    section.appendChild(expand);
+  }
+
+  // Tap sulla mappa apre fullscreen
+  section.style.cursor = 'pointer';
+  section.onclick = openMobMapFs;
+}
+
+/* ── Map fullscreen ── */
+function openMobMapFs() {
+  const fs = document.getElementById('mob-map-fs');
+  if (!fs) return;
+  fs.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Mostra evento più recente nel pannello
+  const events = typeof getMapEvents === 'function' ? getMapEvents() : [];
+  const top = events.sort((a,b) => (b.magnitude||0)-(a.magnitude||0))[0];
+  updateMobFsPanel(top || null);
+}
+
+function closeMobMapFs() {
+  const fs = document.getElementById('mob-map-fs');
+  if (fs) fs.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function updateMobFsPanel(ev) {
+  const el = document.getElementById('mob-fs-event-content');
+  if (!el) return;
+  if (!ev) {
+    el.innerHTML = `<div style="font-size:0.78rem;color:rgba(255,255,255,0.3);text-align:center;padding:8px 0;">Seleziona un evento sulla mappa</div>`;
+    return;
+  }
+  const cat = SCENARIO_CAT[ev.category] || { label: ev.category || 'Evento', color: '#fff' };
+  el.innerHTML = `
+    <div class="mob-fs-event-tag" style="color:${cat.color};">
+      <div class="mob-fs-event-dot" style="background:${cat.color};"></div>
+      ${cat.label.toUpperCase()} · MAG ${ev.magnitude || ''}
+    </div>
+    <div class="mob-fs-event-title">${ev.title || ''}</div>
+    <div class="mob-fs-event-desc">${ev.description || ev.ai_summary || ''}</div>
+    <div class="mob-fs-actions">
+      <button class="mob-fs-btn primary" onclick="closeMobMapFs();switchMobNav('articles',document.querySelector('[data-mob-pane=articles]'))">Leggi scenario</button>
+      ${ev.source_url ? `<a href="${ev.source_url}" target="_blank" rel="noopener" class="mob-fs-btn secondary" style="text-decoration:none;">Fonte →</a>` : ''}
+    </div>`;
+}
+
+/* ── Scenari horizontal scroll ── */
+function renderMobScenari() {
+  if (window.innerWidth > 768) return;
+  const scroll = document.getElementById('mob-scenari-scroll');
+  if (!scroll) return;
+
+  const data = briefsData || [];
+  if (!data.length) {
+    scroll.innerHTML = `<div style="padding:4px 14px;font-size:0.7rem;color:rgba(255,255,255,0.2);">Nessuno scenario disponibile</div>`;
+    return;
+  }
+
+  scroll.innerHTML = data.slice(0, 8).map(a => {
+    const cat = SCENARIO_CAT[a.cat] || { label: a.cat || 'Analisi', color: '#4f9eff' };
+    const mag = Math.min(4, Math.max(1, a.magnitude || 2));
+    const dots = [1,2,3,4].map(i => `<div class="mob-sc-mag-dot ${i <= mag ? 'on' : ''}"></div>`).join('');
+    return `
+      <button class="mob-scenari-card" onclick="openMobArtReader(${JSON.stringify(a).replace(/"/g,'&quot;')})">
+        <div class="mob-sc-icon" style="background:${cat.color}1a;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${cat.color}" stroke-width="2" stroke-linecap="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+        </div>
+        <div class="mob-sc-title">${a.title || ''}</div>
+        <div class="mob-sc-mag">${dots}</div>
+      </button>`;
+  }).join('');
+}
+
+/* ── Articles list ── */
+function renderMobArticles(cat) {
+  if (window.innerWidth > 768) return;
+  const list = document.getElementById('mob-articles-list');
+  if (!list) return;
+
+  const allArts = typeof getArticles === 'function' ? getArticles() : [];
+  const briefArts = briefsData || [];
+
+  // Unisci: prima gli AI briefs, poi gli articoli umani
+  const combined = [...briefArts, ...allArts.filter(a => a.author !== 'AI Intelligence · Analisy')];
+  const filtered = cat === 'all' ? combined : combined.filter(a => a.cat === cat);
+
+  if (!filtered.length) {
+    list.innerHTML = `<div class="mob-empty-state">Nessun contenuto disponibile</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(a => {
+    const isAI = a.author === 'AI Intelligence · Analisy';
+    const isPremium = a.premium;
+    const color = CAT_COLORS_MOB[a.cat] || 'rgba(255,255,255,0.2)';
+    const label = CAT_LABELS_MOB[a.cat] || (a.cat_label || a.cat || '');
+    const ago = a.published_at ? timeAgo(a.published_at) : '';
+    const excerpt = a.excerpt || (a.content || '').replace(/<[^>]+>/g,' ').slice(0,120);
+
+    return `
+      <div class="mob-article-card" onclick="openMobArtReader(${JSON.stringify(a).replace(/"/g,'&quot;')})">
+        <div class="mob-card-stripe" style="background:${color};"></div>
+        <div class="mob-card-body">
+          <div class="mob-card-meta">
+            <span class="mob-card-cat" style="color:${color};">${label}</span>
+            ${isAI ? '<span class="mob-card-ai">AI</span>' : ''}
+            ${isPremium ? '<span class="mob-card-premium">⭐</span>' : ''}
+            ${ago ? `<span class="mob-card-time">${ago}</span>` : ''}
+          </div>
+          <div class="mob-card-title">${a.title || ''}</div>
+          ${excerpt ? `<div class="mob-card-excerpt">${excerpt}</div>` : ''}
+        </div>
+        <div class="mob-card-right">
+          ${a.read_time ? `<span class="mob-card-readtime">${a.read_time}</span>` : ''}
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function mobFilterArticles(cat, el) {
+  mobCurrentCat = cat;
+  document.querySelectorAll('.mob-art-filter-chip').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderMobArticles(cat);
+}
+
+/* ── Article reader ── */
+function openMobArtReader(article) {
+  if (window.innerWidth > 768) {
+    // Desktop: vai alla pagina articolo
+    if (article.id) window.location.href = 'article.html?id=' + encodeURIComponent(article.id);
+    return;
+  }
+
+  const reader = document.getElementById('mob-art-reader');
+  const heroGlow = document.getElementById('mob-art-hero-glow');
+  const heroContent = document.getElementById('mob-art-hero-content');
+  const body = document.getElementById('mob-art-body');
+  if (!reader) return;
+
+  const color = CAT_COLORS_MOB[article.cat] || '#e8344e';
+  const label = CAT_LABELS_MOB[article.cat] || (article.cat_label || article.cat || '');
+  const isAI = article.author === 'AI Intelligence · Analisy';
+
+  // Hero glow
+  if (heroGlow) heroGlow.style.background = `radial-gradient(ellipse at 40% 60%, ${color}44 0%, transparent 65%)`;
+
+  // Hero content
+  if (heroContent) {
+    heroContent.innerHTML = `
+      <div class="mob-art-cat" style="color:${color};">
+        <div class="mob-art-cat-dot" style="background:${color};"></div>
+        ${label}
+      </div>
+      <div class="mob-art-hero-title">${article.title || ''}</div>`;
+  }
+
+  // Body
+  if (body) {
+    const content = (article.content || '').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+    const paragraphs = content.match(/.{1,300}(\s|$)/g) || [content];
+    body.innerHTML = `
+      ${article.subtitle ? `<div class="mob-art-subtitle">${article.subtitle}</div>` : ''}
+      <div class="mob-art-meta">
+        ${isAI ? `<div class="mob-art-author-pill"><div class="mob-art-author-dot"></div><span class="mob-art-author-name">AI Intelligence · Analisy</span></div>` : `<span style="font-size:0.7rem;color:rgba(255,255,255,0.4);">${article.author || ''}</span>`}
+        ${article.read_time ? `<span class="mob-art-read-time">${article.read_time}</span>` : ''}
+      </div>
+      <div class="mob-art-text">
+        ${paragraphs.map((p,i) => `<p ${i===0?'style="font-size:0.85rem;color:rgba(255,255,255,0.8);"':''}>${p.trim()}</p>`).join('')}
+      </div>
+      ${article.source_url ? `
+        <div class="mob-art-source">
+          <a href="${article.source_url}" target="_blank" rel="noopener" class="mob-art-source-link">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Leggi fonte originale →
+          </a>
+        </div>` : ''}`;
+  }
+
+  reader.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMobArtReader() {
+  const reader = document.getElementById('mob-art-reader');
+  if (reader) reader.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* ── Bottom nav switching ── */
+function switchMobNav(pane, el) {
+  if (window.innerWidth > 768) return;
+  mobCurrentPane = pane;
+
+  // Aggiorna nav items
+  document.querySelectorAll('.mob-nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+
+  // Mostra pane corretto
+  document.querySelectorAll('.mob-pane').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('mob-pane-' + pane);
+  if (target) target.classList.add('active');
+
+  // Render del pane se necessario
+  if (pane === 'articles') renderMobArticles(mobCurrentCat);
+  if (pane === 'live') renderMobCams();
+  if (pane === 'podcast') renderMobPodcast();
+  if (pane === 'forum') renderMobForum();
+}
+
+/* ── Live / Cams ── */
+function renderMobCams() {
+  if (window.innerWidth > 768) return;
+  const grid = document.getElementById('mob-cams-grid');
+  if (!grid) return;
+  const cams = typeof getCitycams === 'function' ? getCitycams() : [];
+  if (!cams.length) {
+    grid.innerHTML = `<div class="mob-empty-state" style="grid-column:1/-1;">Nessuna cam disponibile</div>`;
+    return;
+  }
+  const catColor = { conflict:'#e8344e', crisis:'#ff7043', tension:'#f5c842', diplomatic:'#4f9eff', political:'#9b59ff', economic:'#00d4aa', disaster:'#ff8c00', migration:'#ffb400' };
+  grid.innerHTML = cams.slice(0,8).map(cam => `
+    <div style="border-radius:10px;overflow:hidden;background:#111113;border:1px solid rgba(255,255,255,0.07);aspect-ratio:16/10;position:relative;cursor:pointer;" onclick="window.open('${cam.stream_url||'#'}','_blank')">
+      <img src="${cam.thumbnail_url||''}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"/>
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.8) 0%,transparent 50%);"></div>
+      <div style="position:absolute;bottom:6px;left:8px;right:8px;">
+        <div style="font-size:0.58rem;font-weight:700;color:${catColor[cam.ai_event_category]||'#fff'};margin-bottom:2px;">${cam.city||''}</div>
+        <div style="font-size:0.52rem;color:rgba(255,255,255,0.4);">${cam.country||''}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* ── Podcast ── */
+function renderMobPodcast() {
+  if (window.innerWidth > 768) return;
+  const list = document.getElementById('mob-podcast-list');
+  if (!list) return;
+  const podcasts = typeof getPodcasts === 'function' ? getPodcasts() : [];
+  if (!podcasts.length) {
+    list.innerHTML = `<div class="mob-empty-state">Nessun podcast disponibile</div>`;
+    return;
+  }
+  list.innerHTML = podcasts.map(p => `
+    <div class="mob-article-card" onclick="window.open('${p.audio_url||'#'}','_blank')">
+      <div class="mob-card-stripe" style="background:#bf5af2;"></div>
+      <div class="mob-card-body">
+        <div class="mob-card-meta">
+          <span class="mob-card-cat" style="color:#bf5af2;">PODCAST</span>
+          ${p.date ? `<span class="mob-card-time">${p.date}</span>` : ''}
+        </div>
+        <div class="mob-card-title">${p.title||''}</div>
+        ${p.description ? `<div class="mob-card-excerpt">${p.description}</div>` : ''}
+      </div>
+      <div class="mob-card-right">
+        ${p.duration ? `<span class="mob-card-readtime">${p.duration}</span>` : ''}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(191,90,242,0.5)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+      </div>
+    </div>`).join('');
+}
+
+/* ── Forum ── */
+function renderMobForum() {
+  if (window.innerWidth > 768) return;
+  const list = document.getElementById('mob-forum-list');
+  if (!list) return;
+  // Usa il pane-forum desktop come fallback
+  const desktopForum = document.getElementById('pane-forum');
+  if (desktopForum) {
+    list.innerHTML = `<div style="padding:14px;">` + desktopForum.innerHTML + `</div>`;
+  } else {
+    list.innerHTML = `<div class="mob-empty-state">Forum non disponibile</div>`;
+  }
+}
+
+/* ── Init mobile v2 ── */
+function initMobileV2() {
+  if (window.innerWidth > 768) return;
+  renderMobTopBar();
+  initMobMapHero();
+  // Aspetta che i dati siano caricati
+  setTimeout(() => {
+    renderMobScenari();
+    renderMobArticles('all');
+  }, 800);
+}
+
+// Hook into existing data load functions
+const _origRenderBriefs = renderBriefs;
+window.renderBriefs = function(articles) {
+  _origRenderBriefs(articles);
+  renderMobScenari();
+};
+
+const _origRenderArticles = renderArticles;
+window.renderArticles = function(cat) {
+  _origRenderArticles(cat);
+  if (mobCurrentPane === 'articles') renderMobArticles(mobCurrentCat);
+};
+
+// Map event click → update fullscreen panel
+document.addEventListener('mapEventSelected', function(e) {
+  if (e.detail) updateMobFsPanel(e.detail);
+});
 </script>
 <script src="js/cookie-banner.js"></script>
+
+<!-- ═══════════ MOBILE v2 TOP BAR ═══════════ -->
+<div id="mob-top-bar">
+  <span class="mob-logo">ANALISY</span>
+  <span class="mob-sr-badge">Situation Room</span>
+  <div id="mob-nav-right"><!-- popolato da JS --></div>
+</div>
+
+<!-- ═══════════ MOBILE v2 SCENARI SECTION ═══════════ -->
+<div id="mob-scenari-section">
+  <div class="mob-section-header">
+    <span class="mob-section-title">Scenari in evoluzione</span>
+  </div>
+  <div class="mob-scenari-scroll" id="mob-scenari-scroll">
+    <div style="padding:4px 14px;font-size:0.7rem;color:rgba(255,255,255,0.2);">Caricamento...</div>
+  </div>
+</div>
+
+<!-- ═══════════ MOBILE v2 CONTENT AREA ═══════════ -->
+<div id="mob-content-area">
+
+  <!-- Pane: Flash Update (articoli) -->
+  <div class="mob-pane active" id="mob-pane-articles">
+    <div class="mob-content-section-header">
+      <span class="mob-section-title">Flash Update</span>
+    </div>
+    <div class="mob-art-filters" id="mob-art-filters">
+      <button class="mob-art-filter-chip active" onclick="mobFilterArticles('all',this)">Tutti</button>
+      <button class="mob-art-filter-chip" onclick="mobFilterArticles('geopolitica',this)">Geopolitica</button>
+      <button class="mob-art-filter-chip" onclick="mobFilterArticles('politica',this)">Politica</button>
+      <button class="mob-art-filter-chip" onclick="mobFilterArticles('business',this)">Business</button>
+      <button class="mob-art-filter-chip" onclick="mobFilterArticles('tecnologia',this)">Tech</button>
+    </div>
+    <div id="mob-articles-list"></div>
+  </div>
+
+  <!-- Pane: Live (citycams) -->
+  <div class="mob-pane" id="mob-pane-live">
+    <div class="mob-content-section-header">
+      <span class="mob-section-title">City Cam Live</span>
+    </div>
+    <div id="mob-cams-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 14px;"></div>
+  </div>
+
+  <!-- Pane: Podcast -->
+  <div class="mob-pane" id="mob-pane-podcast">
+    <div class="mob-content-section-header">
+      <span class="mob-section-title">Podcast</span>
+    </div>
+    <div id="mob-podcast-list"></div>
+  </div>
+
+  <!-- Pane: Forum -->
+  <div class="mob-pane" id="mob-pane-forum">
+    <div class="mob-content-section-header">
+      <span class="mob-section-title">Community</span>
+    </div>
+    <div id="mob-forum-list"></div>
+  </div>
+
+</div>
+
+<!-- ═══════════ MOBILE v2 BOTTOM NAV ═══════════ -->
+<div id="mob-bottom-nav">
+  <button class="mob-nav-item active" data-mob-pane="articles" onclick="switchMobNav('articles',this)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+    <span class="mob-nav-label">Scenari</span>
+    <div class="mob-nav-dot"></div>
+  </button>
+  <button class="mob-nav-item" data-mob-pane="articles" onclick="switchMobNav('articles',this)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 10h10M4 14h16M4 18h10"/></svg>
+    <span class="mob-nav-label">Articoli</span>
+    <div class="mob-nav-dot"></div>
+  </button>
+  <button class="mob-nav-item" data-mob-pane="live" onclick="switchMobNav('live',this)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+    <span class="mob-nav-label">Live</span>
+    <div class="mob-nav-dot"></div>
+  </button>
+  <button class="mob-nav-item" data-mob-pane="podcast" onclick="switchMobNav('podcast',this)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M6.6 18.4a9 9 0 1 1 10.8 0"/></svg>
+    <span class="mob-nav-label">Podcast</span>
+    <div class="mob-nav-dot"></div>
+  </button>
+  <button class="mob-nav-item" data-mob-pane="forum" onclick="switchMobNav('forum',this)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <span class="mob-nav-label">Forum</span>
+    <div class="mob-nav-dot"></div>
+  </button>
+</div>
+
+<!-- ═══════════ MOBILE v2 MAP FULLSCREEN ═══════════ -->
+<div id="mob-map-fs">
+  <div id="mob-map-fs-inner">
+    <!-- Map clone info panel (il map vero rimane in situationMap) -->
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 40%,rgba(232,52,78,0.15) 0%,transparent 60%),linear-gradient(160deg,#060c1a 0%,#020508 100%);"></div>
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.8rem;color:rgba(255,255,255,0.25);">Tap sulla mappa principale per espanderla</div>
+    <button id="mob-map-fs-close" onclick="closeMobMapFs()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div id="mob-map-fs-live"><div class="mob-live-dot"></div>LIVE</div>
+  </div>
+  <div id="mob-map-fs-panel">
+    <div class="mob-fs-handle"></div>
+    <div id="mob-fs-event-content">
+      <div style="font-size:0.78rem;color:rgba(255,255,255,0.3);text-align:center;padding:8px 0;">Seleziona un evento sulla mappa</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MOBILE v2 ARTICLE READER ═══════════ -->
+<div id="mob-art-reader">
+  <div class="mob-art-hero" id="mob-art-hero">
+    <div class="mob-art-hero-bg" id="mob-art-hero-bg"></div>
+    <div class="mob-art-hero-glow" id="mob-art-hero-glow"></div>
+    <div class="mob-art-hero-grid"></div>
+    <button class="mob-art-back" onclick="closeMobArtReader()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="mob-art-hero-content" id="mob-art-hero-content"></div>
+  </div>
+  <div class="mob-art-body" id="mob-art-body"></div>
+</div>
 </body>
 </html>
