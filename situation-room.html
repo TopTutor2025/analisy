@@ -3144,6 +3144,9 @@ function updateMarketPrices() {
   });
   renderMarkets();
   renderMobMarkets();
+  // Aggiorna desktop solo se il pane mercati è visibile
+  const deskMktPane = document.getElementById('desk-pane-markets');
+  if (deskMktPane && deskMktPane.classList.contains('active')) renderDeskMarkets();
   renderTicker();
 }
 
@@ -4725,18 +4728,31 @@ function renderDeskMarkets() {
   if (window.innerWidth <= 768) return;
   const feed = document.getElementById('desk-markets-feed');
   if (!feed) return;
-  // Riusa il contenuto del markets-list esistente
-  const existing = document.getElementById('markets-list');
-  if (existing && existing.innerHTML.trim()) {
-    feed.innerHTML = existing.innerHTML;
-  } else {
-    // Trigger caricamento mercati e poi copia
-    if (typeof renderMarkets === 'function') renderMarkets();
-    setTimeout(() => {
-      const m = document.getElementById('markets-list');
-      if (m) feed.innerHTML = m.innerHTML || `<div style="padding:30px;text-align:center;font-size:0.72rem;color:rgba(255,255,255,0.2);">Dati mercati non disponibili.</div>`;
-    }, 800);
-  }
+
+  feed.style.display = 'grid';
+  feed.style.gridTemplateColumns = 'repeat(auto-fill, minmax(175px, 1fr))';
+  feed.style.gap = '10px';
+
+  feed.innerHTML = MARKETS.map(m => {
+    const color = m.up ? '#34d399' : '#e8344e';
+    const spark = generateSparklineSVG(m.history, m.up);
+    return `
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);
+                  border-radius:14px;overflow:hidden;transition:background 0.15s;"
+           onmouseover="this.style.background='rgba(255,255,255,0.07)'"
+           onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+        <div style="padding:13px 14px 6px;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:5px;">
+            <div style="font-size:0.68rem;font-weight:700;color:rgba(255,255,255,0.75);line-height:1.25;max-width:110px;">${m.name}</div>
+            <div style="font-size:0.62rem;font-weight:700;padding:2px 6px;border-radius:5px;flex-shrink:0;
+                        color:${color};background:${m.up ? 'rgba(52,211,153,0.12)' : 'rgba(232,52,78,0.12)'};">${m.change}</div>
+          </div>
+          <div style="font-size:0.95rem;font-weight:700;color:#fff;letter-spacing:-0.02em;">${m.price}</div>
+          <div style="font-size:0.55rem;font-weight:600;letter-spacing:0.07em;color:rgba(255,255,255,0.22);text-transform:uppercase;margin-top:2px;">${m.ticker}</div>
+        </div>
+        <div style="width:100%;height:44px;display:block;">${spark}</div>
+      </div>`;
+  }).join('');
 }
 
 /* ── Render Forum desktop ── */
