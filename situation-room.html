@@ -896,7 +896,7 @@
 
 /* Elementi mobile v2 — nascosti su desktop */
 #mob-top-bar,
-#mob-scenari-section,
+#mob-markets-section,
 #mob-content-area,
 #mob-bottom-nav,
 #mob-map-fs,
@@ -1029,8 +1029,8 @@
   }
   @keyframes mobBlink { from { opacity: 1; } to { opacity: 0.2; } }
 
-  /* ── Scenari horizontal ── */
-  #mob-scenari-section {
+  /* ── Markets horizontal ── */
+  #mob-markets-section {
     display: block !important;
     margin-top: 4px;
   }
@@ -1042,40 +1042,53 @@
     font-size: 0.65rem; font-weight: 700; letter-spacing: 0.09em;
     text-transform: uppercase; color: rgba(255,255,255,0.35);
   }
-  .mob-scenari-scroll {
+  .mob-markets-scroll {
     display: flex; gap: 10px;
-    overflow-x: auto; padding: 0 14px 4px;
+    overflow-x: auto; padding: 0 14px 8px;
     scrollbar-width: none;
   }
-  .mob-scenari-scroll::-webkit-scrollbar { display: none; }
-  .mob-scenari-card {
-    flex-shrink: 0; width: 152px;
+  .mob-markets-scroll::-webkit-scrollbar { display: none; }
+  .mob-mkt-card {
+    flex-shrink: 0; width: 138px;
     background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 14px; padding: 13px;
-    cursor: pointer; transition: background 0.15s;
-    font-family: inherit;
-  }
-  .mob-scenari-card:active { background: rgba(255,255,255,0.08); }
-  .mob-sc-icon {
-    width: 34px; height: 34px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 9px;
-  }
-  .mob-sc-title {
-    font-size: 0.72rem; font-weight: 600; line-height: 1.3;
-    color: rgba(255,255,255,0.85); margin-bottom: 6px;
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    border-radius: 14px;
     overflow: hidden;
+    cursor: default;
+    transition: background 0.15s;
   }
-  .mob-sc-mag {
-    display: flex; gap: 3px; align-items: center;
+  .mob-mkt-card-top {
+    padding: 11px 12px 6px;
   }
-  .mob-sc-mag-dot {
-    width: 5px; height: 5px; border-radius: 50%;
-    background: rgba(255,255,255,0.1);
+  .mob-mkt-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 4px;
   }
-  .mob-sc-mag-dot.on { background: #e8344e; }
+  .mob-mkt-name {
+    font-size: 0.62rem; font-weight: 700;
+    color: rgba(255,255,255,0.75); line-height: 1.2;
+    max-width: 80px;
+  }
+  .mob-mkt-change {
+    font-size: 0.6rem; font-weight: 700;
+    padding: 2px 5px; border-radius: 5px;
+    flex-shrink: 0;
+  }
+  .mob-mkt-change.up   { color: #34d399; background: rgba(52,211,153,0.12); }
+  .mob-mkt-change.down { color: #e8344e; background: rgba(232,52,78,0.12);  }
+  .mob-mkt-price {
+    font-size: 0.78rem; font-weight: 700;
+    color: #fff; letter-spacing: -0.02em;
+  }
+  .mob-mkt-ticker {
+    font-size: 0.52rem; font-weight: 600; letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.22); text-transform: uppercase;
+    margin-top: 1px;
+  }
+  .mob-mkt-chart {
+    width: 100%; height: 40px; display: block;
+    margin-top: 2px;
+  }
 
   /* ── Content area ── */
   #mob-content-area {
@@ -1474,7 +1487,7 @@
   .map-unified-panel { display: none !important; }
   .admin-map-fab    { display: none !important; }
   /* Nascondi mobile v2 su desktop */
-  #mob-top-bar, #mob-scenari-section, #mob-content-area,
+  #mob-top-bar, #mob-markets-section, #mob-content-area,
   #mob-bottom-nav, #mob-map-fs, #mob-art-reader,
   #mob-event-sheet  { display: none !important; }
 
@@ -2898,16 +2911,16 @@
 
 /* ── MARKET DATA ── */
 const MARKETS = [
-  { name:'Petrolio Brent', ticker:'BRENT', price:'$88.42', change:'+1.2%', up:true  },
-  { name:'Gas Naturale',   ticker:'NATGAS', price:'$2.84',  change:'-0.8%', up:false },
-  { name:'Oro',            ticker:'GOLD',  price:'$2,345', change:'+0.4%', up:true  },
-  { name:'Argento',        ticker:'SILVER',price:'$29.12', change:'+0.9%', up:true  },
-  { name:'Rame',           ticker:'COPPER',price:'$4.45',  change:'-0.3%', up:false },
-  { name:'Grano',          ticker:'WHEAT', price:'$592',   change:'+2.1%', up:true  },
-  { name:'Litio (spot)',   ticker:'LI',    price:'$14,200',change:'-1.5%', up:false },
-  { name:'Uranio',         ticker:'UX',    price:'$85.50', change:'+0.7%', up:true  },
-  { name:'Palladio',       ticker:'PALL',  price:'$980',   change:'-0.2%', up:false },
-  { name:'Nichel',         ticker:'NICK',  price:'$17,890',change:'+1.8%', up:true  },
+  { name:'Petrolio Brent', ticker:'BRENT',  price:'$88.42',  rawPrice:88.42,    change:'+1.2%', up:true,  history:[85.1,86.0,87.2,86.5,87.8,88.0,88.42] },
+  { name:'Gas Naturale',   ticker:'NATGAS', price:'$2.84',   rawPrice:2.84,     change:'-0.8%', up:false, history:[3.10,3.02,2.97,2.92,2.89,2.86,2.84]  },
+  { name:'Oro',            ticker:'GOLD',   price:'$2,345',  rawPrice:2345,     change:'+0.4%', up:true,  history:[2310,2318,2315,2328,2332,2340,2345]   },
+  { name:'Argento',        ticker:'SILVER', price:'$29.12',  rawPrice:29.12,    change:'+0.9%', up:true,  history:[28.50,28.62,28.78,28.90,29.02,29.09,29.12] },
+  { name:'Rame',           ticker:'COPPER', price:'$4.45',   rawPrice:4.45,     change:'-0.3%', up:false, history:[4.55,4.52,4.50,4.48,4.47,4.46,4.45]  },
+  { name:'Grano',          ticker:'WHEAT',  price:'$592',    rawPrice:592,      change:'+2.1%', up:true,  history:[570,573,578,580,585,590,592]           },
+  { name:'Litio (spot)',   ticker:'LI',     price:'$14,200', rawPrice:14200,    change:'-1.5%', up:false, history:[15000,14820,14650,14520,14420,14320,14200] },
+  { name:'Uranio',         ticker:'UX',     price:'$85.50',  rawPrice:85.50,    change:'+0.7%', up:true,  history:[84.0,84.5,85.0,84.8,85.2,85.4,85.50] },
+  { name:'Palladio',       ticker:'PALL',   price:'$980',    rawPrice:980,      change:'-0.2%', up:false, history:[990,987,985,984,982,981,980]           },
+  { name:'Nichel',         ticker:'NICK',   price:'$17,890', rawPrice:17890,    change:'+1.8%', up:true,  history:[17500,17600,17650,17710,17760,17820,17890] },
 ];
 
 /* ── SR Navbar custom ──
@@ -3117,11 +3130,20 @@ function renderMarkets() {
 
 function updateMarketPrices() {
   MARKETS.forEach(m => {
-    const delta = (Math.random() - 0.48) * 0.8;
-    m.up = delta >= 0;
-    m.change = (delta >= 0 ? '+' : '') + delta.toFixed(1) + '%';
+    const pct = (Math.random() - 0.48) * 0.8;
+    m.up = pct >= 0;
+    m.change = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
+    // Aggiorna rawPrice e history
+    const newPrice = m.rawPrice * (1 + pct / 100);
+    m.rawPrice = +newPrice.toFixed(m.rawPrice >= 100 ? 0 : 2);
+    m.price = m.rawPrice >= 1000
+      ? '$' + m.rawPrice.toLocaleString('en-US')
+      : '$' + m.rawPrice.toFixed(m.rawPrice >= 10 ? 2 : 2);
+    m.history.push(m.rawPrice);
+    if (m.history.length > 7) m.history.shift();
   });
   renderMarkets();
+  renderMobMarkets();
   renderTicker();
 }
 
@@ -4038,31 +4060,50 @@ function updateMobFsPanel(ev) {
     </div>`;
 }
 
-/* ── Scenari horizontal scroll ── */
-function renderMobScenari() {
+/* ── Markets sparkline helper ── */
+function generateSparklineSVG(history, up) {
+  const W = 138, H = 40, padX = 0, padY = 4;
+  const pts = history.length >= 2 ? history : [0, 0];
+  const min = Math.min(...pts);
+  const max = Math.max(...pts);
+  const range = max - min || 1;
+  const xs = pts.map((_, i) => padX + (i / (pts.length - 1)) * (W - padX * 2));
+  const ys = pts.map(v => H - padY - ((v - min) / range) * (H - padY * 2));
+  const color = up ? '#34d399' : '#e8344e';
+  const gradId = 'mspg_' + (up ? 'u' : 'd');
+  const polyPts = xs.map((x, i) => `${x.toFixed(1)},${ys[i].toFixed(1)}`).join(' ');
+  const areaD = `M${xs[0].toFixed(1)},${H} `
+    + xs.map((x, i) => `L${x.toFixed(1)},${ys[i].toFixed(1)}`).join(' ')
+    + ` L${xs[xs.length-1].toFixed(1)},${H} Z`;
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${color}" stop-opacity="0.25"/>
+        <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <path d="${areaD}" fill="url(#${gradId})"/>
+    <polyline points="${polyPts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+}
+
+/* ── Markets horizontal scroll ── */
+function renderMobMarkets() {
   if (window.innerWidth > 768) return;
-  const scroll = document.getElementById('mob-scenari-scroll');
+  const scroll = document.getElementById('mob-markets-scroll');
   if (!scroll) return;
-
-  const data = briefsData || [];
-  if (!data.length) {
-    scroll.innerHTML = `<div style="padding:4px 14px;font-size:0.7rem;color:rgba(255,255,255,0.2);">Nessuno scenario disponibile</div>`;
-    return;
-  }
-
-  scroll.innerHTML = data.slice(0, 8).map(a => {
-    const cat = SCENARIO_CAT[a.cat] || { label: a.cat || 'Analisi', color: '#4f9eff' };
-    const mag = Math.min(4, Math.max(1, a.magnitude || 2));
-    const dots = [1,2,3,4].map(i => `<div class="mob-sc-mag-dot ${i <= mag ? 'on' : ''}"></div>`).join('');
-    return `
-      <button class="mob-scenari-card" onclick="openMobArtReader(${JSON.stringify(a).replace(/"/g,'&quot;')})">
-        <div class="mob-sc-icon" style="background:${cat.color}1a;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${cat.color}" stroke-width="2" stroke-linecap="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+  scroll.innerHTML = MARKETS.map(m => `
+    <div class="mob-mkt-card">
+      <div class="mob-mkt-card-top">
+        <div class="mob-mkt-header">
+          <div class="mob-mkt-name">${m.name}</div>
+          <div class="mob-mkt-change ${m.up ? 'up' : 'down'}">${m.change}</div>
         </div>
-        <div class="mob-sc-title">${a.title || ''}</div>
-        <div class="mob-sc-mag">${dots}</div>
-      </button>`;
-  }).join('');
+        <div class="mob-mkt-price">${m.price}</div>
+        <div class="mob-mkt-ticker">${m.ticker}</div>
+      </div>
+      <div class="mob-mkt-chart">${generateSparklineSVG(m.history, m.up)}</div>
+    </div>`).join('');
 }
 
 /* ── Articles list ── */
@@ -4326,9 +4367,10 @@ function initMobileV2() {
   if (window.innerWidth > 768) return;
   renderMobTopBar();
   initMobMapHero();
-  // Aspetta che i dati siano caricati
+  // Render mercati subito (dati locali, non serve rete)
+  renderMobMarkets();
+  // Aspetta che i dati siano caricati per articoli
   setTimeout(() => {
-    renderMobScenari();
     renderMobScenariPane('all');
     renderMobArticles('all');
   }, 800);
@@ -4338,7 +4380,7 @@ function initMobileV2() {
 const _origRenderBriefs = renderBriefs;
 window.renderBriefs = function(articles) {
   _origRenderBriefs(articles);
-  renderMobScenari();
+  // nessun aggiornamento mobile necessario (mercati sono dati locali)
 };
 
 const _origRenderArticles = renderArticles;
@@ -4803,14 +4845,13 @@ document.addEventListener('mapEventsLoaded', function() {
   <div id="mob-nav-right"><!-- popolato da JS --></div>
 </div>
 
-<!-- ═══════════ MOBILE v2 SCENARI SECTION ═══════════ -->
-<div id="mob-scenari-section">
+<!-- ═══════════ MOBILE v2 MARKETS SECTION ═══════════ -->
+<div id="mob-markets-section">
   <div class="mob-section-header">
-    <span class="mob-section-title">Scenari in evoluzione</span>
+    <span class="mob-section-title">Materie Prime</span>
+    <span style="font-size:0.52rem;color:rgba(255,255,255,0.18);letter-spacing:0.04em;">SIMULATO</span>
   </div>
-  <div class="mob-scenari-scroll" id="mob-scenari-scroll">
-    <div style="padding:4px 14px;font-size:0.7rem;color:rgba(255,255,255,0.2);">Caricamento...</div>
-  </div>
+  <div class="mob-markets-scroll" id="mob-markets-scroll"></div>
 </div>
 
 <!-- ═══════════ MOBILE v2 CONTENT AREA ═══════════ -->
