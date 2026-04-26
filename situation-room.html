@@ -4578,24 +4578,20 @@ function switchDeskNav(pane, el) {
   // Nascondi tutti i pane, mostra quello selezionato
   document.querySelectorAll('.desk-main-pane').forEach(p => p.classList.remove('active'));
 
+  // Il pannello Scenari in Evoluzione rimane sempre visibile
   if (pane === 'articles') {
     document.getElementById('desk-feed').classList.add('active');
-    document.getElementById('desk-right').style.display = '';
     renderDeskArticles(deskCurrentCat);
   } else if (pane === 'live') {
     document.getElementById('desk-pane-live').classList.add('active');
-    document.getElementById('desk-right').style.display = 'none';
     renderDeskCams();
   } else if (pane === 'markets') {
     document.getElementById('desk-pane-markets').classList.add('active');
-    document.getElementById('desk-right').style.display = 'none';
     renderDeskMarkets();
   } else if (pane === 'podcast') {
     document.getElementById('desk-pane-podcast').classList.add('active');
-    document.getElementById('desk-right').style.display = 'none';
   } else if (pane === 'forum') {
     document.getElementById('desk-pane-forum').classList.add('active');
-    document.getElementById('desk-right').style.display = 'none';
     renderDeskForum();
   }
 }
@@ -4903,10 +4899,6 @@ document.addEventListener('mapEventsLoaded', function() {
     <nav id="desk-nav">
       <div class="desk-nav-section-label">NAVIGAZIONE</div>
       <button class="desk-nav-item active" data-desk-pane="articles" onclick="switchDeskNav('articles',this)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
-        Scenari
-      </button>
-      <button class="desk-nav-item" data-desk-pane="articles" onclick="switchDeskNav('articles',this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 10h10M4 14h16M4 18h10"/></svg>
         Articoli
       </button>
@@ -5023,7 +5015,7 @@ document.addEventListener('mapEventsLoaded', function() {
   <!-- ──── RIGHT PANEL ──── -->
   <div id="desk-right">
     <div class="desk-right-header">
-      <span class="desk-right-title">Scenari AI</span>
+      <span class="desk-right-title">Scenari in Evoluzione</span>
       <span id="desk-scenari-count" class="desk-right-badge"></span>
     </div>
     <div id="desk-scenari-list"></div>
