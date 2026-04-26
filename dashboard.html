@@ -22,7 +22,7 @@
       --text-secondary:rgba(235,235,245,0.55);
       --text-muted:    rgba(235,235,245,0.28);
       --accent-red:    #e8344e;
-      --accent-green:  #39ff14;
+      --accent-green:  #e8344e;
       --accent-blue:   #0a84ff;
       --accent-yellow: #ffd60a;
       --accent-purple: #bf5af2;
@@ -36,7 +36,7 @@
 
     /* 2 · Sidebar */
     .dashboard-sidebar {
-      background: #111113;
+      background: #000;
       border-right: 1px solid rgba(255,255,255,0.06);
       width: 220px;
     }
@@ -60,9 +60,16 @@
     }
     .sidebar-nav a:hover { background: rgba(255,255,255,0.05); color: rgba(235,235,245,0.82); }
     .sidebar-nav a.active {
-      background: rgba(57,255,20,0.1);
-      color: #39ff14;
+      background: rgba(232,52,78,0.08);
+      color: #e8344e;
       border-left: none;
+      position: relative;
+    }
+    .sidebar-nav a.active::before {
+      content: '';
+      position: absolute; left: -10px; top: 20%; bottom: 20%;
+      width: 3px; border-radius: 0 2px 2px 0;
+      background: #e8344e;
     }
     .sidebar-nav a svg { width: 15px; height: 15px; opacity: 0.7; }
 
@@ -73,8 +80,8 @@
     .sidebar-user .user-avatar {
       width: 30px; height: 30px; border-radius: 50%;
       font-size: 0.75rem;
-      background: rgba(57,255,20,0.12);
-      color: #39ff14;
+      background: rgba(232,52,78,0.12);
+      color: #e8344e;
     }
     .sidebar-user .user-name { font-size: 0.8rem; font-weight: 600; }
     .sidebar-user .user-role { font-size: 0.7rem; color: rgba(235,235,245,0.32); }
@@ -84,7 +91,8 @@
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 28px; height: 52px;
       border-bottom: 1px solid rgba(255,255,255,0.06);
-      margin-bottom: 0; background: #111113;
+      margin-bottom: 0; background: rgba(0,0,0,0.95);
+      backdrop-filter: blur(20px);
       position: sticky; top: 0; z-index: 90;
     }
     .dashboard-header > div:first-child { display: flex; align-items: center; gap: 10px; }
@@ -134,7 +142,7 @@
       transition: background 0.15s, border-color 0.15s;
     }
     .dash-card:last-child { border-right: none; }
-    .dash-card:hover { background: #1a1a1c; border-color: rgba(255,255,255,0.11); }
+    .dash-card:hover { background: #1a1a1c; border-color: rgba(232,52,78,0.2); }
     .dash-card .card-icon { display: none; }
     .dash-card .card-label {
       font-size: 0.6rem; font-weight: 700;
@@ -224,10 +232,10 @@
       color: rgba(235,235,245,0.25) !important;
     }
     .articles-list-header a {
-      font-size: 0.72rem !important; color: rgba(57,255,20,0.7) !important;
+      font-size: 0.72rem !important; color: rgba(232,52,78,0.7) !important;
       text-transform: none; letter-spacing: 0; font-weight: 600;
     }
-    .articles-list-header a:hover { color: #39ff14 !important; }
+    .articles-list-header a:hover { color: #e8344e !important; }
 
     .article-row {
       padding: 12px 0 12px 14px;
@@ -241,7 +249,7 @@
 
     .article-row:has(.cat-geo)  { --row-cat-color: rgba(232,52,78,0.55); }
     .article-row:has(.cat-pol)  { --row-cat-color: rgba(10,132,255,0.5); }
-    .article-row:has(.cat-biz)  { --row-cat-color: rgba(57,255,20,0.45); }
+    .article-row:has(.cat-biz)  { --row-cat-color: rgba(255,214,10,0.45); }
     .article-row:has(.cat-tech) { --row-cat-color: rgba(191,90,242,0.5); }
 
     .article-cat-badge {
@@ -313,9 +321,8 @@
   <!-- SIDEBAR -->
   <aside class="dashboard-sidebar">
     <div class="sidebar-logo">
-      <a href="index.html">
-        <div class="logo-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 26" width="20" height="18"><line x1="7" y1="1" x2="7" y2="5" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/><rect x="3" y="5" width="8" height="13" rx="1.5" fill="white"/><line x1="7" y1="18" x2="7" y2="22" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/><line x1="21" y1="2" x2="21" y2="7" stroke="#e8344e" stroke-width="2" stroke-linecap="round"/><rect x="17" y="7" width="8" height="9" rx="1.5" fill="#e8344e"/><line x1="21" y1="16" x2="21" y2="22" stroke="#e8344e" stroke-width="2" stroke-linecap="round"/></svg></div>
-        analisy
+      <a href="index.html" style="text-decoration:none;display:flex;align-items:center;gap:0;">
+        <span style="font-size:1.1rem;font-weight:800;letter-spacing:-0.03em;background:linear-gradient(135deg,#e8344e,#ff6b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">ANALISY</span>
       </a>
     </div>
 
