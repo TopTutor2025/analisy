@@ -3939,7 +3939,8 @@ document.addEventListener('click', function(e) {
 // ══════════════════════════════════════════════════
 
 let mobCurrentCat = 'all';
-let mobCurrentPane = 'articles';
+let mobCurrentScenariCat = 'all';
+let mobCurrentPane = 'scenari';
 
 const CAT_COLORS_MOB = {
   geopolitica: '#e8344e',
@@ -3995,9 +3996,6 @@ function initMobMapHero() {
     section.appendChild(expand);
   }
 
-  // Tap sulla mappa apre fullscreen
-  section.style.cursor = 'pointer';
-  section.onclick = openMobMapFs;
 }
 
 /* ── Map fullscreen ── */
@@ -4068,24 +4066,78 @@ function renderMobScenari() {
 }
 
 /* ── Articles list ── */
+/* ── Scenari pane (Flash Update AI) ── */
+function renderMobScenariPane(cat) {
+  if (window.innerWidth > 768) return;
+  const list = document.getElementById('mob-scenari-list');
+  if (!list) return;
+
+  const allArts = typeof getArticles === 'function' ? getArticles() : [];
+  // Solo articoli AI
+  const aiArts = allArts.filter(a => a.author === 'AI Intelligence · Analisy');
+  const filtered = cat === 'all' ? aiArts : aiArts.filter(a => a.cat === cat);
+
+  if (!filtered.length) {
+    const isLoading = allArts.length === 0;
+    list.innerHTML = isLoading
+      ? `<div class="mob-empty-state" style="color:rgba(255,255,255,0.2);">Caricamento in corso…</div>`
+      : `<div class="mob-empty-state">Nessun flash update disponibile</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(a => {
+    const color = CAT_COLORS_MOB[a.cat] || 'rgba(255,255,255,0.2)';
+    const label = CAT_LABELS_MOB[a.cat] || (a.cat_label || a.cat || '');
+    const ago = a.published_at ? timeAgo(a.published_at) : '';
+    const excerpt = a.excerpt || (a.content || '').replace(/<[^>]+>/g,' ').slice(0,120);
+    return `
+      <div class="mob-article-card" onclick="openMobArtReader(${JSON.stringify(a).replace(/"/g,'&quot;')})">
+        <div class="mob-card-stripe" style="background:${color};"></div>
+        <div class="mob-card-body">
+          <div class="mob-card-meta">
+            <span class="mob-card-cat" style="color:${color};">${label}</span>
+            <span class="mob-card-ai">AI</span>
+            ${ago ? `<span class="mob-card-time">${ago}</span>` : ''}
+          </div>
+          <div class="mob-card-title">${a.title || ''}</div>
+          ${excerpt ? `<div class="mob-card-excerpt">${excerpt}</div>` : ''}
+        </div>
+        <div class="mob-card-right">
+          ${a.read_time ? `<span class="mob-card-readtime">${a.read_time}</span>` : ''}
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function mobFilterScenari(cat, el) {
+  mobCurrentScenariCat = cat;
+  document.querySelectorAll('#mob-scenari-filters .mob-art-filter-chip').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderMobScenariPane(cat);
+}
+
+/* ── Articles pane (solo articoli umani) ── */
 function renderMobArticles(cat) {
   if (window.innerWidth > 768) return;
   const list = document.getElementById('mob-articles-list');
   if (!list) return;
 
   const allArts = typeof getArticles === 'function' ? getArticles() : [];
-
-  // Solo articoli umani (i brief AI vanno nella sezione Scenari)
-  const combined = allArts.filter(a => a.author !== 'AI Intelligence · Analisy');
-  const filtered = cat === 'all' ? combined : combined.filter(a => a.cat === cat);
+  // Solo articoli umani
+  const humanArts = allArts.filter(a => a.author !== 'AI Intelligence · Analisy');
+  const filtered = cat === 'all' ? humanArts : humanArts.filter(a => a.cat === cat);
 
   if (!filtered.length) {
-    list.innerHTML = `<div class="mob-empty-state">Nessun contenuto disponibile</div>`;
+    const isLoading = allArts.length === 0;
+    list.innerHTML = isLoading
+      ? `<div class="mob-empty-state" style="color:rgba(255,255,255,0.2);">Caricamento in corso…</div>`
+      : `<div class="mob-empty-state">Nessun articolo disponibile</div>`;
     return;
   }
 
   list.innerHTML = filtered.map(a => {
-    const isAI = a.author === 'AI Intelligence · Analisy';
+    const isAI = false; // questa lista contiene solo articoli umani
     const isPremium = a.premium;
     const color = CAT_COLORS_MOB[a.cat] || 'rgba(255,255,255,0.2)';
     const label = CAT_LABELS_MOB[a.cat] || (a.cat_label || a.cat || '');
@@ -4198,10 +4250,11 @@ function switchMobNav(pane, el) {
   if (target) target.classList.add('active');
 
   // Render del pane se necessario
+  if (pane === 'scenari')  renderMobScenariPane(mobCurrentScenariCat);
   if (pane === 'articles') renderMobArticles(mobCurrentCat);
-  if (pane === 'live') renderMobCams();
-  if (pane === 'podcast') renderMobPodcast();
-  if (pane === 'forum') renderMobForum();
+  if (pane === 'live')     renderMobCams();
+  if (pane === 'podcast')  renderMobPodcast();
+  if (pane === 'forum')    renderMobForum();
 }
 
 /* ── Live / Cams ── */
@@ -4276,6 +4329,7 @@ function initMobileV2() {
   // Aspetta che i dati siano caricati
   setTimeout(() => {
     renderMobScenari();
+    renderMobScenariPane('all');
     renderMobArticles('all');
   }, 800);
 }
@@ -4290,7 +4344,11 @@ window.renderBriefs = function(articles) {
 const _origRenderArticles = renderArticles;
 window.renderArticles = function(cat) {
   _origRenderArticles(cat);
-  if (mobCurrentPane === 'articles') renderMobArticles(mobCurrentCat);
+  // Aggiorna entrambi i pane mobile quando i dati arrivano
+  if (window.innerWidth <= 768) {
+    renderMobScenariPane(mobCurrentScenariCat);
+    renderMobArticles(mobCurrentCat);
+  }
 };
 
 /* ── Mobile Event Sheet ── */
@@ -4758,10 +4816,25 @@ document.addEventListener('mapEventsLoaded', function() {
 <!-- ═══════════ MOBILE v2 CONTENT AREA ═══════════ -->
 <div id="mob-content-area">
 
-  <!-- Pane: Flash Update (articoli) -->
-  <div class="mob-pane active" id="mob-pane-articles">
+  <!-- Pane: Scenari (Flash Update AI) -->
+  <div class="mob-pane active" id="mob-pane-scenari">
     <div class="mob-content-section-header">
       <span class="mob-section-title">Flash Update</span>
+    </div>
+    <div class="mob-art-filters" id="mob-scenari-filters">
+      <button class="mob-art-filter-chip active" onclick="mobFilterScenari('all',this)">Tutti</button>
+      <button class="mob-art-filter-chip" onclick="mobFilterScenari('geopolitica',this)">Geopolitica</button>
+      <button class="mob-art-filter-chip" onclick="mobFilterScenari('politica',this)">Politica</button>
+      <button class="mob-art-filter-chip" onclick="mobFilterScenari('business',this)">Business</button>
+      <button class="mob-art-filter-chip" onclick="mobFilterScenari('tecnologia',this)">Tech</button>
+    </div>
+    <div id="mob-scenari-list"></div>
+  </div>
+
+  <!-- Pane: Articoli (solo umani) -->
+  <div class="mob-pane" id="mob-pane-articles">
+    <div class="mob-content-section-header">
+      <span class="mob-section-title">Articoli</span>
     </div>
     <div class="mob-art-filters" id="mob-art-filters">
       <button class="mob-art-filter-chip active" onclick="mobFilterArticles('all',this)">Tutti</button>
@@ -4801,7 +4874,7 @@ document.addEventListener('mapEventsLoaded', function() {
 
 <!-- ═══════════ MOBILE v2 BOTTOM NAV ═══════════ -->
 <div id="mob-bottom-nav">
-  <button class="mob-nav-item active" data-mob-pane="articles" onclick="switchMobNav('articles',this)">
+  <button class="mob-nav-item active" data-mob-pane="scenari" onclick="switchMobNav('scenari',this)">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
     <span class="mob-nav-label">Scenari</span>
     <div class="mob-nav-dot"></div>
