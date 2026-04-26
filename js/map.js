@@ -383,9 +383,6 @@ function initSituationMap(containerId) {
     noWrap: true
   }).addTo(situationMap);
 
-  // Zoom control bottom-right
-  L.control.zoom({ position: 'bottomright' }).addTo(situationMap);
-
   // Init layer groups
   const layerKeys = ['events', 'resources_oil', 'resources_gas', 'resources_lithium', 'resources_uranium', 'migration', 'maritime', 'oil_trade', 'submarine'];
   layerKeys.forEach(k => {
