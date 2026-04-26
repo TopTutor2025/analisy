@@ -431,6 +431,12 @@ function addEventMarker(ev) {
 
   const marker = L.marker([ev.lat, ev.lng], { icon });
   marker.bindPopup(buildEventPopup(ev, color), { maxWidth: 240, className: 'analisy-popup' });
+  marker.on('click', function() {
+    document.dispatchEvent(new CustomEvent('mapEventSelected', { detail: ev }));
+  });
+  marker.on('popupopen', function() {
+    if (window.innerWidth <= 768) marker.closePopup();
+  });
   layerGroups.events.addLayer(marker);
 }
 

@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analisy — Situation Room Concept (Desktop Spotify Layout)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #020508;
+      --bg-sidebar: #0a0f1a;
+      --bg-card: rgba(255,255,255,0.04);
+      --bg-card-hover: rgba(255,255,255,0.07);
+      --accent: #e8344e;
+      --accent2: #ff6b6b;
+      --text: #f0f4ff;
+      --text-muted: rgba(255,255,255,0.45);
+      --text-dim: rgba(255,255,255,0.25);
+      --border: rgba(255,255,255,0.07);
+      --blue: #4f9eff;
+      --amber: #f5a623;
+      --violet: #a78bfa;
+      --teal: #00d4aa;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* ── CONCEPT BANNER ── */
+    #concept-banner {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+      background: linear-gradient(90deg, #1a0a0e, #0d0514);
+      border-bottom: 1px solid rgba(232,52,78,0.3);
+      padding: 7px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.72rem; color: rgba(255,255,255,0.5);
+      backdrop-filter: blur(20px);
+    }
+    #concept-banner span { display: flex; align-items: center; gap: 8px; }
+    #concept-banner .badge {
+      background: rgba(232,52,78,0.2); border: 1px solid rgba(232,52,78,0.4);
+      color: #e8344e; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 2px 7px; border-radius: 4px;
+    }
+    #concept-banner a {
+      color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.72rem;
+      display: flex; align-items: center; gap: 5px; transition: color 0.15s;
+    }
+    #concept-banner a:hover { color: white; }
+
+    /* ── LAYOUT WRAPPER ── */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      padding-top: 32px; /* banner height */
+    }
+
+    /* ── TOP BAR ── */
+    #topbar {
+      height: 52px;
+      background: rgba(8,12,22,0.95);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 18px;
+      flex-shrink: 0;
+      backdrop-filter: blur(20px);
+      position: relative;
+      z-index: 100;
+    }
+    .topbar-logo {
+      display: flex; align-items: center; gap: 8px;
+      text-decoration: none;
+    }
+    .topbar-logo .logo-icon {
+      width: 28px; height: 28px;
+      background: rgba(232,52,78,0.15);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .topbar-logo .logo-text {
+      background: linear-gradient(135deg, #e8344e, #ff6b6b);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 1.05rem; font-weight: 800; letter-spacing: -0.04em;
+    }
+    .topbar-badge {
+      background: rgba(232,52,78,0.12);
+      border: 1px solid rgba(232,52,78,0.25);
+      color: #e8344e;
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 9px; border-radius: 5px;
+    }
+    .topbar-spacer { flex: 1; }
+    .live-dot-wrap {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.68rem; color: var(--text-muted);
+    }
+    .live-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #e8344e;
+      animation: livePulse 1.5s ease-in-out infinite;
+    }
+    @keyframes livePulse {
+      0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(232,52,78,0.5); }
+      50% { opacity: 0.7; box-shadow: 0 0 0 5px rgba(232,52,78,0); }
+    }
+    .topbar-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, #e8344e44, #4f9eff44);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.62rem; font-weight: 700; color: white;
+      cursor: pointer;
+    }
+
+    /* ── MAIN BODY ── */
+    #main-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── LEFT SIDEBAR ── */
+    #sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 12px 0;
+    }
+    #sidebar::-webkit-scrollbar { width: 4px; }
+    #sidebar::-webkit-scrollbar-track { background: transparent; }
+    #sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+    .sidebar-section-title {
+      font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-dim);
+      padding: 14px 18px 6px;
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 18px; cursor: pointer;
+      font-size: 0.82rem; color: var(--text-muted);
+      transition: background 0.15s, color 0.15s;
+      border-radius: 0; position: relative;
+    }
+    .sidebar-item:hover { background: rgba(255,255,255,0.04); color: white; }
+    .sidebar-item.active {
+      color: white;
+      background: rgba(232,52,78,0.08);
+    }
+    .sidebar-item.active::before {
+      content: '';
+      position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 60%; background: #e8344e; border-radius: 0 2px 2px 0;
+    }
+    .sidebar-item-icon {
+      width: 20px; height: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; flex-shrink: 0;
+    }
+    .sidebar-divider {
+      height: 1px; background: var(--border);
+      margin: 10px 18px;
+    }
+    .sidebar-live-block {
+      margin: 8px 12px;
+      background: rgba(232,52,78,0.06);
+      border: 1px solid rgba(232,52,78,0.12);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .sidebar-live-title {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: #e8344e; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .sidebar-crisis-item {
+      font-size: 0.72rem; color: var(--text-muted);
+      padding: 4px 0; display: flex; align-items: center; gap: 6px;
+    }
+    .crisis-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── CENTER COLUMN ── */
+    #center {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--bg);
+      position: relative;
+    }
+    #center::-webkit-scrollbar { width: 5px; }
+    #center::-webkit-scrollbar-track { background: transparent; }
+    #center::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 3px; }
+
+    /* Map Hero */
+    #map-hero {
+      position: relative;
+      height: 400px;
+      background: linear-gradient(160deg, #060d1a 0%, #020508 60%);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    #map-hero.expanded { height: 560px; }
+    #map-canvas {
+      position: absolute; inset: 0;
+      overflow: hidden;
+    }
+    /* Simulated world map grid */
+    .map-grid-bg {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(79,158,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79,158,255,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .map-globe-glow {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 500px; height: 300px;
+      background: radial-gradient(ellipse at center, rgba(79,158,255,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    /* Continent outlines (simplified SVG-like shapes) */
+    .continent {
+      position: absolute;
+      border-radius: 40% 60% 55% 45% / 50% 40% 60% 50%;
+      opacity: 0.12;
+    }
+    .continent.europe {
+      width: 90px; height: 70px;
+      background: #4f9eff;
+      top: 28%; left: 44%;
+    }
+    .continent.africa {
+      width: 80px; height: 120px;
+      background: #4f9eff;
+      top: 38%; left: 46%;
+      border-radius: 30% 70% 60% 40% / 40% 50% 50% 60%;
+    }
+    .continent.asia {
+      width: 180px; height: 100px;
+      background: #4f9eff;
+      top: 22%; left: 52%;
+      border-radius: 50% 50% 40% 60% / 60% 40% 50% 50%;
+    }
+    .continent.americas {
+      width: 80px; height: 150px;
+      background: #4f9eff;
+      top: 20%; left: 18%;
+      border-radius: 40% 60% 50% 50% / 30% 70% 60% 40%;
+    }
+    .continent.oceania {
+      width: 70px; height: 50px;
+      background: #4f9eff;
+      top: 62%; left: 72%;
+      border-radius: 50%;
+    }
+
+    /* Event markers */
+    .ev-marker {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+    }
+    .ev-dot {
+      border-radius: 50%;
+      position: relative;
+      z-index: 2;
+    }
+    .ev-ring {
+      position: absolute; top: 50%; left: 50%;
+      border-radius: 50%;
+      border-width: 2px; border-style: solid;
+      transform: translate(-50%, -50%);
+      animation: evPulse 2.5s ease-out infinite;
+      pointer-events: none;
+    }
+    .ev-ring:nth-child(2) { animation-delay: 0.8s; }
+    @keyframes evPulse {
+      0% { width: 100%; height: 100%; opacity: 0.8; }
+      100% { width: 320%; height: 320%; opacity: 0; }
+    }
+
+    /* Map overlay controls */
+    .map-overlay-top {
+      position: absolute; top: 14px; left: 14px; right: 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      z-index: 10;
+    }
+    .map-live-badge {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(8,8,12,0.8);
+      border: 1px solid rgba(232,52,78,0.3);
+      padding: 5px 11px; border-radius: 20px;
+      font-size: 0.62rem; font-weight: 700; color: #e8344e;
+      backdrop-filter: blur(10px);
+    }
+    .map-expand-btn {
+      display: flex; align-items: center; gap: 5px;
+      background: rgba(8,8,12,0.7);
+      border: 1px solid var(--border);
+      color: var(--text-muted); font-size: 0.65rem; font-weight: 600;
+      padding: 5px 10px; border-radius: 8px;
+      cursor: pointer; transition: all 0.15s;
+      font-family: inherit;
+      backdrop-filter: blur(10px);
+    }
+    .map-expand-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+
+    .map-stats-bar {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(0deg, rgba(2,5,8,0.95) 0%, transparent 100%);
+      padding: 20px 18px 12px;
+      display: flex; gap: 20px;
+      z-index: 10;
+    }
+    .map-stat {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.68rem;
+    }
+    .map-stat-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .map-stat-val { color: white; font-weight: 700; }
+    .map-stat-label { color: var(--text-dim); }
+
+    /* Center feed */
+    .feed-section {
+      padding: 22px 24px 8px;
+    }
+    .feed-section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .feed-section-title {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text-dim);
+    }
+    .feed-section-more {
+      font-size: 0.68rem; color: var(--accent); cursor: pointer;
+      text-decoration: none;
+    }
+
+    /* Article cards */
+    .art-card {
+      display: flex; gap: 14px;
+      padding: 13px 14px;
+      border-radius: 12px;
+      background: var(--bg-card);
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.12s;
+      border: 1px solid transparent;
+    }
+    .art-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border);
+      transform: translateX(3px);
+    }
+    .art-card.active {
+      background: rgba(232,52,78,0.06);
+      border-color: rgba(232,52,78,0.2);
+    }
+    .art-card-img {
+      width: 68px; height: 52px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .art-card-img-inner {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+    }
+    .art-card-body { flex: 1; min-width: 0; }
+    .art-card-cat {
+      font-size: 0.57rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; margin-bottom: 4px;
+    }
+    .art-card-title {
+      font-size: 0.83rem; font-weight: 700; color: var(--text);
+      line-height: 1.35; margin-bottom: 5px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .art-card-meta {
+      font-size: 0.63rem; color: var(--text-dim);
+      display: flex; gap: 8px; align-items: center;
+    }
+    .art-card-read-time {
+      background: rgba(255,255,255,0.06);
+      padding: 1px 5px; border-radius: 3px;
+    }
+
+    /* ── RIGHT PANEL ── */
+    #right-panel {
+      width: 300px;
+      flex-shrink: 0;
+      background: var(--bg-sidebar);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    #right-panel::-webkit-scrollbar { width: 4px; }
+    #right-panel::-webkit-scrollbar-track { background: transparent; }
+    #right-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
+
+    .rp-section-header {
+      padding: 16px 18px 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .rp-title {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text-dim);
+    }
+    .rp-count {
+      font-size: 0.6rem; background: rgba(232,52,78,0.15);
+      color: #e8344e; padding: 2px 7px; border-radius: 10px;
+      font-weight: 700;
+    }
+
+    .scenario-card {
+      padding: 12px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    .scenario-card:hover { background: rgba(255,255,255,0.03); }
+    .scenario-card-tag {
+      font-size: 0.55rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; margin-bottom: 5px;
+    }
+    .scenario-card-title {
+      font-size: 0.78rem; font-weight: 700; color: var(--text);
+      line-height: 1.35; margin-bottom: 5px;
+    }
+    .scenario-card-meta {
+      font-size: 0.6rem; color: var(--text-dim);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .scenario-card-impact {
+      display: flex; gap: 2px; align-items: center;
+    }
+    .impact-dot { width: 5px; height: 5px; border-radius: 50%; }
+
+    /* ── ARTICLE READER OVERLAY ── */
+    #art-reader-overlay {
+      position: fixed;
+      top: 32px; /* below concept banner */
+      right: 0; bottom: 0;
+      width: 520px;
+      background: linear-gradient(160deg, #0d1525 0%, #060b14 100%);
+      border-left: 1px solid var(--border);
+      transform: translateX(100%);
+      transition: transform 0.38s cubic-bezier(0.32,0.72,0,1);
+      z-index: 500;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    #art-reader-overlay.open { transform: translateX(0); }
+
+    .art-reader-header {
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
+      flex-shrink: 0;
+    }
+    .art-reader-close {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; color: var(--text-muted);
+      transition: all 0.15s; flex-shrink: 0;
+      font-family: inherit;
+    }
+    .art-reader-close:hover { background: rgba(255,255,255,0.1); color: white; }
+    .art-reader-header-text { flex: 1; min-width: 0; }
+    .art-reader-header-cat {
+      font-size: 0.57rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 4px;
+    }
+    .art-reader-header-title {
+      font-size: 0.88rem; font-weight: 700; color: var(--text);
+      line-height: 1.3;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .art-reader-body {
+      flex: 1; overflow-y: auto;
+      padding: 20px;
+    }
+    .art-reader-body::-webkit-scrollbar { width: 4px; }
+    .art-reader-body::-webkit-scrollbar-track { background: transparent; }
+    .art-reader-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
+    .art-hero-img {
+      width: 100%; height: 160px; border-radius: 14px;
+      margin-bottom: 18px; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3rem;
+    }
+    .art-reader-title {
+      font-size: 1.18rem; font-weight: 800; color: var(--text);
+      line-height: 1.3; margin-bottom: 10px;
+    }
+    .art-reader-byline {
+      font-size: 0.65rem; color: var(--text-dim); margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .art-reader-content p {
+      font-size: 0.84rem; color: rgba(255,255,255,0.65);
+      line-height: 1.75; margin-bottom: 14px;
+    }
+    .art-reader-content strong { color: rgba(255,255,255,0.85); }
+    .art-reader-tag-block {
+      margin-top: 20px;
+      padding: 14px; border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+    .art-reader-tag-block-label {
+      font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 10px;
+    }
+
+    /* ── RESPONSIVE: mobile stack ── */
+    @media (max-width: 900px) {
+      html, body { overflow: auto; }
+      #app { height: auto; overflow: auto; }
+      #main-body { flex-direction: column; overflow: visible; }
+      #sidebar { width: 100%; height: auto; padding: 8px 0; flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--border); }
+      #sidebar::-webkit-scrollbar { height: 3px; }
+      .sidebar-section-title { display: none; }
+      .sidebar-live-block { display: none; }
+      .sidebar-divider { width: 1px; height: 30px; margin: 0 4px; }
+      .sidebar-item { white-space: nowrap; border-radius: 20px; padding: 6px 14px; }
+      .sidebar-item.active::before { display: none; }
+      #center { overflow: visible; }
+      #right-panel { width: 100%; height: auto; border-left: none; border-top: 1px solid var(--border); }
+      #art-reader-overlay { width: 100%; top: 32px; }
+      #map-hero { height: 260px; }
+    }
+
+    /* ── UTILITY ── */
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+  </style>
+</head>
+<body>
+
+<!-- CONCEPT BANNER -->
+<div id="concept-banner">
+  <span>
+    <span class="badge">Concept Preview</span>
+    CONCEPT PREVIEW — Non è la versione definitiva
+  </span>
+  <a href="#" onclick="history.back(); return false;">
+    ← Torna alla chat
+  </a>
+</div>
+
+<div id="app">
+
+  <!-- TOP BAR -->
+  <header id="topbar">
+    <a href="situation-room.html" class="topbar-logo">
+      <div class="logo-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24" width="16" height="14">
+          <line x1="14" y1="2" x2="3" y2="22" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="14" y1="2" x2="25" y2="22" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round"/>
+          <polyline points="6,14 9,14 11,8 14,18 17,14 22,14" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="11,8 14,18" stroke="#e8344e" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="11" cy="8" r="2.2" fill="#e8344e"/>
+          <circle cx="11" cy="8" r="1" fill="white"/>
+        </svg>
+      </div>
+      <span class="logo-text">ANALISY</span>
+    </a>
+    <span class="topbar-badge">Situation Room</span>
+    <div class="topbar-spacer"></div>
+    <div class="live-dot-wrap">
+      <div class="live-dot"></div>
+      Live · 6 eventi attivi
+    </div>
+    <div class="topbar-avatar">MR</div>
+  </header>
+
+  <!-- MAIN BODY -->
+  <div id="main-body">
+
+    <!-- LEFT SIDEBAR -->
+    <nav id="sidebar">
+      <div class="sidebar-section-title">Navigazione</div>
+      <div class="sidebar-item active" onclick="activateSidebarItem(this)">
+        <div class="sidebar-item-icon">🌍</div>
+        Scenari
+      </div>
+      <div class="sidebar-item" onclick="activateSidebarItem(this)">
+        <div class="sidebar-item-icon">📰</div>
+        Articoli
+      </div>
+      <div class="sidebar-item" onclick="activateSidebarItem(this)">
+        <div class="sidebar-item-icon">📡</div>
+        Live Feed
+      </div>
+      <div class="sidebar-item" onclick="activateSidebarItem(this)">
+        <div class="sidebar-item-icon">🎙️</div>
+        Podcast
+      </div>
+      <div class="sidebar-item" onclick="activateSidebarItem(this)">
+        <div class="sidebar-item-icon">💬</div>
+        Forum
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section-title">Filtri</div>
+      <div class="sidebar-item" onclick="activateSidebarItem(this)">
+        <div class="sidebar-item-icon" style="color:#e8344e;">●</div>
+        Geopolitica
+      </div>
+      <div class="sidebar-item" onclick="activateSidebarItem(this)">
+        <div class="sidebar-item-icon" style="color:#4f9eff;">●</div>
+        Politica
+      </div>
+      <div class="sidebar-item" onclick="activateSidebarItem(this)">
+        <div class="sidebar-item-icon" style="color:#f5a623;">●</div>
+        Business
+      </div>
+      <div class="sidebar-item" onclick="activateSidebarItem(this)">
+        <div class="sidebar-item-icon" style="color:#a78bfa;">●</div>
+        Tecnologia
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-live-block">
+        <div class="sidebar-live-title">
+          <div class="live-dot" style="width:6px;height:6px;"></div>
+          Live now
+        </div>
+        <div class="sidebar-crisis-item">
+          <div class="crisis-dot" style="background:#e8344e;"></div>
+          Tensione Mar Rosso — Critico
+        </div>
+        <div class="sidebar-crisis-item">
+          <div class="crisis-dot" style="background:#f5a623;"></div>
+          Sanzioni Russia — Alto
+        </div>
+        <div class="sidebar-crisis-item">
+          <div class="crisis-dot" style="background:#4f9eff;"></div>
+          Elezioni Romania — In corso
+        </div>
+      </div>
+    </nav>
+
+    <!-- CENTER COLUMN -->
+    <main id="center">
+
+      <!-- MAP HERO -->
+      <div id="map-hero">
+        <div id="map-canvas">
+          <div class="map-grid-bg"></div>
+          <div class="map-globe-glow"></div>
+          <!-- Continent shapes -->
+          <div class="continent europe"></div>
+          <div class="continent africa"></div>
+          <div class="continent asia"></div>
+          <div class="continent americas"></div>
+          <div class="continent oceania"></div>
+
+          <!-- Event markers -->
+          <!-- Ukraine/Russia: geopolitica -->
+          <div class="ev-marker" style="top:30%;left:53%;" onclick="openArtReader('ukraine')" title="Conflitto Russo-Ucraino">
+            <div class="ev-dot" style="width:18px;height:18px;background:#e8344e;box-shadow:0 0 14px #e8344e80;"></div>
+            <div class="ev-ring" style="border-color:#e8344e;width:18px;height:18px;"></div>
+            <div class="ev-ring" style="border-color:#e8344e;width:18px;height:18px;animation-delay:0.8s;"></div>
+          </div>
+
+          <!-- Gaza: geopolitica -->
+          <div class="ev-marker" style="top:42%;left:55%;" onclick="openArtReader('gaza')" title="Crisi Gaza">
+            <div class="ev-dot" style="width:14px;height:14px;background:#e8344e;box-shadow:0 0 10px #e8344e80;"></div>
+            <div class="ev-ring" style="border-color:#e8344e;width:14px;height:14px;"></div>
+          </div>
+
+          <!-- US Dazi: business -->
+          <div class="ev-marker" style="top:35%;left:22%;" onclick="openArtReader('dazi')" title="Dazi USA">
+            <div class="ev-dot" style="width:18px;height:18px;background:#f5a623;box-shadow:0 0 14px #f5a62380;"></div>
+            <div class="ev-ring" style="border-color:#f5a623;width:18px;height:18px;"></div>
+            <div class="ev-ring" style="border-color:#f5a623;width:18px;height:18px;animation-delay:0.8s;"></div>
+          </div>
+
+          <!-- Taiwan: geopolitica -->
+          <div class="ev-marker" style="top:38%;left:74%;" onclick="openArtReader('taiwan')" title="Tensioni Taiwan">
+            <div class="ev-dot" style="width:14px;height:14px;background:#e8344e;box-shadow:0 0 10px #e8344e80;"></div>
+            <div class="ev-ring" style="border-color:#e8344e;width:14px;height:14px;"></div>
+          </div>
+
+          <!-- Sahel: geopolitica -->
+          <div class="ev-marker" style="top:50%;left:45%;" onclick="openArtReader('sahel')" title="Crisi Sahel">
+            <div class="ev-dot" style="width:10px;height:10px;background:#e8344e;box-shadow:0 0 8px #e8344e60;"></div>
+            <div class="ev-ring" style="border-color:#e8344e;width:10px;height:10px;"></div>
+          </div>
+
+          <!-- AI Race: tecnologia -->
+          <div class="ev-marker" style="top:32%;left:70%;" onclick="openArtReader('ai')" title="Corsa all'IA">
+            <div class="ev-dot" style="width:14px;height:14px;background:#a78bfa;box-shadow:0 0 10px #a78bfa80;"></div>
+            <div class="ev-ring" style="border-color:#a78bfa;width:14px;height:14px;"></div>
+          </div>
+        </div>
+
+        <!-- Map controls overlay -->
+        <div class="map-overlay-top">
+          <div class="map-live-badge">
+            <div class="live-dot"></div>
+            LIVE · Aggiornamento automatico
+          </div>
+          <button class="map-expand-btn" onclick="toggleMapExpand(this)">
+            ⤢ Espandi mappa
+          </button>
+        </div>
+
+        <!-- Map stats bar -->
+        <div class="map-stats-bar">
+          <div class="map-stat">
+            <div class="map-stat-dot" style="background:#e8344e;"></div>
+            <span class="map-stat-val">4</span>
+            <span class="map-stat-label">Crisi geo</span>
+          </div>
+          <div class="map-stat">
+            <div class="map-stat-dot" style="background:#f5a623;"></div>
+            <span class="map-stat-val">2</span>
+            <span class="map-stat-label">Business</span>
+          </div>
+          <div class="map-stat">
+            <div class="map-stat-dot" style="background:#a78bfa;"></div>
+            <span class="map-stat-val">1</span>
+            <span class="map-stat-label">Tecnologia</span>
+          </div>
+          <div class="map-stat" style="margin-left:auto;">
+            <span class="map-stat-val" style="color:var(--text-dim);font-weight:400;font-size:0.62rem;">Dati aggiornati alle 14:22</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ARTICLE FEED -->
+      <div class="feed-section">
+        <div class="feed-section-header">
+          <div class="feed-section-title">Notizie Globali</div>
+          <a href="#" class="feed-section-more">Vedi tutti →</a>
+        </div>
+
+        <div class="art-card" id="art-ukraine" onclick="openArtReader('ukraine')">
+          <div class="art-card-img">
+            <div class="art-card-img-inner" style="background:linear-gradient(135deg,#e8344e22,#e8344e44);">🇺🇦</div>
+          </div>
+          <div class="art-card-body">
+            <div class="art-card-cat" style="color:#e8344e;">Geopolitica</div>
+            <div class="art-card-title">Fronte Ucraino: nuova offensiva russa nella regione di Zaporizhzhia</div>
+            <div class="art-card-meta">
+              <span>2 ore fa</span>
+              <span class="art-card-read-time">5 min</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="art-card" id="art-dazi" onclick="openArtReader('dazi')">
+          <div class="art-card-img">
+            <div class="art-card-img-inner" style="background:linear-gradient(135deg,#f5a62322,#f5a62344);">💹</div>
+          </div>
+          <div class="art-card-body">
+            <div class="art-card-cat" style="color:#f5a623;">Business</div>
+            <div class="art-card-title">Trump lancia nuovi dazi al 45% su importazioni cinesi: le borse reagiscono</div>
+            <div class="art-card-meta">
+              <span>3 ore fa</span>
+              <span class="art-card-read-time">7 min</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="art-card" id="art-taiwan" onclick="openArtReader('taiwan')">
+          <div class="art-card-img">
+            <div class="art-card-img-inner" style="background:linear-gradient(135deg,#e8344e22,#e8344e33);">🇹🇼</div>
+          </div>
+          <div class="art-card-body">
+            <div class="art-card-cat" style="color:#e8344e;">Geopolitica</div>
+            <div class="art-card-title">Esercitazioni militari cinesi nello Stretto di Taiwan: analisi delle implicazioni</div>
+            <div class="art-card-meta">
+              <span>5 ore fa</span>
+              <span class="art-card-read-time">6 min</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="art-card" id="art-ai" onclick="openArtReader('ai')">
+          <div class="art-card-img">
+            <div class="art-card-img-inner" style="background:linear-gradient(135deg,#a78bfa22,#a78bfa44);">🤖</div>
+          </div>
+          <div class="art-card-body">
+            <div class="art-card-cat" style="color:#a78bfa;">Tecnologia</div>
+            <div class="art-card-title">La corsa all'IA militare: USA, Cina e UE accelerano sulle armi autonome</div>
+            <div class="art-card-meta">
+              <span>Ieri</span>
+              <span class="art-card-read-time">8 min</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="art-card" id="art-gaza" onclick="openArtReader('gaza')">
+          <div class="art-card-img">
+            <div class="art-card-img-inner" style="background:linear-gradient(135deg,#e8344e18,#e8344e30);">🇵🇸</div>
+          </div>
+          <div class="art-card-body">
+            <div class="art-card-cat" style="color:#e8344e;">Geopolitica</div>
+            <div class="art-card-title">Tregua a Gaza: i negoziati al Cairo e il ruolo della diplomazia qatariota</div>
+            <div class="art-card-meta">
+              <span>Ieri</span>
+              <span class="art-card-read-time">4 min</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="art-card" id="art-sahel" onclick="openArtReader('sahel')">
+          <div class="art-card-img">
+            <div class="art-card-img-inner" style="background:linear-gradient(135deg,#e8344e15,#f5a62315);">🌍</div>
+          </div>
+          <div class="art-card-body">
+            <div class="art-card-cat" style="color:#e8344e;">Geopolitica</div>
+            <div class="art-card-title">Sahel: la nuova alleanza Wagner-Mali e il ritiro delle missioni ONU</div>
+            <div class="art-card-meta">
+              <span>2 giorni fa</span>
+              <span class="art-card-read-time">6 min</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- RIGHT PANEL: Scenari AI -->
+    <aside id="right-panel">
+      <div class="rp-section-header">
+        <div class="rp-title">Scenari AI</div>
+        <div class="rp-count">5 nuovi</div>
+      </div>
+
+      <div class="scenario-card" onclick="openArtReader('ukraine')">
+        <div class="scenario-card-tag" style="color:#e8344e;">Geopolitica · Critico</div>
+        <div class="scenario-card-title">Ucraina — Tre scenari per la fine del conflitto</div>
+        <div class="scenario-card-meta">
+          <div class="scenario-card-impact">
+            <div class="impact-dot" style="background:#e8344e;"></div>
+            <div class="impact-dot" style="background:#e8344e;"></div>
+            <div class="impact-dot" style="background:#e8344e;"></div>
+            <div class="impact-dot" style="background:#e8344e;"></div>
+          </div>
+          <span>Impatto critico</span>
+        </div>
+      </div>
+
+      <div class="scenario-card" onclick="openArtReader('dazi')">
+        <div class="scenario-card-tag" style="color:#f5a623;">Business · Alto</div>
+        <div class="scenario-card-title">Guerra dei dazi — L'impatto sull'export europeo nei prossimi 6 mesi</div>
+        <div class="scenario-card-meta">
+          <div class="scenario-card-impact">
+            <div class="impact-dot" style="background:#f5a623;"></div>
+            <div class="impact-dot" style="background:#f5a623;"></div>
+            <div class="impact-dot" style="background:#f5a623;"></div>
+            <div class="impact-dot" style="background:rgba(255,255,255,0.1);"></div>
+          </div>
+          <span>Impatto alto</span>
+        </div>
+      </div>
+
+      <div class="scenario-card" onclick="openArtReader('taiwan')">
+        <div class="scenario-card-tag" style="color:#e8344e;">Geopolitica · Alto</div>
+        <div class="scenario-card-title">Taiwan — Escalation nello Stretto: le mosse di Pechino entro il 2026</div>
+        <div class="scenario-card-meta">
+          <div class="scenario-card-impact">
+            <div class="impact-dot" style="background:#e8344e;"></div>
+            <div class="impact-dot" style="background:#e8344e;"></div>
+            <div class="impact-dot" style="background:#e8344e;"></div>
+            <div class="impact-dot" style="background:rgba(255,255,255,0.1);"></div>
+          </div>
+          <span>Impatto alto</span>
+        </div>
+      </div>
+
+      <div class="scenario-card" onclick="openArtReader('ai')">
+        <div class="scenario-card-tag" style="color:#a78bfa;">Tecnologia · Moderato</div>
+        <div class="scenario-card-title">IA Militare — Chi controllerà le armi autonome entro il 2030?</div>
+        <div class="scenario-card-meta">
+          <div class="scenario-card-impact">
+            <div class="impact-dot" style="background:#a78bfa;"></div>
+            <div class="impact-dot" style="background:#a78bfa;"></div>
+            <div class="impact-dot" style="background:rgba(255,255,255,0.1);"></div>
+            <div class="impact-dot" style="background:rgba(255,255,255,0.1);"></div>
+          </div>
+          <span>Impatto moderato</span>
+        </div>
+      </div>
+
+      <div class="scenario-card" onclick="openArtReader('sahel')">
+        <div class="scenario-card-tag" style="color:#e8344e;">Geopolitica · Moderato</div>
+        <div class="scenario-card-title">Sahel — Effetto domino: i paesi a rischio colpo di stato</div>
+        <div class="scenario-card-meta">
+          <div class="scenario-card-impact">
+            <div class="impact-dot" style="background:#e8344e;"></div>
+            <div class="impact-dot" style="background:#e8344e;"></div>
+            <div class="impact-dot" style="background:rgba(255,255,255,0.1);"></div>
+            <div class="impact-dot" style="background:rgba(255,255,255,0.1);"></div>
+          </div>
+          <span>Impatto moderato</span>
+        </div>
+      </div>
+
+    </aside>
+
+  </div><!-- /main-body -->
+</div><!-- /app -->
+
+<!-- ARTICLE READER OVERLAY -->
+<div id="art-reader-overlay">
+  <div class="art-reader-header">
+    <button class="art-reader-close" onclick="closeArtReader()">✕</button>
+    <div class="art-reader-header-text">
+      <div class="art-reader-header-cat" id="art-reader-cat" style="color:#e8344e;">Geopolitica</div>
+      <div class="art-reader-header-title" id="art-reader-header-title">Articolo</div>
+    </div>
+  </div>
+  <div class="art-reader-body" id="art-reader-body"></div>
+</div>
+
+<script>
+  /* ── ARTICLES DATA ── */
+  const ARTICLES = {
+    ukraine: {
+      cat: 'Geopolitica', catColor: '#e8344e',
+      emoji: '🇺🇦',
+      imgBg: 'linear-gradient(135deg, #1a0810, #0d0208)',
+      title: 'Fronte Ucraino: nuova offensiva russa nella regione di Zaporizhzhia',
+      author: 'Matteo Ricci', date: '2 ore fa', readTime: '5 min',
+      content: `
+        <p>Le forze armate russe hanno lanciato una nuova offensiva nella regione di Zaporizhzhia nelle ultime 48 ore, puntando a sfondare la linea difensiva ucraina lungo il fiume Dnipro. Gli analisti dell'ISW (Institute for the Study of War) segnalano movimenti di truppe significativi nella zona di Enerhodar.</p>
+        <p><strong>Il contesto strategico</strong> è cambiato radicalmente dall'autunno scorso: l'esaurimento delle riserve di munizioni NATO ha costretto l'Ucraina a una postura più difensiva, cedendo l'iniziativa alle forze russe che ora sfruttano la superiorità numerica nei settori chiave.</p>
+        <p>La centrale nucleare di Zaporizhzhia — ancora sotto controllo russo dal 2022 — rimane un punto di tensione irrisolto. L'AIEA ha rinnovato le sue preoccupazioni per la sicurezza degli impianti di raffreddamento in caso di ulteriore escalation del conflitto nella zona.</p>
+        <p>Sul fronte diplomatico, i colloqui informali tra Washington e Mosca — segnalati da fonti vicine all'amministrazione Trump — avanzano lentamente senza breakthrough significativi. Kyiv rimane scettica su qualsiasi cessazione del fuoco che non garantisca un'agenda chiara per il ritiro delle truppe russe.</p>
+      `,
+      tagLabel: 'Scenario AI', tagContent: 'Con l\'attuale traiettoria, il conflitto potrebbe congelare entro 12-18 mesi lungo le linee attuali, con un accordo informale simile alla situazione coreana. La probabilità di un ritiro russo completo rimane sotto il 10% nei prossimi 24 mesi.'
+    },
+    dazi: {
+      cat: 'Business', catColor: '#f5a623',
+      emoji: '💹',
+      imgBg: 'linear-gradient(135deg, #1a1008, #0d0a02)',
+      title: 'Trump lancia nuovi dazi al 45% su importazioni cinesi: le borse reagiscono',
+      author: 'Sofia Marchetti', date: '3 ore fa', readTime: '7 min',
+      content: `
+        <p>L'amministrazione Trump ha annunciato l'introduzione di dazi al 45% su un'ampia categoria di beni di importazione cinesi, effettivi a partire dal prossimo trimestre. La mossa — attesa dai mercati ma più aggressiva delle previsioni — ha innescato una correzione immediata sui mercati asiatici con il Nikkei in calo del 2.3% e l'Hang Seng del 3.1%.</p>
+        <p><strong>L'Europa è nel mirino</strong> indirettamente: la deflazione delle esportazioni cinesi dirottate verso i mercati europei rischia di colpire settori strategici come l'automotive, il tessile e l'elettronica. Bruxelles ha avviato consultazioni d'urgenza per valutare misure di salvaguardia.</p>
+        <p>Il settore tech è particolarmente esposto: Apple, che produce il 90% degli iPhone in Cina, ha visto il titolo cedere il 4.2% nella sessione pre-mercato. La supply chain globale dei semiconduttori subisce ulteriori pressioni dopo le già severe restrizioni all'export di chip verso Pechino.</p>
+        <p>La Cina ha risposto con un avvertimento formale, minacciando contromisure su importazioni agricole americane e restrizioni alle terre rare — commodity strategica per la transizione energetica e l'industria della difesa occidentale.</p>
+      `,
+      tagLabel: 'Impatto Italia', tagContent: 'L\'export italiano in Cina vale circa €17 mld/anno (automotive, lusso, food). Il rischio principale è un calo della domanda cinese come risposta ritorsiva indiretta, stimato tra il -5% e -12% nei prossimi 18 mesi.'
+    },
+    taiwan: {
+      cat: 'Geopolitica', catColor: '#e8344e',
+      emoji: '🇹🇼',
+      imgBg: 'linear-gradient(135deg, #1a0810, #080210)',
+      title: 'Esercitazioni militari cinesi nello Stretto di Taiwan: analisi delle implicazioni',
+      author: 'Luca Ferrante', date: '5 ore fa', readTime: '6 min',
+      content: `
+        <p>L'Esercito Popolare di Liberazione ha condotto nelle ultime 72 ore esercitazioni di ampia scala nello Stretto di Taiwan, simulando operazioni di blocco navale e operazioni anfibio. Il numero di aerei militari cinesi che hanno attraversato la linea mediana è il più alto registrato dal 2022.</p>
+        <p><strong>Washington ha risposto</strong> schierando un secondo carrier battle group nel Pacifico occidentale, con il USS Ronald Reagan che ha effettuato transiti nel Mar della Cina Meridionale in coordinamento con le marine di Giappone e Australia nell'ambito del framework AUKUS+.</p>
+        <p>Taiwan ha alzato il livello di allerta delle proprie forze armate attivando i sistemi di difesa missilistica Patriot e PAC-3 nelle postazioni costiere. Il presidente Lai ha convocato una riunione d'emergenza del Consiglio di sicurezza nazionale.</p>
+        <p>Gli analisti del think tank CSIS stimano che le esercitazioni attuali siano di natura dimostrativa — un segnale politico legato alla visita di alti funzionari americani a Taipei la settimana scorsa — piuttosto che il preludio a un'operazione reale.</p>
+      `,
+      tagLabel: 'Scenario AI', tagContent: 'La probabilità di un\'invasione militare diretta entro il 2026 rimane bassa (stimata 8-12%). Il rischio maggiore è un blocco navale "grigio" — misure di coercizione economica non dichiarate guerra — con un\'escalation graduale nei prossimi 3-5 anni.'
+    },
+    ai: {
+      cat: 'Tecnologia', catColor: '#a78bfa',
+      emoji: '🤖',
+      imgBg: 'linear-gradient(135deg, #0d0820, #040210)',
+      title: 'La corsa all\'IA militare: USA, Cina e UE accelerano sulle armi autonome',
+      author: 'Elena Russo', date: 'Ieri', readTime: '8 min',
+      content: `
+        <p>Il Pentagono ha approvato un piano quinquennale da $14 miliardi per l'integrazione di sistemi d'arma autonomi nelle forze operative entro il 2029. Il programma CJADC2 (Combined Joint All-Domain Command and Control) punta a connettere sensori, sistemi d'arma e decision-making AI in un framework unificato operativo in tempo reale.</p>
+        <p><strong>La Cina ha risposto</strong> con il proprio annuncio: il Ministero della Difesa di Pechino ha reso noto l'avanzamento del programma "Intelligenza Ibrida Uomo-Macchina", che prevede l'impiego di sciami di droni autonomi coordinati da AI in scenari di conflitto ad alta intensità già entro il 2027.</p>
+        <p>L'Unione Europea naviga in acque più caute: la normativa AI Act prevede restrizioni significative sui sistemi ad alto rischio, ma gli stati membri — specialmente Francia e Germania — premono per esenzioni nel settore difesa. Il compromesso politico rimane difficile da raggiungere prima delle prossime elezioni europee.</p>
+        <p>Le implicazioni per il diritto internazionale sono profonde: i "lethal autonomous weapon systems" (LAWS) operano in zone grigie rispetto alle Convenzioni di Ginevra. L'ONU ha aperto un gruppo di esperti governativi — GGE — che discute dal 2014 senza raggiungere un accordo vincolante.</p>
+      `,
+      tagLabel: 'Scenario AI', tagContent: 'Entro il 2030, la superiorità tattica sui campi di battaglia sarà determinata dalla capacità di processare intelligence in tempo reale più che dalla potenza di fuoco bruta. Il paese che per primo raggiungerà un\'IA decisionale affidabile in scenari operativi complessi avrà un vantaggio strutturale difficilmente colmabile.'
+    },
+    gaza: {
+      cat: 'Geopolitica', catColor: '#e8344e',
+      emoji: '🇵🇸',
+      imgBg: 'linear-gradient(135deg, #150808, #0a0202)',
+      title: 'Tregua a Gaza: i negoziati al Cairo e il ruolo della diplomazia qatariota',
+      author: 'Marco Bianchi', date: 'Ieri', readTime: '4 min',
+      content: `
+        <p>I negoziati mediati da Qatar ed Egitto al Cairo per una nuova tregua a Gaza sono entrati nella fase più critica. Le delegazioni di Hamas e Israele — quest'ultima rappresentata indirettamente tramite il Mossad — hanno discusso per 48 ore un framework che prevede il rilascio degli ostaggi rimanenti in cambio di una pausa prolungata nei combattimenti.</p>
+        <p><strong>I punti di stallo</strong> rimangono due: la richiesta israeliana di mantenere il controllo militare sul Corridoio Philadelphi (confine Gaza-Egitto) e la questione del governo post-conflitto. Hamas rifiuta qualsiasi formula che preveda la propria esclusione dalla governance di Gaza.</p>
+        <p>La crisi umanitaria si aggrava: le organizzazioni internazionali stimano che oltre 1.8 milioni di persone abbiano bisogno di assistenza immediata, con le riserve alimentari sufficienti per 12-15 giorni nelle aree più isolate del nord di Gaza.</p>
+      `,
+      tagLabel: 'Scenario AI', tagContent: 'Una tregua temporanea è lo scenario più probabile (65%) nelle prossime 4 settimane, ma una pace duratura richiede una soluzione politica che nessuna delle parti sembra disposta ad accettare oggi. Il conflitto rischia di diventare "cronico" con cicli di escalation-deescalation periodici.'
+    },
+    sahel: {
+      cat: 'Geopolitica', catColor: '#e8344e',
+      emoji: '🌍',
+      imgBg: 'linear-gradient(135deg, #120d04, #080502)',
+      title: 'Sahel: la nuova alleanza Wagner-Mali e il ritiro delle missioni ONU',
+      author: 'Chiara Romano', date: '2 giorni fa', readTime: '6 min',
+      content: `
+        <p>La MINUSMA — missione ONU in Mali — ha completato il ritiro dal paese dopo la decisione della giunta militare di espellere le forze internazionali. Nel vuoto lasciato, il gruppo Wagner (ora operante come Africa Corps sotto la supervisione del Cremlino) ha rafforzato la propria presenza nelle regioni centrali del paese.</p>
+        <p><strong>Il contagio politico</strong> si estende: Niger e Burkina Faso, entrambi sotto giunte militari filo-russe, hanno formalizzato l'Alleanza degli Stati del Sahel (AES) come blocco alternativo all'ECOWAS. La regione si sta polarizzando rapidamente tra un campo filo-occidentale (Senegal, Costa d'Avorio) e un campo filo-russo.</p>
+        <p>Le implicazioni per l'Europa sono dirette: la destabilizzazione del Sahel alimenta i flussi migratori verso il Mediterraneo e compromette le rotte di approvvigionamento di uranio (Niger è il quarto produttore mondiale) strategico per il nucleare civile europeo.</p>
+        <p>Francia e UE stanno ridefinendo la propria presenza: l'operazione Barkhane è terminata, ma Parigi studia formati alternativi di cooperazione con i paesi costieri. La base militare italiana a Djibouti assume un'importanza crescente come hub logistico per la regione.</p>
+      `,
+      tagLabel: 'Scenario AI', tagContent: 'Il Sahel è destinato a rimanere instabile per almeno un decennio. Il rischio immediato (12-18 mesi) è un\'ulteriore espansione dei colpi di stato verso paesi costieri come Guinea-Conakry o Benin, che aumenterebbe esponenzialmente la pressione migratoria sull\'Europa meridionale.'
+    }
+  };
+
+  /* ── SIDEBAR INTERACTION ── */
+  function activateSidebarItem(el) {
+    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  /* ── MAP EXPAND ── */
+  function toggleMapExpand(btn) {
+    const mapHero = document.getElementById('map-hero');
+    const isExpanded = mapHero.classList.toggle('expanded');
+    btn.textContent = isExpanded ? '⤡ Comprimi mappa' : '⤢ Espandi mappa';
+  }
+
+  /* ── ARTICLE READER ── */
+  let currentArt = null;
+
+  function openArtReader(key) {
+    const art = ARTICLES[key];
+    if (!art) return;
+    currentArt = key;
+
+    // Highlight card
+    document.querySelectorAll('.art-card').forEach(c => c.classList.remove('active'));
+    const card = document.getElementById('art-' + key);
+    if (card) card.classList.add('active');
+
+    // Update header
+    document.getElementById('art-reader-cat').style.color = art.catColor;
+    document.getElementById('art-reader-cat').textContent = art.cat;
+    document.getElementById('art-reader-header-title').textContent = art.title;
+
+    // Build body
+    document.getElementById('art-reader-body').innerHTML = `
+      <div class="art-hero-img" style="background:${art.imgBg};">${art.emoji}</div>
+      <div class="art-reader-title">${art.title}</div>
+      <div class="art-reader-byline">
+        <span style="width:24px;height:24px;border-radius:50%;background:${art.catColor}33;display:inline-flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;color:${art.catColor};">${art.author.charAt(0)}</span>
+        <span>${art.author}</span>
+        <span style="color:rgba(255,255,255,0.15);">·</span>
+        <span>${art.date}</span>
+        <span style="color:rgba(255,255,255,0.15);">·</span>
+        <span>${art.readTime} di lettura</span>
+      </div>
+      <div class="art-reader-content">${art.content}</div>
+      ${art.tagLabel ? `
+        <div class="art-reader-tag-block" style="border-color:${art.catColor}30;">
+          <div class="art-reader-tag-block-label" style="color:${art.catColor};">${art.tagLabel}</div>
+          <div style="font-size:0.8rem;color:rgba(255,255,255,0.6);line-height:1.65;">${art.tagContent}</div>
+        </div>
+      ` : ''}
+    `;
+
+    document.getElementById('art-reader-overlay').classList.add('open');
+  }
+
+  function closeArtReader() {
+    document.getElementById('art-reader-overlay').classList.remove('open');
+    document.querySelectorAll('.art-card').forEach(c => c.classList.remove('active'));
+    currentArt = null;
+  }
+
+  // Close reader on Escape
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeArtReader();
+  });
+</script>
+
+</body>
+</html>
