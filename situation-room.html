@@ -4248,9 +4248,14 @@ function mobFilterArticles(cat, el) {
 
 /* ── Article reader ── */
 function openMobArtReader(article) {
+  const isAI = article.author === 'AI Intelligence · Analisy';
+  // Articoli umani → pagina dedicata (mobile e desktop)
+  if (!isAI && article.id) {
+    window.location.href = 'article.html?id=' + encodeURIComponent(article.id);
+    return;
+  }
   if (window.innerWidth > 768) {
-    // Desktop: vai alla pagina articolo
-    if (article.id) window.location.href = 'article.html?id=' + encodeURIComponent(article.id);
+    openDeskArtReader(article);
     return;
   }
 
@@ -4628,6 +4633,12 @@ function renderDeskArticles(cat) {
 /* ── Article reader desktop ── */
 function openDeskArtReader(article) {
   if (window.innerWidth <= 768) return;
+  const isAI = article.author === 'AI Intelligence \u00B7 Analisy';
+  // Articoli umani → pagina dedicata
+  if (!isAI && article.id) {
+    window.location.href = 'article.html?id=' + encodeURIComponent(article.id);
+    return;
+  }
   const reader = document.getElementById('desk-art-reader');
   const hero = document.getElementById('desk-art-hero');
   const body = document.getElementById('desk-art-body');
@@ -4636,7 +4647,6 @@ function openDeskArtReader(article) {
 
   const color = DESK_CAT_COLORS[article.cat || article.category] || '#4f9eff';
   const label = DESK_CAT_LABELS[article.cat || article.category] || (article.cat_label || '');
-  const isAI = article.author === 'AI Intelligence \u00B7 Analisy';
 
   if (catBadge) {
     catBadge.textContent = label;
