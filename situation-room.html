@@ -3202,7 +3202,8 @@ function renderBriefs(articles) {
   if (!list) return;
 
   const countEl = document.getElementById('briefs-count');
-  const filtered = briefsFilter === 'all' ? articles : articles.filter(a => a.cat === briefsFilter);
+  const recent = articles.filter(isAIRecent);
+  const filtered = briefsFilter === 'all' ? recent : recent.filter(a => a.cat === briefsFilter);
 
   if (countEl) countEl.textContent = filtered.length ? `${filtered.length} scenario${filtered.length===1?'':'i'}` : '';
 
@@ -3246,6 +3247,13 @@ function timeAgo(dateStr) {
   const h = Math.floor(m / 60);
   if (h < 24) return `${h}h fa`;
   return `${Math.floor(h/24)}g fa`;
+}
+
+// Ritorna true se l'articolo AI è recente (meno di 3 giorni)
+function isAIRecent(a) {
+  if (!a.published_at && !a.created_at) return true;
+  const diff = Date.now() - new Date(a.published_at || a.created_at).getTime();
+  return diff < 3 * 24 * 60 * 60 * 1000; // < 72 ore
 }
 
 /* Auto-refresh scenari ogni 30 minuti */
@@ -4110,8 +4118,8 @@ function renderMobScenariPane(cat) {
   if (!list) return;
 
   const allArts = typeof getArticles === 'function' ? getArticles() : [];
-  // Solo articoli AI
-  const aiArts = allArts.filter(a => a.author === 'AI Intelligence · Analisy');
+  // Solo articoli AI recenti (< 3 giorni)
+  const aiArts = allArts.filter(a => a.author === 'AI Intelligence · Analisy' && isAIRecent(a));
   const filtered = cat === 'all' ? aiArts : aiArts.filter(a => a.cat === cat);
 
   if (!filtered.length) {
@@ -4513,7 +4521,7 @@ function renderDeskScenari(data) {
   const list = document.getElementById('desk-scenari-list');
   const countEl = document.getElementById('desk-scenari-count');
   if (!list) return;
-  const arr = data || briefsData || [];
+  const arr = (data || briefsData || []).filter(isAIRecent);
   if (countEl) countEl.textContent = arr.length ? `${arr.length} attivi` : '';
   if (!arr.length) {
     list.innerHTML = `<div style="padding:20px 16px;font-size:0.7rem;color:rgba(255,255,255,0.2);text-align:center;">Aggiornamento in corso\u2026</div>`;
