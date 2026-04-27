@@ -3231,7 +3231,7 @@ function renderBriefs(articles) {
         ${plainText || excerpt}
       </div>
       <div class="brief-meta" style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;">
-        <span style="font-size:0.65rem;color:rgba(235,235,245,0.25);">${ago ? '🕐 ' + ago : ''} ${a.read_time ? '· ' + a.read_time : ''}</span>
+        <span style="font-size:0.65rem;color:rgba(235,235,245,0.25);">${ago ? '🕐 ' + ago : ''}</span>
         ${a.source_url ? `<a href="${a.source_url}" target="_blank" rel="noopener" class="brief-source-link" style="font-size:0.65rem;">Fonte →</a>` : ''}
       </div>
     </div>`;
@@ -4140,7 +4140,6 @@ function renderMobScenariPane(cat) {
           ${excerpt ? `<div class="mob-card-excerpt">${excerpt}</div>` : ''}
         </div>
         <div class="mob-card-right">
-          ${a.read_time ? `<span class="mob-card-readtime">${a.read_time}</span>` : ''}
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
       </div>`;
@@ -4248,7 +4247,7 @@ function openMobArtReader(article) {
       ${article.subtitle ? `<div class="mob-art-subtitle">${article.subtitle}</div>` : ''}
       <div class="mob-art-meta">
         ${isAI ? `<div class="mob-art-author-pill"><div class="mob-art-author-dot"></div><span class="mob-art-author-name">AI Intelligence · Analisy</span></div>` : `<span style="font-size:0.7rem;color:rgba(255,255,255,0.4);">${article.author || ''}</span>`}
-        ${article.read_time ? `<span class="mob-art-read-time">${article.read_time}</span>` : ''}
+        ${!isAI && article.read_time ? `<span class="mob-art-read-time">${article.read_time}</span>` : ''}
       </div>
       <div class="mob-art-text">
         ${paragraphs.map((p,i) => `<p ${i===0?'style="font-size:0.85rem;color:rgba(255,255,255,0.8);"':''}>${p.trim()}</p>`).join('')}
@@ -4613,7 +4612,7 @@ function openDeskArtReader(article) {
     ${article.subtitle ? `<div style="font-size:0.8rem;color:rgba(255,255,255,0.45);line-height:1.5;margin-bottom:10px;">${article.subtitle}</div>` : ''}
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
       ${isAI ? `<span style="font-size:0.58rem;font-weight:700;background:rgba(232,52,78,0.15);color:#e8344e;padding:2px 6px;border-radius:3px;">AI Intelligence \u00B7 Analisy</span>` : `<span style="font-size:0.65rem;color:rgba(255,255,255,0.3);">${article.author || ''}</span>`}
-      ${article.read_time ? `<span style="font-size:0.62rem;color:rgba(255,255,255,0.2);">${article.read_time}</span>` : ''}
+      ${!isAI && article.read_time ? `<span style="font-size:0.62rem;color:rgba(255,255,255,0.2);">${article.read_time}</span>` : ''}
     </div>`;
 
   const content = (article.content || article.excerpt || '')
