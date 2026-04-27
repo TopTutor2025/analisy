@@ -1774,15 +1774,15 @@
     const fmtD    = rawDate ? new Date(rawDate).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'}) : '';
     const payload = {
       title, author,
-      subtitle:  document.getElementById('art-subtitle').value.trim(),
-      cat:       document.getElementById('art-cat').value,
-      date:      fmtD, rawDate,
-      readTime:  document.getElementById('art-readtime').value.trim(),
-      image:     document.getElementById('art-img-url').value.trim(),
-      excerpt:   abs, body,
-      suggested: document.getElementById('art-suggested').value.trim(),
-      premium:   document.getElementById('art-premium').value === 'true',
-      status:    forceStatus || document.getElementById('art-status').value,
+      subtitle:     document.getElementById('art-subtitle').value.trim(),
+      cat:          document.getElementById('art-cat').value,
+      published_at: rawDate ? new Date(rawDate).toISOString() : new Date().toISOString(),
+      read_time:    document.getElementById('art-readtime').value.trim(),
+      image:        document.getElementById('art-img-url').value.trim(),
+      excerpt:      abs,
+      content:      body,
+      premium:      document.getElementById('art-premium').value === 'true',
+      status:       forceStatus || document.getElementById('art-status').value,
     };
     try {
       if (id) {
