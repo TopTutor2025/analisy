@@ -4787,7 +4787,7 @@ function renderDeskLiveEvents() {
   const countEl = document.getElementById('desk-events-count');
   if (countEl) countEl.textContent = events.length ? `${events.length} eventi attivi` : '';
   if (!events.length) {
-    list.innerHTML = `<div style="padding:4px 18px;font-size:0.65rem;color:rgba(255,255,255,0.15);">Nessun evento attivo</div>`;
+    list.innerHTML = '';
     return;
   }
   list.innerHTML = events.map(ev => {
@@ -5062,9 +5062,6 @@ document.addEventListener('mapEventsLoaded', function() {
     <div class="desk-sidebar-divider"></div>
 
     <div id="desk-live-events-sidebar">
-      <div class="desk-nav-section-label">
-        <span class="desk-live-dot-sm"></span> LIVE NOW
-      </div>
       <div id="desk-live-events-list"></div>
     </div>
   </div>
