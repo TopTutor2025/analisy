@@ -4267,7 +4267,6 @@ function openMobArtReader(article) {
 
   const color = CAT_COLORS_MOB[article.cat] || '#e8344e';
   const label = CAT_LABELS_MOB[article.cat] || (article.cat_label || article.cat || '');
-  const isAI = article.author === 'AI Intelligence · Analisy';
 
   // Hero glow
   if (heroGlow) heroGlow.style.background = `radial-gradient(ellipse at 40% 60%, ${color}44 0%, transparent 65%)`;
