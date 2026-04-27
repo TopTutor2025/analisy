@@ -1094,7 +1094,7 @@
   /* ── Content area ── */
   #mob-content-area {
     display: block !important;
-    padding-bottom: 72px;
+    padding-bottom: 60px;
   }
   .mob-content-section-header {
     display: flex; align-items: center; justify-content: space-between;
@@ -1178,7 +1178,7 @@
   #mob-bottom-nav {
     display: flex !important;
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 1100;
-    height: 62px;
+    height: 52px;
     background: rgba(8,8,12,0.96);
     backdrop-filter: blur(20px);
     border-top: 1px solid rgba(255,255,255,0.07);
@@ -1200,11 +1200,6 @@
     transition: color 0.15s;
   }
   .mob-nav-item.active .mob-nav-label { color: #fff; }
-  .mob-nav-dot {
-    width: 4px; height: 4px; border-radius: 50%;
-    background: #fff; opacity: 0; transition: opacity 0.15s;
-  }
-  .mob-nav-item.active .mob-nav-dot { opacity: 1; }
 
   /* ── Fullscreen map overlay ── */
   #mob-map-fs {
@@ -4932,27 +4927,22 @@ document.addEventListener('mapEventsLoaded', function() {
   <button class="mob-nav-item active" data-mob-pane="scenari" onclick="switchMobNav('scenari',this)">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
     <span class="mob-nav-label">Scenari</span>
-    <div class="mob-nav-dot"></div>
   </button>
   <button class="mob-nav-item" data-mob-pane="articles" onclick="switchMobNav('articles',this)">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 10h10M4 14h16M4 18h10"/></svg>
     <span class="mob-nav-label">Articoli</span>
-    <div class="mob-nav-dot"></div>
   </button>
   <button class="mob-nav-item" data-mob-pane="live" onclick="switchMobNav('live',this)">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
     <span class="mob-nav-label">Live</span>
-    <div class="mob-nav-dot"></div>
   </button>
   <button class="mob-nav-item" data-mob-pane="podcast" onclick="switchMobNav('podcast',this)">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M6.6 18.4a9 9 0 1 1 10.8 0"/></svg>
     <span class="mob-nav-label">Podcast</span>
-    <div class="mob-nav-dot"></div>
   </button>
   <button class="mob-nav-item" data-mob-pane="forum" onclick="switchMobNav('forum',this)">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     <span class="mob-nav-label">Forum</span>
-    <div class="mob-nav-dot"></div>
   </button>
 </div>
 
