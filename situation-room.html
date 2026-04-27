@@ -3001,6 +3001,42 @@ function renderSrNavbar() {
         </a>`;
     }
   }
+
+  // ── Popola desk-topbar-right (desktop layout) ──
+  const deskRight = document.getElementById('desk-topbar-right');
+  if (deskRight) {
+    const user2 = Auth.get();
+    if (user2) {
+      const initial2  = (user2.nome || 'U')[0].toUpperCase();
+      const dashHref2 = user2.role === 'admin' ? 'admin.html' : 'dashboard.html';
+      deskRight.innerHTML = `
+        ${tutorialBtn}
+        <div class="sr-avatar-wrap" style="position:relative;display:flex;">
+          <div class="sr-avatar" onclick="toggleAvatarMenu(event)">${initial2}</div>
+          <div class="sr-avatar-menu" id="sr-avatar-menu-desk">
+            <a href="${dashHref2}">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              ${user2.role === 'admin' ? 'Admin' : 'Dashboard'}
+            </a>
+            <div style="height:1px;background:rgba(255,255,255,0.07);margin:4px 0;"></div>
+            <button class="logout" onclick="event.stopPropagation();logout()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Logout
+            </button>
+          </div>
+        </div>`;
+    } else {
+      deskRight.innerHTML = `
+        ${tutorialBtn}
+        <a href="login.html" class="btn-accedi" style="font-size:0.75rem;">Accedi</a>
+        <a href="register.html" class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:5px 14px;border-radius:6px;">Abbonati</a>`;
+    }
+    // Chiudi menu avatar desktop cliccando fuori
+    document.addEventListener('click', () => {
+      const m = document.getElementById('sr-avatar-menu-desk');
+      if (m) m.classList.remove('open');
+    });
+  }
 }
 
 function toggleAvatarMenu(e) {
