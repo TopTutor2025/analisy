@@ -3,6 +3,8 @@
 //  Operazioni CRUD admin su tutte le tabelle — solo admin.
 //  actions: upsert-article | delete-article | upsert-podcast
 //           | delete-podcast | upsert-event | delete-event
+//           | bulk-delete-events | lock-event | resolve-event
+//           | extend-event | reactivate-event
 //           | upsert-resource | delete-resource
 //           | update-user | delete-user | dismiss-report
 //           | delete-forum-content
