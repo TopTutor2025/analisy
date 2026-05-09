@@ -16,12 +16,14 @@ const EVENT_COLORS = {
   politica:    '#4f9eff',   // blu      — elezioni, colpi di stato, crisi politiche
   business:    '#f5a623',   // ambra    — sanzioni, guerre commerciali, mercati energetici
   tecnologia:  '#a78bfa',   // viola    — cyberattacchi, corsa all'IA, disinformazione
+  hotspot:     '#06d6a0',   // teal     — cluster epidemici, focolai, emergenze sanitarie
 };
 const EVENT_LABELS = {
   geopolitica: 'GEOPOLITICA',
   politica:    'POLITICA',
   business:    'BUSINESS',
   tecnologia:  'TECNOLOGIA',
+  hotspot:     'HOTSPOT',
 };
 const RESOURCE_COLORS = {
   oil:     '#ff8c00',

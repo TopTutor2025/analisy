@@ -519,8 +519,9 @@
             <span style="font-size:0.88rem;font-weight:600;color:var(--text-primary);">Eventi sulla mappa</span>
             <button class="btn btn-primary btn-sm" onclick="openEventModal()">+ Aggiungi evento</button>
           </div>
+          <div id="events-filter-bar"></div>
           <table class="admin-table">
-            <thead><tr><th>Titolo</th><th>Categoria</th><th>Magnitudo</th><th>Azioni</th></tr></thead>
+            <thead><tr><th>Titolo / Data</th><th>Categoria</th><th>Mag.</th><th>Azioni</th></tr></thead>
             <tbody id="events-tbody"></tbody>
           </table>
         </div>
@@ -1143,6 +1144,7 @@
             <option value="geopolitica">Geopolitica</option>
             <option value="politica">Politica</option>
             <option value="business">Business</option>
+            <option value="hotspot">Hotspot</option>
             <option value="tecnologia">Tecnologia</option>
           </select>
         </div>
@@ -1510,22 +1512,72 @@
     }
   }
 
+  /* ── REGION DETECTION ── */
+  function getRegion(lat, lng) {
+    lat = +lat; lng = +lng;
+    if (isNaN(lat) || isNaN(lng)) return 'Globale';
+    if (lat > 35 && lng > -25 && lng < 45) return 'Europa';
+    if (lat > 10 && lat < 42 && lng >= 25 && lng < 65) return 'Medio Oriente';
+    if (lat >= -10 && lat < 60 && lng >= 60 && lng < 150) return 'Asia';
+    if (lat > -40 && lat < 38 && lng >= -20 && lng < 55) return 'Africa';
+    if (lat > 15 && lng >= -170 && lng < -30) return 'Nord America';
+    if (lat > -60 && lat <= 15 && lng >= -90 && lng < -30) return 'Sud America';
+    if (lat < 0 && lng >= 100) return 'Oceania';
+    if (lat > 35 && lng >= 45) return 'Asia';
+    return 'Globale';
+  }
+
   /* ── MAP EVENTS TABLE ── */
+  let eventsFilter = { search: '', region: 'all', cat: 'all' };
+
   function renderEvents() {
-    const events = AppData.mapEvents || [];
-    const catLabels = { geopolitica:'Geopolitica', politica:'Politica', business:'Business', tecnologia:'Tecnologia' };
-    const catColors = { geopolitica:'var(--accent-red)', politica:'var(--accent-blue)', business:'var(--accent-yellow)', tecnologia:'#a78bfa' };
-    document.getElementById('events-tbody').innerHTML = events.map(ev => `
-      <tr>
-        <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${ev.title}</td>
+    const catLabels = { geopolitica:'Geopolitica', politica:'Politica', business:'Business', tecnologia:'Tecnologia', hotspot:'Hotspot' };
+    const catColors = { geopolitica:'var(--accent-red)', politica:'var(--accent-blue)', business:'var(--accent-yellow)', tecnologia:'#a78bfa', hotspot:'#06d6a0' };
+    let events = [...(AppData.mapEvents || [])].sort((a, b) =>
+      new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+    );
+    const q = eventsFilter.search.toLowerCase();
+    if (q) events = events.filter(e => (e.title||'').toLowerCase().includes(q));
+    if (eventsFilter.region !== 'all') events = events.filter(e => getRegion(e.lat, e.lng) === eventsFilter.region);
+    if (eventsFilter.cat !== 'all') events = events.filter(e => e.category === eventsFilter.cat);
+
+    // Toolbar con search + filtri
+    const regions = ['all','Europa','Medio Oriente','Asia','Africa','Nord America','Sud America','Oceania','Globale'];
+    const cats = ['all','geopolitica','politica','business','tecnologia','hotspot'];
+    const catLabelsShort = { all:'Tutte', geopolitica:'Geo', politica:'Pol', business:'Biz', tecnologia:'Tech', hotspot:'Hotspot' };
+
+    document.getElementById('events-filter-bar').innerHTML = `
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
+        <input type="text" placeholder="Cerca titolo…" value="${eventsFilter.search}"
+          oninput="eventsFilter.search=this.value;renderEvents()"
+          style="flex:1;min-width:140px;padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:#1a1a1c;color:#f0f4ff;font-size:0.8rem;" />
+        <select onchange="eventsFilter.region=this.value;renderEvents()"
+          style="padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:#1a1a1c;color:#f0f4ff;font-size:0.78rem;">
+          ${regions.map(r => `<option value="${r}" ${eventsFilter.region===r?'selected':''}>${r==='all'?'Tutte le regioni':r}</option>`).join('')}
+        </select>
+        <select onchange="eventsFilter.cat=this.value;renderEvents()"
+          style="padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:#1a1a1c;color:#f0f4ff;font-size:0.78rem;">
+          ${cats.map(c => `<option value="${c}" ${eventsFilter.cat===c?'selected':''}>${catLabelsShort[c]}</option>`).join('')}
+        </select>
+        <span style="font-size:0.75rem;color:var(--text-muted);">${events.length} eventi</span>
+      </div>`;
+
+    document.getElementById('events-tbody').innerHTML = events.map(ev => {
+      const region = getRegion(ev.lat, ev.lng);
+      const dateStr = ev.createdAt ? new Date(ev.createdAt).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
+      return `<tr>
+        <td style="max-width:160px;">
+          <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${ev.title}</div>
+          <div style="font-size:0.68rem;color:var(--text-muted);margin-top:2px;">${dateStr} · ${region}</div>
+        </td>
         <td><span style="color:${catColors[ev.category]||'var(--text-secondary)'};font-weight:600;font-size:0.82rem;">${catLabels[ev.category]||ev.category}</span></td>
         <td>${'●'.repeat(ev.magnitude)}</td>
         <td style="display:flex;gap:6px;">
           <button class="action-btn edit" onclick="openEventModal('${ev.id}')">Edit</button>
           <button class="action-btn del"  onclick="confirmDelete('event','${ev.id}')">Del</button>
         </td>
-      </tr>
-    `).join('');
+      </tr>`;
+    }).join('');
   }
 
   function renderResources() {
@@ -2357,31 +2409,73 @@ function filterAIEvents(f) {
   renderAIEvents();
 }
 
+let aiEventsSearch = '';
+let aiEventsRegion = 'all';
+
 function renderAIEvents() {
   const el = document.getElementById('ai-events-list');
   if (!el) return;
-  const list = aiEventsFilter === 'all' ? aiEventsAll : aiEventsAll.filter(e => e.status === aiEventsFilter);
-  if (!list.length) { el.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;padding:12px 0;">Nessun evento trovato.</p>'; return; }
-  const catIcons = {conflict:'⚔️',disaster:'🌊',migration:'🚶',diplomatic:'🤝',political:'🏛️',tension:'⚡',crisis:'🚨',economic:'📉'};
+
+  // Base filter by status
+  let list = aiEventsFilter === 'all' ? aiEventsAll : aiEventsAll.filter(e => e.status === aiEventsFilter);
+
+  // Search filter
+  const q = aiEventsSearch.toLowerCase();
+  if (q) list = list.filter(e => (e.title||'').toLowerCase().includes(q));
+
+  // Region filter
+  if (aiEventsRegion !== 'all') list = list.filter(e => getRegion(e.lat, e.lng) === aiEventsRegion);
+
+  // Sort chronologically (newest first)
+  list = [...list].sort((a, b) => new Date(b.created_at||0).getTime() - new Date(a.created_at||0).getTime());
+
+  const catColors = { geopolitica:'#e8344e', politica:'#4f9eff', business:'#ffd700', tecnologia:'#a78bfa', hotspot:'#06d6a0' };
+  const catIcons  = { geopolitica:'⚔️', politica:'🏛️', business:'📉', tecnologia:'💻', hotspot:'🦠' };
   const magColors = ['','#4f9eff','#ffb400','#ff8c00','#ff4757'];
-  el.innerHTML = `
+  const regions   = ['all','Europa','Medio Oriente','Asia','Africa','Nord America','Sud America','Oceania','Globale'];
+
+  // Search + region filter bar
+  const filterBar = `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
+      <input type="text" placeholder="Cerca titolo…" value="${aiEventsSearch}"
+        oninput="aiEventsSearch=this.value;renderAIEvents()"
+        style="flex:1;min-width:140px;padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:#1a1a1c;color:#f0f4ff;font-size:0.8rem;" />
+      <select onchange="aiEventsRegion=this.value;renderAIEvents()"
+        style="padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:#1a1a1c;color:#f0f4ff;font-size:0.78rem;">
+        ${regions.map(r => `<option value="${r}" ${aiEventsRegion===r?'selected':''}>${r==='all'?'Tutte le regioni':r}</option>`).join('')}
+      </select>
+      <span style="font-size:0.75rem;color:var(--text-muted);">${list.length} eventi</span>
+    </div>`;
+
+  if (!list.length) {
+    el.innerHTML = filterBar + '<p style="color:var(--text-muted);font-size:0.85rem;padding:12px 0;">Nessun evento trovato.</p>';
+    return;
+  }
+
+  el.innerHTML = filterBar + `
     <table class="admin-table">
       <thead><tr>
-        <th>Evento</th><th>Tipo</th><th>Mag.</th><th>Score</th>
+        <th>Evento / Data</th><th>Regione</th><th>Cat.</th><th>Mag.</th><th>Score</th>
         <th>Scadenza</th><th>Stato</th><th>Azioni</th>
       </tr></thead>
       <tbody>
         ${list.map(e => {
-          const exp = e.expiresAt ? new Date(e.expiresAt).toLocaleDateString('it-IT') : '∞';
+          // Fix: use snake_case field names from DB
+          const exp = e.expires_at ? new Date(e.expires_at).toLocaleDateString('it-IT') : '∞';
+          const dateStr = e.created_at ? new Date(e.created_at).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
           const stColors = {active:'#22d47a',resolved:'#4f9eff',expired:'rgba(255,255,255,0.35)'};
-          const scoreBar = Math.max(0, Math.min(100, e.relevanceScore||0));
+          const scoreBar = Math.max(0, Math.min(100, e.relevance_score||0));
+          const region = getRegion(e.lat, e.lng);
+          const catColor = catColors[e.category] || '#fff';
           return `<tr>
             <td>
-              <div style="font-weight:600;color:#f0f4ff;font-size:0.85rem;">${e.manualLock?'🔒 ':''}${e.title}</div>
-              ${e.aiSummary ? `<div style="font-size:0.73rem;color:var(--text-muted);margin-top:2px;">${e.aiSummary.slice(0,70)}</div>` : ''}
-              ${e.sourceUrl ? `<a href="${e.sourceUrl}" target="_blank" style="font-size:0.7rem;color:#4f9eff;text-decoration:none;">🔗 Fonte</a>` : ''}
+              <div style="font-weight:600;color:#f0f4ff;font-size:0.85rem;">${e.manual_lock?'🔒 ':''}${e.title}</div>
+              ${e.ai_summary ? `<div style="font-size:0.73rem;color:var(--text-muted);margin-top:2px;">${e.ai_summary.slice(0,70)}</div>` : ''}
+              <div style="font-size:0.68rem;color:var(--text-muted);margin-top:2px;">${dateStr}</div>
+              ${e.source_url ? `<a href="${e.source_url}" target="_blank" style="font-size:0.7rem;color:#4f9eff;text-decoration:none;">🔗 Fonte</a>` : ''}
             </td>
-            <td style="white-space:nowrap;">${catIcons[e.category]||'🌍'} ${e.category}</td>
+            <td style="font-size:0.78rem;color:var(--text-secondary);white-space:nowrap;">${region}</td>
+            <td style="white-space:nowrap;"><span style="color:${catColor};font-size:0.78rem;font-weight:700;">${catIcons[e.category]||'🌍'} ${e.category}</span></td>
             <td style="color:${magColors[e.magnitude]||'#fff'};font-weight:700;font-size:1rem;text-align:center;">${e.magnitude}</td>
             <td>
               <div style="display:flex;align-items:center;gap:6px;">
@@ -2395,14 +2489,14 @@ function renderAIEvents() {
             <td><span style="color:${stColors[e.status]||'#fff'};font-size:0.78rem;font-weight:600;">${e.status.toUpperCase()}</span></td>
             <td>
               <div style="display:flex;gap:5px;flex-wrap:wrap;">
-                <button class="btn btn-outline btn-sm" title="${e.manualLock?'Sblocca':'Blocca permanente'}"
+                <button class="btn btn-outline btn-sm" title="${e.manual_lock?'Sblocca':'Blocca permanente'}"
                   onclick="aiLockEvent('${e.id}')" style="font-size:0.7rem;min-width:0;padding:3px 7px;">
-                  ${e.manualLock?'🔓':'🔒'}
+                  ${e.manual_lock?'🔓':'🔒'}
                 </button>
                 ${e.status!=='resolved'?`<button class="btn btn-outline btn-sm" title="Segna come risolto"
                   onclick="aiResolveEvent('${e.id}')" style="font-size:0.7rem;min-width:0;padding:3px 7px;color:#22d47a;">✅</button>`:''}
-                ${e.status==='active'?`<button class="btn btn-outline btn-sm" title="Estendi di 7 giorni"
-                  onclick="aiExtendEvent('${e.id}')" style="font-size:0.7rem;min-width:0;padding:3px 7px;color:#4f9eff;">+7g</button>`:''}
+                ${e.status==='active'?`<button class="btn btn-outline btn-sm" title="Estendi di 48 ore"
+                  onclick="aiExtendEvent('${e.id}')" style="font-size:0.7rem;min-width:0;padding:3px 7px;color:#4f9eff;">+48h</button>`:''}
                 ${e.status!=='active'?`<button class="btn btn-outline btn-sm" title="Riattiva"
                   onclick="aiReactivateEvent('${e.id}')" style="font-size:0.7rem;min-width:0;padding:3px 7px;color:#ffb400;">▶</button>`:''}
                 <button class="btn btn-outline btn-sm" title="Elimina"
@@ -2417,27 +2511,27 @@ function renderAIEvents() {
 
 async function aiLockEvent(id) {
   try {
-    const r = await Api.put(`/api/admin/ai/events/${id}/lock`, {});
-    showToast(r.manualLock ? '🔒 Evento bloccato — non scadrà automaticamente' : '🔓 Blocco rimosso', 'success');
+    const r = await Api.fn('admin-write', { action: 'lock-event', data: { id } });
+    showToast(r.manual_lock ? '🔒 Evento bloccato — non scadrà automaticamente' : '🔓 Blocco rimosso', 'success');
     loadAIEvents();
   } catch(e) { showToast(e.message||'Errore', 'error'); }
 }
 async function aiResolveEvent(id) {
   if (!confirm('Segna questo evento come risolto? Sparirà dalla mappa.')) return;
-  try { await Api.put(`/api/admin/ai/events/${id}/resolve`, {}); showToast('Evento segnato come risolto','success'); loadAIEvents(); loadAIStatus(); }
+  try { await Api.fn('admin-write', { action: 'resolve-event', data: { id } }); showToast('Evento segnato come risolto','success'); loadAIEvents(); loadAIStatus(); }
   catch(e) { showToast(e.message||'Errore','error'); }
 }
 async function aiExtendEvent(id) {
-  try { await Api.put(`/api/admin/ai/events/${id}/extend`, { days: 7 }); showToast('Scadenza estesa di 7 giorni','success'); loadAIEvents(); }
+  try { await Api.fn('admin-write', { action: 'extend-event', data: { id } }); showToast('Scadenza estesa di 48 ore','success'); loadAIEvents(); }
   catch(e) { showToast(e.message||'Errore','error'); }
 }
 async function aiReactivateEvent(id) {
-  try { await Api.put(`/api/admin/ai/events/${id}/reactivate`, {}); showToast('Evento riattivato per 7 giorni','success'); loadAIEvents(); loadAIStatus(); }
+  try { await Api.fn('admin-write', { action: 'reactivate-event', data: { id } }); showToast('Evento riattivato per 48 ore','success'); loadAIEvents(); loadAIStatus(); }
   catch(e) { showToast(e.message||'Errore','error'); }
 }
 async function aiDeleteEvent(id) {
   if (!confirm('Eliminare definitivamente questo evento AI?')) return;
-  try { await Api.delete(`/api/admin/ai/events/${id}`); showToast('Evento eliminato','success'); loadAIEvents(); loadAIStatus(); }
+  try { await Api.fn('admin-write', { action: 'delete-event', data: { id } }); showToast('Evento eliminato','success'); loadAIEvents(); loadAIStatus(); }
   catch(e) { showToast(e.message||'Errore','error'); }
 }
 

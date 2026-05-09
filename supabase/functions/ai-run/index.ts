@@ -40,13 +40,12 @@ interface MapEvent {
   description:     string;
   lat:             number;
   lng:             number;
-  category:        'geopolitica' | 'politica' | 'business' | 'tecnologia';
+  category:        'geopolitica' | 'politica' | 'business' | 'tecnologia' | 'hotspot';
   magnitude:       1 | 2 | 3 | 4;
   ai_summary:      string;
   ai_brief:        string;
   source_url:      string;
   relevance_score: number;
-  expires_at:      string;
 }
 
 // ─── Parse RSS/Atom XML senza librerie esterne ───────────
@@ -172,12 +171,11 @@ REGOLE FONDAMENTALI:
 3. Ogni evento deve corrispondere a una notizia specifica della lista
 
 Rispondi SOLO con un array JSON, senza markdown, senza testo extra. Ogni oggetto:
-{"title":"max 60 car in italiano","description":"max 120 car in italiano","lat":0.0,"lng":0.0,"category":"geopolitica|politica|business|tecnologia","magnitude":1|2|3|4,"ai_summary":"max 200 car in italiano basato sulla notizia","ai_brief":"2-3 frasi di contesto in italiano basate sulla notizia","source_url":"URL ESATTO dalla lista sopra","relevance_score":0-100,"expires_at":"${today}"}
+{"title":"max 60 car in italiano","description":"max 120 car in italiano","lat":0.0,"lng":0.0,"category":"geopolitica|politica|business|tecnologia|hotspot","magnitude":1|2|3|4,"ai_summary":"max 200 car in italiano basato sulla notizia","ai_brief":"2-3 frasi di contesto in italiano basate sulla notizia","source_url":"URL ESATTO dalla lista sopra","relevance_score":0-100}
 
 Regole:
-- Categoria: geopolitica=guerre/conflitti/tensioni tra stati, politica=elezioni/governi/proteste, business=economia/sanzioni/energia, tecnologia=cyber/AI/spazio
+- Categoria: geopolitica=guerre/conflitti/tensioni tra stati, politica=elezioni/governi/proteste, business=economia/sanzioni/energia, tecnologia=cyber/AI/spazio, hotspot=cluster epidemici/focolai infettivi/emergenze sanitarie/pandemie
 - Magnitudo: 1=bassa, 2=moderata, 3=alta, 4=critica/breaking
-- expires_at: +30gg se mag 4, +21gg se mag 3, +14gg se mag ≤2
 - Tutti i testi in ITALIANO
 - Rispondi solo con l'array JSON`;
 
@@ -215,7 +213,7 @@ Regole:
   return events.filter(e =>
     e.title &&
     typeof e.lat === 'number' && typeof e.lng === 'number' &&
-    ['geopolitica','politica','business','tecnologia'].includes(e.category) &&
+    ['geopolitica','politica','business','tecnologia','hotspot'].includes(e.category) &&
     e.magnitude >= 1 && e.magnitude <= 4
   );
 }
@@ -297,6 +295,9 @@ Deno.serve(async (req) => {
       // 2. Analisi con Claude → eventi strutturati
       const newEvents = await analyzeWithClaude(newsArticles);
 
+      // Scadenza fissa 48 ore dal momento di creazione/rinnovo
+      const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+
       // 3. Carica eventi attivi non bloccati manualmente
       const { data: existing } = await adminClient
         .from('map_events')
@@ -312,12 +313,13 @@ Deno.serve(async (req) => {
       for (const ev of newEvents) {
         const key = ev.title.toLowerCase().slice(0, 35);
         if (existingMap.has(key)) {
+          // Rinnova la scadenza di 48h se l'evento è ancora rilevante
           await adminClient.from('map_events').update({
             magnitude:       ev.magnitude,
             ai_summary:      ev.ai_summary,
             ai_brief:        ev.ai_brief,
             relevance_score: ev.relevance_score,
-            expires_at:      ev.expires_at,
+            expires_at:      expiresAt,
             source_url:      ev.source_url,
           }).eq('id', existingMap.get(key)!.id);
           eventsRenewed++;
@@ -334,21 +336,20 @@ Deno.serve(async (req) => {
             ai_brief:        ev.ai_brief,
             source_url:      ev.source_url,
             relevance_score: ev.relevance_score,
-            expires_at:      ev.expires_at,
+            expires_at:      expiresAt,
           });
           eventsCreated++;
         }
       }
 
-      // 5. Archivia eventi scaduti
-      const { data: expired } = await adminClient
+      // 5. Elimina definitivamente gli eventi scaduti (non bloccati manualmente)
+      const { data: deleted } = await adminClient
         .from('map_events')
-        .update({ status: 'expired' })
+        .delete()
         .lt('expires_at', new Date().toISOString())
-        .eq('status', 'active')
         .eq('manual_lock', false)
         .select('id, title');
-      eventsResolved = (expired || []).length;
+      eventsResolved = (deleted || []).length;
 
       // 6. Aggiorna citycams
       await updateCitycams(adminClient, newEvents);

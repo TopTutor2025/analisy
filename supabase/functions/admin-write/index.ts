@@ -89,7 +89,37 @@ Deno.serve(async (req) => {
   }
 
   if (action === 'delete-event') {
-    const { error } = await db.from('map_events').update({ status: 'expired' }).eq('id', payload.id);
+    const { error } = await db.from('map_events').delete().eq('id', payload.id);
+    if (error) return errorResponse(error.message, 500);
+    return corsResponse({ ok: true });
+  }
+
+  if (action === 'lock-event') {
+    // Toggle manual_lock
+    const { data: ev } = await db.from('map_events').select('manual_lock').eq('id', payload.id).single();
+    const newLock = !(ev?.manual_lock ?? false);
+    const { error } = await db.from('map_events').update({ manual_lock: newLock }).eq('id', payload.id);
+    if (error) return errorResponse(error.message, 500);
+    return corsResponse({ ok: true, manual_lock: newLock });
+  }
+
+  if (action === 'resolve-event') {
+    const { error } = await db.from('map_events').update({ status: 'resolved' }).eq('id', payload.id);
+    if (error) return errorResponse(error.message, 500);
+    return corsResponse({ ok: true });
+  }
+
+  if (action === 'extend-event') {
+    // Estende la scadenza di 48 ore dalla data attuale
+    const newExpiry = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+    const { error } = await db.from('map_events').update({ expires_at: newExpiry, status: 'active' }).eq('id', payload.id);
+    if (error) return errorResponse(error.message, 500);
+    return corsResponse({ ok: true, expires_at: newExpiry });
+  }
+
+  if (action === 'reactivate-event') {
+    const newExpiry = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+    const { error } = await db.from('map_events').update({ status: 'active', expires_at: newExpiry }).eq('id', payload.id);
     if (error) return errorResponse(error.message, 500);
     return corsResponse({ ok: true });
   }
@@ -170,7 +200,7 @@ Deno.serve(async (req) => {
   }
 
   if (action === 'ai-events') {
-    const { data, error } = await db.from('map_events').select('*').order('created_at', { ascending: false }).limit(50);
+    const { data, error } = await db.from('map_events').select('*').order('created_at', { ascending: false }).limit(300);
     if (error) return errorResponse(error.message, 500);
     return corsResponse(data || []);
   }

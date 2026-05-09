@@ -2386,6 +2386,7 @@
       <button class="forum-cat-btn" onclick="filterBriefs('politica',this)">Politica</button>
       <button class="forum-cat-btn" onclick="filterBriefs('business',this)">Business</button>
       <button class="forum-cat-btn" onclick="filterBriefs('tecnologia',this)">Tech</button>
+      <button class="forum-cat-btn" onclick="filterBriefs('hotspot',this)" style="color:#06d6a0;">Hotspot</button>
     </div>
     <!-- Scenari list -->
     <div class="briefs-list-wrap" id="briefs-list">
@@ -3203,6 +3204,7 @@ const SCENARIO_CAT = {
   politica:    { label:'Politica',    color:'#4f9eff' },
   business:    { label:'Business',    color:'#f5a623' },
   tecnologia:  { label:'Tecnologia',  color:'#a78bfa' },
+  hotspot:     { label:'Hotspot',     color:'#06d6a0' },
 };
 
 function filterBriefs(cat, el) {
@@ -4011,12 +4013,14 @@ const CAT_COLORS_MOB = {
   politica:    '#0a84ff',
   business:    '#ff9f0a',
   tecnologia:  '#bf5af2',
+  hotspot:     '#06d6a0',
 };
 const CAT_LABELS_MOB = {
   geopolitica: 'Geopolitica',
   politica:    'Politica',
   business:    'Business',
   tecnologia:  'Tecnologia',
+  hotspot:     'Hotspot',
 };
 
 /* ── Top bar: popola avatar / login ── */
@@ -4433,11 +4437,13 @@ window.renderArticles = function(cat) {
 /* ── Mobile Event Sheet ── */
 const CAT_COLORS_SHEET = {
   geopolitica: '#e8344e', politica: '#4f9eff',
-  business: '#ffd700',    tecnologia: '#39ff14'
+  business: '#ffd700',    tecnologia: '#39ff14',
+  hotspot: '#06d6a0'
 };
 const CAT_LABELS_SHEET = {
   geopolitica: 'Geopolitica', politica: 'Politica',
-  business: 'Business',       tecnologia: 'Tecnologia'
+  business: 'Business',       tecnologia: 'Tecnologia',
+  hotspot: 'Hotspot'
 };
 
 function openMobEventSheet(ev) {
@@ -4509,11 +4515,13 @@ document.addEventListener('mapEventSelected', function(e) {
 
 const DESK_CAT_COLORS = {
   geopolitica: '#e8344e', politica: '#4f9eff',
-  business: '#ffd700',    tecnologia: '#a78bfa'
+  business: '#ffd700',    tecnologia: '#a78bfa',
+  hotspot: '#06d6a0'
 };
 const DESK_CAT_LABELS = {
   geopolitica: 'Geopolitica', politica: 'Politica',
-  business: 'Business',       tecnologia: 'Tecnologia'
+  business: 'Business',       tecnologia: 'Tecnologia',
+  hotspot: 'Hotspot'
 };
 
 let deskCurrentCat = 'all';
@@ -4841,10 +4849,10 @@ function renderDeskLiveEvents() {
   }).join('');
 
   // Aggiorna contatori nella legend bar
-  const counts = { geopolitica: 0, politica: 0, business: 0, tecnologia: 0 };
+  const counts = { geopolitica: 0, politica: 0, business: 0, tecnologia: 0, hotspot: 0 };
   events.forEach(e => { if (counts[e.category] !== undefined) counts[e.category]++; });
-  ['geo','pol','bus','tec'].forEach((k,i) => {
-    const cats = ['geopolitica','politica','business','tecnologia'];
+  ['geo','pol','bus','tec','hot'].forEach((k,i) => {
+    const cats = ['geopolitica','politica','business','tecnologia','hotspot'];
     const el = document.getElementById(`desk-count-${k}`);
     if (el) el.textContent = counts[cats[i]];
   });
@@ -4921,6 +4929,7 @@ document.addEventListener('mapEventsLoaded', function() {
       <button class="mob-art-filter-chip" onclick="mobFilterScenari('politica',this)">Politica</button>
       <button class="mob-art-filter-chip" onclick="mobFilterScenari('business',this)">Business</button>
       <button class="mob-art-filter-chip" onclick="mobFilterScenari('tecnologia',this)">Tech</button>
+      <button class="mob-art-filter-chip" onclick="mobFilterScenari('hotspot',this)" style="color:#06d6a0;">Hotspot</button>
     </div>
     <div id="mob-scenari-list"></div>
   </div>
@@ -4936,6 +4945,7 @@ document.addEventListener('mapEventsLoaded', function() {
       <button class="mob-art-filter-chip" onclick="mobFilterArticles('politica',this)">Politica</button>
       <button class="mob-art-filter-chip" onclick="mobFilterArticles('business',this)">Business</button>
       <button class="mob-art-filter-chip" onclick="mobFilterArticles('tecnologia',this)">Tech</button>
+      <button class="mob-art-filter-chip" onclick="mobFilterArticles('hotspot',this)" style="color:#06d6a0;">Hotspot</button>
     </div>
     <div id="mob-articles-list"></div>
   </div>
@@ -5105,6 +5115,9 @@ document.addEventListener('mapEventsLoaded', function() {
       <button class="desk-filter-item" data-cat="tecnologia" onclick="deskFilterCat('tecnologia',this)">
         <span class="desk-filter-dot" style="background:#a78bfa;"></span>Tecnologia
       </button>
+      <button class="desk-filter-item" data-cat="hotspot" onclick="deskFilterCat('hotspot',this)">
+        <span class="desk-filter-dot" style="background:#06d6a0;"></span>Hotspot
+      </button>
     </div>
 
     <div class="desk-sidebar-divider"></div>
@@ -5126,6 +5139,7 @@ document.addEventListener('mapEventsLoaded', function() {
       <span class="desk-leg-item"><span class="desk-leg-dot" style="background:#ffd700;"></span><span id="desk-count-bus">0</span> Business</span>
       <span class="desk-leg-item"><span class="desk-leg-dot" style="background:#4f9eff;"></span><span id="desk-count-pol">0</span> Politica</span>
       <span class="desk-leg-item"><span class="desk-leg-dot" style="background:#a78bfa;"></span><span id="desk-count-tec">0</span> Tech</span>
+      <span class="desk-leg-item"><span class="desk-leg-dot" style="background:#06d6a0;"></span><span id="desk-count-hot">0</span> Hotspot</span>
       <span id="desk-map-updated" style="margin-left:auto;font-size:0.6rem;color:rgba(255,255,255,0.2);"></span>
     </div>
 
