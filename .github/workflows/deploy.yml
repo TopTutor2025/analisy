@@ -70,3 +70,19 @@ jobs:
           supabase functions deploy admin-write    --project-ref ${{ secrets.SUPABASE_PROJECT_REF }} --no-verify-jwt
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Run SQL migrations
+        run: |
+          for f in supabase/migrations/*.sql; do
+            echo "Applying migration: $f"
+            SQL=$(cat "$f")
+            curl -s -o /dev/null -w "%{http_code}" \
+              -X POST \
+              "https://api.supabase.com/v1/projects/${{ secrets.SUPABASE_PROJECT_REF }}/database/query" \
+              -H "Authorization: Bearer ${{ secrets.SUPABASE_ACCESS_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              -d "{\"query\": $(echo "$SQL" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')}"
+            echo " ← $f"
+          done
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
