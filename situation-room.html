@@ -366,19 +366,20 @@
       position: relative;
       display: inline-flex;
       align-items: center;
+      flex-shrink: 0;
     }
     .notif-bell-btn {
       background: none;
       border: none;
       cursor: pointer;
-      color: rgba(235,235,245,0.5);
+      color: rgba(235,235,245,0.75);
       display: flex; align-items: center; justify-content: center;
       width: 34px; height: 34px;
       border-radius: 8px;
       transition: background 0.15s, color 0.15s;
       position: relative;
     }
-    .notif-bell-btn:hover { background: rgba(255,255,255,0.07); color: rgba(235,235,245,0.9); }
+    .notif-bell-btn:hover { background: rgba(255,255,255,0.10); color: #fff; }
     .notif-bell-dot {
       position: absolute;
       top: 5px; right: 5px;
