@@ -39,6 +39,26 @@
       border-radius: 4px;
       margin-bottom: 14px;
     }
+    /* Back button nella navbar — solo mobile */
+    .article-nav-back {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    @media (max-width: 768px) {
+      .article-nav-back { display: flex; }
+      .article-back-row { display: none; }  /* nasconde la riga back+badge nel contenuto */
+      .article-cat-badge {
+        font-size: 0.58rem;
+        padding: 2px 7px;
+        letter-spacing: 0.06em;
+      }
+    }
     .article-title {
       font-size: 2rem;
       font-weight: 800;
@@ -184,6 +204,11 @@
   <div class="container">
     <div class="navbar-inner">
 
+      <a href="situation-room.html" class="article-nav-back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Situation Room
+      </a>
+
       <a href="index.html" style="text-decoration:none;">
         <span style="font-family:-apple-system,'SF Pro Display',Inter,sans-serif;font-size:1.35rem;font-weight:800;letter-spacing:-0.04em;background:linear-gradient(135deg,#e8344e,#ff6b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">ANALISY</span>
       </a>
@@ -281,7 +306,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     : `<div class="article-body">${(a.body || '').split('\n\n').map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('')}</div>`;
 
   container.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
+    <div class="article-back-row" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
       <a href="situation-room.html" class="article-back" style="margin-bottom:0;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
         Torna alla Situation Room
