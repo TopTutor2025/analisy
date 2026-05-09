@@ -369,17 +369,17 @@
       flex-shrink: 0;
     }
     .notif-bell-btn {
-      background: none;
-      border: none;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
       cursor: pointer;
-      color: rgba(235,235,245,0.75);
+      color: rgba(235,235,245,0.85);
       display: flex; align-items: center; justify-content: center;
       width: 34px; height: 34px;
       border-radius: 8px;
-      transition: background 0.15s, color 0.15s;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
       position: relative;
     }
-    .notif-bell-btn:hover { background: rgba(255,255,255,0.10); color: #fff; }
+    .notif-bell-btn:hover { background: rgba(255,255,255,0.12); color: #fff; border-color: rgba(255,255,255,0.22); }
     .notif-bell-dot {
       position: absolute;
       top: 5px; right: 5px;
@@ -5138,30 +5138,27 @@ async function loadNotifications() {
   _notifLoaded = true;
   // Mostra pallino rosso se ci sono notifiche
   if (_notifData.length > 0) {
-    document.getElementById('notif-bell-dot')?.classList.add('visible');
-    document.getElementById('notif-bell-dot-mob')?.classList.add('visible');
+    ['notif-bell-dot','notif-bell-dot-mob','notif-bell-dot-mob2','notif-bell-dot-desk']
+      .forEach(id => document.getElementById(id)?.classList.add('visible'));
   }
   _notifRenderList('notif-list-desktop');
   _notifRenderList('notif-list-mobile');
+  _notifRenderList('notif-list-desk');
 }
 
-// Desktop: hover apre/chiude il dropdown
-(function() {
-  const wrap = document.getElementById('notif-bell-wrap');
-  const btn  = document.getElementById('notif-bell-btn');
-  const drop = document.getElementById('notif-dropdown');
-  if (!wrap || !btn || !drop) return;
-
-  btn.addEventListener('mouseenter', async () => {
+// Helper: registra hover dropdown su un wrapper
+function _initNotifHover(wrapId, dropId) {
+  const wrap = document.getElementById(wrapId);
+  const drop = document.getElementById(dropId);
+  if (!wrap || !drop) return;
+  wrap.addEventListener('mouseenter', async () => {
     await loadNotifications();
     drop.classList.add('open');
   });
-  wrap.addEventListener('mouseleave', () => {
-    drop.classList.remove('open');
-  });
-  // Previeni chiusura passando sul dropdown
+  wrap.addEventListener('mouseleave', () => drop.classList.remove('open'));
   drop.addEventListener('mouseenter', () => drop.classList.add('open'));
-})();
+}
+
 
 // Mobile: click apre popup
 async function openNotifPopup() {
@@ -5175,10 +5172,11 @@ function closeNotifPopup(e) {
   document.body.style.overflow = '';
 }
 
-// Carica al DOMContentLoaded (in background, senza bloccare)
+// Carica notifiche al boot (in background)
 document.addEventListener('DOMContentLoaded', () => {
-  // Carica dopo un breve delay per non interferire con il boot
   setTimeout(loadNotifications, 1500);
+  _initNotifHover('notif-bell-wrap',      'notif-dropdown');
+  _initNotifHover('notif-bell-wrap-desk', 'notif-dropdown-desk');
 });
 </script>
 <script src="js/cookie-banner.js"></script>
@@ -5188,6 +5186,11 @@ document.addEventListener('DOMContentLoaded', () => {
   <span class="mob-logo">ANALISY</span>
   <span class="mob-sr-badge">Situation Room</span>
   <div id="mob-nav-right"><!-- popolato da JS --></div>
+  <!-- Bell mobile nel top bar -->
+  <button class="notif-bell-btn" id="notif-bell-btn-mob2" onclick="openNotifPopup()" title="Comunicazioni" style="flex-shrink:0;margin-left:4px;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+    <span class="notif-bell-dot" id="notif-bell-dot-mob2"></span>
+  </button>
 </div>
 
 <!-- ═══════════ MOBILE v2 MARKETS SECTION ═══════════ -->
@@ -5342,6 +5345,18 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
     <span id="desk-events-count" style="font-size:0.65rem;color:rgba(255,255,255,0.3);margin-left:10px;"></span>
   </div>
+  <!-- Bell desktop -->
+  <div class="notif-bell-wrap" id="notif-bell-wrap-desk" style="flex-shrink:0;">
+    <button class="notif-bell-btn" id="notif-bell-btn-desk" title="Comunicazioni" aria-label="Notifiche">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <span class="notif-bell-dot" id="notif-bell-dot-desk"></span>
+    </button>
+    <div class="notif-dropdown" id="notif-dropdown-desk">
+      <div class="notif-dropdown-header">Comunicazioni</div>
+      <div class="notif-list" id="notif-list-desk"></div>
+    </div>
+  </div>
+
   <div id="desk-topbar-right">
     <button onclick="openSrTutorial()" title="Come funziona"
       style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(235,235,245,0.55);font-size:0.75rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.15s,color 0.15s;"
