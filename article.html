@@ -25,7 +25,7 @@
       font-weight: 600;
       color: var(--text-muted);
       text-decoration: none;
-      margin-bottom: 28px;
+      margin-bottom: 0;
       transition: var(--transition);
     }
     .article-back:hover { color: var(--accent-blue); }
@@ -282,12 +282,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     : `<div class="article-body">${(a.body || '').split('\n\n').map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('')}</div>`;
 
   container.innerHTML = `
-    <a href="situation-room.html" class="article-back">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Torna alla Situation Room
-    </a>
-
-    <span class="article-cat-badge" style="color:${color};background:${bgColor};">${a.catLabel || a.cat}</span>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
+      <a href="situation-room.html" class="article-back" style="margin-bottom:0;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Torna alla Situation Room
+      </a>
+      <span class="article-cat-badge" style="color:${color};background:${bgColor};">${a.catLabel || a.cat}</span>
+    </div>
 
     <h1 class="article-title">${a.title}</h1>
     ${a.subtitle ? `<p class="article-subtitle">${a.subtitle}</p>` : ''}
