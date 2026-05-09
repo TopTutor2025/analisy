@@ -361,6 +361,145 @@
     /* Map panel hidden state (legacy) */
     .sr-panel-hidden { display: none !important; }
 
+    /* ── Notification Bell ── */
+    .notif-bell-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+    .notif-bell-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: rgba(235,235,245,0.5);
+      display: flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      transition: background 0.15s, color 0.15s;
+      position: relative;
+    }
+    .notif-bell-btn:hover { background: rgba(255,255,255,0.07); color: rgba(235,235,245,0.9); }
+    .notif-bell-dot {
+      position: absolute;
+      top: 5px; right: 5px;
+      width: 8px; height: 8px;
+      background: #e8344e;
+      border-radius: 50%;
+      border: 1.5px solid #0c0e14;
+      display: none;
+    }
+    .notif-bell-dot.visible { display: block; }
+    /* Dropdown desktop */
+    .notif-dropdown {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      width: 320px;
+      background: #13151f;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      z-index: 2000;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .notif-dropdown.open { display: flex; }
+    .notif-dropdown-header {
+      padding: 14px 16px 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(235,235,245,0.35);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .notif-list {
+      max-height: 360px;
+      overflow-y: auto;
+    }
+    .notif-item {
+      padding: 13px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      cursor: default;
+    }
+    .notif-item:last-child { border-bottom: none; }
+    .notif-item-title {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: rgba(235,235,245,0.92);
+      margin-bottom: 4px;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .notif-item-body {
+      font-size: 0.78rem;
+      color: rgba(235,235,245,0.52);
+      line-height: 1.5;
+    }
+    .notif-item-date {
+      font-size: 0.68rem;
+      color: rgba(235,235,245,0.28);
+      margin-top: 5px;
+    }
+    .notif-type-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .notif-type-info    .notif-type-dot { background: #4f9eff; }
+    .notif-type-warning .notif-type-dot { background: #f5a623; }
+    .notif-type-alert   .notif-type-dot { background: #e8344e; }
+    .notif-empty {
+      padding: 28px 16px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: rgba(235,235,245,0.25);
+    }
+    /* Mobile popup overlay */
+    .notif-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 3000;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .notif-overlay.open { display: flex; }
+    .notif-popup {
+      background: #13151f;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px 18px 0 0;
+      width: 100%;
+      max-height: 75vh;
+      display: flex; flex-direction: column;
+      animation: slideUp 0.22s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(40px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+    .notif-popup-handle {
+      width: 36px; height: 4px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 2px;
+      margin: 10px auto 0;
+    }
+    .notif-popup-header {
+      padding: 12px 16px 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(235,235,245,0.35);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .notif-popup-close {
+      background: none; border: none; cursor: pointer;
+      color: rgba(235,235,245,0.4); font-size: 1.1rem; line-height: 1;
+    }
+    .notif-popup .notif-list { overflow-y: auto; flex: 1; }
+
     /* 8 · Tool navbar */
     .sr-toolnav {
       height: 36px; background: #111113;
@@ -821,6 +960,9 @@
       .sr-navbar-cats { display: none !important; }
       .navbar-actions { display: none !important; }
       .sr-navbar-mobile-right { display: flex !important; }
+      /* Bell: nascondi desktop, mostra mobile */
+      #notif-bell-wrap { display: none !important; }
+      #notif-bell-btn-mob { display: flex !important; }
 
       /* 3 · Ticker — mantieni, adatta margin-top */
       .ticker-wrap { font-size: 0.7rem !important; }
@@ -2088,6 +2230,18 @@
         <a href="javascript:switchToolTab('forum',document.getElementById('tn-forum'))" class="sr-subnav-link" style="color:var(--accent-green);">Community</a>
       </div>
 
+      <!-- Bell: desktop hover dropdown -->
+      <div class="notif-bell-wrap" id="notif-bell-wrap" style="margin-right:4px;">
+        <button class="notif-bell-btn" id="notif-bell-btn" title="Comunicazioni" aria-label="Notifiche">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span class="notif-bell-dot" id="notif-bell-dot"></span>
+        </button>
+        <div class="notif-dropdown" id="notif-dropdown">
+          <div class="notif-dropdown-header">Comunicazioni</div>
+          <div class="notif-list" id="notif-list-desktop"></div>
+        </div>
+      </div>
+
       <div class="navbar-actions" id="navbar-actions">
         <!-- popolato da renderSrNavbar() -->
       </div>
@@ -2096,6 +2250,11 @@
       <div class="sr-navbar-mobile-right">
         <!-- Tutorial "?" -->
         <button class="sr-mob-tutorial-btn" onclick="openSrTutorial()" title="Come funziona">?</button>
+        <!-- Bell mobile -->
+        <button class="notif-bell-btn" id="notif-bell-btn-mob" onclick="openNotifPopup()" title="Comunicazioni" aria-label="Notifiche" style="display:none;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span class="notif-bell-dot" id="notif-bell-dot-mob"></span>
+        </button>
         <!-- Avatar (popolato da renderSrNavbar) -->
         <div id="sr-mob-user-area"></div>
         <!-- Hamburger -->
@@ -2113,6 +2272,18 @@
   <div id="sr-mob-menu-auth"></div>
   <div class="sr-mobile-menu-divider"></div>
   <a href="index.html" onclick="closeSrMobileMenu()">← Torna alla home</a>
+</div>
+
+<!-- Notification popup (mobile) -->
+<div class="notif-overlay" id="notif-overlay" onclick="closeNotifPopup(event)">
+  <div class="notif-popup" onclick="event.stopPropagation()">
+    <div class="notif-popup-handle"></div>
+    <div class="notif-popup-header">
+      <span>Comunicazioni</span>
+      <button class="notif-popup-close" onclick="closeNotifPopup()">✕</button>
+    </div>
+    <div class="notif-list" id="notif-list-mobile"></div>
+  </div>
 </div>
 
 <!-- Markets ticker -->
@@ -4911,6 +5082,102 @@ if (_deskOrigRenderArticles) {
 // Aggiorna live events quando gli eventi mappa si caricano
 document.addEventListener('mapEventsLoaded', function() {
   if (window.innerWidth > 768) renderDeskLiveEvents();
+});
+</script>
+<script>
+// ═══════════════════════════════════════════════
+//  NOTIFICATION BELL
+// ═══════════════════════════════════════════════
+let _notifData   = [];
+let _notifLoaded = false;
+
+function _notifTimeAgo(iso) {
+  if (!iso) return '';
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1)  return 'adesso';
+  if (m < 60) return `${m}m fa`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h fa`;
+  return `${Math.floor(h / 24)}g fa`;
+}
+
+function _notifTypeLabel(type) {
+  if (type === 'warning') return '#f5a623';
+  if (type === 'alert')   return '#e8344e';
+  return '#4f9eff';
+}
+
+function _notifRenderList(containerId) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  if (!_notifData.length) {
+    el.innerHTML = '<div class="notif-empty">Nessuna comunicazione</div>';
+    return;
+  }
+  el.innerHTML = _notifData.map(n => `
+    <div class="notif-item notif-type-${n.type}">
+      <div class="notif-item-title">
+        <span class="notif-type-dot" style="background:${_notifTypeLabel(n.type)};"></span>
+        ${n.title}
+      </div>
+      <div class="notif-item-body">${n.body}</div>
+      <div class="notif-item-date">${_notifTimeAgo(n.created_at)}</div>
+    </div>`).join('');
+}
+
+async function loadNotifications() {
+  if (_notifLoaded) return;
+  try {
+    const data = await Api.fn('notifications', {});
+    if (Array.isArray(data)) _notifData = data;
+  } catch(e) {
+    // fallback silenzioso
+  }
+  _notifLoaded = true;
+  // Mostra pallino rosso se ci sono notifiche
+  if (_notifData.length > 0) {
+    document.getElementById('notif-bell-dot')?.classList.add('visible');
+    document.getElementById('notif-bell-dot-mob')?.classList.add('visible');
+  }
+  _notifRenderList('notif-list-desktop');
+  _notifRenderList('notif-list-mobile');
+}
+
+// Desktop: hover apre/chiude il dropdown
+(function() {
+  const wrap = document.getElementById('notif-bell-wrap');
+  const btn  = document.getElementById('notif-bell-btn');
+  const drop = document.getElementById('notif-dropdown');
+  if (!wrap || !btn || !drop) return;
+
+  btn.addEventListener('mouseenter', async () => {
+    await loadNotifications();
+    drop.classList.add('open');
+  });
+  wrap.addEventListener('mouseleave', () => {
+    drop.classList.remove('open');
+  });
+  // Previeni chiusura passando sul dropdown
+  drop.addEventListener('mouseenter', () => drop.classList.add('open'));
+})();
+
+// Mobile: click apre popup
+async function openNotifPopup() {
+  await loadNotifications();
+  document.getElementById('notif-overlay')?.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeNotifPopup(e) {
+  if (e && e.target !== document.getElementById('notif-overlay')) return;
+  document.getElementById('notif-overlay')?.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Carica al DOMContentLoaded (in background, senza bloccare)
+document.addEventListener('DOMContentLoaded', () => {
+  // Carica dopo un breve delay per non interferire con il boot
+  setTimeout(loadNotifications, 1500);
 });
 </script>
 <script src="js/cookie-banner.js"></script>

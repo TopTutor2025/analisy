@@ -219,5 +219,40 @@ Deno.serve(async (req) => {
     return corsResponse(data || []);
   }
 
+  // ── NOTIFICATIONS ─────────────────────────────────────
+  if (action === 'list-notifications') {
+    const { data, error } = await db
+      .from('notifications')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) return errorResponse(error.message, 500);
+    return corsResponse(data || []);
+  }
+
+  if (action === 'upsert-notification') {
+    const { id, title, body, type, expires_at } = payload;
+    const fields = {
+      title,
+      body,
+      type:       type || 'info',
+      expires_at: expires_at || null,
+      updated_at: new Date().toISOString(),
+    };
+    let result;
+    if (id) {
+      result = await db.from('notifications').update(fields).eq('id', id).select().single();
+    } else {
+      result = await db.from('notifications').insert(fields).select().single();
+    }
+    if (result.error) return errorResponse(result.error.message, 500);
+    return corsResponse(result.data);
+  }
+
+  if (action === 'delete-notification') {
+    const { error } = await db.from('notifications').delete().eq('id', payload.id);
+    if (error) return errorResponse(error.message, 500);
+    return corsResponse({ ok: true });
+  }
+
   return errorResponse('Azione non valida', 400);
 });

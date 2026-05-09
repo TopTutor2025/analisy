@@ -389,6 +389,10 @@
         Segnalazioni
         <span id="reports-badge" style="display:none;position:absolute;top:6px;right:8px;background:var(--accent-red);color:#fff;font-size:0.65rem;font-weight:700;padding:1px 5px;border-radius:8px;">0</span>
       </a>
+      <a href="#section-notifications" onclick="showSection('notifications',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        Notifiche
+      </a>
       <a href="#section-ai" onclick="showSection('ai',this)" style="position:relative;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
         AI Intelligence
@@ -637,6 +641,61 @@
     </div>
 
     <!-- ═══ AI INTELLIGENCE SECTION ═══ -->
+    <!-- ══════════════ NOTIFICHE ══════════════ -->
+    <div id="section-notifications" class="admin-section" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.05);">
+        <span style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.28);">Notifiche utenti</span>
+        <button class="btn btn-primary btn-sm" onclick="openNotifForm()">+ Nuova notifica</button>
+      </div>
+
+      <!-- Form crea/modifica -->
+      <div id="notif-form-wrap" style="display:none;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:20px;margin-bottom:20px;">
+        <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.35);margin-bottom:14px;" id="notif-form-title-label">Nuova notifica</div>
+        <input type="hidden" id="notif-edit-id" value="">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div>
+            <label style="font-size:0.72rem;color:rgba(255,255,255,0.45);display:block;margin-bottom:4px;">Titolo *</label>
+            <input type="text" id="notif-f-title" placeholder="Es: Manutenzione programmata" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:8px 10px;color:#fff;font-size:0.84rem;outline:none;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-size:0.72rem;color:rgba(255,255,255,0.45);display:block;margin-bottom:4px;">Tipo</label>
+            <select id="notif-f-type" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:8px 10px;color:rgba(235,235,245,0.7);font-size:0.84rem;outline:none;">
+              <option value="info">ℹ️ Info</option>
+              <option value="warning">⚠️ Avviso</option>
+              <option value="alert">🔴 Urgente</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:0.72rem;color:rgba(255,255,255,0.45);display:block;margin-bottom:4px;">Testo *</label>
+          <textarea id="notif-f-body" rows="3" placeholder="Scrivi il messaggio per gli utenti…" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:8px 10px;color:#fff;font-size:0.84rem;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="font-size:0.72rem;color:rgba(255,255,255,0.45);display:block;margin-bottom:4px;">Scade il (lascia vuoto = nessuna scadenza)</label>
+          <input type="datetime-local" id="notif-f-expires" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:8px 10px;color:rgba(235,235,245,0.7);font-size:0.84rem;outline:none;color-scheme:dark;">
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-primary btn-sm" onclick="saveNotification()">Salva</button>
+          <button class="btn btn-sm" style="background:rgba(255,255,255,0.05);" onclick="closeNotifForm()">Annulla</button>
+        </div>
+      </div>
+
+      <!-- Lista notifiche -->
+      <div class="admin-table-wrapper">
+        <table class="admin-table" id="notif-table">
+          <thead><tr>
+            <th>Tipo</th>
+            <th>Titolo</th>
+            <th>Testo</th>
+            <th>Creata</th>
+            <th>Scade</th>
+            <th>Azioni</th>
+          </tr></thead>
+          <tbody id="notif-tbody"><tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,0.2);">Caricamento…</td></tr></tbody>
+        </table>
+      </div>
+    </div><!-- /section-notifications -->
+
     <div id="section-ai" class="admin-section" style="display:none;">
 
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.05);">
@@ -1354,7 +1413,7 @@
   const _SECTION_LABELS = {
     users: 'Utenti', subs: 'Abbonamenti', map: 'Gestione Mappa',
     articles: 'Articoli', podcasts: 'Podcast', citycams: 'City Cam',
-    reports: 'Segnalazioni', ai: 'AI Intelligence',
+    reports: 'Segnalazioni', notifications: 'Notifiche', ai: 'AI Intelligence',
   };
   function showSection(name, link) {
     document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
@@ -1363,7 +1422,109 @@
     if (link) link.classList.add('active');
     const titleEl = document.getElementById('admin-section-title');
     if (titleEl) titleEl.textContent = _SECTION_LABELS[name] || name;
-    if (name === 'ai') { loadAIStatus(); loadAIJobs(); }
+    if (name === 'ai')            { loadAIStatus(); loadAIJobs(); }
+    if (name === 'notifications')  { loadAdminNotifications(); }
+  }
+
+  // ── NOTIFICATIONS ──────────────────────────────────────
+  function _notifAdminTypeLabel(type) {
+    if (type === 'warning') return '<span style="color:#f5a623;">⚠️ Avviso</span>';
+    if (type === 'alert')   return '<span style="color:#e8344e;">🔴 Urgente</span>';
+    return '<span style="color:#4f9eff;">ℹ️ Info</span>';
+  }
+  function _notifAdminFmtDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleString('it-IT', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  }
+
+  async function loadAdminNotifications() {
+    const tbody = document.getElementById('notif-tbody');
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,0.2);">Caricamento…</td></tr>';
+    try {
+      const data = await Api.fn('admin-write', { action: 'list-notifications', data: {} });
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,0.2);">Nessuna notifica</td></tr>';
+        return;
+      }
+      const now = Date.now();
+      tbody.innerHTML = data.map(n => {
+        const expired = n.expires_at && new Date(n.expires_at).getTime() < now;
+        const rowStyle = expired ? 'opacity:0.4;' : '';
+        return `<tr style="${rowStyle}">
+          <td>${_notifAdminTypeLabel(n.type)}</td>
+          <td style="font-weight:700;">${n.title}</td>
+          <td style="color:rgba(235,235,245,0.5);max-width:260px;white-space:pre-wrap;word-break:break-word;">${n.body}</td>
+          <td style="color:rgba(235,235,245,0.4);font-size:0.78rem;">${_notifAdminFmtDate(n.created_at)}</td>
+          <td style="color:${expired ? '#e8344e' : 'rgba(235,235,245,0.4)'};font-size:0.78rem;">${n.expires_at ? _notifAdminFmtDate(n.expires_at) + (expired ? ' <b>(scaduta)</b>' : '') : '—'}</td>
+          <td>
+            <button class="btn btn-sm" style="background:rgba(255,255,255,0.05);margin-right:6px;" onclick="editNotification(${JSON.stringify(n).replace(/"/g,'&quot;')})">Modifica</button>
+            <button class="btn btn-sm" style="background:rgba(232,52,78,0.12);color:#e8344e;" onclick="deleteNotification('${n.id}')">Elimina</button>
+          </td>
+        </tr>`;
+      }).join('');
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="6" style="color:#e8344e;">${e.message}</td></tr>`;
+    }
+  }
+
+  function openNotifForm(clear = true) {
+    if (clear) {
+      document.getElementById('notif-edit-id').value = '';
+      document.getElementById('notif-f-title').value  = '';
+      document.getElementById('notif-f-body').value   = '';
+      document.getElementById('notif-f-type').value   = 'info';
+      document.getElementById('notif-f-expires').value = '';
+      document.getElementById('notif-form-title-label').textContent = 'Nuova notifica';
+    }
+    document.getElementById('notif-form-wrap').style.display = 'block';
+  }
+
+  function closeNotifForm() {
+    document.getElementById('notif-form-wrap').style.display = 'none';
+  }
+
+  function editNotification(n) {
+    document.getElementById('notif-edit-id').value   = n.id;
+    document.getElementById('notif-f-title').value   = n.title;
+    document.getElementById('notif-f-body').value    = n.body;
+    document.getElementById('notif-f-type').value    = n.type || 'info';
+    // Converti ISO → formato datetime-local (YYYY-MM-DDTHH:MM)
+    document.getElementById('notif-f-expires').value = n.expires_at
+      ? new Date(n.expires_at).toISOString().slice(0, 16) : '';
+    document.getElementById('notif-form-title-label').textContent = 'Modifica notifica';
+    openNotifForm(false);
+    document.getElementById('notif-form-wrap').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  async function saveNotification() {
+    const title    = document.getElementById('notif-f-title').value.trim();
+    const body     = document.getElementById('notif-f-body').value.trim();
+    const type     = document.getElementById('notif-f-type').value;
+    const expiresRaw = document.getElementById('notif-f-expires').value;
+    const id       = document.getElementById('notif-edit-id').value || null;
+
+    if (!title || !body) { showToast('Titolo e testo sono obbligatori', 'error'); return; }
+
+    const expires_at = expiresRaw ? new Date(expiresRaw).toISOString() : null;
+    try {
+      await Api.fn('admin-write', { action: 'upsert-notification', data: { id, title, body, type, expires_at } });
+      showToast(id ? 'Notifica aggiornata' : 'Notifica creata', 'success');
+      closeNotifForm();
+      loadAdminNotifications();
+    } catch(e) {
+      showToast('Errore: ' + e.message, 'error');
+    }
+  }
+
+  async function deleteNotification(id) {
+    if (!confirm('Eliminare questa notifica?')) return;
+    try {
+      await Api.fn('admin-write', { action: 'delete-notification', data: { id } });
+      showToast('Notifica eliminata', 'success');
+      loadAdminNotifications();
+    } catch(e) {
+      showToast('Errore: ' + e.message, 'error');
+    }
   }
 
   /* ── STATS ── */
