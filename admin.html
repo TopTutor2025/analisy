@@ -1565,17 +1565,33 @@
     if (!ids.length) return;
     if (!confirm(`Eliminare ${ids.length} event${ids.length===1?'o':'i'}? L'operazione è irreversibile.`)) return;
     const bar = document.getElementById('events-bulk-bar');
-    if (bar) { const btn = bar.querySelector('button'); if (btn) { btn.disabled = true; btn.textContent = 'Eliminazione…'; } }
+    const setBtn = (txt, dis) => { if (bar) { const b = bar.querySelector('button'); if (b) { b.textContent = txt; b.disabled = dis; } } };
+    setBtn('Eliminazione…', true);
     try {
       const res = await Api.fn('admin-write', { action: 'bulk-delete-events', data: { ids } });
       AppData.mapEvents = (AppData.mapEvents||[]).filter(e => !ids.includes(e.id));
       selectedEvents.clear();
-      renderEvents();
-      refreshStats();
+      renderEvents(); refreshStats();
       showToast(`Eliminati ${res.deleted ?? ids.length} eventi`, 'success');
     } catch(e) {
-      showToast(e.message || 'Errore durante l\'eliminazione', 'error');
-      if (bar) { const btn = bar.querySelector('button'); if (btn) { btn.disabled = false; btn.textContent = '🗑 Elimina selezionati'; } }
+      // Fallback: chunked sequential (20 alla volta)
+      if (e.message && e.message.includes('non valid')) {
+        let ok = 0;
+        const chunks = [];
+        for (let i = 0; i < ids.length; i += 20) chunks.push(ids.slice(i, i + 20));
+        for (const chunk of chunks) {
+          setBtn(`Eliminazione… ${ok}/${ids.length}`, true);
+          await Promise.allSettled(chunk.map(id =>
+            Api.fn('admin-write', { action: 'delete-event', data: { id } })
+              .then(() => { AppData.mapEvents = (AppData.mapEvents||[]).filter(e => e.id !== id); ok++; })
+          ));
+        }
+        selectedEvents.clear(); renderEvents(); refreshStats();
+        showToast(`Eliminati ${ok} eventi`, 'success');
+      } else {
+        showToast(e.message || 'Errore durante l\'eliminazione', 'error');
+        setBtn('🗑 Elimina selezionati', false);
+      }
     }
   }
 
@@ -2506,17 +2522,33 @@ async function deleteSelectedAIEvents() {
   if (!ids.length) return;
   if (!confirm(`Eliminare ${ids.length} event${ids.length===1?'o':'i'} AI? L'operazione è irreversibile.`)) return;
   const bar = document.getElementById('ai-events-bulk-bar');
-  if (bar) { const btn = bar.querySelector('button'); if (btn) { btn.disabled = true; btn.textContent = 'Eliminazione…'; } }
+  const setBtn = (txt, dis) => { if (bar) { const b = bar.querySelector('button'); if (b) { b.textContent = txt; b.disabled = dis; } } };
+  setBtn('Eliminazione…', true);
   try {
     const res = await Api.fn('admin-write', { action: 'bulk-delete-events', data: { ids } });
     aiEventsAll = aiEventsAll.filter(e => !ids.includes(e.id));
     selectedAIEvents.clear();
-    renderAIEvents();
-    loadAIStatus();
+    renderAIEvents(); loadAIStatus();
     showToast(`Eliminati ${res.deleted ?? ids.length} eventi AI`, 'success');
   } catch(e) {
-    showToast(e.message || 'Errore durante l\'eliminazione', 'error');
-    if (bar) { const btn = bar.querySelector('button'); if (btn) { btn.disabled = false; btn.textContent = '🗑 Elimina selezionati'; } }
+    // Fallback: chunked sequential (20 alla volta)
+    if (e.message && e.message.includes('non valid')) {
+      let ok = 0;
+      const chunks = [];
+      for (let i = 0; i < ids.length; i += 20) chunks.push(ids.slice(i, i + 20));
+      for (const chunk of chunks) {
+        setBtn(`Eliminazione… ${ok}/${ids.length}`, true);
+        await Promise.allSettled(chunk.map(id =>
+          Api.fn('admin-write', { action: 'delete-event', data: { id } })
+            .then(() => { aiEventsAll = aiEventsAll.filter(e => e.id !== id); ok++; })
+        ));
+      }
+      selectedAIEvents.clear(); renderAIEvents(); loadAIStatus();
+      showToast(`Eliminati ${ok} eventi AI`, 'success');
+    } else {
+      showToast(e.message || 'Errore durante l\'eliminazione', 'error');
+      setBtn('🗑 Elimina selezionati', false);
+    }
   }
 }
 
