@@ -50,9 +50,16 @@
       text-decoration: none;
       white-space: nowrap;
     }
+    /* Wrapper riga back+badge — stili base qui così media query può fare display:none */
+    .article-back-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
     @media (max-width: 768px) {
       .article-nav-back { display: flex; }
-      .article-back-row { display: none; }  /* nasconde la riga back+badge nel contenuto */
+      .article-back-row { display: none !important; }
       .article-cat-badge {
         font-size: 0.58rem;
         padding: 2px 7px;
@@ -204,11 +211,6 @@
   <div class="container">
     <div class="navbar-inner">
 
-      <a href="situation-room.html" class="article-nav-back">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        Situation Room
-      </a>
-
       <a href="index.html" style="text-decoration:none;">
         <span style="font-family:-apple-system,'SF Pro Display',Inter,sans-serif;font-size:1.35rem;font-weight:800;letter-spacing:-0.04em;background:linear-gradient(135deg,#e8344e,#ff6b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">ANALISY</span>
       </a>
@@ -224,6 +226,11 @@
         <button class="help-btn" title="Aiuto">?</button>
         <a href="situation-room.html" class="btn btn-primary btn-sm">Situation Room</a>
       </div>
+
+      <a href="situation-room.html" class="article-nav-back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Situation Room
+      </a>
 
     </div>
   </div>
@@ -306,7 +313,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     : `<div class="article-body">${(a.body || '').split('\n\n').map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('')}</div>`;
 
   container.innerHTML = `
-    <div class="article-back-row" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
+    <div class="article-back-row">
       <a href="situation-room.html" class="article-back" style="margin-bottom:0;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
         Torna alla Situation Room
