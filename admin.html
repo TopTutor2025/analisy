@@ -521,7 +521,10 @@
           </div>
           <div id="events-filter-bar"></div>
           <table class="admin-table">
-            <thead><tr><th>Titolo / Data</th><th>Categoria</th><th>Mag.</th><th>Azioni</th></tr></thead>
+            <thead><tr>
+              <th style="width:32px;padding:0 6px;"><input type="checkbox" id="ev-check-all" onchange="toggleAllEvents(this)" style="cursor:pointer;accent-color:#ff4757;" /></th>
+              <th>Titolo / Data</th><th>Categoria</th><th>Mag.</th><th>Azioni</th>
+            </tr></thead>
             <tbody id="events-tbody"></tbody>
           </table>
         </div>
@@ -1529,6 +1532,53 @@
 
   /* ── MAP EVENTS TABLE ── */
   let eventsFilter = { search: '', region: 'all', cat: 'all' };
+  let selectedEvents = new Set();
+
+  function toggleEventRow(id, cb) {
+    if (cb.checked) selectedEvents.add(id); else selectedEvents.delete(id);
+    updateEventsBulkBar();
+  }
+  function toggleAllEvents(cb) {
+    document.querySelectorAll('.ev-row-check').forEach(c => {
+      c.checked = cb.checked;
+      if (cb.checked) selectedEvents.add(c.dataset.id); else selectedEvents.delete(c.dataset.id);
+    });
+    updateEventsBulkBar();
+  }
+  function updateEventsBulkBar() {
+    const bar = document.getElementById('events-bulk-bar');
+    if (!bar) return;
+    const n = selectedEvents.size;
+    if (n > 0) {
+      bar.style.display = 'flex';
+      bar.querySelector('.bulk-count').textContent = `${n} selezionat${n===1?'o':'i'}`;
+    } else {
+      bar.style.display = 'none';
+    }
+    // Sync "select all" checkbox
+    const all = document.getElementById('ev-check-all');
+    const rows = document.querySelectorAll('.ev-row-check');
+    if (all && rows.length > 0) all.checked = rows.length > 0 && [...rows].every(r => r.checked);
+  }
+  async function deleteSelectedEvents() {
+    const ids = [...selectedEvents];
+    if (!ids.length) return;
+    if (!confirm(`Eliminare ${ids.length} event${ids.length===1?'o':'i'}? L'operazione è irreversibile.`)) return;
+    const bar = document.getElementById('events-bulk-bar');
+    if (bar) bar.querySelector('button').disabled = true;
+    let ok = 0, fail = 0;
+    for (const id of ids) {
+      try {
+        await Api.fn('admin-write', { action: 'delete-event', data: { id } });
+        AppData.mapEvents = (AppData.mapEvents||[]).filter(e => e.id !== id);
+        ok++;
+      } catch(e) { fail++; }
+    }
+    selectedEvents.clear();
+    renderEvents();
+    refreshStats();
+    showToast(`Eliminati ${ok} event${ok===1?'o':'i'}${fail?` (${fail} errori)`:''}`, fail ? 'error' : 'success');
+  }
 
   function renderEvents() {
     const catLabels = { geopolitica:'Geopolitica', politica:'Politica', business:'Business', tecnologia:'Tecnologia', hotspot:'Hotspot' };
@@ -1541,13 +1591,12 @@
     if (eventsFilter.region !== 'all') events = events.filter(e => getRegion(e.lat, e.lng) === eventsFilter.region);
     if (eventsFilter.cat !== 'all') events = events.filter(e => e.category === eventsFilter.cat);
 
-    // Toolbar con search + filtri
     const regions = ['all','Europa','Medio Oriente','Asia','Africa','Nord America','Sud America','Oceania','Globale'];
     const cats = ['all','geopolitica','politica','business','tecnologia','hotspot'];
     const catLabelsShort = { all:'Tutte', geopolitica:'Geo', politica:'Pol', business:'Biz', tecnologia:'Tech', hotspot:'Hotspot' };
 
     document.getElementById('events-filter-bar').innerHTML = `
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px;">
         <input type="text" placeholder="Cerca titolo…" value="${eventsFilter.search}"
           oninput="eventsFilter.search=this.value;renderEvents()"
           style="flex:1;min-width:140px;padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:#1a1a1c;color:#f0f4ff;font-size:0.8rem;" />
@@ -1560,12 +1609,24 @@
           ${cats.map(c => `<option value="${c}" ${eventsFilter.cat===c?'selected':''}>${catLabelsShort[c]}</option>`).join('')}
         </select>
         <span style="font-size:0.75rem;color:var(--text-muted);">${events.length} eventi</span>
+      </div>
+      <div id="events-bulk-bar" style="display:none;align-items:center;gap:10px;padding:7px 12px;background:rgba(255,71,87,0.12);border:1px solid rgba(255,71,87,0.25);border-radius:8px;margin-bottom:8px;">
+        <span class="bulk-count" style="font-size:0.82rem;font-weight:600;color:#ff4757;"></span>
+        <button onclick="deleteSelectedEvents()" class="btn btn-sm"
+          style="background:#ff4757;color:#fff;border:none;padding:4px 12px;border-radius:6px;font-size:0.78rem;font-weight:600;cursor:pointer;">
+          🗑 Elimina selezionati
+        </button>
+        <button onclick="selectedEvents.clear();renderEvents()" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:0.78rem;cursor:pointer;margin-left:auto;">
+          Annulla
+        </button>
       </div>`;
 
     document.getElementById('events-tbody').innerHTML = events.map(ev => {
       const region = getRegion(ev.lat, ev.lng);
       const dateStr = ev.createdAt ? new Date(ev.createdAt).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
-      return `<tr>
+      const checked = selectedEvents.has(ev.id) ? 'checked' : '';
+      return `<tr style="${selectedEvents.has(ev.id)?'background:rgba(255,71,87,0.06);':''}">
+        <td style="width:32px;padding:0 6px;"><input type="checkbox" class="ev-row-check" data-id="${ev.id}" ${checked} onchange="toggleEventRow('${ev.id}',this)" style="cursor:pointer;accent-color:#ff4757;" /></td>
         <td style="max-width:160px;">
           <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${ev.title}</div>
           <div style="font-size:0.68rem;color:var(--text-muted);margin-top:2px;">${dateStr} · ${region}</div>
@@ -1578,6 +1639,8 @@
         </td>
       </tr>`;
     }).join('');
+
+    updateEventsBulkBar();
   }
 
   function renderResources() {
@@ -2411,6 +2474,53 @@ function filterAIEvents(f) {
 
 let aiEventsSearch = '';
 let aiEventsRegion = 'all';
+let selectedAIEvents = new Set();
+
+function toggleAIEventRow(id, cb) {
+  if (cb.checked) selectedAIEvents.add(id); else selectedAIEvents.delete(id);
+  updateAIEventsBulkBar();
+}
+function toggleAllAIEvents(cb) {
+  document.querySelectorAll('.ai-ev-row-check').forEach(c => {
+    c.checked = cb.checked;
+    if (cb.checked) selectedAIEvents.add(c.dataset.id); else selectedAIEvents.delete(c.dataset.id);
+  });
+  updateAIEventsBulkBar();
+}
+function updateAIEventsBulkBar() {
+  const bar = document.getElementById('ai-events-bulk-bar');
+  if (!bar) return;
+  const n = selectedAIEvents.size;
+  if (n > 0) {
+    bar.style.display = 'flex';
+    bar.querySelector('.bulk-count').textContent = `${n} selezionat${n===1?'o':'i'}`;
+  } else {
+    bar.style.display = 'none';
+  }
+  // Sync "select all" checkbox
+  const all = document.getElementById('ai-ev-check-all');
+  const rows = document.querySelectorAll('.ai-ev-row-check');
+  if (all && rows.length > 0) all.checked = [...rows].every(r => r.checked);
+}
+async function deleteSelectedAIEvents() {
+  const ids = [...selectedAIEvents];
+  if (!ids.length) return;
+  if (!confirm(`Eliminare ${ids.length} event${ids.length===1?'o':'i'} AI? L'operazione è irreversibile.`)) return;
+  const bar = document.getElementById('ai-events-bulk-bar');
+  if (bar) bar.querySelector('button').disabled = true;
+  let ok = 0, fail = 0;
+  for (const id of ids) {
+    try {
+      await Api.fn('admin-write', { action: 'delete-event', data: { id } });
+      aiEventsAll = aiEventsAll.filter(e => e.id !== id);
+      ok++;
+    } catch(e) { fail++; }
+  }
+  selectedAIEvents.clear();
+  renderAIEvents();
+  loadAIStatus();
+  showToast(`Eliminati ${ok} event${ok===1?'o':'i'} AI${fail?` (${fail} errori)`:''}`, fail ? 'error' : 'success');
+}
 
 function renderAIEvents() {
   const el = document.getElementById('ai-events-list');
@@ -2434,9 +2544,9 @@ function renderAIEvents() {
   const magColors = ['','#4f9eff','#ffb400','#ff8c00','#ff4757'];
   const regions   = ['all','Europa','Medio Oriente','Asia','Africa','Nord America','Sud America','Oceania','Globale'];
 
-  // Search + region filter bar
+  // Search + region filter bar + bulk bar
   const filterBar = `
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px;">
       <input type="text" placeholder="Cerca titolo…" value="${aiEventsSearch}"
         oninput="aiEventsSearch=this.value;renderAIEvents()"
         style="flex:1;min-width:140px;padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:#1a1a1c;color:#f0f4ff;font-size:0.8rem;" />
@@ -2445,29 +2555,42 @@ function renderAIEvents() {
         ${regions.map(r => `<option value="${r}" ${aiEventsRegion===r?'selected':''}>${r==='all'?'Tutte le regioni':r}</option>`).join('')}
       </select>
       <span style="font-size:0.75rem;color:var(--text-muted);">${list.length} eventi</span>
+    </div>
+    <div id="ai-events-bulk-bar" style="display:none;align-items:center;gap:10px;padding:7px 12px;background:rgba(255,71,87,0.12);border:1px solid rgba(255,71,87,0.25);border-radius:8px;margin-bottom:8px;">
+      <span class="bulk-count" style="font-size:0.82rem;font-weight:600;color:#ff4757;"></span>
+      <button onclick="deleteSelectedAIEvents()" class="btn btn-sm"
+        style="background:#ff4757;color:#fff;border:none;padding:4px 12px;border-radius:6px;font-size:0.78rem;font-weight:600;cursor:pointer;">
+        🗑 Elimina selezionati
+      </button>
+      <button onclick="selectedAIEvents.clear();renderAIEvents()" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:0.78rem;cursor:pointer;margin-left:auto;">
+        Annulla
+      </button>
     </div>`;
 
   if (!list.length) {
     el.innerHTML = filterBar + '<p style="color:var(--text-muted);font-size:0.85rem;padding:12px 0;">Nessun evento trovato.</p>';
+    updateAIEventsBulkBar();
     return;
   }
 
   el.innerHTML = filterBar + `
     <table class="admin-table">
       <thead><tr>
+        <th style="width:32px;padding:0 6px;"><input type="checkbox" id="ai-ev-check-all" onchange="toggleAllAIEvents(this)" style="cursor:pointer;accent-color:#ff4757;" /></th>
         <th>Evento / Data</th><th>Regione</th><th>Cat.</th><th>Mag.</th><th>Score</th>
         <th>Scadenza</th><th>Stato</th><th>Azioni</th>
       </tr></thead>
       <tbody>
         ${list.map(e => {
-          // Fix: use snake_case field names from DB
           const exp = e.expires_at ? new Date(e.expires_at).toLocaleDateString('it-IT') : '∞';
           const dateStr = e.created_at ? new Date(e.created_at).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
           const stColors = {active:'#22d47a',resolved:'#4f9eff',expired:'rgba(255,255,255,0.35)'};
           const scoreBar = Math.max(0, Math.min(100, e.relevance_score||0));
           const region = getRegion(e.lat, e.lng);
           const catColor = catColors[e.category] || '#fff';
-          return `<tr>
+          const checked = selectedAIEvents.has(e.id) ? 'checked' : '';
+          return `<tr style="${selectedAIEvents.has(e.id)?'background:rgba(255,71,87,0.06);':''}">
+            <td style="width:32px;padding:0 6px;"><input type="checkbox" class="ai-ev-row-check" data-id="${e.id}" ${checked} onchange="toggleAIEventRow('${e.id}',this)" style="cursor:pointer;accent-color:#ff4757;" /></td>
             <td>
               <div style="font-weight:600;color:#f0f4ff;font-size:0.85rem;">${e.manual_lock?'🔒 ':''}${e.title}</div>
               ${e.ai_summary ? `<div style="font-size:0.73rem;color:var(--text-muted);margin-top:2px;">${e.ai_summary.slice(0,70)}</div>` : ''}
@@ -2507,6 +2630,8 @@ function renderAIEvents() {
         }).join('')}
       </tbody>
     </table>`;
+
+  updateAIEventsBulkBar();
 }
 
 async function aiLockEvent(id) {
