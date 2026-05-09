@@ -94,6 +94,18 @@ Deno.serve(async (req) => {
     return corsResponse({ ok: true });
   }
 
+  if (action === 'bulk-delete-events') {
+    // Elimina più eventi in una singola query DB
+    const ids: string[] = Array.isArray(payload.ids) ? payload.ids : [];
+    if (!ids.length) return corsResponse({ ok: true, deleted: 0 });
+    const { error, count } = await db
+      .from('map_events')
+      .delete({ count: 'exact' })
+      .in('id', ids);
+    if (error) return errorResponse(error.message, 500);
+    return corsResponse({ ok: true, deleted: count ?? ids.length });
+  }
+
   if (action === 'lock-event') {
     // Toggle manual_lock
     const { data: ev } = await db.from('map_events').select('manual_lock').eq('id', payload.id).single();
