@@ -40,9 +40,10 @@ jobs:
     needs: []   # esegue in parallelo al frontend
     if: |
       github.event_name == 'workflow_dispatch' ||
-      contains(toJSON(github.event.commits.*.modified), 'supabase/functions') ||
-      contains(toJSON(github.event.commits.*.added),    'supabase/functions') ||
-      contains(toJSON(github.event.commits.*.removed),  'supabase/functions')
+      contains(toJSON(github.event.commits.*.modified), 'supabase/') ||
+      contains(toJSON(github.event.commits.*.added),    'supabase/') ||
+      contains(toJSON(github.event.commits.*.removed),  'supabase/') ||
+      contains(toJSON(github.event.commits.*.modified), '.github/workflows/deploy.yml')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
