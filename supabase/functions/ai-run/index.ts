@@ -33,6 +33,7 @@ interface NewsArticle {
   url:      string;
   source:   string;
   pubDate:  string;
+  body:     string;   // testo estratto da <description> o <content:encoded>
 }
 
 interface MapEvent {
@@ -79,8 +80,25 @@ function parseRssItems(xml: string, source: string): NewsArticle[] {
       block.match(/<updated>([\s\S]*?)<\/updated>/);
     const pubDate = dateMatch?.[1]?.trim() || new Date().toUTCString();
 
+    // Body: preferisce content:encoded, poi description
+    const bodyMatch =
+      block.match(/<content:encoded><!\[CDATA\[([\s\S]*?)\]\]><\/content:encoded>/) ||
+      block.match(/<content:encoded>([\s\S]*?)<\/content:encoded>/)                ||
+      block.match(/<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/)        ||
+      block.match(/<description>([\s\S]*?)<\/description>/);
+    const body = (bodyMatch?.[1] || '')
+      .replace(/<[^>]+>/g, ' ')   // rimuove tag HTML
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 400);             // max 400 car per non gonfiare il prompt
+
     if (title && url && title.length > 10) {
-      items.push({ title, url, source, pubDate });
+      items.push({ title, url, source, pubDate, body });
     }
   }
 
@@ -152,26 +170,30 @@ async function analyzeWithClaude(articles: NewsArticle[]): Promise<MapEvent[]> {
     throw new Error(`ANTHROPIC_API_KEY formato non valido: inizia con "${apiKey.slice(0, 10)}"`);
   }
 
-  // Prendi i 20 articoli più recenti — passa titolo + URL reale a Claude
+  // Prendi i 20 articoli più recenti — passa titolo + body + URL reale a Claude
   const top = articles.slice(0, 20);
   const headlines = top
-    .map((a, i) => `${i + 1}. [${a.source}] ${a.title}\n   URL: ${a.url}`)
-    .join('\n');
+    .map((a, i) => {
+      const bodyLine = a.body ? `   Contenuto: ${a.body}` : '';
+      return `${i + 1}. [${a.source}] ${a.title}\n   URL: ${a.url}${bodyLine ? '\n' + bodyLine : ''}`;
+    })
+    .join('\n\n');
 
   const today = new Date().toISOString().slice(0, 10);
 
   const prompt = `Sei un sistema di intelligence geopolitica. Analizza SOLO queste notizie reali di OGGI (${today}) e seleziona i 5 eventi più rilevanti geopoliticamente.
 
-NOTIZIE con URL reali (fonti: BBC, Reuters, Al Jazeera, NYT, The Guardian):
+NOTIZIE con URL e contenuto reale (fonti: BBC, Reuters, Al Jazeera, NYT, The Guardian):
 ${headlines}
 
 REGOLE FONDAMENTALI:
-1. Usa ESCLUSIVAMENTE le informazioni presenti nelle notizie sopra — zero fatti dal training
+1. Usa ESCLUSIVAMENTE le informazioni presenti nelle notizie sopra — titolo e contenuto forniti — zero fatti inventati o dal training
 2. Per "source_url" usa ESATTAMENTE l'URL fornito accanto alla notizia scelta — non inventare URL
 3. Ogni evento deve corrispondere a una notizia specifica della lista
+4. "ai_summary" e "ai_brief" devono riflettere fedelmente quanto scritto nel contenuto della notizia
 
 Rispondi SOLO con un array JSON, senza markdown, senza testo extra. Ogni oggetto:
-{"title":"max 60 car in italiano","description":"max 120 car in italiano","lat":0.0,"lng":0.0,"category":"geopolitica|politica|business|tecnologia|hotspot","magnitude":1|2|3|4,"ai_summary":"max 200 car in italiano basato sulla notizia","ai_brief":"2-3 frasi di contesto in italiano basate sulla notizia","source_url":"URL ESATTO dalla lista sopra","relevance_score":0-100}
+{"title":"max 60 car in italiano","description":"max 120 car in italiano","lat":0.0,"lng":0.0,"category":"geopolitica|politica|business|tecnologia|hotspot","magnitude":1|2|3|4,"ai_summary":"max 200 car in italiano — solo fatti presenti nella notizia","ai_brief":"2-3 frasi in italiano — solo fatti presenti nella notizia","source_url":"URL ESATTO dalla lista sopra","relevance_score":0-100}
 
 Regole:
 - Categoria: geopolitica=guerre/conflitti/tensioni tra stati, politica=elezioni/governi/proteste, business=economia/sanzioni/energia, tecnologia=cyber/AI/spazio, hotspot=cluster epidemici/focolai infettivi/emergenze sanitarie/pandemie

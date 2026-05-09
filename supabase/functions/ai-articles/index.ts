@@ -46,13 +46,16 @@ async function generateArticle(ev: MapEvent, apiKey: string) {
 
 EVENTO: ${ev.title}
 CATEGORIA: ${CATEGORY_LABELS[ev.category] || ev.category}
-CONTESTO: ${ev.description}
-ANALISI: ${ev.ai_brief || ev.ai_summary}
+DESCRIZIONE (dalla fonte): ${ev.description}
+ANALISI (dalla fonte): ${ev.ai_brief || ev.ai_summary}
+FONTE ORIGINALE: ${ev.source_url || 'non disponibile'}
+
+REGOLA FONDAMENTALE: usa ESCLUSIVAMENTE i fatti contenuti nei campi DESCRIZIONE e ANALISI sopra. Non aggiungere dettagli, cifre, nomi o affermazioni che non siano presenti in quei testi. Se un'informazione non è nei dati forniti, non scriverla.
 
 Il flash update deve:
-- Titolo giornalistico incisivo (max 85 caratteri)
-- Sottotitolo che sintetizza il punto chiave (max 140 caratteri)
-- Testo principale: ESATTAMENTE 12-15 frasi in italiano, tono autorevole da intelligence briefing. Struttura: 3 frasi sul fatto attuale → 3 frasi sul contesto storico → 3 frasi sugli attori coinvolti → 3 frasi sugli scenari possibili e impatti. NO immagini, NO titoletti interni, solo testo continuo fluente.
+- Titolo giornalistico incisivo (max 85 caratteri) — basato sui fatti forniti
+- Sottotitolo che sintetizza il punto chiave (max 140 caratteri) — basato sui fatti forniti
+- Testo principale: ESATTAMENTE 12-15 frasi in italiano, tono autorevole da intelligence briefing. Struttura: 3 frasi sul fatto attuale → 3 frasi sul contesto → 3 frasi sugli attori coinvolti → 3 frasi sugli scenari possibili. NO immagini, NO titoletti interni, solo testo continuo fluente. Ogni affermazione deve essere ricavabile dai dati forniti.
 - Excerpt: 1 frase di 160-180 caratteri che cattura l'essenza
 - Read time: "4 min"
 
