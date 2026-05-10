@@ -2157,21 +2157,27 @@
   .desk-commodity-change { font-size: 0.58rem; font-weight: 700; }
   .desk-commodity-spark { width: 100%; height: 32px; display: block; margin-top: 2px; }
 
-  /* ── Footer inside center col ── */
-  #desk-footer-inner {
+  /* ── Full-width footer bar ── */
+  #desk-footer-bar {
+    flex-shrink: 0;
+    width: 100%;
+    background: #000;
     border-top: 1px solid rgba(255,255,255,0.07);
-    padding: 28px 24px 20px;
-    margin-top: 8px;
+    overflow: hidden;
   }
-  #desk-footer-inner .footer-grid {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 20px 28px !important;
+  #desk-footer-inner {
+    padding: 20px 32px 16px;
   }
-  #desk-footer-inner .footer-brand p { font-size: 0.72rem; }
-  #desk-footer-inner .footer-col h4 { font-size: 0.62rem; }
-  #desk-footer-inner .footer-col ul li a { font-size: 0.68rem; }
-  #desk-footer-inner .footer-bottom { margin-top: 18px; padding-top: 14px; font-size: 0.65rem; }
-  #desk-footer-inner .footer-links a { font-size: 0.65rem; }
+  #desk-footer-bar .footer-grid {
+    grid-template-columns: 1.6fr 1fr 1fr 1fr !important;
+    gap: 16px 32px !important;
+  }
+  #desk-footer-bar .footer-brand p { font-size: 0.7rem; line-height: 1.5; color: rgba(235,235,245,0.38); }
+  #desk-footer-bar .footer-col h4 { font-size: 0.58rem; margin-bottom: 8px; }
+  #desk-footer-bar .footer-col ul { gap: 6px !important; }
+  #desk-footer-bar .footer-col ul li a { font-size: 0.65rem; }
+  #desk-footer-bar .footer-bottom { margin-top: 14px; padding-top: 12px; font-size: 0.62rem; }
+  #desk-footer-bar .footer-links a { font-size: 0.62rem; }
 
   /* ── Bottom tab navbar ── */
   #desk-tab-nav {
@@ -5699,52 +5705,6 @@ document.addEventListener('DOMContentLoaded', () => {
         <div id="desk-forum-feed"></div>
       </div>
 
-      <!-- Footer -->
-      <div id="desk-footer-inner">
-        <div class="footer-grid">
-          <div class="footer-brand">
-            <div style="margin-bottom:10px;">
-              <span style="font-family:-apple-system,'SF Pro Display',Inter,sans-serif;font-size:1.1rem;font-weight:800;letter-spacing:-0.04em;background:linear-gradient(135deg,#e8344e,#ff6b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">ANALISY</span>
-            </div>
-            <p>La piattaforma di analisi geopolitica, business e tecnologia per chi vuole capire il mondo.</p>
-          </div>
-          <div class="footer-col">
-            <h4>Prodotto</h4>
-            <ul>
-              <li><a href="situation-room.html">Situation Room</a></li>
-              <li><a href="index.html#perche-analisy">Perché Analisy</a></li>
-              <li><a href="index.html#come-funziona">Come funziona</a></li>
-              <li><a href="index.html#prezzi">Prezzi</a></li>
-            </ul>
-          </div>
-          <div class="footer-col">
-            <h4>Categorie</h4>
-            <ul>
-              <li><a href="#">Geopolitica</a></li>
-              <li><a href="#">Politica Nazionale</a></li>
-              <li><a href="#">Business</a></li>
-              <li><a href="#">Tecnologia</a></li>
-            </ul>
-          </div>
-          <div class="footer-col">
-            <h4>Legale</h4>
-            <ul>
-              <li><a href="termini-condizioni.html">Termini e Condizioni</a></li>
-              <li><a href="privacy-policy.html">Privacy Policy</a></li>
-              <li><a href="cookie-policy.html">Cookie Policy</a></li>
-              <li><a href="#">Contatti</a></li>
-            </ul>
-          </div>
-        </div>
-        <div class="footer-bottom">
-          <span>© 2026 Analisy. Tutti i diritti riservati.</span>
-          <div class="footer-links">
-            <a href="privacy-policy.html">Privacy</a>
-            <a href="termini-condizioni.html">Termini</a>
-            <a href="cookie-policy.html">Cookie</a>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- RIGHT 30%: Flash Updates -->
@@ -5757,6 +5717,55 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
 
   </div><!-- /desk-content-row -->
+
+  <!-- ──── FOOTER full-width ──── -->
+  <div id="desk-footer-bar">
+    <div id="desk-footer-inner">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div style="margin-bottom:10px;">
+            <span style="font-family:-apple-system,'SF Pro Display',Inter,sans-serif;font-size:1.1rem;font-weight:800;letter-spacing:-0.04em;background:linear-gradient(135deg,#e8344e,#ff6b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">ANALISY</span>
+          </div>
+          <p>La piattaforma di analisi geopolitica, business e tecnologia per chi vuole capire il mondo.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Prodotto</h4>
+          <ul>
+            <li><a href="situation-room.html">Situation Room</a></li>
+            <li><a href="index.html#perche-analisy">Perché Analisy</a></li>
+            <li><a href="index.html#come-funziona">Come funziona</a></li>
+            <li><a href="index.html#prezzi">Prezzi</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Categorie</h4>
+          <ul>
+            <li><a href="#">Geopolitica</a></li>
+            <li><a href="#">Politica Nazionale</a></li>
+            <li><a href="#">Business</a></li>
+            <li><a href="#">Tecnologia</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Legale</h4>
+          <ul>
+            <li><a href="termini-condizioni.html">Termini e Condizioni</a></li>
+            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="cookie-policy.html">Cookie Policy</a></li>
+            <li><a href="#">Contatti</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Analisy. Tutti i diritti riservati.</span>
+        <div class="footer-links">
+          <a href="privacy-policy.html">Privacy</a>
+          <a href="termini-condizioni.html">Termini</a>
+          <a href="cookie-policy.html">Cookie</a>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- hidden old elements kept for JS compatibility -->
   <div id="desk-sidebar" style="display:none!important;"></div>
