@@ -2158,6 +2158,29 @@
   .desk-mover-tab svg { opacity: 0.7; flex-shrink: 0; }
   .desk-mover-tab.active svg { opacity: 1; }
 
+  /* ── Map layer toggle buttons (right tab nav) ── */
+  #desk-tabnav-right {
+    display: flex; align-items: center; padding: 0 12px; gap: 6px;
+  }
+  .desk-map-toggle {
+    display: flex; align-items: center; gap: 5px;
+    padding: 4px 10px; height: 26px;
+    width: fit-content; flex-shrink: 0;
+    font-size: 0.65rem; font-weight: 600;
+    color: rgba(255,255,255,0.35);
+    background: none; border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px; cursor: pointer; font-family: inherit;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .desk-map-toggle:hover { color: rgba(255,255,255,0.65); background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
+  .desk-map-toggle.active {
+    color: rgba(79,158,255,0.9);
+    background: rgba(79,158,255,0.12);
+    border-color: rgba(79,158,255,0.35);
+  }
+  .desk-map-toggle svg { opacity: 0.65; flex-shrink: 0; transition: opacity 0.15s; }
+  .desk-map-toggle.active svg { opacity: 1; }
+
   /* ── Left col: Materie Prime ── */
   #desk-left-col .desk-commodity-grid {
     display: grid; grid-template-columns: 1fr 1fr;
@@ -4975,12 +4998,16 @@ function renderDeskTopbar() {
   const el = document.getElementById('desk-topbar-right');
   if (!el) return;
   const user = typeof getUser === 'function' ? getUser() : null;
+  const tutorialBtn = `<button onclick="openSrTutorial()" title="Come funziona la Situation Room"
+    style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);color:rgba(235,235,245,0.55);font-size:0.75rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.15s,color 0.15s;"
+    onmouseenter="this.style.background='rgba(255,255,255,0.14)';this.style.color='#fff'"
+    onmouseleave="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(235,235,245,0.55)'">?</button>`;
   if (user) {
     const initials = (user.user_metadata?.full_name || user.email || 'U')
       .split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-    el.innerHTML = `<button class="desk-avatar-btn" title="${user.email || ''}">${initials}</button>`;
+    el.innerHTML = tutorialBtn + `<button class="desk-avatar-btn" title="${user.email || ''}">${initials}</button>`;
   } else {
-    el.innerHTML = `<a href="login.html" class="desk-accedi-btn">Accedi</a>`;
+    el.innerHTML = tutorialBtn + `<a href="login.html" class="desk-accedi-btn">Accedi</a>`;
   }
 }
 
@@ -5208,6 +5235,15 @@ function renderDeskCams() {
       </div>
     </div>`;
   }).join('');
+}
+
+/* ── Map layer toggle (risorse / tratte) — stub per future implementazioni ── */
+function toggleMapLayer(layer, el) {
+  if (!el) return;
+  el.classList.toggle('active');
+  // TODO: implementare il layer sulla mappa quando pronto
+  // es. if (layer === 'risorse') toggleRisorseLayer(el.classList.contains('active'));
+  // es. if (layer === 'tratte') toggleTratteLayer(el.classList.contains('active'));
 }
 
 /* ── Market movers tab switch ── */
@@ -5709,8 +5745,17 @@ document.addEventListener('DOMContentLoaded', () => {
         Forum
       </button>
     </div>
-    <!-- Sezione destra 30%: vuota -->
-    <div id="desk-tabnav-right"></div>
+    <!-- Sezione destra 30%: layer toggle mappa -->
+    <div id="desk-tabnav-right">
+      <button class="desk-map-toggle" id="desk-toggle-risorse" onclick="toggleMapLayer('risorse',this)" title="Mostra/nascondi risorse sulla mappa">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Risorse
+      </button>
+      <button class="desk-map-toggle" id="desk-toggle-tratte" onclick="toggleMapLayer('tratte',this)" title="Mostra/nascondi tratte sulla mappa">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M7 6h10M6.5 7.5l4.5 9M17.5 7.5l-4.5 9"/></svg>
+        Tratte
+      </button>
+    </div>
   </div>
 
   <!-- ──── 3. SCROLL AREA (content row + footer) ──── -->
