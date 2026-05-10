@@ -2133,19 +2133,6 @@
   .map-ol-leg-row:hover { color: rgba(255,255,255,0.78); }
   .map-ol-leg-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
   .map-ol-leg-count { margin-left: auto; font-size: 0.6rem; color: rgba(255,255,255,0.2); }
-  .map-ol-divider { border: none; border-top: 1px solid rgba(255,255,255,0.07); margin: 8px 0; }
-  .map-ol-filters { display: flex; flex-wrap: wrap; gap: 4px; }
-  .map-ol-filter-chip {
-    font-size: 0.58rem; font-weight: 600;
-    color: rgba(255,255,255,0.38);
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 5px; padding: 2px 7px;
-    cursor: pointer; transition: all 0.12s;
-    white-space: nowrap;
-  }
-  .map-ol-filter-chip:hover { color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.1); }
-  .map-ol-filter-chip.active { color: #fff; background: rgba(232,52,78,0.18); border-color: rgba(232,52,78,0.35); }
 
   /* ── Market movers tab strip ── */
   .desk-mover-tab {
@@ -5283,10 +5270,8 @@ function renderDeskForum() {
 function deskFilterCat(cat, el) {
   if (window.innerWidth <= 768) return;
   deskCurrentCat = cat;
-  // Sync all filter UIs (sidebar chips + overlay chips)
-  document.querySelectorAll('.desk-filter-item, .map-ol-filter-chip').forEach(b => b.classList.remove('active'));
-  // Activate matching buttons by data-cat
-  document.querySelectorAll(`.desk-filter-item[data-cat="${cat}"], .map-ol-filter-chip[data-cat="${cat}"]`).forEach(b => b.classList.add('active'));
+  document.querySelectorAll('.desk-filter-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll(`.desk-filter-item[data-cat="${cat}"]`).forEach(b => b.classList.add('active'));
   renderDeskArticles(cat);
   // Sincronizza anche il filtro originale
   if (typeof filterCategory === 'function') {
@@ -5665,31 +5650,11 @@ document.addEventListener('DOMContentLoaded', () => {
     <!-- Floating legend + filters overlay -->
     <div id="desk-map-overlay-legend">
       <div class="map-ol-label">Legenda</div>
-      <div class="map-ol-leg-row" onclick="deskFilterCat('geopolitica', document.querySelector('.map-ol-filter-chip[data-cat=geopolitica]'))">
-        <span class="map-ol-leg-dot" style="background:#e8344e;"></span>Crisi Geo<span class="map-ol-leg-count" id="desk-count-geo">0</span>
-      </div>
-      <div class="map-ol-leg-row" onclick="deskFilterCat('business', document.querySelector('.map-ol-filter-chip[data-cat=business]'))">
-        <span class="map-ol-leg-dot" style="background:#ffd700;"></span>Business<span class="map-ol-leg-count" id="desk-count-bus">0</span>
-      </div>
-      <div class="map-ol-leg-row" onclick="deskFilterCat('politica', document.querySelector('.map-ol-filter-chip[data-cat=politica]'))">
-        <span class="map-ol-leg-dot" style="background:#4f9eff;"></span>Politica<span class="map-ol-leg-count" id="desk-count-pol">0</span>
-      </div>
-      <div class="map-ol-leg-row" onclick="deskFilterCat('tecnologia', document.querySelector('.map-ol-filter-chip[data-cat=tecnologia]'))">
-        <span class="map-ol-leg-dot" style="background:#a78bfa;"></span>Tech<span class="map-ol-leg-count" id="desk-count-tec">0</span>
-      </div>
-      <div class="map-ol-leg-row" onclick="deskFilterCat('hotspot', document.querySelector('.map-ol-filter-chip[data-cat=hotspot]'))">
-        <span class="map-ol-leg-dot" style="background:#06d6a0;"></span>Hotspot<span class="map-ol-leg-count" id="desk-count-hot">0</span>
-      </div>
-      <hr class="map-ol-divider">
-      <div class="map-ol-label">Filtri</div>
-      <div class="map-ol-filters">
-        <button class="map-ol-filter-chip active" data-cat="all" onclick="deskFilterCat('all',this)">Tutti</button>
-        <button class="map-ol-filter-chip" data-cat="geopolitica" onclick="deskFilterCat('geopolitica',this)">Geo</button>
-        <button class="map-ol-filter-chip" data-cat="politica" onclick="deskFilterCat('politica',this)">Pol</button>
-        <button class="map-ol-filter-chip" data-cat="business" onclick="deskFilterCat('business',this)">Bus</button>
-        <button class="map-ol-filter-chip" data-cat="tecnologia" onclick="deskFilterCat('tecnologia',this)">Tech</button>
-        <button class="map-ol-filter-chip" data-cat="hotspot" onclick="deskFilterCat('hotspot',this)">Hot</button>
-      </div>
+      <div class="map-ol-leg-row"><span class="map-ol-leg-dot" style="background:#e8344e;"></span>Crisi Geo<span class="map-ol-leg-count" id="desk-count-geo">0</span></div>
+      <div class="map-ol-leg-row"><span class="map-ol-leg-dot" style="background:#ffd700;"></span>Business<span class="map-ol-leg-count" id="desk-count-bus">0</span></div>
+      <div class="map-ol-leg-row"><span class="map-ol-leg-dot" style="background:#4f9eff;"></span>Politica<span class="map-ol-leg-count" id="desk-count-pol">0</span></div>
+      <div class="map-ol-leg-row"><span class="map-ol-leg-dot" style="background:#a78bfa;"></span>Tech<span class="map-ol-leg-count" id="desk-count-tec">0</span></div>
+      <div class="map-ol-leg-row"><span class="map-ol-leg-dot" style="background:#06d6a0;"></span>Hotspot<span class="map-ol-leg-count" id="desk-count-hot">0</span></div>
     </div>
     <button id="desk-map-expand-btn" onclick="openDeskMapFullscreen()">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
