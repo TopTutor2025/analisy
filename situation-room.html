@@ -1629,6 +1629,7 @@
   .sr-announce-bar  { display: none !important; }
   .sr-navbar        { display: none !important; }
   .ticker-wrap      { display: none !important; }
+  .ticker-outer     { display: none !important; } /* rimuove margin-top:90px dal wrapper */
   .sr-toolnav       { display: none !important; }
   .sr-mobile-tabs   { display: none !important; }
   .sr-grid          { display: none !important; }
@@ -2526,7 +2527,7 @@
 </div>
 
 <!-- Markets ticker -->
-<div style="margin-top:calc(var(--nav-h) + var(--announce-h));">
+<div class="ticker-outer" style="margin-top:calc(var(--nav-h) + var(--announce-h));">
   <div class="ticker-wrap">
     <div class="ticker-track" id="ticker-track">
       <!-- populated by JS -->
