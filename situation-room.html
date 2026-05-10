@@ -2221,12 +2221,24 @@
 
   /* ── Bottom tab navbar ── */
   #desk-tab-nav {
-    display: flex; align-items: center;
+    display: flex; align-items: stretch;
     height: 42px; flex-shrink: 0;
     background: rgba(6,6,12,0.30);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    padding: 0 24px; gap: 4px;
+  }
+  #desk-tabnav-left {
+    width: 25%; flex-shrink: 0;
+    display: flex; align-items: center;
+    padding: 0 12px; gap: 4px;
+  }
+  #desk-tabnav-center {
+    flex: 1; min-width: 0;
+    display: flex; align-items: center;
+    padding: 0 16px; gap: 4px;
+  }
+  #desk-tabnav-right {
+    width: 30%; flex-shrink: 0;
   }
   .desk-tab-btn {
     display: flex; align-items: center; gap: 7px;
@@ -5668,24 +5680,36 @@ document.addEventListener('DOMContentLoaded', () => {
     </button>
   </div>
 
-  <!-- ──── 2. BOTTOM TAB NAVBAR ──── -->
+  <!-- ──── 2. BOTTOM TAB NAVBAR (allineata alle 3 colonne) ──── -->
   <div id="desk-tab-nav">
-    <button class="desk-tab-btn active" data-desk-pane="articles" onclick="switchDeskNav('articles',this)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 10h10M4 14h16M4 18h10"/></svg>
-      Articoli
-    </button>
-    <button class="desk-tab-btn" data-desk-pane="live" onclick="switchDeskNav('live',this)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
-      Live Feed
-    </button>
-    <button class="desk-tab-btn" data-desk-pane="podcast" onclick="switchDeskNav('podcast',this)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M6.6 18.4a9 9 0 1 1 10.8 0"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
-      Podcast
-    </button>
-    <button class="desk-tab-btn" data-desk-pane="forum" onclick="switchDeskNav('forum',this)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-      Forum
-    </button>
+    <!-- Sezione sinistra 25%: Materie Prime -->
+    <div id="desk-tabnav-left">
+      <button class="desk-mover-tab active" data-mover="commodities" onclick="switchMoverTab('commodities',this)" title="Materie Prime">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/></svg>
+        Materie Prime
+      </button>
+    </div>
+    <!-- Sezione centrale 45%: tab articoli/live/podcast/forum -->
+    <div id="desk-tabnav-center">
+      <button class="desk-tab-btn active" data-desk-pane="articles" onclick="switchDeskNav('articles',this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 10h10M4 14h16M4 18h10"/></svg>
+        Articoli
+      </button>
+      <button class="desk-tab-btn" data-desk-pane="live" onclick="switchDeskNav('live',this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+        Live Feed
+      </button>
+      <button class="desk-tab-btn" data-desk-pane="podcast" onclick="switchDeskNav('podcast',this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M6.6 18.4a9 9 0 1 1 10.8 0"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+        Podcast
+      </button>
+      <button class="desk-tab-btn" data-desk-pane="forum" onclick="switchDeskNav('forum',this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Forum
+      </button>
+    </div>
+    <!-- Sezione destra 30%: vuota -->
+    <div id="desk-tabnav-right"></div>
   </div>
 
   <!-- ──── 3. SCROLL AREA (content row + footer) ──── -->
@@ -5694,16 +5718,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     <!-- LEFT 25%: Materie Prime -->
     <div id="desk-left-col">
-      <!-- Market movers tabs -->
-      <div id="desk-market-movers-nav" style="display:flex;align-items:center;gap:4px;padding:14px 12px 8px;">
-        <button class="desk-mover-tab active" data-mover="commodities" onclick="switchMoverTab('commodities',this)" title="Materie Prime">
-          <!-- commodity/barrel icon -->
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/></ellipse></svg>
-          Materie Prime
-        </button>
-        <!-- spazio per future tab: Valute, Indici, Crypto... -->
-      </div>
-      <div id="desk-commodity-col" class="desk-commodity-grid"></div>
+      <div id="desk-commodity-col" class="desk-commodity-grid" style="padding-top:10px;"></div>
       <div class="desk-sidebar-divider" style="margin:2px 12px 10px;"></div>
       <div id="desk-live-events-sidebar">
         <div id="desk-live-events-list"></div>
