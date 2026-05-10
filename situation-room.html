@@ -2078,10 +2078,13 @@
 
   /* ── Full-width map ── */
   #desk-map-full {
-    width: 100%; flex-shrink: 0;
+    width: calc(100% - 20px); flex-shrink: 0;
     position: relative;
     background: #060c1a;
     height: 42vh; min-height: 260px; max-height: 420px;
+    margin: 10px 10px 0;
+    border-radius: 12px;
+    overflow: hidden;
   }
   #desk-map-full #desk-map-slot {
     width: 100% !important; height: 100% !important;
@@ -2094,6 +2097,81 @@
   }
   #desk-map-full #desk-map-slot .sr-map-row { height: 100% !important; min-height: unset !important; }
   #desk-map-full #desk-map-slot .sr-map-section { height: 100% !important; border-radius: 0 !important; }
+
+  /* ── Map floating legend + filter overlay ── */
+  #desk-map-overlay-legend {
+    position: absolute; bottom: 12px; left: 12px; z-index: 500;
+    background: rgba(4,6,14,0.82);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 10px;
+    padding: 10px 12px 8px;
+    min-width: 148px;
+    pointer-events: all;
+  }
+  .map-ol-label {
+    font-size: 0.5rem; font-weight: 700; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.22); text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .map-ol-leg-row {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 0.68rem; color: rgba(255,255,255,0.45);
+    padding: 2px 0;
+    cursor: pointer; transition: color 0.12s;
+  }
+  .map-ol-leg-row:hover { color: rgba(255,255,255,0.78); }
+  .map-ol-leg-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .map-ol-leg-count { margin-left: auto; font-size: 0.6rem; color: rgba(255,255,255,0.2); }
+  .map-ol-divider { border: none; border-top: 1px solid rgba(255,255,255,0.07); margin: 8px 0; }
+  .map-ol-filters { display: flex; flex-wrap: wrap; gap: 4px; }
+  .map-ol-filter-chip {
+    font-size: 0.58rem; font-weight: 600;
+    color: rgba(255,255,255,0.38);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 5px; padding: 2px 7px;
+    cursor: pointer; transition: all 0.12s;
+    white-space: nowrap;
+  }
+  .map-ol-filter-chip:hover { color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.1); }
+  .map-ol-filter-chip.active { color: #fff; background: rgba(232,52,78,0.18); border-color: rgba(232,52,78,0.35); }
+
+  /* ── Left col: Materie Prime ── */
+  #desk-left-col .desk-commodity-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 6px; padding: 0 12px 12px;
+  }
+  .desk-commodity-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px; overflow: hidden;
+    cursor: default; transition: background 0.15s;
+    padding: 9px 10px 4px;
+  }
+  .desk-commodity-card:hover { background: rgba(255,255,255,0.07); }
+  .desk-commodity-name { font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,0.72); margin-bottom: 2px; line-height: 1.25; }
+  .desk-commodity-ticker { font-size: 0.5rem; font-weight: 700; letter-spacing: 0.07em; color: rgba(255,255,255,0.22); text-transform: uppercase; margin-bottom: 3px; }
+  .desk-commodity-price { font-size: 0.82rem; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+  .desk-commodity-change { font-size: 0.58rem; font-weight: 700; }
+  .desk-commodity-spark { width: 100%; height: 32px; display: block; margin-top: 2px; }
+
+  /* ── Footer inside center col ── */
+  #desk-footer-inner {
+    border-top: 1px solid rgba(255,255,255,0.07);
+    padding: 28px 24px 20px;
+    margin-top: 8px;
+  }
+  #desk-footer-inner .footer-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 20px 28px !important;
+  }
+  #desk-footer-inner .footer-brand p { font-size: 0.72rem; }
+  #desk-footer-inner .footer-col h4 { font-size: 0.62rem; }
+  #desk-footer-inner .footer-col ul li a { font-size: 0.68rem; }
+  #desk-footer-inner .footer-bottom { margin-top: 18px; padding-top: 14px; font-size: 0.65rem; }
+  #desk-footer-inner .footer-links a { font-size: 0.65rem; }
 
   /* ── Bottom tab navbar ── */
   #desk-tab-nav {
@@ -5063,6 +5141,27 @@ function renderDeskCams() {
   }).join('');
 }
 
+/* ── Render Commodities (left col) ── */
+function renderDeskCommodities() {
+  if (window.innerWidth <= 768) return;
+  const grid = document.getElementById('desk-commodity-col');
+  if (!grid) return;
+  grid.innerHTML = MARKETS.map(m => {
+    const color = m.up ? '#34d399' : '#e8344e';
+    const spark = generateSparklineSVG(m.history, m.up);
+    return `
+      <div class="desk-commodity-card">
+        <div class="desk-commodity-name">${m.name}</div>
+        <div class="desk-commodity-ticker">${m.ticker}</div>
+        <div style="display:flex;align-items:baseline;gap:5px;">
+          <div class="desk-commodity-price">${m.price}</div>
+          <div class="desk-commodity-change" style="color:${color};">${m.change}</div>
+        </div>
+        <div class="desk-commodity-spark">${spark}</div>
+      </div>`;
+  }).join('');
+}
+
 /* ── Render Markets desktop ── */
 function renderDeskMarkets() {
   if (window.innerWidth <= 768) return;
@@ -5113,8 +5212,10 @@ function renderDeskForum() {
 function deskFilterCat(cat, el) {
   if (window.innerWidth <= 768) return;
   deskCurrentCat = cat;
-  document.querySelectorAll('.desk-filter-item').forEach(b => b.classList.remove('active'));
-  if (el) el.classList.add('active');
+  // Sync all filter UIs (sidebar chips + overlay chips)
+  document.querySelectorAll('.desk-filter-item, .map-ol-filter-chip').forEach(b => b.classList.remove('active'));
+  // Activate matching buttons by data-cat
+  document.querySelectorAll(`.desk-filter-item[data-cat="${cat}"], .map-ol-filter-chip[data-cat="${cat}"]`).forEach(b => b.classList.add('active'));
   renderDeskArticles(cat);
   // Sincronizza anche il filtro originale
   if (typeof filterCategory === 'function') {
@@ -5161,6 +5262,7 @@ function initDeskLayout() {
   renderDeskLiveEvents();
   renderDeskScenari(briefsData || []);
   renderDeskArticles('all');
+  renderDeskCommodities();
 
   // Aggiorna timestamp mappa
   const updated = document.getElementById('desk-map-updated');
@@ -5479,6 +5581,35 @@ document.addEventListener('DOMContentLoaded', () => {
   <!-- ──── 1. MAPPA FULL WIDTH ──── -->
   <div id="desk-map-full">
     <div id="desk-map-slot"></div>
+    <!-- Floating legend + filters overlay -->
+    <div id="desk-map-overlay-legend">
+      <div class="map-ol-label">Legenda</div>
+      <div class="map-ol-leg-row" onclick="deskFilterCat('geopolitica', document.querySelector('.map-ol-filter-chip[data-cat=geopolitica]'))">
+        <span class="map-ol-leg-dot" style="background:#e8344e;"></span>Crisi Geo<span class="map-ol-leg-count" id="desk-count-geo">0</span>
+      </div>
+      <div class="map-ol-leg-row" onclick="deskFilterCat('business', document.querySelector('.map-ol-filter-chip[data-cat=business]'))">
+        <span class="map-ol-leg-dot" style="background:#ffd700;"></span>Business<span class="map-ol-leg-count" id="desk-count-bus">0</span>
+      </div>
+      <div class="map-ol-leg-row" onclick="deskFilterCat('politica', document.querySelector('.map-ol-filter-chip[data-cat=politica]'))">
+        <span class="map-ol-leg-dot" style="background:#4f9eff;"></span>Politica<span class="map-ol-leg-count" id="desk-count-pol">0</span>
+      </div>
+      <div class="map-ol-leg-row" onclick="deskFilterCat('tecnologia', document.querySelector('.map-ol-filter-chip[data-cat=tecnologia]'))">
+        <span class="map-ol-leg-dot" style="background:#a78bfa;"></span>Tech<span class="map-ol-leg-count" id="desk-count-tec">0</span>
+      </div>
+      <div class="map-ol-leg-row" onclick="deskFilterCat('hotspot', document.querySelector('.map-ol-filter-chip[data-cat=hotspot]'))">
+        <span class="map-ol-leg-dot" style="background:#06d6a0;"></span>Hotspot<span class="map-ol-leg-count" id="desk-count-hot">0</span>
+      </div>
+      <hr class="map-ol-divider">
+      <div class="map-ol-label">Filtri</div>
+      <div class="map-ol-filters">
+        <button class="map-ol-filter-chip active" data-cat="all" onclick="deskFilterCat('all',this)">Tutti</button>
+        <button class="map-ol-filter-chip" data-cat="geopolitica" onclick="deskFilterCat('geopolitica',this)">Geo</button>
+        <button class="map-ol-filter-chip" data-cat="politica" onclick="deskFilterCat('politica',this)">Pol</button>
+        <button class="map-ol-filter-chip" data-cat="business" onclick="deskFilterCat('business',this)">Bus</button>
+        <button class="map-ol-filter-chip" data-cat="tecnologia" onclick="deskFilterCat('tecnologia',this)">Tech</button>
+        <button class="map-ol-filter-chip" data-cat="hotspot" onclick="deskFilterCat('hotspot',this)">Hot</button>
+      </div>
+    </div>
     <button id="desk-map-expand-btn" onclick="openDeskMapFullscreen()">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
       Espandi
@@ -5499,10 +5630,6 @@ document.addEventListener('DOMContentLoaded', () => {
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M6.6 18.4a9 9 0 1 1 10.8 0"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
       Podcast
     </button>
-    <button class="desk-tab-btn" data-desk-pane="markets" onclick="switchDeskNav('markets',this)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
-      Mercati
-    </button>
     <button class="desk-tab-btn" data-desk-pane="forum" onclick="switchDeskNav('forum',this)">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
       Forum
@@ -5512,43 +5639,25 @@ document.addEventListener('DOMContentLoaded', () => {
   <!-- ──── 3. THREE-COLUMN CONTENT ROW ──── -->
   <div id="desk-content-row">
 
-    <!-- LEFT 25%: Legenda + Filtri -->
+    <!-- LEFT 25%: Materie Prime -->
     <div id="desk-left-col">
-      <div class="desk-nav-section-label">LEGENDA</div>
-      <div id="desk-legend-new">
-        <div class="desk-leg-row"><span class="desk-leg-dot" style="background:#e8344e;"></span>Crisi Geo<span class="desk-leg-count" id="desk-count-geo">0</span></div>
-        <div class="desk-leg-row"><span class="desk-leg-dot" style="background:#ffd700;"></span>Business<span class="desk-leg-count" id="desk-count-bus">0</span></div>
-        <div class="desk-leg-row"><span class="desk-leg-dot" style="background:#4f9eff;"></span>Politica<span class="desk-leg-count" id="desk-count-pol">0</span></div>
-        <div class="desk-leg-row"><span class="desk-leg-dot" style="background:#a78bfa;"></span>Tech<span class="desk-leg-count" id="desk-count-tec">0</span></div>
-        <div class="desk-leg-row"><span class="desk-leg-dot" style="background:#06d6a0;"></span>Hotspot<span class="desk-leg-count" id="desk-count-hot">0</span></div>
-      </div>
-      <div class="desk-sidebar-divider"></div>
-      <div class="desk-nav-section-label">FILTRI</div>
-      <div id="desk-filters-new">
-        <button class="desk-filter-item active" data-cat="all" onclick="deskFilterCat('all',this)">
-          <span class="desk-filter-dot" style="background:rgba(255,255,255,0.4);"></span>Tutti
-        </button>
-        <button class="desk-filter-item" data-cat="geopolitica" onclick="deskFilterCat('geopolitica',this)">
-          <span class="desk-filter-dot" style="background:#e8344e;"></span>Geopolitica
-        </button>
-        <button class="desk-filter-item" data-cat="politica" onclick="deskFilterCat('politica',this)">
-          <span class="desk-filter-dot" style="background:#4f9eff;"></span>Politica
-        </button>
-        <button class="desk-filter-item" data-cat="business" onclick="deskFilterCat('business',this)">
-          <span class="desk-filter-dot" style="background:#ffd700;"></span>Business
-        </button>
-        <button class="desk-filter-item" data-cat="tecnologia" onclick="deskFilterCat('tecnologia',this)">
-          <span class="desk-filter-dot" style="background:#a78bfa;"></span>Tecnologia
-        </button>
-        <button class="desk-filter-item" data-cat="hotspot" onclick="deskFilterCat('hotspot',this)">
-          <span class="desk-filter-dot" style="background:#06d6a0;"></span>Hotspot
-        </button>
-      </div>
-      <div class="desk-sidebar-divider"></div>
+      <div class="desk-nav-section-label" style="padding-top:14px;">MATERIE PRIME</div>
+      <div id="desk-commodity-col" class="desk-commodity-grid"></div>
+      <div class="desk-sidebar-divider" style="margin:2px 12px 10px;"></div>
       <div id="desk-live-events-sidebar">
         <div id="desk-live-events-list"></div>
       </div>
       <span id="desk-map-updated" style="display:block;padding:0 18px;font-size:0.58rem;color:rgba(255,255,255,0.18);"></span>
+      <!-- hidden compat elements for old JS -->
+      <div id="desk-legend-new" style="display:none;"></div>
+      <div id="desk-filters-new" style="display:none;">
+        <button class="desk-filter-item active" data-cat="all" onclick="deskFilterCat('all',this)"></button>
+        <button class="desk-filter-item" data-cat="geopolitica" onclick="deskFilterCat('geopolitica',this)"></button>
+        <button class="desk-filter-item" data-cat="politica" onclick="deskFilterCat('politica',this)"></button>
+        <button class="desk-filter-item" data-cat="business" onclick="deskFilterCat('business',this)"></button>
+        <button class="desk-filter-item" data-cat="tecnologia" onclick="deskFilterCat('tecnologia',this)"></button>
+        <button class="desk-filter-item" data-cat="hotspot" onclick="deskFilterCat('hotspot',this)"></button>
+      </div>
     </div>
 
     <!-- CENTER 45%: Tab content panes -->
@@ -5588,6 +5697,53 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="desk-feed-title">Community & Forum</span>
         </div>
         <div id="desk-forum-feed"></div>
+      </div>
+
+      <!-- Footer -->
+      <div id="desk-footer-inner">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <div style="margin-bottom:10px;">
+              <span style="font-family:-apple-system,'SF Pro Display',Inter,sans-serif;font-size:1.1rem;font-weight:800;letter-spacing:-0.04em;background:linear-gradient(135deg,#e8344e,#ff6b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">ANALISY</span>
+            </div>
+            <p>La piattaforma di analisi geopolitica, business e tecnologia per chi vuole capire il mondo.</p>
+          </div>
+          <div class="footer-col">
+            <h4>Prodotto</h4>
+            <ul>
+              <li><a href="situation-room.html">Situation Room</a></li>
+              <li><a href="index.html#perche-analisy">Perché Analisy</a></li>
+              <li><a href="index.html#come-funziona">Come funziona</a></li>
+              <li><a href="index.html#prezzi">Prezzi</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Categorie</h4>
+            <ul>
+              <li><a href="#">Geopolitica</a></li>
+              <li><a href="#">Politica Nazionale</a></li>
+              <li><a href="#">Business</a></li>
+              <li><a href="#">Tecnologia</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Legale</h4>
+            <ul>
+              <li><a href="termini-condizioni.html">Termini e Condizioni</a></li>
+              <li><a href="privacy-policy.html">Privacy Policy</a></li>
+              <li><a href="cookie-policy.html">Cookie Policy</a></li>
+              <li><a href="#">Contatti</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>© 2026 Analisy. Tutti i diritti riservati.</span>
+          <div class="footer-links">
+            <a href="privacy-policy.html">Privacy</a>
+            <a href="termini-condizioni.html">Termini</a>
+            <a href="cookie-policy.html">Cookie</a>
+          </div>
+        </div>
       </div>
     </div>
 
