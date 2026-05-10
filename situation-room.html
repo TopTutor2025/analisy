@@ -2138,6 +2138,25 @@
   .map-ol-filter-chip:hover { color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.1); }
   .map-ol-filter-chip.active { color: #fff; background: rgba(232,52,78,0.18); border-color: rgba(232,52,78,0.35); }
 
+  /* ── Market movers tab strip ── */
+  .desk-mover-tab {
+    display: flex; align-items: center; gap: 5px;
+    padding: 4px 10px; height: 26px;
+    font-size: 0.65rem; font-weight: 600;
+    color: rgba(255,255,255,0.35);
+    background: none; border: 1px solid transparent;
+    border-radius: 6px; cursor: pointer; font-family: inherit;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .desk-mover-tab:hover { color: rgba(255,255,255,0.65); background: rgba(255,255,255,0.05); }
+  .desk-mover-tab.active {
+    color: #fff;
+    background: rgba(232,52,78,0.1);
+    border-color: rgba(232,52,78,0.25);
+  }
+  .desk-mover-tab svg { opacity: 0.7; flex-shrink: 0; }
+  .desk-mover-tab.active svg { opacity: 1; }
+
   /* ── Left col: Materie Prime ── */
   #desk-left-col .desk-commodity-grid {
     display: grid; grid-template-columns: 1fr 1fr;
@@ -2162,7 +2181,6 @@
     flex-shrink: 0;
     width: 100%;
     background: #000;
-    border-top: 1px solid rgba(255,255,255,0.07);
     padding: 48px 40px 28px;
   }
   #desk-footer-bar .footer-grid {
@@ -5179,6 +5197,14 @@ function renderDeskCams() {
   }).join('');
 }
 
+/* ── Market movers tab switch ── */
+function switchMoverTab(type, el) {
+  document.querySelectorAll('.desk-mover-tab').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  if (type === 'commodities') renderDeskCommodities();
+  // future: else if (type === 'currencies') renderDeskCurrencies();
+}
+
 /* ── Render Commodities (left col) ── */
 function renderDeskCommodities() {
   if (window.innerWidth <= 768) return;
@@ -5680,7 +5706,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     <!-- LEFT 25%: Materie Prime -->
     <div id="desk-left-col">
-      <div class="desk-nav-section-label" style="padding-top:14px;">MATERIE PRIME</div>
+      <!-- Market movers tabs -->
+      <div id="desk-market-movers-nav" style="display:flex;align-items:center;gap:4px;padding:14px 12px 8px;">
+        <button class="desk-mover-tab active" data-mover="commodities" onclick="switchMoverTab('commodities',this)" title="Materie Prime">
+          <!-- commodity/barrel icon -->
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/></ellipse></svg>
+          Materie Prime
+        </button>
+        <!-- spazio per future tab: Valute, Indici, Crypto... -->
+      </div>
       <div id="desk-commodity-col" class="desk-commodity-grid"></div>
       <div class="desk-sidebar-divider" style="margin:2px 12px 10px;"></div>
       <div id="desk-live-events-sidebar">
@@ -5743,7 +5777,7 @@ document.addEventListener('DOMContentLoaded', () => {
     <!-- RIGHT 30%: Flash Updates -->
     <div id="desk-right-col">
       <div class="desk-right-header">
-        <span class="desk-right-title">Flash Update</span>
+        <span class="desk-right-title">Scenari in Evoluzione</span>
         <span id="desk-scenari-count" class="desk-right-badge"></span>
       </div>
       <div id="desk-scenari-list"></div>
