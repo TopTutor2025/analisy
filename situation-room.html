@@ -2157,25 +2157,49 @@
   .desk-commodity-change { font-size: 0.58rem; font-weight: 700; }
   .desk-commodity-spark { width: 100%; height: 32px; display: block; margin-top: 2px; }
 
-  /* ── Full-width footer slim bar ── */
+  /* ── Full-width footer ── */
   #desk-footer-bar {
     flex-shrink: 0;
     width: 100%;
-    height: 36px;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 24px;
     background: #000;
     border-top: 1px solid rgba(255,255,255,0.07);
-    font-size: 0.62rem; color: rgba(255,255,255,0.22);
+    padding: 48px 40px 28px;
   }
-  #desk-footer-links {
-    display: flex; gap: 18px;
+  #desk-footer-bar .footer-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    gap: 20px 40px;
+    margin-bottom: 32px;
   }
-  #desk-footer-links a {
-    font-size: 0.62rem; color: rgba(255,255,255,0.25);
+  #desk-footer-bar .footer-brand p {
+    font-size: 0.75rem; color: rgba(235,235,245,0.38); line-height: 1.6;
+  }
+  #desk-footer-bar .footer-col h4 {
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: rgba(235,235,245,0.35);
+    margin-bottom: 14px;
+  }
+  #desk-footer-bar .footer-col ul {
+    list-style: none; padding: 0; margin: 0;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  #desk-footer-bar .footer-col ul li a {
+    font-size: 0.72rem; color: rgba(235,235,245,0.45);
     text-decoration: none; transition: color 0.15s;
   }
-  #desk-footer-links a:hover { color: rgba(255,255,255,0.6); }
+  #desk-footer-bar .footer-col ul li a:hover { color: rgba(235,235,245,0.85); }
+  #desk-footer-bar .footer-bottom {
+    display: flex; align-items: center; justify-content: space-between;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    padding-top: 20px;
+    font-size: 0.65rem; color: rgba(235,235,245,0.28);
+  }
+  #desk-footer-bar .footer-links { display: flex; gap: 20px; }
+  #desk-footer-bar .footer-links a {
+    font-size: 0.65rem; color: rgba(235,235,245,0.28);
+    text-decoration: none; transition: color 0.15s;
+  }
+  #desk-footer-bar .footer-links a:hover { color: rgba(235,235,245,0.6); }
 
   /* ── Bottom tab navbar ── */
   #desk-tab-nav {
@@ -2199,9 +2223,20 @@
   .desk-tab-btn svg { opacity: 0.7; }
   .desk-tab-btn.active svg { opacity: 1; }
 
+  /* ── Scroll wrapper (content row + footer) ── */
+  #desk-scroll-area {
+    flex: 1; min-height: 0;
+    overflow-y: auto; overflow-x: hidden;
+    display: flex; flex-direction: column;
+    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.05) transparent;
+  }
+  #desk-scroll-area::-webkit-scrollbar { width: 4px; }
+  #desk-scroll-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 2px; }
+
   /* ── Three-column content row ── */
   #desk-content-row {
-    display: flex; flex: 1; min-height: 0;
+    display: flex; flex-shrink: 0;
+    height: 100%;
     overflow: hidden;
   }
 
@@ -5640,7 +5675,8 @@ document.addEventListener('DOMContentLoaded', () => {
     </button>
   </div>
 
-  <!-- ──── 3. THREE-COLUMN CONTENT ROW ──── -->
+  <!-- ──── 3. SCROLL AREA (content row + footer) ──── -->
+  <div id="desk-scroll-area">
   <div id="desk-content-row">
 
     <!-- LEFT 25%: Materie Prime -->
@@ -5716,16 +5752,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
   </div><!-- /desk-content-row -->
 
-  <!-- ──── FOOTER full-width slim bar ──── -->
+  <!-- ──── FOOTER full-width ──── -->
   <div id="desk-footer-bar">
-    <span>© 2026 Analisy. Tutti i diritti riservati.</span>
-    <div id="desk-footer-links">
-      <a href="privacy-policy.html">Privacy</a>
-      <a href="termini-condizioni.html">Termini</a>
-      <a href="cookie-policy.html">Cookie</a>
-      <a href="#">Contatti</a>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div style="margin-bottom:12px;">
+          <span style="font-family:-apple-system,'SF Pro Display',Inter,sans-serif;font-size:1.35rem;font-weight:800;letter-spacing:-0.04em;background:linear-gradient(135deg,#e8344e,#ff6b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">ANALISY</span>
+        </div>
+        <p>La piattaforma di analisi geopolitica, business e tecnologia per chi vuole capire il mondo.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Prodotto</h4>
+        <ul>
+          <li><a href="situation-room.html">Situation Room</a></li>
+          <li><a href="index.html#perche-analisy">Perché Analisy</a></li>
+          <li><a href="index.html#come-funziona">Come funziona</a></li>
+          <li><a href="index.html#prezzi">Prezzi</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Categorie</h4>
+        <ul>
+          <li><a href="#">Geopolitica</a></li>
+          <li><a href="#">Politica Nazionale</a></li>
+          <li><a href="#">Business</a></li>
+          <li><a href="#">Tecnologia</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legale</h4>
+        <ul>
+          <li><a href="termini-condizioni.html">Termini e Condizioni</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="cookie-policy.html">Cookie Policy</a></li>
+          <li><a href="#">Contatti</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Analisy. Tutti i diritti riservati.</span>
+      <div class="footer-links">
+        <a href="privacy-policy.html">Privacy</a>
+        <a href="termini-condizioni.html">Termini</a>
+        <a href="cookie-policy.html">Cookie</a>
+      </div>
     </div>
   </div>
+
+  </div><!-- /desk-scroll-area -->
 
   <!-- hidden old elements kept for JS compatibility -->
   <div id="desk-sidebar" style="display:none!important;"></div>
