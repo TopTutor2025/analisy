@@ -1643,7 +1643,7 @@
   #mob-event-sheet  { display: none !important; }
 
   /* ── Layout body ── */
-  html, body { overflow: hidden !important; height: 100% !important; margin: 0 !important; }
+  html, body { overflow: auto !important; height: auto !important; margin: 0 !important; }
 
   /* ── Top bar ── */
   #desk-topbar {
@@ -1653,6 +1653,7 @@
     height: 52px;
     background: rgba(6,6,12,0.97);
     backdrop-filter: blur(20px);
+    transition: background 0.35s ease, backdrop-filter 0.35s ease;
     border-bottom: none;
     padding: 0 20px;
     gap: 12px;
@@ -1712,12 +1713,20 @@
   }
   .desk-accedi-btn:hover { background: rgba(255,255,255,0.12); }
 
+  /* navbar semi-trasparente allo scroll */
+  #desk-topbar.desk-scrolled {
+    background: rgba(6,6,12,0.8) !important;
+    backdrop-filter: blur(28px) !important;
+  }
+
   /* ── Body ── */
   #desk-body {
     display: flex !important;
-    position: fixed; top: 52px; left: 0; right: 0; bottom: 0; z-index: 999;
+    flex-direction: column;
+    position: relative;
+    margin-top: 52px;
     background: #020508;
-    overflow: hidden;
+    overflow: visible;
   }
 
   /* ── Sidebar ── */
@@ -2240,20 +2249,18 @@
   .desk-tab-btn svg { opacity: 0.7; }
   .desk-tab-btn.active svg { opacity: 1; }
 
-  /* ── Scroll wrapper (content row + footer) ── */
+  /* ── Scroll wrapper: ora è solo un contenitore passivo ── */
   #desk-scroll-area {
-    flex: 1; min-height: 0;
-    overflow-y: auto; overflow-x: hidden;
     display: flex; flex-direction: column;
-    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.05) transparent;
+    overflow: visible;
   }
-  #desk-scroll-area::-webkit-scrollbar { width: 4px; }
-  #desk-scroll-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 2px; }
 
   /* ── Three-column content row ── */
+  /* Altezza = viewport - topbar(52) - map(42vh+10px) - tabnav(42px) */
   #desk-content-row {
     display: flex; flex-shrink: 0;
-    height: 100%;
+    height: calc(100vh - 52px - 42vh - 10px - 42px);
+    min-height: 320px;
     overflow: hidden;
   }
 
@@ -5450,6 +5457,16 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(loadNotifications, 1500);
   _initNotifHover('notif-bell-wrap',      'notif-dropdown');
   _initNotifHover('notif-bell-wrap-desk', 'notif-dropdown-desk');
+
+  // Navbar trasparente allo scroll (solo desktop)
+  if (window.innerWidth > 768) {
+    const topbar = document.getElementById('desk-topbar');
+    if (topbar) {
+      window.addEventListener('scroll', () => {
+        topbar.classList.toggle('desk-scrolled', window.scrollY > 20);
+      }, { passive: true });
+    }
+  }
 });
 </script>
 <script src="js/cookie-banner.js"></script>
