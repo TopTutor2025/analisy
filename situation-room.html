@@ -2087,12 +2087,12 @@
 
   /* ── Full-width map ── */
   #desk-map-full {
-    width: calc(100% - 20px); flex-shrink: 0;
+    width: 100%; flex-shrink: 0;
     position: relative;
     background: #060c1a;
-    height: 42vh; min-height: 260px; max-height: 420px;
-    margin: 10px 10px 0;
-    border-radius: 12px;
+    height: 52vh; min-height: 300px; max-height: 520px;
+    margin: 0;
+    border-radius: 0;
     overflow: hidden;
   }
   #desk-map-full #desk-map-slot {
@@ -2245,11 +2245,11 @@
   }
 
   /* ── Three-column content row ── */
-  /* Altezza = viewport - topbar(52) - map(42vh+10px) - tabnav(42px) */
+  /* Altezza = viewport - topbar(52) - map(52vh) - tabnav(42px) */
   #desk-content-row {
     display: flex; flex-shrink: 0;
-    height: calc(100vh - 52px - 42vh - 10px - 42px);
-    min-height: 320px;
+    height: calc(100vh - 52px - 52vh - 42px);
+    min-height: 300px;
     overflow: hidden;
   }
 
