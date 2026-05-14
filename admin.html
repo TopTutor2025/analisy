@@ -1521,7 +1521,7 @@
     if (!list) return;
     list.innerHTML = '<div style="text-align:center;padding:30px;font-size:0.72rem;color:rgba(255,255,255,0.2);">Caricamento…</div>';
     try {
-      const data = await adminWrite('list-popups', {});
+      const data = await Api.fn('admin-write', { action: 'list-popups', data: {} });
       if (!data.length) {
         list.innerHTML = '<div style="text-align:center;padding:30px;font-size:0.72rem;color:rgba(255,255,255,0.2);">Nessun popup. Creane uno con "+ Nuovo popup".</div>';
         return;
@@ -1611,7 +1611,7 @@
     const delay_sec= parseInt(document.getElementById('popup-f-delay').value) || 3;
     if (!title || !body) { showToast('Titolo e messaggio sono obbligatori', 'error'); return; }
     try {
-      await adminWrite('upsert-popup', { id: id || undefined, title, body, cta_text, cta_url, show_on, delay_sec, active: false });
+      await Api.fn('admin-write', { action: 'upsert-popup', data: { id: id || undefined, title, body, cta_text, cta_url, show_on, delay_sec, active: false } });
       showToast('Popup salvato', 'success');
       closePopupForm();
       loadAdminPopups();
@@ -1620,7 +1620,7 @@
 
   async function toggleAdminPopup(id, active) {
     try {
-      await adminWrite('toggle-popup', { id, active });
+      await Api.fn('admin-write', { action: 'toggle-popup', data: { id, active } });
       showToast(active ? 'Popup attivato ✓' : 'Popup disattivato', 'success');
       loadAdminPopups();
     } catch(e) { showToast(e.message, 'error'); }
@@ -1629,7 +1629,7 @@
   async function deleteAdminPopup(id) {
     if (!confirm('Eliminare questo popup?')) return;
     try {
-      await adminWrite('delete-popup', { id });
+      await Api.fn('admin-write', { action: 'delete-popup', data: { id } });
       showToast('Popup eliminato', 'success');
       loadAdminPopups();
     } catch(e) { showToast(e.message, 'error'); }
