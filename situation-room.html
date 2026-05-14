@@ -3571,6 +3571,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await AppData.init();
 
+  // Aggiorna legenda e live events desktop ora che i dati sono pronti
+  if (window.innerWidth > 768) {
+    renderDeskLiveEvents();
+    updateDeskLegendCounts();
+  }
+
   // Map — eventi only (hide resources + routes)
   initSituationMap('situation-map');
   const HIDDEN_LAYERS = ['resources_oil','resources_gas','resources_lithium','resources_uranium','migration','maritime','oil_trade','submarine'];
