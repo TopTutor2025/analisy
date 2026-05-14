@@ -254,5 +254,52 @@ Deno.serve(async (req) => {
     return corsResponse({ ok: true });
   }
 
+  // ── SITE POPUPS ───────────────────────────────────────
+  if (action === 'list-popups') {
+    const { data, error } = await db.from('site_popups').select('*').order('created_at', { ascending: false });
+    if (error) return errorResponse(error.message, 500);
+    return corsResponse(data || []);
+  }
+
+  if (action === 'upsert-popup') {
+    const { id, title, body, cta_text, cta_url, active, show_on, delay_sec } = payload;
+    const fields = {
+      title:     title     || '',
+      body:      body      || '',
+      cta_text:  cta_text  || 'Scopri i piani',
+      cta_url:   cta_url   || '/dashboard.html',
+      active:    active    ?? false,
+      show_on:   show_on   || 'all',
+      delay_sec: delay_sec ?? 3,
+      updated_at: new Date().toISOString(),
+    };
+    let result;
+    if (id) {
+      result = await db.from('site_popups').update(fields).eq('id', id).select().single();
+    } else {
+      result = await db.from('site_popups').insert(fields).select().single();
+    }
+    if (result.error) return errorResponse(result.error.message, 500);
+    // Se attivato, disattiva gli altri
+    if (fields.active && result.data?.id) {
+      await db.from('site_popups').update({ active: false }).neq('id', result.data.id);
+    }
+    return corsResponse(result.data);
+  }
+
+  if (action === 'toggle-popup') {
+    const { id, active } = payload;
+    const { error } = await db.from('site_popups').update({ active: !!active, updated_at: new Date().toISOString() }).eq('id', id);
+    if (error) return errorResponse(error.message, 500);
+    if (active) await db.from('site_popups').update({ active: false }).neq('id', id);
+    return corsResponse({ ok: true });
+  }
+
+  if (action === 'delete-popup') {
+    const { error } = await db.from('site_popups').delete().eq('id', payload.id);
+    if (error) return errorResponse(error.message, 500);
+    return corsResponse({ ok: true });
+  }
+
   return errorResponse('Azione non valida', 400);
 });

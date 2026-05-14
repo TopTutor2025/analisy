@@ -390,6 +390,10 @@
         Segnalazioni
         <span id="reports-badge" style="display:none;position:absolute;top:6px;right:8px;background:var(--accent-red);color:#fff;font-size:0.65rem;font-weight:700;padding:1px 5px;border-radius:8px;">0</span>
       </a>
+      <a href="#section-popups" onclick="showSection('popups',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        Popup utenti
+      </a>
       <a href="#section-notifications" onclick="showSection('notifications',this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
         Notifiche
@@ -640,6 +644,82 @@
         </table>
       </div>
     </div>
+
+    <!-- ══════════════ POPUP UTENTI ══════════════ -->
+    <div id="section-popups" class="admin-section" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.05);">
+        <div>
+          <span style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.28);">Popup utenti</span>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:2px;">Messaggio promozionale mostrato agli utenti all'apertura del sito</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openPopupForm()">+ Nuovo popup</button>
+      </div>
+
+      <!-- Form crea/modifica popup -->
+      <div id="popup-form-wrap" style="display:none;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:20px;margin-bottom:20px;">
+        <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.35);margin-bottom:14px;" id="popup-form-label">Nuovo popup</div>
+        <input type="hidden" id="popup-edit-id" value="">
+
+        <div style="margin-bottom:12px;">
+          <label style="font-size:0.72rem;color:rgba(255,255,255,0.45);display:block;margin-bottom:4px;">Titolo *</label>
+          <input type="text" id="popup-f-title" placeholder="Es: Supporta Analisy" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:8px 10px;color:#fff;font-size:0.84rem;outline:none;box-sizing:border-box;" oninput="updatePopupPreview()">
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label style="font-size:0.72rem;color:rgba(255,255,255,0.45);display:block;margin-bottom:4px;">Messaggio *</label>
+          <textarea id="popup-f-body" rows="3" placeholder="Spiega perché l'abbonamento è importante…" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:8px 10px;color:#fff;font-size:0.84rem;outline:none;resize:vertical;box-sizing:border-box;" oninput="updatePopupPreview()"></textarea>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div>
+            <label style="font-size:0.72rem;color:rgba(255,255,255,0.45);display:block;margin-bottom:4px;">Testo pulsante</label>
+            <input type="text" id="popup-f-cta-text" value="Scopri i piani" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:8px 10px;color:#fff;font-size:0.84rem;outline:none;box-sizing:border-box;" oninput="updatePopupPreview()">
+          </div>
+          <div>
+            <label style="font-size:0.72rem;color:rgba(255,255,255,0.45);display:block;margin-bottom:4px;">Link pulsante</label>
+            <input type="text" id="popup-f-cta-url" value="/dashboard.html" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:8px 10px;color:#fff;font-size:0.84rem;outline:none;box-sizing:border-box;">
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+          <div>
+            <label style="font-size:0.72rem;color:rgba(255,255,255,0.45);display:block;margin-bottom:4px;">Mostra su</label>
+            <select id="popup-f-show-on" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:8px 10px;color:rgba(235,235,245,0.7);font-size:0.84rem;outline:none;">
+              <option value="all">Tutte le pagine</option>
+              <option value="home">Solo Home</option>
+              <option value="situation-room">Solo Situation Room</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.72rem;color:rgba(255,255,255,0.45);display:block;margin-bottom:4px;">Ritardo (secondi)</label>
+            <input type="number" id="popup-f-delay" value="3" min="0" max="30" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:8px 10px;color:#fff;font-size:0.84rem;outline:none;box-sizing:border-box;">
+          </div>
+        </div>
+
+        <!-- Anteprima live -->
+        <div style="margin-bottom:16px;">
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em;">Anteprima</div>
+          <div id="popup-preview" style="background:#0d0d14;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:24px;max-width:400px;position:relative;">
+            <div style="font-size:1rem;font-weight:700;color:#fff;margin-bottom:10px;" id="prev-title">Titolo popup</div>
+            <div style="font-size:0.84rem;color:rgba(235,235,245,0.55);line-height:1.65;margin-bottom:18px;" id="prev-body">Testo del messaggio…</div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <span id="prev-cta" style="background:#e8344e;color:#fff;padding:8px 18px;border-radius:8px;font-size:0.82rem;font-weight:600;">Scopri i piani</span>
+              <span style="font-size:0.78rem;color:rgba(255,255,255,0.3);cursor:pointer;">Non ora</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-primary btn-sm" onclick="savePopup()">Salva</button>
+          <button class="btn btn-sm" style="background:rgba(255,255,255,0.05);" onclick="closePopupForm()">Annulla</button>
+        </div>
+      </div>
+
+      <!-- Lista popup -->
+      <div id="popup-list" style="display:flex;flex-direction:column;gap:10px;">
+        <div style="text-align:center;padding:30px;font-size:0.72rem;color:rgba(255,255,255,0.2);">Caricamento…</div>
+      </div>
+    </div><!-- /section-popups -->
 
     <!-- ═══ AI INTELLIGENCE SECTION ═══ -->
     <!-- ══════════════ NOTIFICHE ══════════════ -->
@@ -1421,7 +1501,7 @@
   const _SECTION_LABELS = {
     users: 'Utenti', subs: 'Abbonamenti', map: 'Gestione Mappa',
     articles: 'Articoli', podcasts: 'Podcast', citycams: 'City Cam',
-    reports: 'Segnalazioni', notifications: 'Notifiche', ai: 'AI Intelligence',
+    reports: 'Segnalazioni', popups: 'Popup utenti', notifications: 'Notifiche', ai: 'AI Intelligence',
   };
   function showSection(name, link) {
     document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
@@ -1432,6 +1512,127 @@
     if (titleEl) titleEl.textContent = _SECTION_LABELS[name] || name;
     if (name === 'ai')            { loadAIStatus(); loadAIJobs(); }
     if (name === 'notifications')  { loadAdminNotifications(); }
+    if (name === 'popups')         { loadAdminPopups(); }
+  }
+
+  // ── POPUPS ──────────────────────────────────────────────
+  async function loadAdminPopups() {
+    const list = document.getElementById('popup-list');
+    if (!list) return;
+    list.innerHTML = '<div style="text-align:center;padding:30px;font-size:0.72rem;color:rgba(255,255,255,0.2);">Caricamento…</div>';
+    try {
+      const data = await adminWrite('list-popups', {});
+      if (!data.length) {
+        list.innerHTML = '<div style="text-align:center;padding:30px;font-size:0.72rem;color:rgba(255,255,255,0.2);">Nessun popup. Creane uno con "+ Nuovo popup".</div>';
+        return;
+      }
+      list.innerHTML = data.map(p => `
+        <div style="background:#111113;border:1px solid ${p.active ? 'rgba(232,52,78,0.35)' : 'rgba(255,255,255,0.06)'};border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:14px;">
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span style="font-size:0.88rem;font-weight:700;color:rgba(235,235,245,0.9);">${escHtml(p.title)}</span>
+              ${p.active
+                ? '<span style="background:rgba(232,52,78,0.15);color:#e8344e;font-size:0.62rem;font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:0.06em;">● ATTIVO</span>'
+                : '<span style="background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.3);font-size:0.62rem;font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:0.06em;">Inattivo</span>'}
+            </div>
+            <div style="font-size:0.75rem;color:rgba(235,235,245,0.4);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:480px;">${escHtml(p.body)}</div>
+            <div style="font-size:0.68rem;color:rgba(255,255,255,0.22);margin-top:4px;">Pulsante: "${escHtml(p.cta_text)}" → ${escHtml(p.cta_url)} · Ritardo: ${p.delay_sec}s · Pagine: ${p.show_on}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+            <button onclick="toggleAdminPopup('${p.id}',${!p.active})"
+              style="padding:5px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);font-size:0.72rem;cursor:pointer;">
+              ${p.active ? 'Disattiva' : 'Attiva'}
+            </button>
+            <button onclick="editPopup(${JSON.stringify(p).replace(/"/g,'&quot;')})"
+              style="padding:5px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);font-size:0.72rem;cursor:pointer;">
+              Modifica
+            </button>
+            <button onclick="deleteAdminPopup('${p.id}')"
+              style="padding:5px 12px;border-radius:6px;border:1px solid rgba(232,52,78,0.2);background:rgba(232,52,78,0.07);color:#e8344e;font-size:0.72rem;cursor:pointer;">
+              Elimina
+            </button>
+          </div>
+        </div>
+      `).join('');
+    } catch(e) {
+      list.innerHTML = `<div style="color:#e8344e;font-size:0.78rem;padding:12px;">${e.message}</div>`;
+    }
+  }
+
+  function openPopupForm(clear = true) {
+    if (clear) {
+      document.getElementById('popup-edit-id').value = '';
+      document.getElementById('popup-f-title').value = '';
+      document.getElementById('popup-f-body').value = '';
+      document.getElementById('popup-f-cta-text').value = 'Scopri i piani';
+      document.getElementById('popup-f-cta-url').value = '/dashboard.html';
+      document.getElementById('popup-f-show-on').value = 'all';
+      document.getElementById('popup-f-delay').value = '3';
+      document.getElementById('popup-form-label').textContent = 'Nuovo popup';
+      updatePopupPreview();
+    }
+    document.getElementById('popup-form-wrap').style.display = 'block';
+    document.getElementById('popup-form-wrap').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function closePopupForm() {
+    document.getElementById('popup-form-wrap').style.display = 'none';
+  }
+
+  function updatePopupPreview() {
+    const t = document.getElementById('popup-f-title').value || 'Titolo popup';
+    const b = document.getElementById('popup-f-body').value || 'Testo del messaggio…';
+    const c = document.getElementById('popup-f-cta-text').value || 'Scopri i piani';
+    document.getElementById('prev-title').textContent = t;
+    document.getElementById('prev-body').textContent = b;
+    document.getElementById('prev-cta').textContent = c;
+  }
+
+  function editPopup(p) {
+    document.getElementById('popup-edit-id').value = p.id;
+    document.getElementById('popup-f-title').value = p.title || '';
+    document.getElementById('popup-f-body').value = p.body || '';
+    document.getElementById('popup-f-cta-text').value = p.cta_text || 'Scopri i piani';
+    document.getElementById('popup-f-cta-url').value = p.cta_url || '/dashboard.html';
+    document.getElementById('popup-f-show-on').value = p.show_on || 'all';
+    document.getElementById('popup-f-delay').value = p.delay_sec ?? 3;
+    document.getElementById('popup-form-label').textContent = 'Modifica popup';
+    updatePopupPreview();
+    openPopupForm(false);
+  }
+
+  async function savePopup() {
+    const id       = document.getElementById('popup-edit-id').value;
+    const title    = document.getElementById('popup-f-title').value.trim();
+    const body     = document.getElementById('popup-f-body').value.trim();
+    const cta_text = document.getElementById('popup-f-cta-text').value.trim();
+    const cta_url  = document.getElementById('popup-f-cta-url').value.trim();
+    const show_on  = document.getElementById('popup-f-show-on').value;
+    const delay_sec= parseInt(document.getElementById('popup-f-delay').value) || 3;
+    if (!title || !body) { showToast('Titolo e messaggio sono obbligatori', 'error'); return; }
+    try {
+      await adminWrite('upsert-popup', { id: id || undefined, title, body, cta_text, cta_url, show_on, delay_sec, active: false });
+      showToast('Popup salvato', 'success');
+      closePopupForm();
+      loadAdminPopups();
+    } catch(e) { showToast(e.message, 'error'); }
+  }
+
+  async function toggleAdminPopup(id, active) {
+    try {
+      await adminWrite('toggle-popup', { id, active });
+      showToast(active ? 'Popup attivato ✓' : 'Popup disattivato', 'success');
+      loadAdminPopups();
+    } catch(e) { showToast(e.message, 'error'); }
+  }
+
+  async function deleteAdminPopup(id) {
+    if (!confirm('Eliminare questo popup?')) return;
+    try {
+      await adminWrite('delete-popup', { id });
+      showToast('Popup eliminato', 'success');
+      loadAdminPopups();
+    } catch(e) { showToast(e.message, 'error'); }
   }
 
   // ── NOTIFICATIONS ──────────────────────────────────────
