@@ -5452,9 +5452,33 @@ if (_deskOrigRenderArticles) {
   };
 }
 
-// Aggiorna live events quando gli eventi mappa si caricano
+/* ── Aggiorna contatori legenda overlay mappa ── */
+function updateDeskLegendCounts() {
+  if (window.innerWidth <= 768) return;
+  const events = (typeof AppData !== 'undefined' && AppData.mapEvents)
+    ? AppData.mapEvents.filter(e => e.status === 'active')
+    : [];
+  const counts = { geopolitica: 0, business: 0, politica: 0, tecnologia: 0, hotspot: 0 };
+  events.forEach(e => { if (counts[e.category] !== undefined) counts[e.category]++; });
+  const map = {
+    geopolitica: 'desk-count-geo',
+    business:    'desk-count-bus',
+    politica:    'desk-count-pol',
+    tecnologia:  'desk-count-tec',
+    hotspot:     'desk-count-hot',
+  };
+  Object.entries(map).forEach(([cat, id]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = counts[cat] || '';
+  });
+}
+
+// Aggiorna live events e contatori legenda quando gli eventi mappa si caricano
 document.addEventListener('mapEventsLoaded', function() {
-  if (window.innerWidth > 768) renderDeskLiveEvents();
+  if (window.innerWidth > 768) {
+    renderDeskLiveEvents();
+    updateDeskLegendCounts();
+  }
 });
 </script>
 <script>
