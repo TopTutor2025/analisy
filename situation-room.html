@@ -5398,11 +5398,11 @@ function renderDeskLiveEvents() {
   if (window.innerWidth <= 768) return;
   const list = document.getElementById('desk-live-events-list');
   if (!list) return;
-  const events = (typeof AppData !== 'undefined' && AppData.mapEvents)
-    ? AppData.mapEvents.filter(e => e.status === 'active').slice(0, 5)
-    : [];
+  // map-events edge function restituisce solo eventi attivi — status non è nel payload
+  const allEvents = (typeof AppData !== 'undefined' && AppData.mapEvents) ? AppData.mapEvents : [];
+  const events = allEvents.slice(0, 5);
   const countEl = document.getElementById('desk-events-count');
-  if (countEl) countEl.textContent = events.length ? `${events.length} eventi attivi` : '';
+  if (countEl) countEl.textContent = allEvents.length ? `${allEvents.length} eventi attivi` : '';
   if (!events.length) {
     list.innerHTML = '';
     return;
@@ -5461,8 +5461,9 @@ if (_deskOrigRenderArticles) {
 /* ── Aggiorna contatori legenda overlay mappa ── */
 function updateDeskLegendCounts() {
   if (window.innerWidth <= 768) return;
+  // map-events edge function restituisce solo eventi attivi — status non è nel payload
   const events = (typeof AppData !== 'undefined' && AppData.mapEvents)
-    ? AppData.mapEvents.filter(e => e.status === 'active')
+    ? AppData.mapEvents
     : [];
   const counts = { geopolitica: 0, business: 0, politica: 0, tecnologia: 0, hotspot: 0 };
   events.forEach(e => { if (counts[e.category] !== undefined) counts[e.category]++; });
