@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /dashboard.html
+Disallow: /login.html
+Disallow: /register.html
+Disallow: /logo-preview.html
+Disallow: /mobile-layouts-preview.html
+Disallow: /mobile-sr-concept.html
+Disallow: /desktop-sr-concept.html
+
+Sitemap: https://analisy.report/sitemap.xml
