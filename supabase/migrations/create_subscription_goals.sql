@@ -27,5 +27,7 @@ CREATE TRIGGER trg_single_active_goal
 
 -- RLS: lettura pubblica, scrittura solo service role
 ALTER TABLE subscription_goals ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "public read goals"   ON subscription_goals;
+DROP POLICY IF EXISTS "service write goals" ON subscription_goals;
 CREATE POLICY "public read goals"   ON subscription_goals FOR SELECT USING (true);
 CREATE POLICY "service write goals" ON subscription_goals FOR ALL   USING (auth.role() = 'service_role');

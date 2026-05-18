@@ -5549,13 +5549,23 @@ document.addEventListener('mapEventsLoaded', function() {
 // ── SUBSCRIPTION GOAL BAR ────────────────────────────────
 async function initGoalBar() {
   try {
-    if (typeof SUPABASE_URL === 'undefined' || typeof SUPABASE_ANON === 'undefined') return;
+    if (typeof SUPABASE_URL === 'undefined' || typeof SUPABASE_ANON === 'undefined') {
+      console.warn('[GoalBar] SUPABASE_URL/ANON non definiti');
+      return;
+    }
     const res = await fetch(`${SUPABASE_URL}/functions/v1/site-goal`, {
       headers: { 'Authorization': `Bearer ${SUPABASE_ANON}`, 'Content-Type': 'application/json' }
     });
-    if (!res.ok) return;
+    if (!res.ok) {
+      console.warn('[GoalBar] site-goal HTTP', res.status, await res.text().catch(()=>''));
+      return;
+    }
     const goal = await res.json();
-    if (!goal || !goal.target_count) return;
+    console.log('[GoalBar] goal ricevuto:', goal);
+    if (!goal || !goal.target_count) {
+      console.log('[GoalBar] nessun obiettivo attivo');
+      return;
+    }
 
     const cur    = goal.current_count ?? 0;
     const target = goal.target_count;
@@ -5569,40 +5579,30 @@ async function initGoalBar() {
     else if (pct >= 30)  color = '#f5a623';
     else                 color = '#e8344e';
 
-    // Fill di sfondo
-    const fill = document.getElementById('desk-goal-fill');
-    if (fill) {
-      fill.style.width      = pct + '%';
-      fill.style.background = `linear-gradient(90deg, ${color}2e, ${color}10)`;
-    }
-
-    // Linea inferiore
-    const line = document.getElementById('desk-goal-line');
-    if (line) {
-      line.style.width      = pct + '%';
-      line.style.background = color;
-      if (pct >= 100) line.style.animation = 'goal-pulse 1.8s ease-in-out infinite';
-    }
+    // Mostra barra subito (display flex) poi anima width
+    const bar = document.getElementById('desk-goal-bar');
+    if (!bar) { console.warn('[GoalBar] #desk-goal-bar non trovato nel DOM'); return; }
+    bar.style.cssText += ';display:flex !important;';
 
     // Testi
     const countEl = document.getElementById('desk-goal-count');
     if (countEl) { countEl.textContent = `${cur} / ${target}`; countEl.style.color = pct >= 100 ? color : 'rgba(235,235,245,0.95)'; }
-
     const labelEl = document.getElementById('desk-goal-label');
     if (labelEl) labelEl.textContent = goal.label || 'abbonati';
-
-    // Tooltip
     const tooltip = document.getElementById('desk-goal-tooltip');
     if (tooltip) tooltip.textContent = `Obiettivo: ${target} abbonati — ${goal.label || ''}`;
 
-    // Mostra barra (solo desktop)
-    const bar = document.getElementById('desk-goal-bar');
-    if (bar) {
-      bar.style.display = 'flex';
-      // Anima fill con leggero delay
-      requestAnimationFrame(() => { if (fill) fill.style.width = pct + '%'; if (line) line.style.width = pct + '%'; });
-    }
-  } catch(e) { /* silenzioso */ }
+    // Anima fill + linea dopo un frame (così la transizione CSS è visibile)
+    requestAnimationFrame(() => {
+      const fill = document.getElementById('desk-goal-fill');
+      if (fill) { fill.style.background = `linear-gradient(90deg,${color}2e,${color}10)`; fill.style.width = pct + '%'; }
+      const line = document.getElementById('desk-goal-line');
+      if (line) { line.style.background = color; line.style.width = pct + '%';
+        if (pct >= 100) line.style.animation = 'goal-pulse 1.8s ease-in-out infinite'; }
+    });
+
+    console.log(`[GoalBar] mostrata — ${cur}/${target} (${pct}%) colore:${color}`);
+  } catch(e) { console.error('[GoalBar] errore:', e); }
 }
 </script>
 <script>
