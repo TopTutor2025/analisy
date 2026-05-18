@@ -38,6 +38,7 @@ jobs:
   deploy-functions:
     runs-on: ubuntu-latest
     needs: []   # esegue in parallelo al frontend
+    continue-on-error: true   # non blocca il workflow se le funzioni falliscono
     steps:
       - name: Checkout
         uses: actions/checkout@v4
