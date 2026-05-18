@@ -1875,11 +1875,16 @@
   #desk-map-slot .sr-map-section {
     height: 100% !important; border-radius: 0 !important;
   }
+  /* Wrapper flex per pulsanti in alto a destra sulla mappa */
+  #desk-map-controls {
+    position: absolute; top: 10px; right: 12px; z-index: 810;
+    display: flex; align-items: center; gap: 6px;
+  }
   #desk-map-expand-btn {
-    position: absolute; top: 12px; right: 12px; z-index: 500;
     display: flex; align-items: center; gap: 5px;
     font-size: 0.6rem; font-weight: 600; color: rgba(255,255,255,0.6);
     background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border: 1px solid rgba(255,255,255,0.1);
     padding: 6px 10px; border-radius: 8px; cursor: pointer;
     transition: all 0.15s;
@@ -2203,7 +2208,6 @@
 
   /* ── Tactical mode button ── */
   #desk-tactical-btn {
-    position: absolute; top: 10px; right: 12px; z-index: 810;
     width: 30px; height: 30px; border-radius: 6px;
     background: rgba(4,6,14,0.75); backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -2211,6 +2215,7 @@
     color: rgba(255,255,255,0.45);
     cursor: pointer; display: flex; align-items: center; justify-content: center;
     transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+    flex-shrink: 0;
   }
   #desk-tactical-btn:hover { background: rgba(4,6,14,0.92); color: rgba(255,255,255,0.85); }
   #desk-tactical-btn.active {
@@ -2220,12 +2225,9 @@
     box-shadow: 0 0 10px rgba(255,200,0,0.3);
   }
 
-  /* ── Tactical map mode (CSS on the tile pane only) ── */
+  /* ── Tactical map mode — dark blue inverted tiles, neon markers ── */
   .sr-map-section.tactical-mode .leaflet-tile-pane {
-    filter: hue-rotate(195deg) saturate(2.2) brightness(0.55) contrast(1.25) !important;
-  }
-  .sr-map-section.tactical-mode .leaflet-overlay-pane {
-    filter: saturate(1.5) brightness(1.2) !important;
+    filter: invert(1) hue-rotate(180deg) brightness(0.95) saturate(1.1) !important;
   }
 
   /* ── Map floating legend + filter overlay ── */
@@ -6012,20 +6014,22 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="map-ol-leg-row" onclick="deskFilterCat('tecnologia',this)"  data-cat="tecnologia"> <span class="map-ol-leg-dot" style="background:#a78bfa;"></span>Tech<span class="map-ol-leg-count" id="desk-count-tec">0</span></div>
       <div class="map-ol-leg-row" onclick="deskFilterCat('hotspot',this)"     data-cat="hotspot">    <span class="map-ol-leg-dot" style="background:#06d6a0;"></span>Hotspot<span class="map-ol-leg-count" id="desk-count-hot">0</span></div>
     </div>
-    <!-- Tactical mode toggle -->
-    <button id="desk-tactical-btn" onclick="toggleTacticalMode()" title="Modalità tattica — ottimizzata per la lettura in piena luce">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <circle cx="12" cy="12" r="4"/>
-        <line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
-        <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
-        <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
-        <line x1="19.78" y1="4.22" x2="17.66" y2="6.34"/><line x1="6.34" y1="17.66" x2="4.22" y2="19.78"/>
-      </svg>
-    </button>
-    <button id="desk-map-expand-btn" onclick="openDeskMapFullscreen()">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-      Espandi
-    </button>
+    <!-- Map controls: tactical mode + expand (flex row, top-right) -->
+    <div id="desk-map-controls">
+      <button id="desk-tactical-btn" onclick="toggleTacticalMode()" title="Modalità tattica — ottimizzata per la lettura in piena luce">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4"/>
+          <line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
+          <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+          <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+          <line x1="19.78" y1="4.22" x2="17.66" y2="6.34"/><line x1="6.34" y1="17.66" x2="4.22" y2="19.78"/>
+        </svg>
+      </button>
+      <button id="desk-map-expand-btn" onclick="openDeskMapFullscreen()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        Espandi
+      </button>
+    </div>
   </div>
 
   <!-- ──── 2. BOTTOM TAB NAVBAR (allineata alle 3 colonne) ──── -->
