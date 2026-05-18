@@ -2254,11 +2254,21 @@
   }
 
   /* ── Tactical map mode ──
-     Applica tinta verde (#06d6a0) direttamente sulle dark tiles CartoDB.
-     sepia → hue-rotate porta i grigi verso il verde; saturate li vivifica.
-     brightness/contrast mantengono la mappa leggibile (non va a nero). ── */
+     Tile swappate a light_nolabels (sfondo bianco, bordi scuri).
+     Tecnica:
+       1. sfondo del pane = azzurro fluo (#00d4ff)
+       2. contrast(8) → fills=bianco puro, bordi=nero puro
+       3. invert(1)  → fills=nero puro (schermano lo sfondo → azzurro), bordi=bianco
+       4. brightness+sepia+hue-rotate+saturate → bordi diventano verde hotspot
+       5. mix-blend-mode: screen sugli img → nero trasparente (mostra sfondo), verde visibile
+  ── */
   .sr-map-section.tactical-mode .leaflet-tile-pane {
-    filter: sepia(1) hue-rotate(100deg) saturate(4) brightness(0.85) contrast(1.2) !important;
+    background: #00d4ff !important;
+  }
+  .sr-map-section.tactical-mode .leaflet-tile-pane img.leaflet-tile {
+    mix-blend-mode: screen !important;
+    filter: grayscale(1) contrast(8) invert(1)
+            brightness(0.4) sepia(1) hue-rotate(90deg) saturate(15) brightness(2.5) !important;
   }
 
   /* ── Map floating legend + filter overlay ── */
@@ -5599,9 +5609,11 @@ document.addEventListener('mapEventsLoaded', function() {
 });
 
 // ── TACTICAL MAP MODE ────────────────────────────────────
-let _tacticalActive = false;
+let _tacticalActive  = false;
+let _normalTileLayer = null;
+let _tacticalLayer   = null;
 const _HOTSPOT_COLOR_NORMAL   = '#06d6a0';
-const _HOTSPOT_COLOR_TACTICAL = '#39ff14'; // neon green
+const _HOTSPOT_COLOR_TACTICAL = '#39ff14';
 
 function toggleTacticalMode() {
   _tacticalActive = !_tacticalActive;
@@ -5612,10 +5624,24 @@ function toggleTacticalMode() {
   if (_tacticalActive) {
     mapSection.classList.add('tactical-mode');
     if (btn) btn.classList.add('active');
+    if (typeof situationMap !== 'undefined' && situationMap) {
+      // Salva il tile layer normale e lo rimuove
+      situationMap.eachLayer(layer => { if (layer instanceof L.TileLayer) _normalTileLayer = layer; });
+      if (_normalTileLayer) situationMap.removeLayer(_normalTileLayer);
+      // Carica light_nolabels: sfondo bianco → CSS blend lo trasforma in azzurro/verde
+      _tacticalLayer = L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
+        { attribution: '©CartoDB', subdomains: 'abcd', maxZoom: 19, noWrap: true }
+      ).addTo(situationMap);
+    }
     _setHotspotMarkerColor(_HOTSPOT_COLOR_TACTICAL);
   } else {
     mapSection.classList.remove('tactical-mode');
     if (btn) btn.classList.remove('active');
+    if (typeof situationMap !== 'undefined' && situationMap) {
+      if (_tacticalLayer)   { situationMap.removeLayer(_tacticalLayer);   _tacticalLayer   = null; }
+      if (_normalTileLayer) { _normalTileLayer.addTo(situationMap);        _normalTileLayer = null; }
+    }
     _setHotspotMarkerColor(_HOTSPOT_COLOR_NORMAL);
   }
 }
