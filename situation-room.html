@@ -2250,10 +2250,13 @@
   }
 
   /* ── Tactical map mode ──
-     Filtro diretto sulle dark tiles CartoDB (nessun tile swap, nessun blend mode).
-     sepia + hue-rotate(90°) → verde militare; saturate → vivido; brightness OK. ── */
+     SVG feColorMatrix: conversione matematica pixel-per-pixel.
+     Tile light_nolabels (bianco=fills, grigio scuro=bordi):
+       fills (L≈1.0)  → azzurro fluo  #00d4ff  rgb(0,  0.83, 1.0)
+       bordi (L≈0.4)  → verde hotspot #06d6a0  rgb(0.024, 0.839, 0.627)
+     Nessun blend-mode → nessun problema di stacking context Leaflet. ── */
   .sr-map-section.tactical-mode .leaflet-tile-pane {
-    filter: sepia(1) hue-rotate(90deg) saturate(5) brightness(0.88) contrast(1.15) !important;
+    filter: url(#tactical-color-filter) !important;
   }
 
   /* ── Map floating legend + filter overlay ── */
@@ -5594,7 +5597,9 @@ document.addEventListener('mapEventsLoaded', function() {
 });
 
 // ── TACTICAL MAP MODE ────────────────────────────────────
-let _tacticalActive = false;
+let _tacticalActive  = false;
+let _normalTileLayer = null;
+let _tacticalLayer   = null;
 const _HOTSPOT_COLOR_NORMAL   = '#06d6a0';
 const _HOTSPOT_COLOR_TACTICAL = '#39ff14';
 
@@ -5607,10 +5612,24 @@ function toggleTacticalMode() {
   if (_tacticalActive) {
     mapSection.classList.add('tactical-mode');
     if (btn) btn.classList.add('active');
+    // Swap a light_nolabels: sfondo bianco + bordi grigi
+    // → SVG feColorMatrix li converte in azzurro fluo + verde hotspot
+    if (typeof situationMap !== 'undefined' && situationMap) {
+      situationMap.eachLayer(l => { if (l instanceof L.TileLayer) _normalTileLayer = l; });
+      if (_normalTileLayer) situationMap.removeLayer(_normalTileLayer);
+      _tacticalLayer = L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
+        { attribution: '©CartoDB', subdomains: 'abcd', maxZoom: 19, noWrap: true }
+      ).addTo(situationMap);
+    }
     _setHotspotMarkerColor(_HOTSPOT_COLOR_TACTICAL);
   } else {
     mapSection.classList.remove('tactical-mode');
     if (btn) btn.classList.remove('active');
+    if (typeof situationMap !== 'undefined' && situationMap) {
+      if (_tacticalLayer)   { situationMap.removeLayer(_tacticalLayer); _tacticalLayer = null; }
+      if (_normalTileLayer) { _normalTileLayer.addTo(situationMap);     _normalTileLayer = null; }
+    }
     _setHotspotMarkerColor(_HOTSPOT_COLOR_NORMAL);
   }
 }
@@ -5962,6 +5981,29 @@ document.addEventListener('DOMContentLoaded', () => {
 ═══════════════════════════════════════════════ -->
 
 <!-- Top bar desktop -->
+<!-- SVG filter per tactical mode: feColorMatrix converte bianco→#00d4ff, grigio→#06d6a0 -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <defs>
+    <filter id="tactical-color-filter" color-interpolation-filters="sRGB">
+      <!--
+        Matrix calcolata per tiles light_nolabels:
+          white  (L=1.0, sum=3.0) → neon blue   #00d4ff = rgb(0,    0.830, 1.000)
+          border (L=0.4, sum=1.2) → hotspot grn #06d6a0 = rgb(0.024, 0.839, 0.627)
+        Per canale (R=G=B=L, divide sum by 3):
+          R: coeff=-0.01333 each, const=0.04
+          G: coeff=-0.005   each, const=0.845
+          B: coeff=+0.20722 each, const=0.37833
+          A: pass-through
+      -->
+      <feColorMatrix type="matrix" values="
+        -0.01333 -0.01333 -0.01333  0  0.04
+        -0.005   -0.005   -0.005    0  0.845
+         0.20722  0.20722  0.20722  0  0.37833
+         0        0        0        1  0"/>
+    </filter>
+  </defs>
+</svg>
+
 <div id="desk-topbar">
   <a href="index.html" class="desk-logo">
     <span class="desk-logo-text">ANALISY</span>
