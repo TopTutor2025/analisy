@@ -387,7 +387,7 @@ function initSituationMap(containerId) {
 
   // Bordi nazioni — colore verde hotspot #06d6a0 (togglabile via toggleBordersLayer)
   let _bordersLayer = null;
-  let _bordersVisible = true;
+  let _bordersVisible = false;
   fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
     .then(r => r.json())
     .then(topo => {
@@ -396,10 +396,8 @@ function initSituationMap(containerId) {
       _bordersLayer = L.geoJSON(fixed, {
         style: { color: '#06d6a0', weight: 0.8, opacity: 0.55 },
         interactive: false
-      }).addTo(situationMap);
-      // Stato iniziale: attivo → pulsante con classe active
-      const btn = document.getElementById('desk-borders-btn');
-      if (btn) btn.classList.add('active');
+      });
+      // Default: disattivo — non aggiunto alla mappa, pulsante senza classe active
     })
     .catch(() => {});
 
