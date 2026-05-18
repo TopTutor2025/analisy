@@ -2151,66 +2151,62 @@
   #desk-map-full #desk-map-slot .sr-map-row { height: 100% !important; min-height: unset !important; }
   #desk-map-full #desk-map-slot .sr-map-section { height: 100% !important; border-radius: 0 !important; }
 
-  /* ── Subscription goal widget (compact floating, rainbow animated border) ── */
+  /* ── Subscription goal widget — inline nella navbar ── */
   @property --goal-spin { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
   @keyframes goal-rainbow-spin { to { --goal-spin: 360deg; } }
 
   #desk-goal-bar {
     display: none; /* JS sets display:flex */
-    position: absolute;
-    bottom: 14px; right: 14px;
-    z-index: 1100;
-    width: 580px;
-    padding: 2px;
-    border-radius: 14px;
+    flex: 1;                         /* riempie lo spazio vuoto centrale */
+    align-self: center;
+    margin: 0 14px;
+    padding: 1.5px;
+    border-radius: 8px;
     background: conic-gradient(from var(--goal-spin),
       #e8344e, #f5a623, #ffd700, #06d6a0, #4f9eff, #a78bfa, #e8344e);
     animation: goal-rainbow-spin 3s linear infinite;
-    pointer-events: all;
-    box-shadow: 0 4px 28px rgba(0,0,0,0.6);
-    flex-direction: column; /* used when display:flex is applied by JS */
+    min-width: 0;                    /* evita overflow in flex */
+    box-shadow: 0 2px 14px rgba(0,0,0,0.4);
   }
   #desk-goal-inner {
-    background: rgba(4,6,14,0.93);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border-radius: 12px;
-    padding: 11px 14px 12px;
-    display: flex; flex-direction: column; gap: 6px;
-    width: 100%;
+    background: rgba(4,6,14,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 7px;
+    padding: 5px 12px;
+    display: flex; flex-direction: row; align-items: center; gap: 10px;
+    width: 100%; min-width: 0;
   }
-  /* Riga superiore: contatore + azioni */
-  #desk-goal-top {
-    display: flex; align-items: center;
-    justify-content: space-between; gap: 10px;
-  }
-  #desk-goal-count {
-    font-size: 1rem; font-weight: 800;
-    color: rgba(235,235,245,0.97);
-    letter-spacing: -0.02em; line-height: 1.2;
+  #desk-goal-text {
+    display: flex; flex-direction: column; gap: 0px;
     flex-shrink: 0;
   }
-  #desk-goal-actions {
-    display: flex; align-items: center;
-    gap: 8px; flex-shrink: 0;
+  #desk-goal-count {
+    font-size: 0.82rem; font-weight: 800;
+    color: rgba(235,235,245,0.97);
+    letter-spacing: -0.02em; line-height: 1.2;
+    white-space: nowrap;
   }
-  /* Label: riga propria, testo completo */
   #desk-goal-label {
-    font-size: 0.63rem; color: rgba(255,255,255,0.4);
-    line-height: 1.4; white-space: normal;
+    font-size: 0.58rem; color: rgba(255,255,255,0.38);
+    line-height: 1.3; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; max-width: 200px;
   }
-  /* Progress track: larghezza piena */
   #desk-goal-track {
-    width: 100%; height: 5px;
+    flex: 1; height: 4px; min-width: 40px;
     background: rgba(255,255,255,0.12);
-    border-radius: 3px; overflow: hidden;
+    border-radius: 2px; overflow: hidden;
   }
   #desk-goal-fill {
     height: 100%; width: 0%;
-    border-radius: 3px;
+    border-radius: 2px;
     transition: width 1.4s cubic-bezier(0.4,0,0.2,1), background 0.8s ease;
   }
-  #desk-goal-text { display: contents; } /* compat, non più usato come wrapper */
+  #desk-goal-actions {
+    display: flex; align-items: center;
+    gap: 7px; flex-shrink: 0;
+  }
+  #desk-goal-top { display: contents; } /* compat */
   #desk-goal-cta {
     background: #e8344e; color: #fff;
     padding: 4px 11px; border-radius: 5px;
@@ -6012,6 +6008,27 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
   </div>
 
+  <!-- Goal bar inline nella navbar (spazio centrale) -->
+  <div id="desk-goal-bar">
+    <div id="desk-goal-inner">
+      <div id="desk-goal-text">
+        <span id="desk-goal-count">0 / 100</span>
+        <span id="desk-goal-label">abbonati per sostenere il servizio</span>
+      </div>
+      <div id="desk-goal-track">
+        <div id="desk-goal-fill"></div>
+      </div>
+      <div id="desk-goal-actions">
+        <div class="goal-info-wrap">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.32)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <div class="goal-tooltip" id="desk-goal-tooltip">Obiettivo: raggiungere 100 abbonati</div>
+        </div>
+        <a id="desk-goal-cta" href="/dashboard.html">❤️ Sostienici</a>
+      </div>
+    </div>
+    <div id="desk-goal-line"></div>
+  </div>
+
   <div id="desk-topbar-right">
     <!-- avatar / accedi — popolato da renderSrNavbar() -->
   </div>
@@ -6022,31 +6039,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   <!-- ──── 1. MAPPA FULL WIDTH ──── -->
   <div id="desk-map-full">
-    <!-- Subscription goal widget (compact floating, rainbow border) -->
-    <div id="desk-goal-bar">
-      <div id="desk-goal-inner">
-        <!-- Riga 1: contatore + azioni -->
-        <div id="desk-goal-top">
-          <span id="desk-goal-count">0 / 100</span>
-          <div id="desk-goal-actions">
-            <div class="goal-info-wrap">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.32)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-              <div class="goal-tooltip" id="desk-goal-tooltip">Obiettivo: raggiungere 100 abbonati</div>
-            </div>
-            <a id="desk-goal-cta" href="/dashboard.html">❤️ Sostienici</a>
-          </div>
-        </div>
-        <!-- Riga 2: label testo completo -->
-        <span id="desk-goal-label">abbonati per sostenere il servizio</span>
-        <!-- Riga 3: barra progresso -->
-        <div id="desk-goal-track">
-          <div id="desk-goal-fill"></div>
-        </div>
-        <!-- compat -->
-        <div id="desk-goal-text" style="display:none;"></div>
-      </div>
-      <div id="desk-goal-line"></div>
-    </div>
     <div id="desk-map-slot"></div>
     <!-- Floating legend + filters overlay -->
     <div id="desk-map-overlay-legend">
