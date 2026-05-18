@@ -2254,12 +2254,11 @@
   }
 
   /* ── Tactical map mode ──
-     Tile layer swappato a light_nolabels (CartoDB) in JS.
-     Questo filtro: grigio → invertito → bordi chiari su sfondo scuro
-     → sepia+hue-rotate(125deg) porta i bordi al verde hotspot (#06d6a0)
-     → saturate/contrast li rende vividi; brightness abbassa lo sfondo ── */
+     Applica tinta verde (#06d6a0) direttamente sulle dark tiles CartoDB.
+     sepia → hue-rotate porta i grigi verso il verde; saturate li vivifica.
+     brightness/contrast mantengono la mappa leggibile (non va a nero). ── */
   .sr-map-section.tactical-mode .leaflet-tile-pane {
-    filter: grayscale(1) invert(1) sepia(1) hue-rotate(125deg) saturate(5) brightness(0.55) contrast(2.2) !important;
+    filter: sepia(1) hue-rotate(100deg) saturate(4) brightness(0.85) contrast(1.2) !important;
   }
 
   /* ── Map floating legend + filter overlay ── */
@@ -5600,9 +5599,7 @@ document.addEventListener('mapEventsLoaded', function() {
 });
 
 // ── TACTICAL MAP MODE ────────────────────────────────────
-let _tacticalActive    = false;
-let _normalTileLayer   = null;
-let _tacticalTileLayer = null;
+let _tacticalActive = false;
 const _HOTSPOT_COLOR_NORMAL   = '#06d6a0';
 const _HOTSPOT_COLOR_TACTICAL = '#39ff14'; // neon green
 
@@ -5615,30 +5612,10 @@ function toggleTacticalMode() {
   if (_tacticalActive) {
     mapSection.classList.add('tactical-mode');
     if (btn) btn.classList.add('active');
-
-    // Swap tile layer → CartoDB light_nolabels (bordi più leggibili da invertire)
-    if (typeof situationMap !== 'undefined' && situationMap) {
-      situationMap.eachLayer(layer => {
-        if (layer instanceof L.TileLayer) _normalTileLayer = layer;
-      });
-      if (_normalTileLayer) situationMap.removeLayer(_normalTileLayer);
-      _tacticalTileLayer = L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
-        { attribution: '© CartoDB', subdomains: 'abcd', maxZoom: 19, noWrap: true }
-      ).addTo(situationMap);
-      _tacticalTileLayer.bringToBack();
-    }
     _setHotspotMarkerColor(_HOTSPOT_COLOR_TACTICAL);
-
   } else {
     mapSection.classList.remove('tactical-mode');
     if (btn) btn.classList.remove('active');
-
-    // Ripristina tile layer originale
-    if (typeof situationMap !== 'undefined' && situationMap) {
-      if (_tacticalTileLayer) { situationMap.removeLayer(_tacticalTileLayer); _tacticalTileLayer = null; }
-      if (_normalTileLayer)   { _normalTileLayer.addTo(situationMap); _normalTileLayer = null; }
-    }
     _setHotspotMarkerColor(_HOTSPOT_COLOR_NORMAL);
   }
 }
