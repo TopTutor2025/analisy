@@ -139,7 +139,6 @@ function renderNavbar() {
           </button>
         </div>
       </div>
-      <button class="help-btn" title="Aiuto" onclick="document.getElementById('help-modal')?.classList.add('open')">?</button>
       <a href="situation-room.html" class="btn btn-primary btn-sm">Situation Room</a>
     `;
   }
