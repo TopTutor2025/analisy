@@ -385,24 +385,37 @@ function initSituationMap(containerId) {
     noWrap: true
   }).addTo(situationMap);
 
-  // Bordi nazioni — colore verde hotspot #06d6a0
+  // Bordi nazioni — colore verde hotspot #06d6a0 (togglabile via toggleBordersLayer)
+  let _bordersLayer = null;
+  let _bordersVisible = true;
   fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
     .then(r => r.json())
     .then(topo => {
       const borders = topojson.mesh(topo, topo.objects.countries);
-      // Spezza i segmenti che attraversano il meridiano 180° (es. Russia, Fiji, Kiribati)
-      // per evitare le linee orizzontali che Leaflet disegna attraverso tutta la mappa
       const fixed = _fixAntimeridian(borders);
-      L.geoJSON(fixed, {
-        style: {
-          color:   '#06d6a0',
-          weight:  0.8,
-          opacity: 0.55
-        },
+      _bordersLayer = L.geoJSON(fixed, {
+        style: { color: '#06d6a0', weight: 0.8, opacity: 0.55 },
         interactive: false
       }).addTo(situationMap);
+      // Stato iniziale: attivo → pulsante con classe active
+      const btn = document.getElementById('desk-borders-btn');
+      if (btn) btn.classList.add('active');
     })
-    .catch(() => {/* bordi non critici, ignora */});
+    .catch(() => {});
+
+  // Esposta globalmente per il pulsante in situation-room.html
+  window.toggleBordersLayer = function() {
+    const btn = document.getElementById('desk-borders-btn');
+    if (!_bordersLayer) return;
+    _bordersVisible = !_bordersVisible;
+    if (_bordersVisible) {
+      _bordersLayer.addTo(situationMap);
+      if (btn) btn.classList.add('active');
+    } else {
+      situationMap.removeLayer(_bordersLayer);
+      if (btn) btn.classList.remove('active');
+    }
+  };
 
 function _fixAntimeridian(geojson) {
   if (!geojson || geojson.type !== 'MultiLineString') return geojson;
