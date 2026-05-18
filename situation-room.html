@@ -5981,21 +5981,22 @@ document.addEventListener('DOMContentLoaded', () => {
 ═══════════════════════════════════════════════ -->
 
 <!-- Top bar desktop -->
-<!-- SVG filter per tactical mode: feColorMatrix converte bianco→#00d4ff, grigio→#06d6a0 -->
+<!-- SVG filter per tactical mode -->
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
   <defs>
     <filter id="tactical-color-filter" color-interpolation-filters="sRGB">
       <!--
-        Matrix calcolata per tiles light_nolabels:
-          white  (L=1.0, sum=3.0) → neon blue   #00d4ff = rgb(0,    0.830, 1.000)
-          border (L=0.4, sum=1.2) → hotspot grn #06d6a0 = rgb(0.024, 0.839, 0.627)
-        Per canale (R=G=B=L, divide sum by 3):
-          R: coeff=-0.01333 each, const=0.04
-          G: coeff=-0.005   each, const=0.845
-          B: coeff=+0.20722 each, const=0.37833
-          A: pass-through
+        Step 1: contrast boost (slope=5, intercept=-2.0, soglia ~L=0.45)
+          fills  (L>0.55) → bianco puro
+          bordi  (L<0.45) → grigio scuro / nero
+        Step 2: feColorMatrix (calcolata per L fills=1.0 → #00d4ff, L bordi=0.25 → #06d6a0)
       -->
-      <feColorMatrix type="matrix" values="
+      <feComponentTransfer result="contrasted">
+        <feFuncR type="linear" slope="5" intercept="-2"/>
+        <feFuncG type="linear" slope="5" intercept="-2"/>
+        <feFuncB type="linear" slope="5" intercept="-2"/>
+      </feComponentTransfer>
+      <feColorMatrix in="contrasted" type="matrix" values="
         -0.01333 -0.01333 -0.01333  0  0.04
         -0.005   -0.005   -0.005    0  0.845
          0.20722  0.20722  0.20722  0  0.37833
