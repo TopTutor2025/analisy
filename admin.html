@@ -260,6 +260,15 @@
     }
     .modal-close:hover { background: rgba(255,255,255,0.14); color: rgba(235,235,245,0.9); }
     .modal-footer { margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.07); padding-top: 16px; }
+    .udm-section-label { font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);margin-bottom:8px; }
+    .udm-field-label   { font-size:0.7rem;color:rgba(255,255,255,0.35);display:block;margin-bottom:5px; }
+    .udm-input         { width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:9px 12px;color:#fff;font-size:0.85rem;outline:none;box-sizing:border-box;transition:border-color 0.15s; }
+    .udm-input:focus   { border-color:rgba(255,255,255,0.3); }
+    .udm-sub-history-row { display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:9px 12px;font-size:0.78rem; }
+    .udm-sub-badge { display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:5px;font-size:0.7rem;font-weight:700; }
+    .udm-sub-badge.active   { background:rgba(6,214,160,0.15);color:#06d6a0; }
+    .udm-sub-badge.expired  { background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.4); }
+    .udm-sub-badge.inactive { background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.4); }
 
     /* 14 · Form fields */
     .form-group label {
@@ -1259,91 +1268,112 @@
   </div>
 </div>
 
-<!-- ── MODAL: Edit User ── -->
-<!-- ── MODAL: User Detail (profilo + abbonamento unificato) ── -->
+<!-- ── MODAL: User Detail ── -->
 <div class="modal-overlay" id="user-detail-modal" onclick="if(event.target===this)closeUserDetail()" style="align-items:center;justify-content:center;">
-  <div class="modal" style="max-width:480px;width:100%;border-radius:16px;overflow:hidden;">
-    <!-- Profile header -->
-    <div style="padding:24px 24px 18px;background:rgba(255,255,255,0.02);">
-      <div style="display:flex;align-items:center;gap:16px;">
-        <div id="udm-avatar" style="width:54px;height:54px;border-radius:50%;background:#e8344e;display:flex;align-items:center;justify-content:center;font-size:1.25rem;font-weight:800;color:#fff;flex-shrink:0;letter-spacing:-0.02em;">AB</div>
-        <div style="flex:1;min-width:0;">
-          <div id="udm-name" style="font-size:1.05rem;font-weight:700;color:rgba(235,235,245,0.95);line-height:1.2;">Nome Cognome</div>
-          <div id="udm-email" style="font-size:0.78rem;color:rgba(255,255,255,0.38);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
-          <div id="udm-meta" style="font-size:0.7rem;color:rgba(255,255,255,0.25);margin-top:3px;"></div>
-        </div>
-        <button onclick="closeUserDetail()" style="background:rgba(255,255,255,0.07);border:none;color:rgba(255,255,255,0.45);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.07)'">✕</button>
+  <div class="modal" style="max-width:520px;width:100%;border-radius:16px;overflow:hidden;">
+
+    <!-- Header profilo -->
+    <div style="padding:22px 24px 16px;background:rgba(255,255,255,0.02);display:flex;align-items:center;gap:16px;">
+      <div id="udm-avatar" style="width:50px;height:50px;border-radius:50%;background:#e8344e;display:flex;align-items:center;justify-content:center;font-size:1.15rem;font-weight:800;color:#fff;flex-shrink:0;">AB</div>
+      <div style="flex:1;min-width:0;">
+        <div id="udm-name" style="font-size:1rem;font-weight:700;color:rgba(235,235,245,0.95);">Nome Cognome</div>
+        <div id="udm-meta" style="font-size:0.7rem;color:rgba(255,255,255,0.25);margin-top:2px;"></div>
       </div>
+      <button onclick="closeUserDetail()" style="background:rgba(255,255,255,0.07);border:none;color:rgba(255,255,255,0.45);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
     </div>
     <div style="height:1px;background:rgba(255,255,255,0.06);"></div>
 
-    <!-- Body -->
-    <div style="padding:20px 24px;display:flex;flex-direction:column;gap:18px;max-height:60vh;overflow-y:auto;">
+    <!-- Body scrollabile -->
+    <div style="padding:20px 24px;display:flex;flex-direction:column;gap:20px;max-height:65vh;overflow-y:auto;">
       <input type="hidden" id="udm-id">
 
-      <!-- Sezione credenziali admin (visibile solo per role=admin) -->
-      <div id="udm-credentials-row" style="display:none;flex-direction:column;gap:14px;">
-        <div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);margin-bottom:2px;">Credenziali di accesso</div>
+      <!-- ── SEZIONE: Credenziali admin (solo per role=admin) ── -->
+      <div id="udm-credentials-row" style="display:none;flex-direction:column;gap:12px;">
+        <div class="udm-section-label">Credenziali di accesso</div>
         <div>
-          <label style="font-size:0.7rem;color:rgba(255,255,255,0.35);display:block;margin-bottom:5px;">Email</label>
-          <input type="email" id="udm-cred-email" placeholder="email@esempio.com" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:9px 12px;color:#fff;font-size:0.88rem;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='rgba(255,255,255,0.3)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
+          <label class="udm-field-label">Email</label>
+          <input type="email" id="udm-cred-email" placeholder="email@esempio.com" class="udm-input">
         </div>
         <div>
-          <label style="font-size:0.7rem;color:rgba(255,255,255,0.35);display:block;margin-bottom:5px;">Nuova password <span style="color:rgba(255,255,255,0.2);font-weight:400;">(lascia vuoto per non cambiarla)</span></label>
-          <input type="password" id="udm-cred-password" placeholder="••••••••" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:9px 12px;color:#fff;font-size:0.88rem;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='rgba(255,255,255,0.3)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
+          <label class="udm-field-label">Nuova password <span style="color:rgba(255,255,255,0.2);font-weight:400;">(vuoto = invariata)</span></label>
+          <input type="password" id="udm-cred-password" placeholder="••••••••" class="udm-input">
         </div>
-        <div style="font-size:0.7rem;color:rgba(255,255,255,0.22);background:rgba(255,255,255,0.03);border-radius:7px;padding:8px 10px;line-height:1.5;">
-          🛡️ L'account admin ha accesso completo a tutte le funzionalità. Piano e abbonamento non si applicano.
-        </div>
+        <div style="font-size:0.7rem;color:rgba(255,255,255,0.22);background:rgba(255,255,255,0.03);border-radius:7px;padding:8px 10px;line-height:1.5;">🛡️ Account admin — accesso completo implicito. Piano e abbonamento non si applicano.</div>
       </div>
 
-      <!-- Piano -->
-      <div>
-        <div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);margin-bottom:10px;">Piano abbonamento</div>
-        <div style="display:flex;gap:6px;" id="udm-plan-group">
-          <button id="plan-btn-free"    onclick="udmSelectPlan('free')"    style="flex:1;padding:10px 6px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;">Free</button>
-          <button id="plan-btn-premium" onclick="udmSelectPlan('premium')" style="flex:1;padding:10px 6px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;">Premium</button>
-          <button id="plan-btn-pro"     onclick="udmSelectPlan('pro')"     style="flex:1;padding:10px 6px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;">Pro</button>
-        </div>
-        <div id="udm-plan-note" style="font-size:0.72rem;color:rgba(255,255,255,0.28);margin-top:7px;min-height:16px;"></div>
-      </div>
+      <!-- ── SEZIONE: Accesso (solo per utenti normali) ── -->
+      <div id="udm-user-section" style="display:none;flex-direction:column;gap:18px;">
 
-      <!-- Stato abbonamento -->
-      <div id="udm-status-row">
-        <div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);margin-bottom:10px;">Stato abbonamento</div>
-        <div style="display:flex;gap:6px;">
-          <button id="status-btn-active"   onclick="udmSelectStatus('active')"   style="flex:1;padding:9px 6px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;">✓ Attivo</button>
-          <button id="status-btn-inactive" onclick="udmSelectStatus('inactive')" style="flex:1;padding:9px 6px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;">Inattivo</button>
-          <button id="status-btn-expired"  onclick="udmSelectStatus('expired')"  style="flex:1;padding:9px 6px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;">Scaduto</button>
-        </div>
-      </div>
-
-      <!-- Date (opzionali) -->
-      <details style="cursor:pointer;">
-        <summary style="font-size:0.72rem;color:rgba(255,255,255,0.3);list-style:none;display:flex;align-items:center;gap:6px;user-select:none;">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-          Date abbonamento (opzionale)
-        </summary>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;">
-          <div>
-            <label style="font-size:0.7rem;color:rgba(255,255,255,0.35);display:block;margin-bottom:5px;">Inizio</label>
-            <input type="date" id="udm-start" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:7px 10px;color:#fff;font-size:0.82rem;outline:none;box-sizing:border-box;color-scheme:dark;">
+        <!-- Email + reset password -->
+        <div>
+          <div class="udm-section-label">Accesso</div>
+          <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <div>
+              <div style="font-size:0.62rem;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Email</div>
+              <div id="udm-email-display" style="font-size:0.88rem;color:rgba(235,235,245,0.85);word-break:break-all;"></div>
+            </div>
+            <button onclick="udmResetPassword()" style="flex-shrink:0;padding:6px 12px;border-radius:7px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);font-size:0.72rem;cursor:pointer;white-space:nowrap;transition:all 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+              Reimposta password
+            </button>
           </div>
-          <div>
-            <label style="font-size:0.7rem;color:rgba(255,255,255,0.35);display:block;margin-bottom:5px;">Scadenza</label>
-            <input type="date" id="udm-end" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:7px 10px;color:#fff;font-size:0.82rem;outline:none;box-sizing:border-box;color-scheme:dark;">
+          <!-- Form inline reset password (nascosto) -->
+          <div id="udm-reset-pw-form" style="display:none;margin-top:8px;display:none;flex-direction:column;gap:8px;">
+            <input type="password" id="udm-new-password" placeholder="Nuova password" class="udm-input">
+            <div style="display:flex;gap:6px;">
+              <button onclick="udmSaveNewPassword()" style="flex:1;padding:7px;border-radius:7px;border:none;background:#e8344e;color:#fff;font-size:0.78rem;font-weight:600;cursor:pointer;">Imposta password</button>
+              <button onclick="document.getElementById('udm-reset-pw-form').style.display='none'" style="padding:7px 12px;border-radius:7px;border:1px solid rgba(255,255,255,0.1);background:none;color:rgba(255,255,255,0.5);font-size:0.78rem;cursor:pointer;">Annulla</button>
+            </div>
           </div>
         </div>
-      </details>
+
+        <!-- Abbonamento attuale -->
+        <div>
+          <div class="udm-section-label">Abbonamento attuale</div>
+          <div id="udm-current-sub" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 14px;">
+            <div style="font-size:0.82rem;color:rgba(255,255,255,0.45);">Caricamento...</div>
+          </div>
+        </div>
+
+        <!-- Assegna abbonamento -->
+        <div>
+          <div class="udm-section-label">Assegna abbonamento</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;gap:6px;">
+              <button id="grant-btn-premium" onclick="udmSelectGrant('premium')" style="flex:1;padding:9px 6px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;">Premium</button>
+              <button id="grant-btn-pro"     onclick="udmSelectGrant('pro')"     style="flex:1;padding:9px 6px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;">Pro</button>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <div style="flex:1;">
+                <label class="udm-field-label">Inizio</label>
+                <input type="date" id="udm-grant-start" class="udm-input" style="color-scheme:dark;">
+              </div>
+              <div style="flex:1;">
+                <label class="udm-field-label">Scadenza <span style="color:rgba(255,255,255,0.2);font-weight:400;">(+1 mese auto)</span></label>
+                <input type="date" id="udm-grant-end" class="udm-input" style="color-scheme:dark;">
+              </div>
+            </div>
+            <button onclick="udmGrantSubscription()" style="padding:9px;border-radius:8px;border:none;background:#06d6a0;color:#03201a;font-size:0.82rem;font-weight:700;cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">✓ Assegna abbonamento</button>
+          </div>
+        </div>
+
+        <!-- Storico abbonamenti -->
+        <div>
+          <div class="udm-section-label">Storico abbonamenti</div>
+          <div id="udm-sub-history" style="display:flex;flex-direction:column;gap:6px;">
+            <div style="font-size:0.78rem;color:rgba(255,255,255,0.25);">Nessun abbonamento registrato.</div>
+          </div>
+        </div>
+
+      </div>
     </div>
     <div style="height:1px;background:rgba(255,255,255,0.06);"></div>
 
     <!-- Footer -->
-    <div style="padding:14px 24px;display:flex;justify-content:space-between;align-items:center;">
+    <div style="padding:12px 24px;display:flex;justify-content:space-between;align-items:center;">
       <button id="udm-delete-btn" onclick="openDeleteUserModal(document.getElementById('udm-id').value)" style="padding:7px 14px;border-radius:7px;border:1px solid rgba(232,52,78,0.25);background:rgba(232,52,78,0.08);color:#e8344e;font-size:0.78rem;font-weight:600;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='rgba(232,52,78,0.15)'" onmouseout="this.style.background='rgba(232,52,78,0.08)'">Elimina utente</button>
       <div style="display:flex;gap:8px;">
-        <button onclick="closeUserDetail()" style="padding:7px 14px;border-radius:7px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);font-size:0.8rem;cursor:pointer;">Annulla</button>
-        <button onclick="saveUserDetail()" class="btn btn-primary btn-sm">Salva modifiche</button>
+        <button onclick="closeUserDetail()" style="padding:7px 14px;border-radius:7px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);font-size:0.8rem;cursor:pointer;">Chiudi</button>
+        <button id="udm-save-btn" onclick="saveUserDetail()" class="btn btn-primary btn-sm">Salva</button>
       </div>
     </div>
   </div>
@@ -2003,47 +2033,145 @@
     pro:     'Accesso completo + funzionalità pro avanzate',
   };
 
-  function openUserDetail(id) {
+  let _udmGrantPlan = 'premium';
+
+  async function openUserDetail(id) {
     const u = (AppData.users || []).find(x => x.id === id);
     if (!u) return;
-    // Avatar
+    // Header
     const initials = `${(u.nome||'?')[0]}${(u.cognome||'')[0]||''}`.toUpperCase();
     document.getElementById('udm-avatar').textContent = initials;
     document.getElementById('udm-avatar').style.background = _userAvatarColor(u.plan);
-    // Profile
-    document.getElementById('udm-id').value    = u.id;
-    document.getElementById('udm-name').textContent  = `${u.nome} ${u.cognome}`;
-    document.getElementById('udm-email').textContent = u.email;
-    const regDate = u.createdAt ? `Registrato il ${fmtDate(u.createdAt)}` : '';
-    document.getElementById('udm-meta').textContent  = [u.telefono ? `📞 ${u.telefono}` : '', regDate].filter(Boolean).join(' · ');
+    document.getElementById('udm-id').value = u.id;
+    document.getElementById('udm-name').textContent = `${u.nome || ''} ${u.cognome || ''}`.trim() || u.email;
+    const regDate = u.created_at ? `Registrato il ${fmtDate(u.created_at)}` : '';
+    document.getElementById('udm-meta').textContent = regDate;
     const isAdmin = u.role === 'admin';
-    // Sezione credenziali — solo per admin
-    const credRow    = document.getElementById('udm-credentials-row');
-    const planGroup  = document.getElementById('udm-plan-group').closest('div').parentElement;
-    const statusRow  = document.getElementById('udm-status-row');
-    const datesRow   = document.querySelector('#user-detail-modal details');
+    document.getElementById('udm-delete-btn').style.display = isAdmin ? 'none' : '';
+
     if (isAdmin) {
-      credRow.style.display   = 'flex';
-      planGroup.style.display = 'none';
-      statusRow.style.display = 'none';
-      if (datesRow) datesRow.style.display = 'none';
+      document.getElementById('udm-credentials-row').style.display = 'flex';
+      document.getElementById('udm-user-section').style.display    = 'none';
       document.getElementById('udm-cred-email').value    = u.email || '';
       document.getElementById('udm-cred-password').value = '';
     } else {
-      credRow.style.display   = 'none';
-      planGroup.style.display = '';
-      statusRow.style.display = '';
-      if (datesRow) datesRow.style.display = '';
-      // Plan + Status
-      udmSelectPlan(u.plan || 'free');
-      udmSelectStatus(u.subscriptionStatus || 'inactive');
-      // Dates
-      document.getElementById('udm-start').value = u.subscriptionStart ? u.subscriptionStart.split('T')[0] : '';
-      document.getElementById('udm-end').value   = u.subscriptionEnd   ? u.subscriptionEnd.split('T')[0]   : '';
+      document.getElementById('udm-credentials-row').style.display = 'none';
+      document.getElementById('udm-user-section').style.display    = 'flex';
+      // Email
+      document.getElementById('udm-email-display').textContent = u.email || '—';
+      // Abbonamento attuale
+      _udmRenderCurrentSub(u);
+      // Pre-compila date grant (+1 mese)
+      const today = new Date();
+      const nextM = new Date(today); nextM.setMonth(nextM.getMonth() + 1);
+      document.getElementById('udm-grant-start').value = today.toISOString().split('T')[0];
+      document.getElementById('udm-grant-end').value   = nextM.toISOString().split('T')[0];
+      _udmSelectGrant('premium');
+      // Storico: carica dalla edge function
+      _udmLoadHistory(id);
     }
-    // Nascondi sempre il tasto elimina per gli admin
-    document.getElementById('udm-delete-btn').style.display = isAdmin ? 'none' : '';
     document.getElementById('user-detail-modal').classList.add('open');
+  }
+
+  function _udmRenderCurrentSub(u) {
+    const el = document.getElementById('udm-current-sub');
+    const planLabels = { free:'Free', premium:'Premium', pro:'Pro' };
+    const statusColors = { active:'#06d6a0', inactive:'rgba(255,255,255,0.3)', expired:'rgba(255,100,100,0.7)' };
+    const statusLabels = { active:'Attivo', inactive:'Inattivo', expired:'Scaduto' };
+    const plan   = u.plan       || 'free';
+    const status = u.sub_status || 'inactive';
+    const start  = u.subscription_start ? fmtDate(u.subscription_start) : null;
+    const end    = u.subscription_end   ? fmtDate(u.subscription_end)   : null;
+    el.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span style="font-size:0.88rem;font-weight:700;color:rgba(235,235,245,0.9);">${planLabels[plan]||plan}</span>
+        <span class="udm-sub-badge ${status}" style="color:${statusColors[status]||'rgba(255,255,255,0.4)'}">${statusLabels[status]||status}</span>
+        ${start ? `<span style="font-size:0.72rem;color:rgba(255,255,255,0.3);">dal ${start}${end?' · scade '+end:''}</span>` : '<span style="font-size:0.72rem;color:rgba(255,255,255,0.25);">Nessuna data registrata</span>'}
+      </div>`;
+  }
+
+  async function _udmLoadHistory(userId) {
+    const el = document.getElementById('udm-sub-history');
+    el.innerHTML = '<div style="font-size:0.78rem;color:rgba(255,255,255,0.25);">Caricamento...</div>';
+    try {
+      const res = await Api.fn('admin-write', { action: 'get-user-detail', data: { id: userId } });
+      const history = res.history || [];
+      if (!history.length) {
+        el.innerHTML = '<div style="font-size:0.78rem;color:rgba(255,255,255,0.25);">Nessun abbonamento registrato.</div>';
+        return;
+      }
+      const planLabels   = { premium:'Premium', pro:'Pro', free:'Free' };
+      const statusColors = { active:'#06d6a0', expired:'rgba(255,100,100,0.7)', inactive:'rgba(255,255,255,0.35)' };
+      const statusLabels = { active:'Attivo', expired:'Scaduto', inactive:'Inattivo' };
+      el.innerHTML = history.map(h => `
+        <div class="udm-sub-history-row">
+          <div>
+            <span style="font-weight:700;color:rgba(235,235,245,0.85);margin-right:8px;">${planLabels[h.plan]||h.plan}</span>
+            <span class="udm-sub-badge ${h.sub_status}" style="color:${statusColors[h.sub_status]||'rgba(255,255,255,0.35)'}">${statusLabels[h.sub_status]||h.sub_status}</span>
+          </div>
+          <div style="text-align:right;color:rgba(255,255,255,0.3);">
+            ${h.subscription_start ? fmtDate(h.subscription_start) : '—'}
+            ${h.subscription_end   ? ' → ' + fmtDate(h.subscription_end) : ''}
+          </div>
+        </div>`).join('');
+    } catch(e) {
+      el.innerHTML = '<div style="font-size:0.78rem;color:rgba(255,100,100,0.6);">Errore nel caricamento storico.</div>';
+    }
+  }
+
+  function _udmSelectGrant(plan) {
+    _udmGrantPlan = plan;
+    const planColors = { premium: '#4f9eff', pro: '#a78bfa' };
+    ['premium','pro'].forEach(p => {
+      const btn = document.getElementById(`grant-btn-${p}`);
+      if (!btn) return;
+      if (p === plan) {
+        btn.style.borderColor = planColors[p]; btn.style.background = `${planColors[p]}22`;
+        btn.style.color = planColors[p]; btn.style.fontWeight = '700';
+      } else {
+        btn.style.borderColor = 'rgba(255,255,255,0.1)'; btn.style.background = 'rgba(255,255,255,0.04)';
+        btn.style.color = 'rgba(255,255,255,0.45)'; btn.style.fontWeight = '600';
+      }
+    });
+  }
+  function udmSelectGrant(plan) { _udmSelectGrant(plan); }
+
+  function udmResetPassword() {
+    const f = document.getElementById('udm-reset-pw-form');
+    f.style.display = f.style.display === 'none' ? 'flex' : 'none';
+    f.style.flexDirection = 'column';
+    document.getElementById('udm-new-password').value = '';
+  }
+
+  async function udmSaveNewPassword() {
+    const id  = document.getElementById('udm-id').value;
+    const pwd = document.getElementById('udm-new-password').value;
+    if (!pwd || pwd.length < 6) { showToast('Password minimo 6 caratteri', 'error'); return; }
+    try {
+      await Api.fn('admin-write', { action: 'update-user', data: { id, password: pwd } });
+      document.getElementById('udm-reset-pw-form').style.display = 'none';
+      showToast('Password aggiornata ✓', 'success');
+    } catch(e) { showToast(e.message || 'Errore', 'error'); }
+  }
+
+  async function udmGrantSubscription() {
+    const id    = document.getElementById('udm-id').value;
+    const start = document.getElementById('udm-grant-start').value;
+    const end   = document.getElementById('udm-grant-end').value;
+    if (!start || !end) { showToast('Inserisci le date', 'error'); return; }
+    try {
+      await Api.fn('admin-write', { action: 'grant-subscription', data: {
+        id, plan: _udmGrantPlan, sub_status: 'active',
+        subscription_start: start, subscription_end: end
+      }});
+      // Aggiorna cache locale
+      const u = (AppData.users||[]).find(x => x.id === id);
+      if (u) { u.plan = _udmGrantPlan; u.sub_status = 'active'; u.subscription_start = start; u.subscription_end = end; }
+      _udmRenderCurrentSub(u || { plan: _udmGrantPlan, sub_status:'active', subscription_start: start, subscription_end: end });
+      _udmLoadHistory(id);
+      renderUsers(); refreshStats();
+      showToast('Abbonamento assegnato ✓', 'success');
+    } catch(e) { showToast(e.message || 'Errore', 'error'); }
   }
 
   function closeUserDetail() {
@@ -2103,42 +2231,23 @@
   }
 
   async function saveUserDetail() {
+    // Solo per admin: salva email/password
     const id = document.getElementById('udm-id').value;
     if (!id) return;
     const u = (AppData.users || []).find(x => x.id === id);
-    const isAdmin = u && u.role === 'admin';
+    if (!u || u.role !== 'admin') { closeUserDetail(); return; }
+    const email    = document.getElementById('udm-cred-email').value.trim();
+    const password = document.getElementById('udm-cred-password').value;
+    if (!email) { showToast('Inserisci un\'email valida', 'error'); return; }
     try {
-      if (isAdmin) {
-        // Admin: aggiorna solo credenziali
-        const email    = document.getElementById('udm-cred-email').value.trim();
-        const password = document.getElementById('udm-cred-password').value;
-        if (!email) { showToast('Inserisci un\'email valida', 'error'); return; }
-        const payload = { id, email };
-        if (password) payload.password = password;
-        await Api.fn('admin-write', { action: 'update-user', data: payload });
-        if (u) u.email = email;
-      } else {
-        // Utente normale: aggiorna piano/stato/date
-        const payload = {
-          id,
-          plan:       _udmCurrentPlan,
-          sub_status: _udmCurrentStatus,
-        };
-        const start = document.getElementById('udm-start').value;
-        const end   = document.getElementById('udm-end').value;
-        if (start) payload.subscriptionStart = start;
-        if (end)   payload.subscriptionEnd   = end;
-        const updated = await Api.fn('admin-write', { action: 'update-user', data: payload });
-        const idx = AppData.users.findIndex(x => x.id === id);
-        if (idx > -1) AppData.users[idx] = { ...AppData.users[idx], ...updated };
-      }
+      const payload = { id, email };
+      if (password) payload.password = password;
+      await Api.fn('admin-write', { action: 'update-user', data: payload });
+      u.email = email;
       closeUserDetail();
       renderUsers();
-      refreshStats();
-      showToast('Profilo aggiornato ✓', 'success');
-    } catch(err) {
-      showToast(err.message || 'Errore nel salvataggio', 'error');
-    }
+      showToast('Credenziali aggiornate ✓', 'success');
+    } catch(err) { showToast(err.message || 'Errore', 'error'); }
   }
 
   // Compatibility stubs (referenced elsewhere in the code)

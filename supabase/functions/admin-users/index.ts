@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
 
   const { data: profiles, error } = await adminClient
     .from('profiles')
-    .select('id, email, nome, cognome, role, plan, sub_status, created_at')
+    .select('id, email, nome, cognome, role, plan, sub_status, subscription_start, subscription_end, created_at')
     .order('created_at', { ascending: false });
 
   if (error) return errorResponse(error.message, 500);

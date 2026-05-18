@@ -159,11 +159,55 @@ Deno.serve(async (req) => {
 
   // ── USERS ─────────────────────────────────────────────
   if (action === 'update-user') {
-    const { id, ...fields } = payload;
-    const allowed = ['role', 'plan', 'sub_status', 'nome', 'cognome'];
+    const { id, email, password, ...fields } = payload;
+    // Aggiorna profilo (dati consentiti)
+    const allowed = ['role', 'plan', 'sub_status', 'nome', 'cognome', 'subscription_start', 'subscription_end'];
     const safe = Object.fromEntries(Object.entries(fields).filter(([k]) => allowed.includes(k)));
-    const { error } = await db.from('profiles').update(safe).eq('id', id);
-    if (error) return errorResponse(error.message, 500);
+    if (Object.keys(safe).length > 0) {
+      const { error } = await db.from('profiles').update(safe).eq('id', id);
+      if (error) return errorResponse(error.message, 500);
+    }
+    // Aggiorna email/password via auth admin (solo se forniti)
+    const authUpdates: Record<string, string> = {};
+    if (email)    authUpdates.email    = email;
+    if (password) authUpdates.password = password;
+    if (Object.keys(authUpdates).length > 0) {
+      const { error: authErr } = await db.auth.admin.updateUserById(id, authUpdates);
+      if (authErr) return errorResponse(authErr.message, 500);
+      if (email) await db.from('profiles').update({ email }).eq('id', id);
+    }
+    return corsResponse({ ok: true });
+  }
+
+  // Recupera profilo completo + storico abbonamenti per un utente
+  if (action === 'get-user-detail') {
+    const { id } = payload;
+    const { data: profile, error: pe } = await db
+      .from('profiles')
+      .select('id, email, nome, cognome, role, plan, sub_status, subscription_start, subscription_end, created_at')
+      .eq('id', id).single();
+    if (pe) return errorResponse(pe.message, 500);
+    const { data: history } = await db
+      .from('subscription_history')
+      .select('*')
+      .eq('user_id', id)
+      .order('created_at', { ascending: false });
+    return corsResponse({ profile, history: history || [] });
+  }
+
+  // Assegna abbonamento: aggiorna profilo + inserisce riga nello storico
+  if (action === 'grant-subscription') {
+    const { id, plan, sub_status, subscription_start, subscription_end } = payload;
+    const { error: ue } = await db.from('profiles').update({
+      plan, sub_status, subscription_start, subscription_end
+    }).eq('id', id);
+    if (ue) return errorResponse(ue.message, 500);
+    // Inserisce nello storico
+    const { error: he } = await db.from('subscription_history').insert({
+      user_id: id, plan, sub_status,
+      subscription_start, subscription_end
+    });
+    if (he) return errorResponse(he.message, 500);
     return corsResponse({ ok: true });
   }
 
