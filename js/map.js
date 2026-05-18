@@ -386,13 +386,14 @@ function initSituationMap(containerId) {
   }).addTo(situationMap);
 
   // Bordi nazioni — colore verde hotspot #06d6a0
-  // Usa topojson.mesh() per ottenere solo linee di confine,
-  // evitando le righe orizzontali causate da poligoni che attraversano il meridiano 180°
   fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
     .then(r => r.json())
     .then(topo => {
       const borders = topojson.mesh(topo, topo.objects.countries);
-      L.geoJSON(borders, {
+      // Spezza i segmenti che attraversano il meridiano 180° (es. Russia, Fiji, Kiribati)
+      // per evitare le linee orizzontali che Leaflet disegna attraverso tutta la mappa
+      const fixed = _fixAntimeridian(borders);
+      L.geoJSON(fixed, {
         style: {
           color:   '#06d6a0',
           weight:  0.8,
@@ -402,6 +403,26 @@ function initSituationMap(containerId) {
       }).addTo(situationMap);
     })
     .catch(() => {/* bordi non critici, ignora */});
+
+function _fixAntimeridian(geojson) {
+  if (!geojson || geojson.type !== 'MultiLineString') return geojson;
+  const newCoords = [];
+  geojson.coordinates.forEach(line => {
+    let seg = [line[0]];
+    for (let i = 1; i < line.length; i++) {
+      const prev = line[i - 1];
+      const curr = line[i];
+      if (Math.abs(curr[0] - prev[0]) > 180) {
+        if (seg.length >= 2) newCoords.push(seg);
+        seg = [curr];
+      } else {
+        seg.push(curr);
+      }
+    }
+    if (seg.length >= 2) newCoords.push(seg);
+  });
+  return { type: 'MultiLineString', coordinates: newCoords };
+}
 
   // Init layer groups
   const layerKeys = ['events', 'resources_oil', 'resources_gas', 'resources_lithium', 'resources_uranium', 'migration', 'maritime', 'oil_trade', 'submarine'];
