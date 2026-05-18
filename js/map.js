@@ -370,7 +370,7 @@ function initSituationMap(containerId) {
     center: [20, 15],
     zoom: 3,
     zoomControl: false,
-    minZoom: 2,
+    minZoom: 3,
     maxZoom: 12,
     worldCopyJump: false,
     maxBounds: [[-90, -180], [90, 180]],
