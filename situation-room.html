@@ -2230,35 +2230,6 @@
   .goal-info-wrap:hover .goal-tooltip { display: block; }
   @keyframes goal-pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
 
-  /* ── Tactical mode button ── */
-  #desk-tactical-btn {
-    width: 30px; height: 30px; border-radius: 6px;
-    background: rgba(4,6,14,0.75); backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.12);
-    color: rgba(255,255,255,0.45);
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
-    flex-shrink: 0;
-  }
-  #desk-tactical-btn:hover { background: rgba(4,6,14,0.92); color: rgba(255,255,255,0.85); }
-  #desk-tactical-btn.active {
-    background: rgba(0,20,40,0.92);
-    border-color: rgba(255,200,0,0.6);
-    color: #ffc800;
-    box-shadow: 0 0 10px rgba(255,200,0,0.3);
-  }
-
-  /* ── Tactical map mode ──
-     SVG feColorMatrix: conversione matematica pixel-per-pixel.
-     Tile light_nolabels (bianco=fills, grigio scuro=bordi):
-       fills (L≈1.0)  → azzurro fluo  #00d4ff  rgb(0,  0.83, 1.0)
-       bordi (L≈0.4)  → verde hotspot #06d6a0  rgb(0.024, 0.839, 0.627)
-     Nessun blend-mode → nessun problema di stacking context Leaflet. ── */
-  .sr-map-section.tactical-mode .leaflet-tile-pane {
-    filter: url(#tactical-color-filter) !important;
-  }
-
   /* ── Map floating legend + filter overlay ── */
   #desk-map-overlay-legend {
     position: absolute; bottom: 12px; left: 12px; z-index: 500;
@@ -5596,70 +5567,6 @@ document.addEventListener('mapEventsLoaded', function() {
   }
 });
 
-// ── TACTICAL MAP MODE ────────────────────────────────────
-let _tacticalActive  = false;
-let _normalTileLayer = null;
-let _tacticalLayer   = null;
-const _HOTSPOT_COLOR_NORMAL   = '#06d6a0';
-const _HOTSPOT_COLOR_TACTICAL = '#39ff14';
-
-function toggleTacticalMode() {
-  _tacticalActive = !_tacticalActive;
-  const btn        = document.getElementById('desk-tactical-btn');
-  const mapSection = document.querySelector('#situation-map')?.closest('.sr-map-section');
-  if (!mapSection) return;
-
-  if (_tacticalActive) {
-    mapSection.classList.add('tactical-mode');
-    if (btn) btn.classList.add('active');
-    // Swap a light_nolabels: sfondo bianco + bordi grigi
-    // → SVG feColorMatrix li converte in azzurro fluo + verde hotspot
-    if (typeof situationMap !== 'undefined' && situationMap) {
-      situationMap.eachLayer(l => { if (l instanceof L.TileLayer) _normalTileLayer = l; });
-      if (_normalTileLayer) situationMap.removeLayer(_normalTileLayer);
-      _tacticalLayer = L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
-        { attribution: '©CartoDB', subdomains: 'abcd', maxZoom: 19, noWrap: true }
-      ).addTo(situationMap);
-    }
-    _setHotspotMarkerColor(_HOTSPOT_COLOR_TACTICAL);
-  } else {
-    mapSection.classList.remove('tactical-mode');
-    if (btn) btn.classList.remove('active');
-    if (typeof situationMap !== 'undefined' && situationMap) {
-      if (_tacticalLayer)   { situationMap.removeLayer(_tacticalLayer); _tacticalLayer = null; }
-      if (_normalTileLayer) { _normalTileLayer.addTo(situationMap);     _normalTileLayer = null; }
-    }
-    _setHotspotMarkerColor(_HOTSPOT_COLOR_NORMAL);
-  }
-}
-
-function _setHotspotMarkerColor(color) {
-  const overlayPane = document.querySelector('#situation-map .leaflet-overlay-pane');
-  if (!overlayPane) return;
-  // Leaflet circle markers: SVG path elements con fill = colore categoria
-  const paths = overlayPane.querySelectorAll('path');
-  paths.forEach(p => {
-    const fill   = p.getAttribute('fill')   || '';
-    const stored = p.getAttribute('data-orig-fill') || '';
-    // In tactical: salva originale e cambia se è hotspot
-    if (_tacticalActive) {
-      if (fill === _HOTSPOT_COLOR_NORMAL) {
-        p.setAttribute('data-orig-fill', fill);
-        p.setAttribute('fill', color);
-        p.setAttribute('stroke', color);
-      }
-    } else {
-      // Ripristino: se c'era un colore salvato, restituiscilo
-      if (stored) {
-        p.setAttribute('fill', stored);
-        p.setAttribute('stroke', stored);
-        p.removeAttribute('data-orig-fill');
-      }
-    }
-  });
-}
-
 // ── SUBSCRIPTION GOAL BAR ────────────────────────────────
 async function initGoalBar() {
   try {
@@ -5981,30 +5888,6 @@ document.addEventListener('DOMContentLoaded', () => {
 ═══════════════════════════════════════════════ -->
 
 <!-- Top bar desktop -->
-<!-- SVG filter per tactical mode -->
-<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
-  <defs>
-    <filter id="tactical-color-filter" color-interpolation-filters="sRGB">
-      <!--
-        Step 1: contrast boost (slope=5, intercept=-2.0, soglia ~L=0.45)
-          fills  (L>0.55) → bianco puro
-          bordi  (L<0.45) → grigio scuro / nero
-        Step 2: feColorMatrix (calcolata per L fills=1.0 → #00d4ff, L bordi=0.25 → #06d6a0)
-      -->
-      <feComponentTransfer result="contrasted">
-        <feFuncR type="linear" slope="5" intercept="-2"/>
-        <feFuncG type="linear" slope="5" intercept="-2"/>
-        <feFuncB type="linear" slope="5" intercept="-2"/>
-      </feComponentTransfer>
-      <feColorMatrix in="contrasted" type="matrix" values="
-        -0.01333 -0.01333 -0.01333  0  0.04
-        -0.005   -0.005   -0.005    0  0.845
-         0.20722  0.20722  0.20722  0  0.37833
-         0        0        0        1  0"/>
-    </filter>
-  </defs>
-</svg>
-
 <div id="desk-topbar">
   <a href="index.html" class="desk-logo">
     <span class="desk-logo-text">ANALISY</span>
@@ -6068,17 +5951,8 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="map-ol-leg-row" onclick="deskFilterCat('tecnologia',this)"  data-cat="tecnologia"> <span class="map-ol-leg-dot" style="background:#a78bfa;"></span>Tech<span class="map-ol-leg-count" id="desk-count-tec">0</span></div>
       <div class="map-ol-leg-row" onclick="deskFilterCat('hotspot',this)"     data-cat="hotspot">    <span class="map-ol-leg-dot" style="background:#06d6a0;"></span>Hotspot<span class="map-ol-leg-count" id="desk-count-hot">0</span></div>
     </div>
-    <!-- Map controls: tactical mode + expand (flex row, top-right) -->
+    <!-- Map controls: expand (top-right) -->
     <div id="desk-map-controls" style="position:absolute;top:62px;right:12px;z-index:1100;display:flex;align-items:center;gap:6px;">
-      <button id="desk-tactical-btn" onclick="toggleTacticalMode()" title="Modalità tattica — ottimizzata per la lettura in piena luce">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <circle cx="12" cy="12" r="4"/>
-          <line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
-          <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
-          <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
-          <line x1="19.78" y1="4.22" x2="17.66" y2="6.34"/><line x1="6.34" y1="17.66" x2="4.22" y2="19.78"/>
-        </svg>
-      </button>
       <button id="desk-map-expand-btn" onclick="openDeskMapFullscreen()">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
         Espandi
