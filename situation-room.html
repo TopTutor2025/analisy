@@ -2239,16 +2239,31 @@
     position: relative; display: flex; align-items: center;
     cursor: default;
   }
+  .goal-discover-link {
+    font-size: 0.58rem; font-weight: 500;
+    color: rgba(255,255,255,0.35);
+    text-decoration: underline; text-decoration-style: dotted;
+    text-underline-offset: 2px;
+    white-space: nowrap; cursor: default;
+    transition: color 0.15s;
+  }
+  .goal-info-wrap:hover .goal-discover-link { color: rgba(255,255,255,0.65); }
   .goal-tooltip {
     display: none;
-    position: absolute; bottom: calc(100% + 8px); right: 0;
-    background: rgba(10,12,24,0.96);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px; padding: 8px 12px;
-    font-size: 0.72rem; color: rgba(235,235,245,0.75);
-    white-space: normal; max-width: 200px;
+    position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%);
+    background: rgba(10,12,24,0.97);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px; padding: 10px 14px;
+    font-size: 0.72rem; color: rgba(235,235,245,0.82); line-height: 1.55;
+    white-space: normal; width: 220px;
     z-index: 9999; pointer-events: none;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.6);
+  }
+  .goal-tooltip::after {
+    content: '';
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(10,12,24,0.97);
   }
   .goal-info-wrap:hover .goal-tooltip { display: block; }
   @keyframes goal-pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
@@ -5946,7 +5961,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
       <div id="desk-goal-actions">
         <div class="goal-info-wrap">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.32)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span class="goal-discover-link">scopri cosa può fare il tuo sostegno</span>
           <div class="goal-tooltip" id="desk-goal-tooltip">Obiettivo: raggiungere 100 abbonati</div>
         </div>
         <a id="desk-goal-cta" href="/dashboard.html">Sostienici</a>
