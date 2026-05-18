@@ -2151,71 +2151,67 @@
   #desk-map-full #desk-map-slot .sr-map-row { height: 100% !important; min-height: unset !important; }
   #desk-map-full #desk-map-slot .sr-map-section { height: 100% !important; border-radius: 0 !important; }
 
-  /* ── Subscription goal widget — inline nella navbar ── */
-  @property --goal-spin { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
-  @keyframes goal-rainbow-spin { to { --goal-spin: 360deg; } }
-
+  /* ── Goal bar — stile gaming (like photo: dark bg, solid color border, thick fill) ── */
   #desk-goal-bar {
     display: none; /* JS sets display:flex */
-    flex: 1;                         /* riempie lo spazio vuoto centrale */
-    align-self: center;
-    margin: 0 14px;
-    padding: 1.5px;
+    flex: 1; align-self: stretch;
+    margin: 7px 14px;
     border-radius: 8px;
-    background: conic-gradient(from var(--goal-spin),
-      #e8344e, #f5a623, #ffd700, #06d6a0, #4f9eff, #a78bfa, #e8344e);
-    animation: goal-rainbow-spin 3s linear infinite;
-    min-width: 0;                    /* evita overflow in flex */
-    box-shadow: 0 2px 14px rgba(0,0,0,0.4);
+    background: rgba(6,6,14,0.96);
+    border: 1.5px solid #e8344e; /* colore aggiornato da JS */
+    overflow: hidden;
+    position: relative;
+    min-width: 0;
+    pointer-events: all;
+    box-shadow: 0 0 10px rgba(232,52,78,0.25); /* glow aggiornato da JS */
+    flex-direction: column;
   }
+  /* Riga testo: label sinistra, count + azioni destra */
   #desk-goal-inner {
-    background: rgba(4,6,14,0.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-radius: 7px;
-    padding: 5px 12px;
-    display: flex; flex-direction: row; align-items: center; gap: 10px;
-    width: 100%; min-width: 0;
-  }
-  #desk-goal-text {
-    display: flex; flex-direction: column; gap: 0px;
-    flex-shrink: 0;
-  }
-  #desk-goal-count {
-    font-size: 0.82rem; font-weight: 800;
-    color: rgba(235,235,245,0.97);
-    letter-spacing: -0.02em; line-height: 1.2;
-    white-space: nowrap;
+    display: flex; flex-direction: row; align-items: center;
+    padding: 4px 12px 2px; gap: 8px;
+    position: relative; z-index: 1; flex: 1;
+    min-width: 0;
   }
   #desk-goal-label {
-    font-size: 0.58rem; color: rgba(255,255,255,0.38);
-    line-height: 1.3; white-space: nowrap;
-    overflow: hidden; text-overflow: ellipsis; max-width: 200px;
+    font-size: 0.58rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.45);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    flex: 1; min-width: 0;
   }
+  #desk-goal-count {
+    font-size: 0.85rem; font-weight: 800;
+    color: rgba(235,235,245,0.97);
+    letter-spacing: -0.01em; white-space: nowrap;
+    flex-shrink: 0;
+  }
+  #desk-goal-actions {
+    display: flex; align-items: center; gap: 7px; flex-shrink: 0;
+  }
+  /* Barra progresso spessa (stile gaming) */
   #desk-goal-track {
-    flex: 1; height: 4px; min-width: 40px;
-    background: rgba(255,255,255,0.12);
-    border-radius: 2px; overflow: hidden;
+    width: 100%; height: 9px;
+    background: rgba(255,255,255,0.07);
+    overflow: hidden;
   }
   #desk-goal-fill {
     height: 100%; width: 0%;
-    border-radius: 2px;
     transition: width 1.4s cubic-bezier(0.4,0,0.2,1), background 0.8s ease;
+    box-shadow: 0 0 8px currentColor;
   }
-  #desk-goal-actions {
-    display: flex; align-items: center;
-    gap: 7px; flex-shrink: 0;
-  }
-  #desk-goal-top { display: contents; } /* compat */
   #desk-goal-cta {
     background: #e8344e; color: #fff;
-    padding: 4px 11px; border-radius: 5px;
-    font-size: 0.68rem; font-weight: 700;
+    padding: 3px 10px; border-radius: 5px;
+    font-size: 0.65rem; font-weight: 700;
     text-decoration: none; white-space: nowrap;
     transition: background 0.2s, transform 0.15s;
+    flex-shrink: 0;
   }
   #desk-goal-cta:hover { background: #c9293f; transform: scale(1.04); }
-  #desk-goal-line { display: none; } /* kept for JS compat */
+  #desk-goal-line { display: none; }
+  #desk-goal-text  { display: contents; }
+  #desk-goal-top   { display: contents; }
   .goal-info-wrap {
     position: relative; display: flex; align-items: center;
     cursor: default;
@@ -2254,22 +2250,10 @@
   }
 
   /* ── Tactical map mode ──
-     Tile swappate a light_nolabels (sfondo bianco, bordi scuri).
-     Tecnica:
-       1. .leaflet-container bg = #00d4ff (azzurro fluo — visibile "sotto" il pane)
-       2. filter sul tile PANE: contrast(1.5) separa fills da bordi senza saturare
-          invert → fills=nero, bordi=grigio chiaro
-          brightness(0.4)+sepia+hue-rotate(90°)+saturate(10) → bordi diventano verde
-       3. mix-blend-mode: screen sull'intero PANE (non sui singoli img, che sarebbero
-          isolati dai CSS transform di Leaflet) → nero→azzurro, verde→ciano-verde
-  ── */
-  .sr-map-section.tactical-mode .leaflet-container {
-    background: #00d4ff !important;
-  }
+     Filtro diretto sulle dark tiles CartoDB (nessun tile swap, nessun blend mode).
+     sepia + hue-rotate(90°) → verde militare; saturate → vivido; brightness OK. ── */
   .sr-map-section.tactical-mode .leaflet-tile-pane {
-    mix-blend-mode: screen !important;
-    filter: grayscale(1) contrast(1.5) invert(1)
-            brightness(0.4) sepia(1) hue-rotate(90deg) saturate(10) brightness(1.6) !important;
+    filter: sepia(1) hue-rotate(90deg) saturate(5) brightness(0.88) contrast(1.15) !important;
   }
 
   /* ── Map floating legend + filter overlay ── */
@@ -5610,39 +5594,23 @@ document.addEventListener('mapEventsLoaded', function() {
 });
 
 // ── TACTICAL MAP MODE ────────────────────────────────────
-let _tacticalActive  = false;
-let _normalTileLayer = null;
-let _tacticalLayer   = null;
+let _tacticalActive = false;
 const _HOTSPOT_COLOR_NORMAL   = '#06d6a0';
 const _HOTSPOT_COLOR_TACTICAL = '#39ff14';
 
 function toggleTacticalMode() {
   _tacticalActive = !_tacticalActive;
-  const btn = document.getElementById('desk-tactical-btn');
+  const btn        = document.getElementById('desk-tactical-btn');
   const mapSection = document.querySelector('#situation-map')?.closest('.sr-map-section');
   if (!mapSection) return;
 
   if (_tacticalActive) {
     mapSection.classList.add('tactical-mode');
     if (btn) btn.classList.add('active');
-    if (typeof situationMap !== 'undefined' && situationMap) {
-      // Salva il tile layer normale e lo rimuove
-      situationMap.eachLayer(layer => { if (layer instanceof L.TileLayer) _normalTileLayer = layer; });
-      if (_normalTileLayer) situationMap.removeLayer(_normalTileLayer);
-      // Carica light_nolabels: sfondo bianco → CSS blend lo trasforma in azzurro/verde
-      _tacticalLayer = L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
-        { attribution: '©CartoDB', subdomains: 'abcd', maxZoom: 19, noWrap: true }
-      ).addTo(situationMap);
-    }
     _setHotspotMarkerColor(_HOTSPOT_COLOR_TACTICAL);
   } else {
     mapSection.classList.remove('tactical-mode');
     if (btn) btn.classList.remove('active');
-    if (typeof situationMap !== 'undefined' && situationMap) {
-      if (_tacticalLayer)   { situationMap.removeLayer(_tacticalLayer);   _tacticalLayer   = null; }
-      if (_normalTileLayer) { _normalTileLayer.addTo(situationMap);        _normalTileLayer = null; }
-    }
     _setHotspotMarkerColor(_HOTSPOT_COLOR_NORMAL);
   }
 }
@@ -5710,6 +5678,10 @@ async function initGoalBar() {
     const bar = document.getElementById('desk-goal-bar');
     if (!bar) { console.warn('[GoalBar] #desk-goal-bar non trovato nel DOM'); return; }
     bar.style.cssText += ';display:flex !important;';
+    bar.style.borderColor = color;
+    bar.style.boxShadow   = `0 0 12px ${color}55`;
+    const cta = document.getElementById('desk-goal-cta');
+    if (cta) cta.style.background = color;
 
     // Testi
     const countEl = document.getElementById('desk-goal-count');
