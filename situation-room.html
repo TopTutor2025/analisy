@@ -2144,6 +2144,63 @@
   #desk-map-full #desk-map-slot .sr-map-row { height: 100% !important; min-height: unset !important; }
   #desk-map-full #desk-map-slot .sr-map-section { height: 100% !important; border-radius: 0 !important; }
 
+  /* ── Subscription goal bar ── */
+  #desk-goal-bar {
+    display: none;
+    position: absolute; top: 0; left: 0; right: 0; z-index: 800;
+    height: 46px;
+    background: rgba(4,6,14,0.86);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    box-sizing: border-box;
+    overflow: hidden;
+    pointer-events: all;
+  }
+  #desk-goal-fill {
+    position: absolute; top: 0; left: 0; bottom: 0;
+    width: 0%;
+    transition: width 1.4s cubic-bezier(0.4,0,0.2,1), background 0.8s ease;
+    z-index: 0;
+  }
+  #desk-goal-line {
+    position: absolute; bottom: 0; left: 0;
+    height: 2px; width: 0%;
+    transition: width 1.4s cubic-bezier(0.4,0,0.2,1), background 0.8s ease;
+    z-index: 2;
+  }
+  #desk-goal-content {
+    position: relative; z-index: 1;
+    height: 100%; display: flex; align-items: center;
+    padding: 0 14px; gap: 10px;
+  }
+  #desk-goal-cta {
+    background: #e8344e; color: #fff;
+    padding: 5px 13px; border-radius: 6px;
+    font-size: 0.72rem; font-weight: 700;
+    text-decoration: none; white-space: nowrap;
+    transition: background 0.2s, transform 0.15s;
+    flex-shrink: 0;
+  }
+  #desk-goal-cta:hover { background: #c9293f; transform: scale(1.03); }
+  .goal-info-wrap {
+    position: relative; display: flex; align-items: center;
+    cursor: default;
+  }
+  .goal-tooltip {
+    display: none;
+    position: absolute; bottom: calc(100% + 8px); right: 0;
+    background: rgba(10,12,24,0.96);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; padding: 8px 12px;
+    font-size: 0.72rem; color: rgba(235,235,245,0.75);
+    white-space: nowrap; max-width: 260px; white-space: normal;
+    z-index: 9999; pointer-events: none;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  }
+  .goal-info-wrap:hover .goal-tooltip { display: block; }
+  @keyframes goal-pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
+
   /* ── Map floating legend + filter overlay ── */
   #desk-map-overlay-legend {
     position: absolute; bottom: 12px; left: 12px; z-index: 500;
@@ -3575,6 +3632,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (window.innerWidth > 768) {
     renderDeskLiveEvents();
     updateDeskLegendCounts();
+    initGoalBar(); // barra obiettivo abbonamenti
   }
 
   // Map — eventi only (hide resources + routes)
@@ -5487,6 +5545,65 @@ document.addEventListener('mapEventsLoaded', function() {
     updateDeskLegendCounts();
   }
 });
+
+// ── SUBSCRIPTION GOAL BAR ────────────────────────────────
+async function initGoalBar() {
+  try {
+    if (typeof SUPABASE_URL === 'undefined' || typeof SUPABASE_ANON === 'undefined') return;
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/site-goal`, {
+      headers: { 'Authorization': `Bearer ${SUPABASE_ANON}`, 'Content-Type': 'application/json' }
+    });
+    if (!res.ok) return;
+    const goal = await res.json();
+    if (!goal || !goal.target_count) return;
+
+    const cur    = goal.current_count ?? 0;
+    const target = goal.target_count;
+    const pct    = Math.min(100, Math.round((cur / target) * 100));
+
+    // Colore progressivo
+    let color;
+    if      (pct >= 100) color = '#34c759';
+    else if (pct >= 85)  color = '#06d6a0';
+    else if (pct >= 60)  color = '#4f9eff';
+    else if (pct >= 30)  color = '#f5a623';
+    else                 color = '#e8344e';
+
+    // Fill di sfondo
+    const fill = document.getElementById('desk-goal-fill');
+    if (fill) {
+      fill.style.width      = pct + '%';
+      fill.style.background = `linear-gradient(90deg, ${color}2e, ${color}10)`;
+    }
+
+    // Linea inferiore
+    const line = document.getElementById('desk-goal-line');
+    if (line) {
+      line.style.width      = pct + '%';
+      line.style.background = color;
+      if (pct >= 100) line.style.animation = 'goal-pulse 1.8s ease-in-out infinite';
+    }
+
+    // Testi
+    const countEl = document.getElementById('desk-goal-count');
+    if (countEl) { countEl.textContent = `${cur} / ${target}`; countEl.style.color = pct >= 100 ? color : 'rgba(235,235,245,0.95)'; }
+
+    const labelEl = document.getElementById('desk-goal-label');
+    if (labelEl) labelEl.textContent = goal.label || 'abbonati';
+
+    // Tooltip
+    const tooltip = document.getElementById('desk-goal-tooltip');
+    if (tooltip) tooltip.textContent = `Obiettivo: ${target} abbonati — ${goal.label || ''}`;
+
+    // Mostra barra (solo desktop)
+    const bar = document.getElementById('desk-goal-bar');
+    if (bar) {
+      bar.style.display = 'flex';
+      // Anima fill con leggero delay
+      requestAnimationFrame(() => { if (fill) fill.style.width = pct + '%'; if (line) line.style.width = pct + '%'; });
+    }
+  } catch(e) { /* silenzioso */ }
+}
 </script>
 <script>
 // ═══════════════════════════════════════════════
@@ -5782,6 +5899,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
   <!-- ──── 1. MAPPA FULL WIDTH ──── -->
   <div id="desk-map-full">
+    <!-- Subscription goal bar (shown only when a goal is active) -->
+    <div id="desk-goal-bar">
+      <div id="desk-goal-fill"></div>
+      <div id="desk-goal-line"></div>
+      <div id="desk-goal-content">
+        <!-- Heart icon -->
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="#e8344e" stroke="none" style="flex-shrink:0;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <!-- Count -->
+        <span id="desk-goal-count" style="font-size:0.8rem;font-weight:800;color:rgba(235,235,245,0.95);letter-spacing:-0.01em;">0 / 100</span>
+        <!-- Label -->
+        <span id="desk-goal-label" style="font-size:0.73rem;color:rgba(255,255,255,0.38);">abbonati</span>
+        <!-- Spacer -->
+        <div style="flex:1;"></div>
+        <!-- Info icon with tooltip -->
+        <div class="goal-info-wrap">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <div class="goal-tooltip" id="desk-goal-tooltip">Obiettivo: raggiungere 100 abbonati</div>
+        </div>
+        <!-- CTA -->
+        <a id="desk-goal-cta" href="/dashboard.html">❤️ Sostienici</a>
+      </div>
+    </div>
     <div id="desk-map-slot"></div>
     <!-- Floating legend + filters overlay -->
     <div id="desk-map-overlay-legend">
@@ -6004,7 +6143,18 @@ document.addEventListener('DOMContentLoaded', () => {
     <button onclick="closeSitePopup()" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,0.06);border:none;color:rgba(255,255,255,0.45);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">✕</button>
     <div id="sp-icon" style="font-size:2rem;margin-bottom:14px;">📡</div>
     <div id="sp-title" style="font-size:1.15rem;font-weight:700;color:#fff;margin-bottom:10px;line-height:1.3;"></div>
-    <div id="sp-body" style="font-size:0.86rem;color:rgba(235,235,245,0.55);line-height:1.7;margin-bottom:22px;"></div>
+    <div id="sp-body" style="font-size:0.86rem;color:rgba(235,235,245,0.55);line-height:1.7;margin-bottom:16px;"></div>
+    <!-- Mini goal bar (shown only when goal.show_in_popup = true) -->
+    <div id="sp-goal" style="display:none;margin-bottom:18px;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+        <span id="sp-goal-count" style="font-size:0.78rem;font-weight:700;color:rgba(235,235,245,0.8);"></span>
+        <span id="sp-goal-pct" style="font-size:0.68rem;color:rgba(255,255,255,0.3);"></span>
+      </div>
+      <div style="height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;">
+        <div id="sp-goal-fill" style="height:100%;width:0%;background:#e8344e;border-radius:3px;transition:width 1.2s ease;"></div>
+      </div>
+      <div id="sp-goal-label" style="font-size:0.68rem;color:rgba(255,255,255,0.28);margin-top:5px;"></div>
+    </div>
     <div style="display:flex;flex-direction:column;gap:10px;">
       <a id="sp-cta" href="#" style="display:block;text-align:center;background:linear-gradient(135deg,#e8344e,#ff6b6b);color:#fff;padding:12px 20px;border-radius:10px;font-size:0.88rem;font-weight:700;text-decoration:none;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'"></a>
       <button onclick="closeSitePopup()" style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:0.78rem;cursor:pointer;padding:4px;">Non ora</button>
@@ -6031,6 +6181,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const cta = document.getElementById('sp-cta');
     cta.textContent = popup.cta_text || 'Scopri i piani';
     cta.href = popup.cta_url || '/dashboard.html';
+    // Carica goal per mini-barra
+    try {
+      const gRes = await fetch(`${SUPABASE_URL}/functions/v1/site-goal`, {
+        headers: { 'Authorization': `Bearer ${SUPABASE_ANON}` }
+      });
+      if (gRes.ok) {
+        const goal = await gRes.json();
+        if (goal && goal.show_in_popup && goal.target_count) {
+          const cur = goal.current_count ?? 0;
+          const pct = Math.min(100, Math.round((cur / goal.target_count) * 100));
+          let barColor = pct >= 100 ? '#34c759' : pct >= 85 ? '#06d6a0' : pct >= 60 ? '#4f9eff' : pct >= 30 ? '#f5a623' : '#e8344e';
+          document.getElementById('sp-goal-count').textContent = `${cur} / ${goal.target_count} abbonati`;
+          document.getElementById('sp-goal-pct').textContent   = `${pct}%`;
+          document.getElementById('sp-goal-label').textContent = goal.label || '';
+          const fillEl = document.getElementById('sp-goal-fill');
+          if (fillEl) { fillEl.style.background = barColor; setTimeout(() => { fillEl.style.width = pct + '%'; }, 400); }
+          document.getElementById('sp-goal').style.display = 'block';
+        }
+      }
+    } catch(_) {}
     setTimeout(() => {
       const overlay = document.getElementById('site-popup-overlay');
       overlay.style.display = 'flex';

@@ -844,7 +844,18 @@
     <button onclick="closeSitePopup()" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,0.06);border:none;color:rgba(255,255,255,0.45);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">✕</button>
     <div id="sp-icon" style="font-size:2rem;margin-bottom:14px;">📡</div>
     <div id="sp-title" style="font-size:1.15rem;font-weight:700;color:#fff;margin-bottom:10px;line-height:1.3;"></div>
-    <div id="sp-body" style="font-size:0.86rem;color:rgba(235,235,245,0.55);line-height:1.7;margin-bottom:22px;"></div>
+    <div id="sp-body" style="font-size:0.86rem;color:rgba(235,235,245,0.55);line-height:1.7;margin-bottom:16px;"></div>
+    <!-- Mini goal bar (shown only when goal.show_in_popup = true) -->
+    <div id="sp-goal" style="display:none;margin-bottom:18px;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+        <span id="sp-goal-count" style="font-size:0.78rem;font-weight:700;color:rgba(235,235,245,0.8);"></span>
+        <span id="sp-goal-pct" style="font-size:0.68rem;color:rgba(255,255,255,0.3);"></span>
+      </div>
+      <div style="height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;">
+        <div id="sp-goal-fill" style="height:100%;width:0%;background:#e8344e;border-radius:3px;transition:width 1.2s ease;"></div>
+      </div>
+      <div id="sp-goal-label" style="font-size:0.68rem;color:rgba(255,255,255,0.28);margin-top:5px;"></div>
+    </div>
     <div style="display:flex;flex-direction:column;gap:10px;">
       <a id="sp-cta" href="#" style="display:block;text-align:center;background:linear-gradient(135deg,#e8344e,#ff6b6b);color:#fff;padding:12px 20px;border-radius:10px;font-size:0.88rem;font-weight:700;text-decoration:none;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'"></a>
       <button onclick="closeSitePopup()" style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:0.78rem;cursor:pointer;padding:4px;">Non ora</button>
@@ -868,12 +879,32 @@
     if (!popup || !popup.title) return;
     // Controlla pagine
     if (popup.show_on !== 'all' && popup.show_on !== PAGE) return;
-    // Popola
+    // Popola testo
     document.getElementById('sp-title').textContent = popup.title;
     document.getElementById('sp-body').textContent  = popup.body;
     const cta = document.getElementById('sp-cta');
     cta.textContent = popup.cta_text || 'Scopri i piani';
     cta.href = popup.cta_url || '/dashboard.html';
+    // Carica goal (in parallelo, non bloccante)
+    try {
+      const gRes = await fetch(`${SUPABASE_URL}/functions/v1/site-goal`, {
+        headers: { 'Authorization': `Bearer ${SUPABASE_ANON}` }
+      });
+      if (gRes.ok) {
+        const goal = await gRes.json();
+        if (goal && goal.show_in_popup && goal.target_count) {
+          const cur = goal.current_count ?? 0;
+          const pct = Math.min(100, Math.round((cur / goal.target_count) * 100));
+          let barColor = pct >= 100 ? '#34c759' : pct >= 85 ? '#06d6a0' : pct >= 60 ? '#4f9eff' : pct >= 30 ? '#f5a623' : '#e8344e';
+          document.getElementById('sp-goal-count').textContent = `${cur} / ${goal.target_count} abbonati`;
+          document.getElementById('sp-goal-pct').textContent   = `${pct}%`;
+          document.getElementById('sp-goal-label').textContent = goal.label || '';
+          const fillEl = document.getElementById('sp-goal-fill');
+          if (fillEl) { fillEl.style.background = barColor; setTimeout(() => { fillEl.style.width = pct + '%'; }, 400); }
+          document.getElementById('sp-goal').style.display = 'block';
+        }
+      }
+    } catch(_) {}
     // Mostra con ritardo
     setTimeout(() => {
       const overlay = document.getElementById('site-popup-overlay');

@@ -719,6 +719,66 @@
       <div id="popup-list" style="display:flex;flex-direction:column;gap:10px;">
         <div style="text-align:center;padding:30px;font-size:0.72rem;color:rgba(255,255,255,0.2);">Caricamento…</div>
       </div>
+
+      <!-- ── OBIETTIVO ABBONAMENTI ─────────────────────────── -->
+      <div style="margin-top:36px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.05);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <div>
+            <span style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.28);">Obiettivo abbonamenti</span>
+            <div style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:2px;">Barra di progresso sulla mappa · opzionale nel popup</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openGoalForm()">+ Nuovo obiettivo</button>
+        </div>
+
+        <!-- Form obiettivo -->
+        <div id="goal-form-wrap" style="display:none;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:20px;margin-bottom:20px;">
+          <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.35);margin-bottom:14px;" id="goal-form-label">Nuovo obiettivo</div>
+          <input type="hidden" id="goal-edit-id" value="">
+
+          <div style="display:grid;grid-template-columns:160px 1fr;gap:12px;margin-bottom:12px;">
+            <div>
+              <label style="font-size:0.72rem;color:rgba(255,255,255,0.45);display:block;margin-bottom:4px;">Target abbonati *</label>
+              <input type="number" id="goal-f-target" placeholder="es. 100" min="1" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:8px 10px;color:#fff;font-size:0.84rem;outline:none;box-sizing:border-box;" oninput="updateGoalPreview()">
+            </div>
+            <div>
+              <label style="font-size:0.72rem;color:rgba(255,255,255,0.45);display:block;margin-bottom:4px;">Descrizione obiettivo</label>
+              <input type="text" id="goal-f-label" placeholder="es. per migliorare la piattaforma" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:8px 10px;color:#fff;font-size:0.84rem;outline:none;box-sizing:border-box;" oninput="updateGoalPreview()">
+            </div>
+          </div>
+
+          <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.8rem;color:rgba(235,235,245,0.6);">
+              <input type="checkbox" id="goal-f-popup" style="width:15px;height:15px;accent-color:#e8344e;">
+              Mostra anche nel popup (mini-barra con progresso)
+            </label>
+          </div>
+
+          <!-- Anteprima barra -->
+          <div style="margin-bottom:16px;">
+            <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em;">Anteprima barra</div>
+            <div style="background:#060c1a;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;position:relative;overflow:hidden;">
+              <div id="goal-prev-fill" style="position:absolute;top:0;left:0;bottom:0;width:30%;background:rgba(232,52,78,0.2);transition:width 0.5s ease,background 0.5s ease;"></div>
+              <div style="position:relative;z-index:1;display:flex;align-items:center;gap:10px;width:100%;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="#e8344e" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <span id="goal-prev-text" style="font-size:0.78rem;font-weight:700;color:rgba(235,235,245,0.9);">0 / 100 abbonati</span>
+                <span id="goal-prev-label" style="font-size:0.72rem;color:rgba(255,255,255,0.4);">per sostenere il servizio</span>
+                <div style="flex:1;"></div>
+                <span style="background:#e8344e;color:#fff;padding:4px 12px;border-radius:5px;font-size:0.72rem;font-weight:700;">❤️ Sostienici</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-primary btn-sm" onclick="saveGoal()">Salva</button>
+            <button class="btn btn-sm" style="background:rgba(255,255,255,0.05);" onclick="closeGoalForm()">Annulla</button>
+          </div>
+        </div>
+
+        <!-- Lista obiettivi -->
+        <div id="goal-list" style="display:flex;flex-direction:column;gap:10px;">
+          <div style="text-align:center;padding:20px;font-size:0.72rem;color:rgba(255,255,255,0.2);">Caricamento…</div>
+        </div>
+      </div>
     </div><!-- /section-popups -->
 
     <!-- ═══ AI INTELLIGENCE SECTION ═══ -->
@@ -1512,7 +1572,7 @@
     if (titleEl) titleEl.textContent = _SECTION_LABELS[name] || name;
     if (name === 'ai')            { loadAIStatus(); loadAIJobs(); }
     if (name === 'notifications')  { loadAdminNotifications(); }
-    if (name === 'popups')         { loadAdminPopups(); }
+    if (name === 'popups')         { loadAdminPopups(); loadAdminGoals(); }
   }
 
   // ── UTILS ─────────────────────────────────────────────
@@ -1637,6 +1697,119 @@
       await Api.fn('admin-write', { action: 'delete-popup', data: { id } });
       showToast('Popup eliminato', 'success');
       loadAdminPopups();
+    } catch(e) { showToast(e.message, 'error'); }
+  }
+
+  // ── SUBSCRIPTION GOALS ─────────────────────────────────
+  async function loadAdminGoals() {
+    const list = document.getElementById('goal-list');
+    if (!list) return;
+    list.innerHTML = '<div style="text-align:center;padding:20px;font-size:0.72rem;color:rgba(255,255,255,0.2);">Caricamento…</div>';
+    try {
+      const data = await Api.fn('admin-write', { action: 'list-goals', data: {} });
+      if (!data.length) {
+        list.innerHTML = '<div style="text-align:center;padding:20px;font-size:0.72rem;color:rgba(255,255,255,0.2);">Nessun obiettivo. Creane uno con "+ Nuovo obiettivo".</div>';
+        return;
+      }
+      list.innerHTML = data.map(g => {
+        const pct = Math.min(100, Math.round((0 / g.target_count) * 100));
+        return `
+        <div style="background:#111113;border:1px solid ${g.active ? 'rgba(232,52,78,0.35)' : 'rgba(255,255,255,0.06)'};border-radius:10px;padding:16px 20px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <span style="font-size:0.88rem;font-weight:700;color:rgba(235,235,245,0.9);">Target: ${g.target_count} abbonati</span>
+            ${g.active
+              ? '<span style="background:rgba(232,52,78,0.15);color:#e8344e;font-size:0.62rem;font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:0.06em;">● ATTIVO</span>'
+              : '<span style="background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.3);font-size:0.62rem;font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:0.06em;">Inattivo</span>'}
+            ${g.show_in_popup ? '<span style="background:rgba(79,158,255,0.12);color:#4f9eff;font-size:0.62rem;font-weight:700;padding:2px 7px;border-radius:4px;">+ popup</span>' : ''}
+          </div>
+          <div style="font-size:0.75rem;color:rgba(235,235,245,0.4);margin-bottom:10px;">${escHtml(g.label)}</div>
+          <!-- Mini barra anteprima -->
+          <div style="height:4px;background:rgba(255,255,255,0.06);border-radius:2px;margin-bottom:12px;overflow:hidden;">
+            <div style="height:100%;width:${pct}%;background:#e8344e;border-radius:2px;transition:width 0.6s;"></div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button onclick="toggleAdminGoal('${g.id}',${!g.active})"
+              style="padding:5px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);font-size:0.72rem;cursor:pointer;">
+              ${g.active ? 'Disattiva' : 'Attiva'}
+            </button>
+            <button onclick="editGoal(${JSON.stringify(g).replace(/"/g,'&quot;')})"
+              style="padding:5px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);font-size:0.72rem;cursor:pointer;">
+              Modifica
+            </button>
+            <button onclick="deleteAdminGoal('${g.id}')"
+              style="padding:5px 12px;border-radius:6px;border:1px solid rgba(232,52,78,0.2);background:rgba(232,52,78,0.07);color:#e8344e;font-size:0.72rem;cursor:pointer;">
+              Elimina
+            </button>
+          </div>
+        </div>`;
+      }).join('');
+    } catch(e) {
+      list.innerHTML = `<div style="color:#e8344e;font-size:0.78rem;padding:12px;">${e.message}</div>`;
+    }
+  }
+
+  function openGoalForm(clear = true) {
+    if (clear) {
+      document.getElementById('goal-edit-id').value = '';
+      document.getElementById('goal-f-target').value = '';
+      document.getElementById('goal-f-label').value = '';
+      document.getElementById('goal-f-popup').checked = false;
+      document.getElementById('goal-form-label').textContent = 'Nuovo obiettivo';
+      updateGoalPreview();
+    }
+    document.getElementById('goal-form-wrap').style.display = 'block';
+    document.getElementById('goal-form-wrap').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function closeGoalForm() {
+    document.getElementById('goal-form-wrap').style.display = 'none';
+  }
+
+  function updateGoalPreview() {
+    const target = parseInt(document.getElementById('goal-f-target').value) || 100;
+    const label  = document.getElementById('goal-f-label').value || 'per sostenere il servizio';
+    document.getElementById('goal-prev-text').textContent  = `0 / ${target} abbonati`;
+    document.getElementById('goal-prev-label').textContent = label;
+  }
+
+  function editGoal(g) {
+    document.getElementById('goal-edit-id').value  = g.id;
+    document.getElementById('goal-f-target').value = g.target_count;
+    document.getElementById('goal-f-label').value  = g.label || '';
+    document.getElementById('goal-f-popup').checked = g.show_in_popup ?? false;
+    document.getElementById('goal-form-label').textContent = 'Modifica obiettivo';
+    updateGoalPreview();
+    openGoalForm(false);
+  }
+
+  async function saveGoal() {
+    const id           = document.getElementById('goal-edit-id').value;
+    const target_count = parseInt(document.getElementById('goal-f-target').value);
+    const label        = document.getElementById('goal-f-label').value.trim();
+    const show_in_popup = document.getElementById('goal-f-popup').checked;
+    if (!target_count || target_count < 1) { showToast('Inserisci un target valido', 'error'); return; }
+    try {
+      await Api.fn('admin-write', { action: 'upsert-goal', data: { id: id || undefined, target_count, label, show_in_popup, active: false } });
+      showToast('Obiettivo salvato', 'success');
+      closeGoalForm();
+      loadAdminGoals();
+    } catch(e) { showToast(e.message, 'error'); }
+  }
+
+  async function toggleAdminGoal(id, active) {
+    try {
+      await Api.fn('admin-write', { action: 'toggle-goal', data: { id, active } });
+      showToast(active ? 'Obiettivo attivato ✓' : 'Obiettivo disattivato', 'success');
+      loadAdminGoals();
+    } catch(e) { showToast(e.message, 'error'); }
+  }
+
+  async function deleteAdminGoal(id) {
+    if (!confirm('Eliminare questo obiettivo?')) return;
+    try {
+      await Api.fn('admin-write', { action: 'delete-goal', data: { id } });
+      showToast('Obiettivo eliminato', 'success');
+      loadAdminGoals();
     } catch(e) { showToast(e.message, 'error'); }
   }
 

@@ -301,5 +301,48 @@ Deno.serve(async (req) => {
     return corsResponse({ ok: true });
   }
 
+  // ── SUBSCRIPTION GOALS ────────────────────────────────────
+  if (action === 'list-goals') {
+    const { data, error } = await db.from('subscription_goals').select('*').order('created_at', { ascending: false });
+    if (error) return errorResponse(error.message, 500);
+    return corsResponse(data || []);
+  }
+
+  if (action === 'upsert-goal') {
+    const { id, target_count, label, show_in_popup, active } = payload;
+    const fields = {
+      target_count: parseInt(target_count) || 100,
+      label:        label || 'abbonati per sostenere il servizio',
+      show_in_popup: show_in_popup ?? false,
+      active:       active ?? false,
+      updated_at:   new Date().toISOString(),
+    };
+    let result;
+    if (id) {
+      result = await db.from('subscription_goals').update(fields).eq('id', id).select().single();
+    } else {
+      result = await db.from('subscription_goals').insert(fields).select().single();
+    }
+    if (result.error) return errorResponse(result.error.message, 500);
+    if (fields.active && result.data?.id) {
+      await db.from('subscription_goals').update({ active: false }).neq('id', result.data.id);
+    }
+    return corsResponse(result.data);
+  }
+
+  if (action === 'toggle-goal') {
+    const { id, active } = payload;
+    const { error } = await db.from('subscription_goals').update({ active: !!active, updated_at: new Date().toISOString() }).eq('id', id);
+    if (error) return errorResponse(error.message, 500);
+    if (active) await db.from('subscription_goals').update({ active: false }).neq('id', id);
+    return corsResponse({ ok: true });
+  }
+
+  if (action === 'delete-goal') {
+    const { error } = await db.from('subscription_goals').delete().eq('id', payload.id);
+    if (error) return errorResponse(error.message, 500);
+    return corsResponse({ ok: true });
+  }
+
   return errorResponse('Azione non valida', 400);
 });
