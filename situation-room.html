@@ -1877,8 +1877,9 @@
   }
   /* Wrapper flex per pulsanti in alto a destra sulla mappa */
   #desk-map-controls {
-    position: absolute; top: 10px; right: 12px; z-index: 810;
-    display: flex; align-items: center; gap: 6px;
+    position: absolute !important; top: 10px !important; right: 12px !important;
+    z-index: 810 !important;
+    display: flex !important; align-items: center; gap: 6px;
   }
   #desk-map-expand-btn {
     display: flex; align-items: center; gap: 5px;
@@ -2663,8 +2664,6 @@
 
       <!-- Mobile: tutorial + avatar + hamburger -->
       <div class="sr-navbar-mobile-right">
-        <!-- Tutorial "?" -->
-        <button class="sr-mob-tutorial-btn" onclick="openSrTutorial()" title="Come funziona">?</button>
         <!-- Bell mobile -->
         <button class="notif-bell-btn" id="notif-bell-btn-mob" onclick="openNotifPopup()" title="Comunicazioni" aria-label="Notifiche" style="display:none;">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
@@ -3531,18 +3530,12 @@ function renderSrNavbar() {
   const actions = document.getElementById('navbar-actions');
   if (!actions) return;
 
-  const tutorialBtn = `<button style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(235,235,245,0.55);font-size:0.72rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s,color 0.15s;flex-shrink:0;"
-    title="Tutorial — Come funziona" onclick="openSrTutorial()"
-    onmouseenter="this.style.background='rgba(255,255,255,0.13)';this.style.color='#fff'"
-    onmouseleave="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(235,235,245,0.55)'">?</button>`;
-
   // ── Desktop navbar ──
   if (user) {
     const initial   = (user.nome || 'U')[0].toUpperCase();
     const dashHref  = user.role === 'admin' ? 'admin.html' : 'dashboard.html';
     const dashLabel = user.role === 'admin' ? 'Admin' : 'Dashboard';
     actions.innerHTML = `
-      ${tutorialBtn}
       <div class="sr-avatar-wrap" style="position:relative;display:flex;">
         <div class="sr-avatar" onclick="toggleAvatarMenu(event)">${initial}</div>
         <div class="sr-avatar-menu" id="sr-avatar-menu">
@@ -3583,8 +3576,7 @@ function renderSrNavbar() {
   } else {
     actions.innerHTML = `
       <a id="subnav-subscribe-cta" href="register.html" class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:5px 14px;border-radius:0;">Abbonati a 2,99€</a>
-      <a href="login.html" class="btn-accedi">Accedi</a>
-      ${tutorialBtn}`;
+      <a href="login.html" class="btn-accedi">Accedi</a>`;
 
     // ── Mobile: nessun avatar, menu mostra login/register ──
     const mobUserArea = document.getElementById('sr-mob-user-area');
@@ -3608,7 +3600,6 @@ function renderSrNavbar() {
       const initial2  = (user2.nome || 'U')[0].toUpperCase();
       const dashHref2 = user2.role === 'admin' ? 'admin.html' : 'dashboard.html';
       deskRight.innerHTML = `
-        ${tutorialBtn}
         <div class="sr-avatar-wrap" style="position:relative;display:flex;">
           <div class="sr-avatar" onclick="toggleAvatarMenu(event)">${initial2}</div>
           <div class="sr-avatar-menu" id="sr-avatar-menu-desk">
@@ -3625,7 +3616,6 @@ function renderSrNavbar() {
         </div>`;
     } else {
       deskRight.innerHTML = `
-        ${tutorialBtn}
         <a href="login.html" class="btn-accedi" style="font-size:0.75rem;">Accedi</a>
         <a href="register.html" class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:5px 14px;border-radius:6px;">Abbonati</a>`;
     }
@@ -3639,14 +3629,16 @@ function renderSrNavbar() {
 
 function toggleAvatarMenu(e) {
   e.stopPropagation();
-  const menu = document.getElementById('sr-avatar-menu');
+  // Trova il menu .sr-avatar-menu più vicino all'avatar cliccato
+  // (funziona per entrambi: .sr-navbar e #desk-topbar-right)
+  const wrap = e.currentTarget?.closest?.('.sr-avatar-wrap') || e.target?.closest?.('.sr-avatar-wrap');
+  const menu = wrap ? wrap.querySelector('.sr-avatar-menu') : null;
   if (menu) menu.classList.toggle('open');
 }
 
-// Chiudi dropdown cliccando fuori
+// Chiudi tutti i dropdown avatar cliccando fuori
 document.addEventListener('click', () => {
-  const menu = document.getElementById('sr-avatar-menu');
-  if (menu) menu.classList.remove('open');
+  document.querySelectorAll('.sr-avatar-menu').forEach(m => m.classList.remove('open'));
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -5144,17 +5136,15 @@ function renderDeskTopbar() {
   if (window.innerWidth <= 768) return;
   const el = document.getElementById('desk-topbar-right');
   if (!el) return;
+  // renderDeskTopbar è chiamata da initDeskLayout ma renderSrNavbar() la sovrascrive dopo;
+  // qui lasciamo solo il fallback per il caricamento iniziale, senza tutorial btn
   const user = typeof getUser === 'function' ? getUser() : null;
-  const tutorialBtn = `<button onclick="openSrTutorial()" title="Come funziona la Situation Room"
-    style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);color:rgba(235,235,245,0.55);font-size:0.75rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.15s,color 0.15s;"
-    onmouseenter="this.style.background='rgba(255,255,255,0.14)';this.style.color='#fff'"
-    onmouseleave="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(235,235,245,0.55)'">?</button>`;
   if (user) {
     const initials = (user.user_metadata?.full_name || user.email || 'U')
       .split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-    el.innerHTML = tutorialBtn + `<button class="desk-avatar-btn" title="${user.email || ''}">${initials}</button>`;
+    el.innerHTML = `<button class="desk-avatar-btn" title="${user.email || ''}">${initials}</button>`;
   } else {
-    el.innerHTML = tutorialBtn + `<a href="login.html" class="desk-accedi-btn">Accedi</a>`;
+    el.innerHTML = `<a href="login.html" class="desk-accedi-btn">Accedi</a>`;
   }
 }
 
@@ -5969,11 +5959,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </div>
 
   <div id="desk-topbar-right">
-    <button onclick="openSrTutorial()" title="Come funziona"
-      style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(235,235,245,0.55);font-size:0.75rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.15s,color 0.15s;"
-      onmouseover="this.style.background='rgba(255,255,255,0.14)';this.style.color='#fff'"
-      onmouseout="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(235,235,245,0.55)'">?</button>
-    <!-- avatar / accedi — popolato da JS -->
+    <!-- avatar / accedi — popolato da renderSrNavbar() -->
   </div>
 </div>
 
@@ -6015,7 +6001,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="map-ol-leg-row" onclick="deskFilterCat('hotspot',this)"     data-cat="hotspot">    <span class="map-ol-leg-dot" style="background:#06d6a0;"></span>Hotspot<span class="map-ol-leg-count" id="desk-count-hot">0</span></div>
     </div>
     <!-- Map controls: tactical mode + expand (flex row, top-right) -->
-    <div id="desk-map-controls">
+    <div id="desk-map-controls" style="position:absolute;top:10px;right:12px;z-index:810;display:flex;align-items:center;gap:6px;">
       <button id="desk-tactical-btn" onclick="toggleTacticalMode()" title="Modalità tattica — ottimizzata per la lettura in piena luce">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
           <circle cx="12" cy="12" r="4"/>
