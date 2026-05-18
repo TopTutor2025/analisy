@@ -365,10 +365,6 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         Utenti
       </a>
-      <a href="#section-subs" onclick="showSection('subs',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
-        Abbonamenti
-      </a>
       <a href="#section-map" onclick="showSection('map',this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
         Gestione Mappa
@@ -459,61 +455,35 @@
       </div>
     </div>
 
-    <!-- ── SECTION: USERS ── -->
+    <!-- ── SECTION: USERS (+ abbonamenti unificati) ── -->
     <div id="section-users" class="admin-section">
       <div class="admin-table-wrapper">
-        <div class="table-toolbar">
-          <input type="text" id="user-search" placeholder="Cerca per nome, email..." oninput="filterUsers()" />
-          <select id="user-role-filter" onchange="filterUsers()">
-            <option value="">Tutti i ruoli</option>
-            <option value="user">Utenti</option>
-            <option value="admin">Admin</option>
+        <div class="table-toolbar" style="flex-wrap:wrap;gap:8px;">
+          <input type="text" id="user-search" placeholder="Cerca per nome, email…" oninput="filterUsers()" style="flex:1;min-width:160px;" />
+          <select id="user-plan-filter" onchange="filterUsers()" style="min-width:130px;">
+            <option value="">Tutti i piani</option>
+            <option value="free">Free</option>
+            <option value="premium">Premium</option>
+            <option value="pro">Pro</option>
           </select>
-          <button class="btn btn-primary btn-sm" onclick="openAddUserModal()">+ Aggiungi utente</button>
-        </div>
-        <table class="admin-table" id="users-table">
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Email</th>
-              <th>Telefono</th>
-              <th>Ruolo</th>
-              <th>Piano</th>
-              <th>Stato</th>
-              <th>Registrato</th>
-              <th>Azioni</th>
-            </tr>
-          </thead>
-          <tbody id="users-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- ── SECTION: SUBSCRIPTIONS ── -->
-    <div id="section-subs" class="admin-section" style="display:none;">
-      <div class="admin-table-wrapper">
-        <div class="table-toolbar">
-          <input type="text" id="sub-search" placeholder="Cerca abbonamento..." oninput="filterSubs()" />
-          <select id="sub-status-filter" onchange="filterSubs()">
+          <select id="user-status-filter" onchange="filterUsers()" style="min-width:140px;">
             <option value="">Tutti gli stati</option>
-            <option value="active">Attivi</option>
+            <option value="active">Abbonati attivi</option>
             <option value="inactive">Inattivi</option>
             <option value="expired">Scaduti</option>
           </select>
         </div>
-        <table class="admin-table" id="subs-table">
+        <table class="admin-table" id="users-table">
           <thead>
             <tr>
+              <th style="width:40px;"></th>
               <th>Utente</th>
-              <th>Email</th>
               <th>Piano</th>
-              <th>Stato</th>
-              <th>Inizio</th>
-              <th>Scadenza</th>
-              <th>Azioni</th>
+              <th>Stato abbonamento</th>
+              <th>Registrato</th>
             </tr>
           </thead>
-          <tbody id="subs-tbody"></tbody>
+          <tbody id="users-tbody"></tbody>
         </table>
       </div>
     </div>
@@ -1290,44 +1260,75 @@
 </div>
 
 <!-- ── MODAL: Edit User ── -->
-<div class="modal-overlay" id="user-modal" onclick="if(event.target===this)this.classList.remove('open')">
-  <div class="modal">
-    <div class="modal-header">
-      <h3 id="user-modal-title">Modifica utente</h3>
-      <button class="modal-close" onclick="document.getElementById('user-modal').classList.remove('open')">✕</button>
+<!-- ── MODAL: User Detail (profilo + abbonamento unificato) ── -->
+<div class="modal-overlay" id="user-detail-modal" onclick="if(event.target===this)closeUserDetail()" style="align-items:center;justify-content:center;">
+  <div class="modal" style="max-width:480px;width:100%;border-radius:16px;overflow:hidden;">
+    <!-- Profile header -->
+    <div style="padding:24px 24px 18px;background:rgba(255,255,255,0.02);">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div id="udm-avatar" style="width:54px;height:54px;border-radius:50%;background:#e8344e;display:flex;align-items:center;justify-content:center;font-size:1.25rem;font-weight:800;color:#fff;flex-shrink:0;letter-spacing:-0.02em;">AB</div>
+        <div style="flex:1;min-width:0;">
+          <div id="udm-name" style="font-size:1.05rem;font-weight:700;color:rgba(235,235,245,0.95);line-height:1.2;">Nome Cognome</div>
+          <div id="udm-email" style="font-size:0.78rem;color:rgba(255,255,255,0.38);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+          <div id="udm-meta" style="font-size:0.7rem;color:rgba(255,255,255,0.25);margin-top:3px;"></div>
+        </div>
+        <button onclick="closeUserDetail()" style="background:rgba(255,255,255,0.07);border:none;color:rgba(255,255,255,0.45);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.07)'">✕</button>
+      </div>
     </div>
-    <form id="user-modal-form">
-      <input type="hidden" id="um-email-orig" />
-      <div class="form-row">
-        <div class="form-group"><label>Nome</label><input type="text" id="um-nome" /></div>
-        <div class="form-group"><label>Cognome</label><input type="text" id="um-cognome" /></div>
+    <div style="height:1px;background:rgba(255,255,255,0.06);"></div>
+
+    <!-- Body -->
+    <div style="padding:20px 24px;display:flex;flex-direction:column;gap:18px;max-height:60vh;overflow-y:auto;">
+      <input type="hidden" id="udm-id">
+
+      <!-- Piano -->
+      <div>
+        <div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);margin-bottom:10px;">Piano abbonamento</div>
+        <div style="display:flex;gap:6px;" id="udm-plan-group">
+          <button id="plan-btn-free"    onclick="udmSelectPlan('free')"    style="flex:1;padding:10px 6px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;">Free</button>
+          <button id="plan-btn-premium" onclick="udmSelectPlan('premium')" style="flex:1;padding:10px 6px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;">Premium</button>
+          <button id="plan-btn-pro"     onclick="udmSelectPlan('pro')"     style="flex:1;padding:10px 6px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;">Pro</button>
+        </div>
+        <div id="udm-plan-note" style="font-size:0.72rem;color:rgba(255,255,255,0.28);margin-top:7px;min-height:16px;"></div>
       </div>
-      <div class="form-group"><label>Email</label><input type="email" id="um-email" /></div>
-      <div class="form-group"><label>Telefono</label><input type="tel" id="um-telefono" /></div>
-      <div class="form-group">
-        <label>Piano</label>
-        <select id="um-plan" style="background:var(--bg-secondary);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;font-size:0.95rem;color:var(--text-primary);width:100%;">
-          <option value="free">Free</option>
-          <option value="premium">Premium</option>
-          <option value="pro">Pro</option>
-        </select>
+
+      <!-- Stato abbonamento -->
+      <div id="udm-status-row">
+        <div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);margin-bottom:10px;">Stato abbonamento</div>
+        <div style="display:flex;gap:6px;">
+          <button id="status-btn-active"   onclick="udmSelectStatus('active')"   style="flex:1;padding:9px 6px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;">✓ Attivo</button>
+          <button id="status-btn-inactive" onclick="udmSelectStatus('inactive')" style="flex:1;padding:9px 6px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;">Inattivo</button>
+          <button id="status-btn-expired"  onclick="udmSelectStatus('expired')"  style="flex:1;padding:9px 6px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;">Scaduto</button>
+        </div>
       </div>
-      <div class="form-group">
-        <label>Stato abbonamento</label>
-        <select id="um-status" style="background:var(--bg-secondary);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;font-size:0.95rem;color:var(--text-primary);width:100%;">
-          <option value="active">Attivo</option>
-          <option value="inactive">Inattivo</option>
-          <option value="expired">Scaduto</option>
-        </select>
+
+      <!-- Date (opzionali) -->
+      <details style="cursor:pointer;">
+        <summary style="font-size:0.72rem;color:rgba(255,255,255,0.3);list-style:none;display:flex;align-items:center;gap:6px;user-select:none;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          Date abbonamento (opzionale)
+        </summary>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;">
+          <div>
+            <label style="font-size:0.7rem;color:rgba(255,255,255,0.35);display:block;margin-bottom:5px;">Inizio</label>
+            <input type="date" id="udm-start" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:7px 10px;color:#fff;font-size:0.82rem;outline:none;box-sizing:border-box;color-scheme:dark;">
+          </div>
+          <div>
+            <label style="font-size:0.7rem;color:rgba(255,255,255,0.35);display:block;margin-bottom:5px;">Scadenza</label>
+            <input type="date" id="udm-end" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:7px 10px;color:#fff;font-size:0.82rem;outline:none;box-sizing:border-box;color-scheme:dark;">
+          </div>
+        </div>
+      </details>
+    </div>
+    <div style="height:1px;background:rgba(255,255,255,0.06);"></div>
+
+    <!-- Footer -->
+    <div style="padding:14px 24px;display:flex;justify-content:space-between;align-items:center;">
+      <button id="udm-delete-btn" onclick="openDeleteUserModal(document.getElementById('udm-id').value)" style="padding:7px 14px;border-radius:7px;border:1px solid rgba(232,52,78,0.25);background:rgba(232,52,78,0.08);color:#e8344e;font-size:0.78rem;font-weight:600;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='rgba(232,52,78,0.15)'" onmouseout="this.style.background='rgba(232,52,78,0.08)'">Elimina utente</button>
+      <div style="display:flex;gap:8px;">
+        <button onclick="closeUserDetail()" style="padding:7px 14px;border-radius:7px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);font-size:0.8rem;cursor:pointer;">Annulla</button>
+        <button onclick="saveUserDetail()" class="btn btn-primary btn-sm">Salva modifiche</button>
       </div>
-      <div class="form-row">
-        <div class="form-group"><label>Inizio abbonamento</label><input type="date" id="um-start" /></div>
-        <div class="form-group"><label>Scadenza abbonamento</label><input type="date" id="um-end" /></div>
-      </div>
-    </form>
-    <div class="modal-footer">
-      <button class="btn btn-outline btn-sm" onclick="document.getElementById('user-modal').classList.remove('open')">Annulla</button>
-      <button class="btn btn-primary btn-sm" onclick="saveUser()">Salva modifiche</button>
     </div>
   </div>
 </div>
@@ -1559,7 +1560,7 @@
 
   /* ── SECTIONS ── */
   const _SECTION_LABELS = {
-    users: 'Utenti', subs: 'Abbonamenti', map: 'Gestione Mappa',
+    users: 'Utenti & Abbonamenti', map: 'Gestione Mappa',
     articles: 'Articoli', podcasts: 'Podcast', citycams: 'City Cam',
     reports: 'Segnalazioni', popups: 'Popup utenti', notifications: 'Notifiche', ai: 'AI Intelligence',
   };
@@ -1570,6 +1571,7 @@
     if (link) link.classList.add('active');
     const titleEl = document.getElementById('admin-section-title');
     if (titleEl) titleEl.textContent = _SECTION_LABELS[name] || name;
+    if (name === 'users')          { renderUsers(); }
     if (name === 'ai')            { loadAIStatus(); loadAIJobs(); }
     if (name === 'notifications')  { loadAdminNotifications(); }
     if (name === 'popups')         { loadAdminPopups(); loadAdminGoals(); }
@@ -1927,140 +1929,183 @@
     document.getElementById('stat-articles-sub').textContent = `di cui ${premium.length} premium`;
   }
 
-  /* ── USERS TABLE ── */
+  /* ── USERS TABLE (unifica utenti + abbonamenti) ── */
+  function _userAvatarColor(plan) {
+    if (plan === 'pro')     return '#a78bfa';
+    if (plan === 'premium') return '#f5a623';
+    return 'rgba(255,255,255,0.18)';
+  }
+
   function renderUsers(list) {
     const tbody = document.getElementById('users-tbody');
     if (!list) list = AppData.users || [];
-    tbody.innerHTML = list.map(u => `
-      <tr>
-        <td>${u.nome} ${u.cognome}</td>
-        <td><span style="color:var(--text-secondary);">${u.email}</span></td>
-        <td>${u.telefono || '—'}</td>
-        <td><span style="color:${u.role==='admin'?'var(--accent-purple)':'var(--text-secondary)'};font-weight:600;">${u.role==='admin'?'Admin':'Utente'}</span></td>
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);font-size:0.82rem;">Nessun utente trovato</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map(u => {
+      const initials = `${(u.nome||'?')[0]}${(u.cognome||'')[0]||''}`.toUpperCase();
+      const avatarColor = _userAvatarColor(u.plan);
+      const isAdmin = u.email === 'admin@analisy.com';
+      return `
+      <tr onclick="${isAdmin ? '' : `openUserDetail('${u.id}')`}" style="cursor:${isAdmin ? 'default' : 'pointer'};transition:background 0.12s;" onmouseover="if(!${isAdmin})this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
+        <td style="width:40px;padding:10px 6px 10px 14px;">
+          <div style="width:34px;height:34px;border-radius:50%;background:${avatarColor};display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:700;color:${u.plan==='free'?'rgba(255,255,255,0.5)':'#fff'};flex-shrink:0;">${initials}</div>
+        </td>
+        <td style="padding:10px 8px;">
+          <div style="font-weight:600;font-size:0.86rem;color:rgba(235,235,245,0.9);">${u.nome} ${u.cognome}${u.role==='admin'?' <span style="font-size:0.62rem;background:rgba(167,139,250,0.15);color:#a78bfa;padding:1px 6px;border-radius:4px;vertical-align:middle;">Admin</span>':''}</div>
+          <div style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-top:1px;">${u.email}</div>
+        </td>
         <td>${getPlanBadge(u.plan || 'free')}</td>
         <td>${getStatusBadge(u.subscriptionStatus || 'inactive')}</td>
-        <td>${fmtDate(u.createdAt)}</td>
-        <td style="display:flex;gap:6px;flex-wrap:wrap;">
-          ${u.email !== 'admin@analisy.com' ? `<button class="action-btn edit" onclick="openEditUserModal('${u.id}')">Modifica</button>` : ''}
-          ${u.email !== 'admin@analisy.com' ? `<button class="action-btn del" onclick="openDeleteUserModal('${u.id}')">Elimina</button>` : '<span style="font-size:0.75rem;color:var(--text-muted);">Non modificabile</span>'}
-        </td>
-      </tr>
-    `).join('');
+        <td style="font-size:0.78rem;color:rgba(255,255,255,0.3);">${fmtDate(u.createdAt)}</td>
+      </tr>`;
+    }).join('');
   }
 
   function filterUsers() {
-    const q    = document.getElementById('user-search').value.toLowerCase();
-    const role = document.getElementById('user-role-filter').value;
+    const q      = document.getElementById('user-search').value.toLowerCase();
+    const plan   = document.getElementById('user-plan-filter').value;
+    const status = document.getElementById('user-status-filter').value;
     const filtered = (AppData.users || []).filter(u => {
-      const match = `${u.nome} ${u.cognome} ${u.email}`.toLowerCase().includes(q);
-      return match && (!role || u.role === role);
+      const matchText   = `${u.nome} ${u.cognome} ${u.email}`.toLowerCase().includes(q);
+      const matchPlan   = !plan   || (u.plan || 'free') === plan;
+      const matchStatus = !status || (u.subscriptionStatus || 'inactive') === status;
+      return matchText && matchPlan && matchStatus;
     });
     renderUsers(filtered);
   }
 
-  function openAddUserModal() {
-    document.getElementById('user-modal-title').textContent = 'Aggiungi utente';
-    document.getElementById('um-email-orig').value = '';
-    document.getElementById('um-nome').value       = '';
-    document.getElementById('um-cognome').value    = '';
-    document.getElementById('um-email').value      = '';
-    document.getElementById('um-telefono').value   = '';
-    document.getElementById('um-plan').value       = 'free';
-    document.getElementById('um-status').value     = 'inactive';
-    document.getElementById('um-start').value      = '';
-    document.getElementById('um-end').value        = '';
-    document.getElementById('user-modal').classList.add('open');
-  }
+  /* ── USER DETAIL MODAL ── */
+  let _udmCurrentPlan   = 'free';
+  let _udmCurrentStatus = 'inactive';
 
-  function openEditUserModal(id) {
+  const _planColors = { free: null, premium: '#f5a623', pro: '#a78bfa' };
+  const _planNotes  = {
+    free:    'Piano base gratuito — accesso standard alla piattaforma (nessun abbonamento attivo)',
+    premium: 'Accesso a contenuti e funzionalità premium',
+    pro:     'Accesso completo + funzionalità pro avanzate',
+  };
+
+  function openUserDetail(id) {
     const u = (AppData.users || []).find(x => x.id === id);
     if (!u) return;
-    document.getElementById('user-modal-title').textContent = 'Modifica utente';
-    document.getElementById('um-email-orig').value = u.id;
-    document.getElementById('um-nome').value       = u.nome;
-    document.getElementById('um-cognome').value    = u.cognome;
-    document.getElementById('um-email').value      = u.email;
-    document.getElementById('um-telefono').value   = u.telefono || '';
-    document.getElementById('um-plan').value       = u.plan || 'free';
-    document.getElementById('um-status').value     = u.subscriptionStatus || 'inactive';
-    document.getElementById('um-start').value      = u.subscriptionStart || '';
-    document.getElementById('um-end').value        = u.subscriptionEnd || '';
-    document.getElementById('user-modal').classList.add('open');
+    // Avatar
+    const initials = `${(u.nome||'?')[0]}${(u.cognome||'')[0]||''}`.toUpperCase();
+    document.getElementById('udm-avatar').textContent = initials;
+    document.getElementById('udm-avatar').style.background = _userAvatarColor(u.plan);
+    // Profile
+    document.getElementById('udm-id').value    = u.id;
+    document.getElementById('udm-name').textContent  = `${u.nome} ${u.cognome}`;
+    document.getElementById('udm-email').textContent = u.email;
+    const regDate = u.createdAt ? `Registrato il ${fmtDate(u.createdAt)}` : '';
+    document.getElementById('udm-meta').textContent  = [u.telefono ? `📞 ${u.telefono}` : '', regDate].filter(Boolean).join(' · ');
+    // Plan + Status
+    udmSelectPlan(u.plan || 'free');
+    udmSelectStatus(u.subscriptionStatus || 'inactive');
+    // Dates
+    document.getElementById('udm-start').value = u.subscriptionStart ? u.subscriptionStart.split('T')[0] : '';
+    document.getElementById('udm-end').value   = u.subscriptionEnd   ? u.subscriptionEnd.split('T')[0]   : '';
+    // Show/hide delete btn
+    document.getElementById('udm-delete-btn').style.display = u.email === 'admin@analisy.com' ? 'none' : '';
+    document.getElementById('user-detail-modal').classList.add('open');
   }
 
-  async function saveUser() {
-    const origId = document.getElementById('um-email-orig').value;
-    const data = {
-      nome:               document.getElementById('um-nome').value.trim(),
-      cognome:            document.getElementById('um-cognome').value.trim(),
-      email:              document.getElementById('um-email').value.trim().toLowerCase(),
-      telefono:           document.getElementById('um-telefono').value.trim(),
-      role:               'user',
-      plan:               document.getElementById('um-plan').value,
-      subscriptionStatus: document.getElementById('um-status').value,
-      subscriptionStart:  document.getElementById('um-start').value || null,
-      subscriptionEnd:    document.getElementById('um-end').value || null,
-    };
-    try {
-      if (origId) {
-        const updated = await Api.fn('admin-write', { action: 'update-user', data: { id: origId, ...data } });
-        const idx = AppData.users.findIndex(u => u.id === origId);
-        if (idx > -1) AppData.users[idx] = updated;
+  function closeUserDetail() {
+    document.getElementById('user-detail-modal').classList.remove('open');
+  }
+
+  function udmSelectPlan(plan) {
+    _udmCurrentPlan = plan;
+    ['free','premium','pro'].forEach(p => {
+      const btn = document.getElementById(`plan-btn-${p}`);
+      if (!btn) return;
+      const color = _planColors[p];
+      if (p === plan) {
+        btn.style.borderColor  = color || 'rgba(255,255,255,0.55)';
+        btn.style.background   = color ? `${color}22` : 'rgba(255,255,255,0.1)';
+        btn.style.color        = color || 'rgba(235,235,245,0.95)';
+        btn.style.fontWeight   = '700';
       } else {
-        const created = await Api.fn('admin-write', { action: 'update-user', data });
-        AppData.users.unshift(created);
+        btn.style.borderColor = 'rgba(255,255,255,0.1)';
+        btn.style.background  = 'rgba(255,255,255,0.04)';
+        btn.style.color       = 'rgba(255,255,255,0.45)';
+        btn.style.fontWeight  = '600';
       }
-      document.getElementById('user-modal').classList.remove('open');
+    });
+    document.getElementById('udm-plan-note').textContent = _planNotes[plan] || '';
+    // Se free → forza stato inattivo e nascondi selector stato
+    if (plan === 'free') {
+      udmSelectStatus('inactive');
+      document.getElementById('udm-status-row').style.opacity = '0.4';
+      document.getElementById('udm-status-row').style.pointerEvents = 'none';
+    } else {
+      document.getElementById('udm-status-row').style.opacity = '1';
+      document.getElementById('udm-status-row').style.pointerEvents = '';
+    }
+    // Update avatar color
+    document.getElementById('udm-avatar').style.background = _userAvatarColor(plan);
+  }
+
+  function udmSelectStatus(status) {
+    _udmCurrentStatus = status;
+    const colors = { active: '#34c759', inactive: 'rgba(255,255,255,0.35)', expired: '#e8344e' };
+    ['active','inactive','expired'].forEach(s => {
+      const btn = document.getElementById(`status-btn-${s}`);
+      if (!btn) return;
+      if (s === status) {
+        btn.style.borderColor = colors[s];
+        btn.style.background  = `${colors[s]}22`;
+        btn.style.color       = colors[s];
+        btn.style.fontWeight  = '700';
+      } else {
+        btn.style.borderColor = 'rgba(255,255,255,0.1)';
+        btn.style.background  = 'rgba(255,255,255,0.04)';
+        btn.style.color       = 'rgba(255,255,255,0.45)';
+        btn.style.fontWeight  = '600';
+      }
+    });
+  }
+
+  async function saveUserDetail() {
+    const id = document.getElementById('udm-id').value;
+    if (!id) return;
+    try {
+      const payload = {
+        id,
+        plan:     _udmCurrentPlan,
+        sub_status: _udmCurrentStatus,
+      };
+      // Optional dates
+      const start = document.getElementById('udm-start').value;
+      const end   = document.getElementById('udm-end').value;
+      if (start) payload.subscriptionStart = start;
+      if (end)   payload.subscriptionEnd   = end;
+      const updated = await Api.fn('admin-write', { action: 'update-user', data: payload });
+      const idx = AppData.users.findIndex(u => u.id === id);
+      if (idx > -1) AppData.users[idx] = { ...AppData.users[idx], ...updated };
+      closeUserDetail();
       renderUsers();
       refreshStats();
-      showToast('Utente salvato con successo!', 'success');
+      showToast('Profilo aggiornato ✓', 'success');
     } catch(err) {
       showToast(err.message || 'Errore nel salvataggio', 'error');
     }
   }
 
-  /* ── SUBS TABLE ── */
-  function renderSubs(list) {
-    const tbody = document.getElementById('subs-tbody');
-    if (!list) list = AppData.users || [];
-    tbody.innerHTML = list.map(u => `
-      <tr>
-        <td>${u.nome} ${u.cognome}</td>
-        <td>${u.email}</td>
-        <td>${getPlanBadge(u.plan || 'free')}</td>
-        <td>${getStatusBadge(u.subscriptionStatus || 'inactive')}</td>
-        <td>${fmtDate(u.subscriptionStart)}</td>
-        <td>${fmtDate(u.subscriptionEnd)}</td>
-        <td style="display:flex;gap:6px;flex-wrap:wrap;">
-          <button class="action-btn edit" onclick="setSubStatus('${u.id}','active')">Attiva</button>
-          <button class="action-btn view" onclick="setSubStatus('${u.id}','inactive')">Inattiva</button>
-          <button class="action-btn del"  onclick="setSubStatus('${u.id}','expired')">Scaduta</button>
-        </td>
-      </tr>
-    `).join('');
-  }
-
-  function filterSubs() {
-    const q      = document.getElementById('sub-search').value.toLowerCase();
-    const status = document.getElementById('sub-status-filter').value;
-    const filtered = (AppData.users || []).filter(u => {
-      const match = `${u.nome} ${u.cognome} ${u.email}`.toLowerCase().includes(q);
-      return match && (!status || u.subscriptionStatus === status);
-    });
-    renderSubs(filtered);
-  }
-
+  // Compatibility stubs (referenced elsewhere in the code)
+  function openAddUserModal()    { /* non più usato */ }
+  function openEditUserModal(id) { openUserDetail(id); }
+  async function saveUser()      { await saveUserDetail(); }
+  function renderSubs()          { /* tab rimosso */ }
   async function setSubStatus(userId, status) {
     try {
       const updated = await Api.fn('admin-write', { action: 'update-user', data: { id: userId, sub_status: status } });
       const idx = AppData.users.findIndex(u => u.id === userId);
-      if (idx > -1) AppData.users[idx] = updated;
-      renderSubs();
-      refreshStats();
-      showToast(`Abbonamento impostato su: ${status}`, 'success');
-    } catch(err) {
-      showToast(err.message || 'Errore', 'error');
-    }
+      if (idx > -1) AppData.users[idx] = { ...AppData.users[idx], ...updated };
+      renderUsers(); refreshStats();
+      showToast(`Stato aggiornato: ${status}`, 'success');
+    } catch(err) { showToast(err.message || 'Errore', 'error'); }
   }
 
   /* ── REGION DETECTION ── */
