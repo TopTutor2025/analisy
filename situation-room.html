@@ -2256,19 +2256,20 @@
   /* ── Tactical map mode ──
      Tile swappate a light_nolabels (sfondo bianco, bordi scuri).
      Tecnica:
-       1. sfondo del pane = azzurro fluo (#00d4ff)
-       2. contrast(8) → fills=bianco puro, bordi=nero puro
-       3. invert(1)  → fills=nero puro (schermano lo sfondo → azzurro), bordi=bianco
-       4. brightness+sepia+hue-rotate+saturate → bordi diventano verde hotspot
-       5. mix-blend-mode: screen sugli img → nero trasparente (mostra sfondo), verde visibile
+       1. .leaflet-container bg = #00d4ff (azzurro fluo — visibile "sotto" il pane)
+       2. filter sul tile PANE: contrast(1.5) separa fills da bordi senza saturare
+          invert → fills=nero, bordi=grigio chiaro
+          brightness(0.4)+sepia+hue-rotate(90°)+saturate(10) → bordi diventano verde
+       3. mix-blend-mode: screen sull'intero PANE (non sui singoli img, che sarebbero
+          isolati dai CSS transform di Leaflet) → nero→azzurro, verde→ciano-verde
   ── */
-  .sr-map-section.tactical-mode .leaflet-tile-pane {
+  .sr-map-section.tactical-mode .leaflet-container {
     background: #00d4ff !important;
   }
-  .sr-map-section.tactical-mode .leaflet-tile-pane img.leaflet-tile {
+  .sr-map-section.tactical-mode .leaflet-tile-pane {
     mix-blend-mode: screen !important;
-    filter: grayscale(1) contrast(8) invert(1)
-            brightness(0.4) sepia(1) hue-rotate(90deg) saturate(15) brightness(2.5) !important;
+    filter: grayscale(1) contrast(1.5) invert(1)
+            brightness(0.4) sepia(1) hue-rotate(90deg) saturate(10) brightness(1.6) !important;
   }
 
   /* ── Map floating legend + filter overlay ── */
