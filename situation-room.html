@@ -2151,46 +2151,68 @@
   #desk-map-full #desk-map-slot .sr-map-row { height: 100% !important; min-height: unset !important; }
   #desk-map-full #desk-map-slot .sr-map-section { height: 100% !important; border-radius: 0 !important; }
 
-  /* ── Subscription goal bar ── */
-  /* top: 52px = sotto il topbar fisso (height 52px) */
+  /* ── Subscription goal widget (compact floating, rainbow animated border) ── */
+  @property --goal-spin { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+  @keyframes goal-rainbow-spin { to { --goal-spin: 360deg; } }
+
   #desk-goal-bar {
-    display: none;
-    position: absolute; top: 52px; left: 0; right: 0; z-index: 1050;
-    height: 46px;
-    background: rgba(4,6,14,0.86);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-    box-sizing: border-box;
-    overflow: hidden;
+    display: none; /* JS sets display:flex */
+    position: absolute;
+    top: 62px; left: 50%; transform: translateX(-50%);
+    z-index: 1100;
+    width: 248px;
+    padding: 2px;
+    border-radius: 14px;
+    background: conic-gradient(from var(--goal-spin),
+      #e8344e, #f5a623, #ffd700, #06d6a0, #4f9eff, #a78bfa, #e8344e);
+    animation: goal-rainbow-spin 3s linear infinite;
     pointer-events: all;
+    box-shadow: 0 4px 28px rgba(0,0,0,0.6);
+    flex-direction: column; /* used when display:flex is applied by JS */
+  }
+  #desk-goal-inner {
+    background: rgba(4,6,14,0.93);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-radius: 12px;
+    padding: 11px 14px 10px;
+    display: flex; flex-direction: column; gap: 6px;
+    width: 100%;
+  }
+  #desk-goal-text {
+    display: flex; flex-direction: column; gap: 1px;
+  }
+  #desk-goal-count {
+    font-size: 1.05rem; font-weight: 800;
+    color: rgba(235,235,245,0.97);
+    letter-spacing: -0.02em; line-height: 1.2;
+  }
+  #desk-goal-label {
+    font-size: 0.67rem; color: rgba(255,255,255,0.4); line-height: 1.3;
+  }
+  #desk-goal-track {
+    width: 100%; height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px; overflow: hidden;
   }
   #desk-goal-fill {
-    position: absolute; top: 0; left: 0; bottom: 0;
-    width: 0%;
+    height: 100%; width: 0%;
+    border-radius: 2px;
     transition: width 1.4s cubic-bezier(0.4,0,0.2,1), background 0.8s ease;
-    z-index: 0;
   }
-  #desk-goal-line {
-    position: absolute; bottom: 0; left: 0;
-    height: 2px; width: 0%;
-    transition: width 1.4s cubic-bezier(0.4,0,0.2,1), background 0.8s ease;
-    z-index: 2;
-  }
-  #desk-goal-content {
-    position: relative; z-index: 1;
-    height: 100%; display: flex; align-items: center;
-    padding: 0 14px; gap: 10px;
+  #desk-goal-actions {
+    display: flex; align-items: center;
+    justify-content: flex-end; gap: 8px;
   }
   #desk-goal-cta {
     background: #e8344e; color: #fff;
-    padding: 5px 13px; border-radius: 6px;
-    font-size: 0.72rem; font-weight: 700;
+    padding: 4px 11px; border-radius: 5px;
+    font-size: 0.68rem; font-weight: 700;
     text-decoration: none; white-space: nowrap;
     transition: background 0.2s, transform 0.15s;
-    flex-shrink: 0;
   }
-  #desk-goal-cta:hover { background: #c9293f; transform: scale(1.03); }
+  #desk-goal-cta:hover { background: #c9293f; transform: scale(1.04); }
+  #desk-goal-line { display: none; } /* kept for JS compat */
   .goal-info-wrap {
     position: relative; display: flex; align-items: center;
     cursor: default;
@@ -2202,7 +2224,7 @@
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 8px; padding: 8px 12px;
     font-size: 0.72rem; color: rgba(235,235,245,0.75);
-    white-space: nowrap; max-width: 260px; white-space: normal;
+    white-space: normal; max-width: 200px;
     z-index: 9999; pointer-events: none;
     box-shadow: 0 8px 24px rgba(0,0,0,0.5);
   }
@@ -5693,7 +5715,7 @@ async function initGoalBar() {
     // Anima fill + linea dopo un frame (così la transizione CSS è visibile)
     requestAnimationFrame(() => {
       const fill = document.getElementById('desk-goal-fill');
-      if (fill) { fill.style.background = `linear-gradient(90deg,${color}2e,${color}10)`; fill.style.width = pct + '%'; }
+      if (fill) { fill.style.background = `linear-gradient(90deg,${color},${color}bb)`; fill.style.width = pct + '%'; }
       const line = document.getElementById('desk-goal-line');
       if (line) { line.style.background = color; line.style.width = pct + '%';
         if (pct >= 100) line.style.animation = 'goal-pulse 1.8s ease-in-out infinite'; }
@@ -5993,27 +6015,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
   <!-- ──── 1. MAPPA FULL WIDTH ──── -->
   <div id="desk-map-full">
-    <!-- Subscription goal bar (shown only when a goal is active) -->
+    <!-- Subscription goal widget (compact floating, rainbow border) -->
     <div id="desk-goal-bar">
-      <div id="desk-goal-fill"></div>
-      <div id="desk-goal-line"></div>
-      <div id="desk-goal-content">
-        <!-- Heart icon -->
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="#e8344e" stroke="none" style="flex-shrink:0;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        <!-- Count -->
-        <span id="desk-goal-count" style="font-size:0.8rem;font-weight:800;color:rgba(235,235,245,0.95);letter-spacing:-0.01em;">0 / 100</span>
-        <!-- Label -->
-        <span id="desk-goal-label" style="font-size:0.73rem;color:rgba(255,255,255,0.38);">abbonati</span>
-        <!-- Spacer -->
-        <div style="flex:1;"></div>
-        <!-- Info icon with tooltip -->
-        <div class="goal-info-wrap">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-          <div class="goal-tooltip" id="desk-goal-tooltip">Obiettivo: raggiungere 100 abbonati</div>
+      <div id="desk-goal-inner">
+        <!-- Count + label -->
+        <div id="desk-goal-text">
+          <span id="desk-goal-count">0 / 100</span>
+          <span id="desk-goal-label">abbonati per sostenere il servizio</span>
         </div>
-        <!-- CTA -->
-        <a id="desk-goal-cta" href="/dashboard.html">❤️ Sostienici</a>
+        <!-- Progress track -->
+        <div id="desk-goal-track">
+          <div id="desk-goal-fill"></div>
+        </div>
+        <!-- Actions row -->
+        <div id="desk-goal-actions">
+          <div class="goal-info-wrap">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.32)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <div class="goal-tooltip" id="desk-goal-tooltip">Obiettivo: raggiungere 100 abbonati</div>
+          </div>
+          <a id="desk-goal-cta" href="/dashboard.html">❤️ Sostienici</a>
+        </div>
       </div>
+      <div id="desk-goal-line"></div>
     </div>
     <div id="desk-map-slot"></div>
     <!-- Floating legend + filters overlay -->
