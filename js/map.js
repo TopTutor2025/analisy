@@ -386,17 +386,17 @@ function initSituationMap(containerId) {
   }).addTo(situationMap);
 
   // Bordi nazioni — colore verde hotspot #06d6a0
+  // Usa topojson.mesh() per ottenere solo linee di confine,
+  // evitando le righe orizzontali causate da poligoni che attraversano il meridiano 180°
   fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
     .then(r => r.json())
     .then(topo => {
-      const countries = topojson.feature(topo, topo.objects.countries);
-      L.geoJSON(countries, {
+      const borders = topojson.mesh(topo, topo.objects.countries);
+      L.geoJSON(borders, {
         style: {
-          fillColor:   'transparent',
-          fillOpacity: 0,
-          color:       '#06d6a0',
-          weight:      0.8,
-          opacity:     0.55
+          color:   '#06d6a0',
+          weight:  0.8,
+          opacity: 0.55
         },
         interactive: false
       }).addTo(situationMap);
