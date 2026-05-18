@@ -2003,8 +2003,8 @@
           <div style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-top:1px;">${u.email}</div>
         </td>
         <td>${getPlanBadge(u.plan || 'free')}</td>
-        <td>${getStatusBadge(u.subscriptionStatus || 'inactive')}</td>
-        <td style="font-size:0.78rem;color:rgba(255,255,255,0.3);">${fmtDate(u.createdAt)}</td>
+        <td>${getStatusBadge(u.sub_status || 'inactive')}</td>
+        <td style="font-size:0.78rem;color:rgba(255,255,255,0.3);">${fmtDate(u.created_at)}</td>
       </tr>`;
     }).join('');
   }
