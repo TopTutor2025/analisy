@@ -2244,10 +2244,10 @@
     color: rgba(255,255,255,0.35);
     text-decoration: underline; text-decoration-style: dotted;
     text-underline-offset: 2px;
-    white-space: nowrap; cursor: default;
+    white-space: nowrap; cursor: pointer;
     transition: color 0.15s;
   }
-  .goal-info-wrap:hover .goal-discover-link { color: rgba(255,255,255,0.65); }
+  .goal-discover-link:hover { color: rgba(255,255,255,0.65); }
   .goal-tooltip {
     display: none;
     position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%);
@@ -2256,7 +2256,7 @@
     border-radius: 10px; padding: 10px 14px;
     font-size: 0.72rem; color: rgba(235,235,245,0.82); line-height: 1.55;
     white-space: normal; width: 220px;
-    z-index: 9999; pointer-events: none;
+    z-index: 9999;
     box-shadow: 0 8px 28px rgba(0,0,0,0.6);
   }
   .goal-tooltip::after {
@@ -2265,7 +2265,7 @@
     border: 5px solid transparent;
     border-top-color: rgba(10,12,24,0.97);
   }
-  .goal-info-wrap:hover .goal-tooltip { display: block; }
+  .goal-tooltip.open { display: block; }
   @keyframes goal-pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
 
   /* ── Map floating legend + filter overlay ── */
@@ -5609,6 +5609,18 @@ document.addEventListener('mapEventsLoaded', function() {
   }
 });
 
+// ── GOAL TOOLTIP TOGGLE ──────────────────────────────────
+function toggleGoalTooltip(e) {
+  e.stopPropagation();
+  const tooltip = document.getElementById('desk-goal-tooltip');
+  if (!tooltip) return;
+  tooltip.classList.toggle('open');
+}
+document.addEventListener('click', () => {
+  const tooltip = document.getElementById('desk-goal-tooltip');
+  if (tooltip) tooltip.classList.remove('open');
+});
+
 // ── SUBSCRIPTION GOAL BAR ────────────────────────────────
 async function initGoalBar() {
   try {
@@ -5961,8 +5973,11 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
       <div id="desk-goal-actions">
         <div class="goal-info-wrap">
-          <span class="goal-discover-link">scopri cosa può fare il tuo sostegno</span>
-          <div class="goal-tooltip" id="desk-goal-tooltip">Obiettivo: raggiungere 100 abbonati</div>
+          <span class="goal-discover-link" onclick="toggleGoalTooltip(event)">scopri cosa può fare il tuo sostegno</span>
+          <div class="goal-tooltip" id="desk-goal-tooltip">
+            <button onclick="toggleGoalTooltip(event)" style="position:absolute;top:6px;right:8px;background:none;border:none;color:rgba(255,255,255,0.35);font-size:0.75rem;cursor:pointer;line-height:1;">✕</button>
+            Obiettivo: raggiungere 100 abbonati
+          </div>
         </div>
         <a id="desk-goal-cta" href="/dashboard.html">Sostienici</a>
       </div>
