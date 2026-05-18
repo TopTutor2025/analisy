@@ -5612,9 +5612,7 @@ async function initGoalBar() {
 
     // Testi
     const countEl = document.getElementById('desk-goal-count');
-    if (countEl) { countEl.textContent = `${cur} / ${target}`; countEl.style.color = pct >= 100 ? color : 'rgba(235,235,245,0.95)'; }
-    const labelEl = document.getElementById('desk-goal-label');
-    if (labelEl) labelEl.textContent = ' abbonamenti';
+    if (countEl) { countEl.textContent = `${cur} / ${target} abbonamenti`; countEl.style.color = pct >= 100 ? color : 'rgba(235,235,245,0.95)'; }
     const tooltip = document.getElementById('desk-goal-tooltip');
     if (tooltip) tooltip.textContent = `Obiettivo: ${target} abbonati — ${goal.label || ''}`;
 
@@ -5915,7 +5913,7 @@ document.addEventListener('DOMContentLoaded', () => {
   <div id="desk-goal-bar">
     <div id="desk-goal-inner">
       <div id="desk-goal-text">
-        <span id="desk-goal-count">0 / 100</span><span id="desk-goal-label"> abbonamenti</span>
+        <span id="desk-goal-count">0 / 100 abbonamenti</span>
       </div>
       <div id="desk-goal-track">
         <div id="desk-goal-fill"></div>
