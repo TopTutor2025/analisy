@@ -2317,44 +2317,28 @@
   .desk-mover-tab svg { opacity: 0.7; flex-shrink: 0; }
   .desk-mover-tab.active svg { opacity: 1; }
 
-  /* ── Map layer toggle — iOS switch style (right tab nav) ── */
+  /* ── Map layer toggle buttons (right tab nav) ── */
   #desk-tabnav-right {
-    display: flex; align-items: center; padding: 0 16px; gap: 14px;
+    display: flex; align-items: center; padding: 0 16px; gap: 8px;
   }
   .desk-layer-toggle {
-    display: flex; align-items: center; gap: 7px;
-    cursor: pointer; user-select: none; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    height: 30px; padding: 0 12px;
+    font-size: 0.72rem; font-weight: 600; white-space: nowrap;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.45);
+    border-radius: 8px; cursor: pointer; user-select: none;
+    transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
+    font-family: inherit;
   }
-  .desk-layer-label {
-    font-size: 0.65rem; font-weight: 600; white-space: nowrap;
-    color: rgba(255,255,255,0.35);
-    transition: color 0.2s;
+  .desk-layer-toggle:hover { color: white; background: rgba(0,0,0,0.7); }
+  .desk-layer-toggle.active {
+    border-color: #06d6a0;
+    color: #06d6a0;
+    box-shadow: 0 0 8px rgba(6,214,160,0.35);
   }
-  .desk-toggle-track {
-    position: relative;
-    width: 32px; height: 18px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.15);
-    transition: background 0.25s cubic-bezier(0.4,0,0.2,1);
-    flex-shrink: 0;
-  }
-  .desk-toggle-thumb {
-    position: absolute;
-    top: 2px; left: 2px;
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.45);
-    transition: transform 0.25s cubic-bezier(0.34,1.4,0.64,1);
-  }
-  /* Active state */
-  .desk-layer-toggle.active .desk-toggle-track { background: #34c759; }
-  .desk-layer-toggle.active .desk-toggle-thumb { transform: translateX(14px); }
-  .desk-layer-toggle.active .desk-layer-label { color: rgba(255,255,255,0.85); }
-  /* Hover */
-  .desk-layer-toggle:hover .desk-layer-label { color: rgba(255,255,255,0.6); }
-  .desk-layer-toggle:hover .desk-toggle-track { background: rgba(255,255,255,0.22); }
-  .desk-layer-toggle.active:hover .desk-toggle-track { background: #2db34a; }
 
   /* ── Left col: Materie Prime ── */
   #desk-left-col .desk-commodity-grid {
@@ -2444,14 +2428,19 @@
     padding: 6px 14px; height: 30px;
     font-size: 0.75rem; font-weight: 600;
     color: rgba(255,255,255,0.38);
-    background: none; border: none; cursor: pointer;
+    background: none; border: 1px solid transparent; cursor: pointer;
     font-family: inherit; border-radius: 7px;
     transition: all 0.15s; white-space: nowrap;
   }
   .desk-tab-btn:hover { color: rgba(255,255,255,0.72); background: rgba(255,255,255,0.05); }
-  .desk-tab-btn.active { color: #fff; background: rgba(232,52,78,0.12); }
+  .desk-tab-btn.active {
+    color: #06d6a0;
+    background: rgba(6,214,160,0.08);
+    border-color: #06d6a0;
+    box-shadow: 0 0 8px rgba(6,214,160,0.25);
+  }
   .desk-tab-btn svg { opacity: 0.7; }
-  .desk-tab-btn.active svg { opacity: 1; }
+  .desk-tab-btn.active svg { opacity: 1; color: #06d6a0; }
 
   /* ── Scroll wrapper: ora è solo un contenitore passivo ── */
   #desk-scroll-area {
@@ -6055,14 +6044,8 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
     <!-- Sezione destra 30%: layer toggle mappa (iOS switch style) -->
     <div id="desk-tabnav-right">
-      <div class="desk-layer-toggle" id="desk-toggle-risorse" onclick="toggleMapLayer('risorse',this)" title="Mostra/nascondi risorse sulla mappa">
-        <span class="desk-layer-label">Risorse</span>
-        <span class="desk-toggle-track"><span class="desk-toggle-thumb"></span></span>
-      </div>
-      <div class="desk-layer-toggle" id="desk-toggle-tratte" onclick="toggleMapLayer('tratte',this)" title="Mostra/nascondi tratte sulla mappa">
-        <span class="desk-layer-label">Tratte</span>
-        <span class="desk-toggle-track"><span class="desk-toggle-thumb"></span></span>
-      </div>
+      <div class="desk-layer-toggle" id="desk-toggle-risorse" onclick="toggleMapLayer('risorse',this)" title="Mostra/nascondi risorse sulla mappa">Risorse</div>
+      <div class="desk-layer-toggle" id="desk-toggle-tratte" onclick="toggleMapLayer('tratte',this)" title="Mostra/nascondi tratte sulla mappa">Tratte</div>
     </div>
   </div>
 
