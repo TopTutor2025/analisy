@@ -2322,7 +2322,7 @@
     display: flex; align-items: center; padding: 0 16px; gap: 8px;
   }
   .desk-layer-toggle {
-    display: flex; align-items: center; justify-content: center;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
     height: 30px; padding: 0 12px;
     font-size: 0.72rem; font-weight: 600; white-space: nowrap;
     background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
@@ -6044,8 +6044,18 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
     <!-- Sezione destra 30%: layer toggle mappa (iOS switch style) -->
     <div id="desk-tabnav-right">
-      <div class="desk-layer-toggle" id="desk-toggle-risorse" onclick="toggleMapLayer('risorse',this)" title="Mostra/nascondi risorse sulla mappa">Risorse</div>
-      <div class="desk-layer-toggle" id="desk-toggle-tratte" onclick="toggleMapLayer('tratte',this)" title="Mostra/nascondi tratte sulla mappa">Tratte</div>
+      <div class="desk-layer-toggle" id="desk-toggle-risorse" onclick="toggleMapLayer('risorse',this)" title="Mostra/nascondi risorse sulla mappa">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0">
+          <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v4c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 9v4c0 1.66 4.03 3 9 3s9-1.34 9-3V9"/><path d="M3 13v4c0 1.66 4.03 3 9 3s9-1.34 9-3v-4"/>
+        </svg>
+        Risorse
+      </div>
+      <div class="desk-layer-toggle" id="desk-toggle-tratte" onclick="toggleMapLayer('tratte',this)" title="Mostra/nascondi tratte sulla mappa">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0">
+          <circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><path d="M7 12h3l2-4 2 4 2-4 1 4h-3"/>
+        </svg>
+        Tratte
+      </div>
     </div>
   </div>
 
