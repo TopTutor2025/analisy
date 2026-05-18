@@ -2675,12 +2675,12 @@
     document.getElementById('art-title').value    = a ? a.title : '';
     document.getElementById('art-subtitle').value = a ? (a.subtitle||'') : '';
     document.getElementById('art-cat').value      = a ? a.cat : 'geopolitica';
-    document.getElementById('art-date').value     = a ? (a.rawDate||'') : new Date().toISOString().slice(0,10);
+    document.getElementById('art-date').value     = a ? (a.published_at ? new Date(a.published_at).toISOString().slice(0,10) : '') : new Date().toISOString().slice(0,10);
     document.getElementById('art-author').value   = a ? (a.author||'') : '';
-    document.getElementById('art-readtime').value = a ? (a.readTime||'') : '';
+    document.getElementById('art-readtime').value = a ? (a.read_time||'') : '';
     document.getElementById('art-img-url').value  = a ? (a.image||'') : '';
     document.getElementById('art-abstract').value = a ? (a.excerpt||'') : '';
-    document.getElementById('art-body').value     = a ? (a.body||'') : '';
+    document.getElementById('art-body').value     = a ? (a.content||'') : '';
     document.getElementById('art-suggested').value= a ? (a.suggested||'') : '';
     document.getElementById('art-premium').value  = a ? String(a.premium||'false') : 'false';
     document.getElementById('art-status').value   = a ? (a.status||'published') : 'published';
@@ -2703,6 +2703,7 @@
     if (!body)   { showToast('Il testo dell\'articolo è obbligatorio', 'error'); return; }
     const rawDate = document.getElementById('art-date').value;
     const fmtD    = rawDate ? new Date(rawDate).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'}) : '';
+    const suggestedRaw = document.getElementById('art-suggested').value.trim();
     const payload = {
       title, author,
       subtitle:     document.getElementById('art-subtitle').value.trim(),
@@ -2712,6 +2713,7 @@
       image:        document.getElementById('art-img-url').value.trim(),
       excerpt:      abs,
       content:      body,
+      suggested:    suggestedRaw || null,
       premium:      document.getElementById('art-premium').value === 'true',
       status:       forceStatus || document.getElementById('art-status').value,
     };
@@ -2741,15 +2743,15 @@
     const imgHtml = a.image
       ? `<img src="${a.image}" alt="${a.title}" style="width:100%;max-height:320px;object-fit:cover;border-radius:12px;margin-bottom:24px;" />`
       : `<div style="width:100%;height:200px;background:linear-gradient(135deg,#0a1020,#0f1a30);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:3rem;margin-bottom:24px;">📰</div>`;
-    const bodyHtml = (a.body||'').split('\n').filter(l=>l.trim()).map(l=>`<p style="margin-bottom:14px;color:var(--text-secondary);line-height:1.8;">${l}</p>`).join('');
+    const bodyHtml = (a.content||'').split('\n').filter(l=>l.trim()).map(l=>`<p style="margin-bottom:14px;color:var(--text-secondary);line-height:1.8;">${l}</p>`).join('');
     document.getElementById('article-preview-content').innerHTML = `
       <div style="max-width:680px;margin:0 auto;">
         ${imgHtml}
         <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
           <span class="article-cat-badge ${catClass[a.cat]||'cat-geo'}">${catLabels[a.cat]||a.cat}</span>
           ${a.premium ? '<span style="font-size:0.75rem;color:var(--accent-yellow);font-weight:700;">🔒 Premium</span>' : ''}
-          <span style="font-size:0.78rem;color:var(--text-muted);">${a.date||''}</span>
-          ${a.readTime ? `<span style="font-size:0.78rem;color:var(--text-muted);">· ${a.readTime}</span>` : ''}
+          <span style="font-size:0.78rem;color:var(--text-muted);">${a.published_at ? new Date(a.published_at).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'}) : ''}</span>
+          ${a.read_time ? `<span style="font-size:0.78rem;color:var(--text-muted);">· ${a.read_time}</span>` : ''}
         </div>
         <h1 style="font-size:1.8rem;font-weight:800;letter-spacing:-0.03em;line-height:1.2;margin-bottom:${a.subtitle?'10px':'20px'}">${a.title}</h1>
         ${a.subtitle ? `<p style="font-size:1.05rem;color:var(--text-secondary);margin-bottom:20px;font-weight:500;">${a.subtitle}</p>` : ''}

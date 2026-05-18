@@ -293,7 +293,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return `<a href="article.html?id=${sa.id}" class="suggested-card">
           ${sa.image ? `<img src="${sa.image}" alt="${sa.title}" />` : `<div style="width:72px;height:52px;border-radius:6px;background:linear-gradient(135deg,#0a1020,#0f1a30);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">📰</div>`}
           <div class="suggested-card-info">
-            <div class="suggested-card-cat" style="color:${sc};">${sa.catLabel || sa.cat}</div>
+            <div class="suggested-card-cat" style="color:${sc};">${sa.cat_label || sa.catLabel || sa.cat}</div>
             <div class="suggested-card-title">${sa.title}</div>
           </div>
         </a>`;
@@ -310,7 +310,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <a href="situation-room.html" class="btn btn-outline">← Situation Room</a>
         </div>
       </div>`
-    : `<div class="article-body">${(a.body || '').split('\n\n').map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('')}</div>`;
+    : `<div class="article-body">${(a.content || '').split('\n\n').map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('')}</div>`;
 
   container.innerHTML = `
     <div class="article-back-row">
@@ -318,7 +318,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
         Torna alla Situation Room
       </a>
-      <span class="article-cat-badge" style="color:${color};background:${bgColor};">${a.catLabel || a.cat}</span>
+      <span class="article-cat-badge" style="color:${color};background:${bgColor};">${a.cat_label || a.catLabel || a.cat}</span>
     </div>
 
     <h1 class="article-title">${a.title}</h1>
@@ -326,14 +326,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     <div class="article-meta">
       ${a.author ? `<span class="article-meta-author">${a.author}</span><span class="article-meta-divider"></span>` : ''}
-      ${a.date   ? `<span class="article-meta-info">${a.date}</span>` : ''}
-      ${a.readTime ? `<span class="article-meta-divider"></span><span class="article-meta-info">${a.readTime} di lettura</span>` : ''}
+      ${a.published_at ? `<span class="article-meta-info">${new Date(a.published_at).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'})}</span>` : ''}
+      ${a.read_time ? `<span class="article-meta-divider"></span><span class="article-meta-info">${a.read_time} di lettura</span>` : ''}
       ${a.premium ? `<span class="article-premium-badge">PREMIUM</span>` : ''}
     </div>
 
     ${imgHtml}
 
-    ${a.abstract ? `<p class="article-abstract" style="--accent-color:${color};">${a.abstract}</p>` : ''}
+    ${a.excerpt ? `<p class="article-abstract" style="--accent-color:${color};">${a.excerpt}</p>` : ''}
 
     ${bodyHtml}
 

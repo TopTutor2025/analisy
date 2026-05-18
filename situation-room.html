@@ -4016,8 +4016,8 @@ function renderArticles(cat) {
   }
 
   const clockIcon = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="opacity:0.6;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
-  const catColors  = { geopolitica:'#e8344e', politica:'#4f9eff', business:'#f5a623', tecnologia:'#a78bfa' };
-  const catLabels  = { geopolitica:'Geopolitica', politica:'Politica', business:'Business', tecnologia:'Tecnologia' };
+  const catColors  = { geopolitica:'#e8344e', politica:'#4f9eff', business:'#f5a623', tecnologia:'#a78bfa', hotspot:'#06d6a0' };
+  const catLabels  = { geopolitica:'Geopolitica', politica:'Politica', business:'Business', tecnologia:'Tecnologia', hotspot:'Hotspot' };
 
   // Gli articoli generati dall'IA sono sempre pubblici — nessun lock
   grid.innerHTML = filtered.map(a => {
@@ -4032,7 +4032,7 @@ function renderArticles(cat) {
         <div class="art-card-body">
           <div class="art-cat-pill">${catLabel}</div>
           <div class="art-title-row">${a.title}</div>
-          <div class="art-meta-row">${clockIcon}<span>${a.date || ''}</span>${readTime}</div>
+          <div class="art-meta-row">${clockIcon}<span>${a.published_at ? new Date(a.published_at).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'}) : ''}</span>${readTime}</div>
         </div>
         <div class="art-thumb">${thumbHtml}</div>
       </div>
