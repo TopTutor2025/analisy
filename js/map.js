@@ -403,15 +403,14 @@ function initSituationMap(containerId) {
 
   // Esposta globalmente per il pulsante in situation-room.html
   window.toggleBordersLayer = function() {
-    const btn = document.getElementById('desk-borders-btn');
     if (!_bordersLayer) return;
     _bordersVisible = !_bordersVisible;
     if (_bordersVisible) {
       _bordersLayer.addTo(situationMap);
-      if (btn) btn.classList.add('active');
+      document.querySelectorAll('.borders-layer-btn').forEach(b => b.classList.add('active'));
     } else {
       situationMap.removeLayer(_bordersLayer);
-      if (btn) btn.classList.remove('active');
+      document.querySelectorAll('.borders-layer-btn').forEach(b => b.classList.remove('active'));
     }
   };
 
