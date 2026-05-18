@@ -541,6 +541,7 @@
           <button class="cat-tab" onclick="filterAdminArticles('politica',this)">Politica Nazionale</button>
           <button class="cat-tab" onclick="filterAdminArticles('business',this)">Business</button>
           <button class="cat-tab" onclick="filterAdminArticles('tecnologia',this)">Tecnologia</button>
+          <button class="cat-tab" onclick="filterAdminArticles('hotspot',this)">Hotspot</button>
         </div>
 
         <div class="table-toolbar">
@@ -1186,6 +1187,7 @@
           <option value="politica">Politica Nazionale</option>
           <option value="business">Business</option>
           <option value="tecnologia">Tecnologia</option>
+          <option value="hotspot">Hotspot</option>
         </select>
       </div>
       <div class="form-group">
@@ -1564,6 +1566,7 @@
               <option value="politica">🔵 Politica</option>
               <option value="business">🟠 Business</option>
               <option value="tecnologia">🟣 Tecnologia</option>
+              <option value="hotspot">🟢 Hotspot</option>
             </select>
           </div>
         </div>
@@ -2577,8 +2580,8 @@
     if (adminArticleFilter !== 'all') list = list.filter(a => a.cat === adminArticleFilter);
     if (q) list = list.filter(a => (a.title + a.author).toLowerCase().includes(q));
 
-    const catLabels = { geopolitica:'Geopolitica', politica:'Politica Nazionale', business:'Business', tecnologia:'Tecnologia' };
-    const catClass  = { geopolitica:'cat-geo', politica:'cat-pol', business:'cat-biz', tecnologia:'cat-tech' };
+    const catLabels = { geopolitica:'Geopolitica', politica:'Politica Nazionale', business:'Business', tecnologia:'Tecnologia', hotspot:'Hotspot' };
+    const catClass  = { geopolitica:'cat-geo', politica:'cat-pol', business:'cat-biz', tecnologia:'cat-tech', hotspot:'cat-hotspot' };
     const grid = document.getElementById('articles-admin-grid');
 
     if (!list.length) {
@@ -2685,8 +2688,8 @@
   function previewArticle(id) {
     const a = (AppData.articles || []).find(x => String(x.id) === String(id));
     if (!a) return;
-    const catLabels = { geopolitica:'Geopolitica', politica:'Politica Nazionale', business:'Business', tecnologia:'Tecnologia' };
-    const catClass  = { geopolitica:'cat-geo', politica:'cat-pol', business:'cat-biz', tecnologia:'cat-tech' };
+    const catLabels = { geopolitica:'Geopolitica', politica:'Politica Nazionale', business:'Business', tecnologia:'Tecnologia', hotspot:'Hotspot' };
+    const catClass  = { geopolitica:'cat-geo', politica:'cat-pol', business:'cat-biz', tecnologia:'cat-tech', hotspot:'cat-hotspot' };
     const imgHtml = a.image
       ? `<img src="${a.image}" alt="${a.title}" style="width:100%;max-height:320px;object-fit:cover;border-radius:12px;margin-bottom:24px;" />`
       : `<div style="width:100%;height:200px;background:linear-gradient(135deg,#0a1020,#0f1a30);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:3rem;margin-bottom:24px;">📰</div>`;
