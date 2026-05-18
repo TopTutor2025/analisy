@@ -1879,7 +1879,7 @@
   /* Wrapper flex per pulsanti in alto a destra sulla mappa
      top: 62px = 52px topbar fisso + 10px margine */
   #desk-map-controls {
-    position: absolute !important; top: 12px !important; right: 12px !important;
+    position: absolute !important; bottom: 12px !important; right: 12px !important;
     z-index: 1100 !important;
     display: flex !important; align-items: center; gap: 6px;
   }
@@ -5974,7 +5974,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="map-ol-leg-row" onclick="deskFilterCat('hotspot',this)"     data-cat="hotspot">    <span class="map-ol-leg-dot" style="background:#06d6a0;"></span>Hotspot<span class="map-ol-leg-count" id="desk-count-hot">0</span></div>
     </div>
     <!-- Map controls: borders toggle + expand (top-right) -->
-    <div id="desk-map-controls" style="position:absolute;top:12px;right:12px;z-index:1100;display:flex;align-items:center;gap:6px;">
+    <div id="desk-map-controls" style="position:absolute;bottom:12px;right:12px;z-index:1100;display:flex;align-items:center;gap:6px;">
       <button id="desk-borders-btn" onclick="toggleBordersLayer()" title="Visualizzazione avanzata">
         <!-- satellite icon -->
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
