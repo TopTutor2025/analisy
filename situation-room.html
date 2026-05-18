@@ -2201,14 +2201,14 @@
     box-shadow: 0 0 8px currentColor;
   }
   #desk-goal-cta {
-    background: #e8344e; color: #fff;
+    background: #a78bfa; color: #fff;
     padding: 3px 10px; border-radius: 5px;
     font-size: 0.65rem; font-weight: 700;
     text-decoration: none; white-space: nowrap;
     transition: background 0.2s, transform 0.15s;
     flex-shrink: 0;
   }
-  #desk-goal-cta:hover { background: #c9293f; transform: scale(1.04); }
+  #desk-goal-cta:hover { background: #8b6ef0; transform: scale(1.04); }
   #desk-goal-line { display: none; }
   #desk-goal-text  { display: contents; }
   #desk-goal-top   { display: contents; }
@@ -5608,13 +5608,13 @@ async function initGoalBar() {
     bar.style.borderColor = color;
     bar.style.boxShadow   = `0 0 12px ${color}55`;
     const cta = document.getElementById('desk-goal-cta');
-    if (cta) cta.style.background = color;
+    if (cta) cta.style.background = '#a78bfa';
 
     // Testi
     const countEl = document.getElementById('desk-goal-count');
     if (countEl) { countEl.textContent = `${cur} / ${target}`; countEl.style.color = pct >= 100 ? color : 'rgba(235,235,245,0.95)'; }
     const labelEl = document.getElementById('desk-goal-label');
-    if (labelEl) labelEl.textContent = goal.label || 'abbonati';
+    if (labelEl) labelEl.textContent = ' abbonamenti';
     const tooltip = document.getElementById('desk-goal-tooltip');
     if (tooltip) tooltip.textContent = `Obiettivo: ${target} abbonati — ${goal.label || ''}`;
 
@@ -5915,8 +5915,7 @@ document.addEventListener('DOMContentLoaded', () => {
   <div id="desk-goal-bar">
     <div id="desk-goal-inner">
       <div id="desk-goal-text">
-        <span id="desk-goal-count">0 / 100</span>
-        <span id="desk-goal-label">abbonati per sostenere il servizio</span>
+        <span id="desk-goal-count">0 / 100</span><span id="desk-goal-label"> abbonamenti</span>
       </div>
       <div id="desk-goal-track">
         <div id="desk-goal-fill"></div>
@@ -5926,7 +5925,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.32)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
           <div class="goal-tooltip" id="desk-goal-tooltip">Obiettivo: raggiungere 100 abbonati</div>
         </div>
-        <a id="desk-goal-cta" href="/dashboard.html">❤️ Sostienici</a>
+        <a id="desk-goal-cta" href="/dashboard.html">Sostienici</a>
       </div>
     </div>
     <div id="desk-goal-line"></div>
