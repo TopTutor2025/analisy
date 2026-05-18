@@ -521,60 +521,51 @@
   // Stripe integration
   // NOTE: Replace 'pk_test_...' with your actual Stripe publishable key
   const STRIPE_KEY = 'pk_test_YOUR_STRIPE_PUBLISHABLE_KEY';
-  let stripe, cardElement, currentPlan;
-
-  function subscribe(plan) {
-    currentPlan = plan;
-    const prices = { premium: '€2,99/mese', pro: '€3,99/mese' };
-    const names  = { premium: 'Premium', pro: 'Pro' };
-    document.getElementById('payment-modal-title').textContent = `Piano ${names[plan]}`;
-    document.getElementById('payment-modal-desc').textContent =
-      `Stai per attivare il piano ${names[plan]} a ${prices[plan]}. Inserisci i dati della carta.`;
-    document.getElementById('payment-modal').classList.add('open');
-
-    // Init Stripe Elements (requires valid key)
+  // ── STRIPE CHECKOUT ──────────────────────────────────────
+  async function subscribe(plan) {
+    const btn = document.querySelector(`[onclick="subscribe('${plan}')"]`);
+    const origText = btn?.textContent;
+    if (btn) { btn.textContent = 'Attendere...'; btn.disabled = true; }
     try {
-      if (!stripe) stripe = Stripe(STRIPE_KEY);
-      const elements = stripe.elements({ appearance: { theme: 'night', variables: { colorPrimary: '#4f9eff', colorBackground: '#0a1220', colorText: '#f0f4ff', colorDanger: '#e8344e', fontFamily: 'Inter, sans-serif', borderRadius: '0px' } } });
-      if (!cardElement) {
-        cardElement = elements.create('card');
-        cardElement.mount('#stripe-card-element');
+      const res = await Api.fn('stripe-checkout', { plan });
+      if (res?.url) {
+        window.location.href = res.url;
+      } else {
+        showToast('Errore: URL checkout non ricevuto', 'error');
       }
     } catch(err) {
-      // Stripe key not configured — show demo mode
-      document.getElementById('stripe-card-element').innerHTML =
-        '<p style="font-size:0.82rem;color:var(--text-muted);text-align:center;padding:8px 0;">⚠️ Modalità demo — configura la chiave Stripe in dashboard.html</p>';
+      showToast(err.message || 'Errore nel checkout', 'error');
+      if (btn) { btn.textContent = origText; btn.disabled = false; }
     }
   }
 
-  function processPayment() {
-    const btn = document.getElementById('pay-btn');
-    btn.textContent = 'Elaborazione...';
-    btn.disabled = true;
-
-    // DEMO: simulate successful payment
-    setTimeout(() => {
-      const end = new Date();
-      end.setMonth(end.getMonth() + 1);
-      const updates = {
-        plan: currentPlan,
-        subscriptionStatus: 'active',
-        subscriptionStart: new Date().toISOString().slice(0,10),
-        subscriptionEnd: end.toISOString().slice(0,10)
-      };
-      Object.assign(user, updates);
-      Auth.set(user);
-      document.getElementById('payment-modal').classList.remove('open');
-      showToast('Abbonamento attivato con successo!', 'success');
-      setTimeout(() => location.reload(), 1000);
-    }, 1500);
-  }
-
-  function manageSubscription() {
+  async function manageSubscription() {
+    // Reindirizza al Customer Portal Stripe per gestire/cancellare
     showToast('Reindirizzamento al portale Stripe...', 'info');
-    // In production: redirect to Stripe Customer Portal URL
-    // window.location.href = stripePortalUrl;
+    try {
+      const res = await Api.fn('stripe-portal', {});
+      if (res?.url) window.location.href = res.url;
+    } catch {
+      showToast('Portale non disponibile. Contatta il supporto.', 'error');
+    }
   }
+
+  // Gestisci ritorno da Stripe Checkout
+  (function handleStripeReturn() {
+    const params = new URLSearchParams(window.location.search);
+    const payment = params.get('payment');
+    const plan    = params.get('plan');
+    if (payment === 'success' && plan) {
+      showToast(`Abbonamento ${plan === 'premium' ? 'Premium' : 'Pro'} attivato! ✓`, 'success');
+      // Rimuovi parametri dall'URL senza ricaricare
+      window.history.replaceState({}, '', window.location.pathname);
+      // Ricarica profilo dopo 2 sec per aggiornare badge piano
+      setTimeout(() => Auth.verify().then(() => location.reload()), 2000);
+    } else if (payment === 'cancelled') {
+      showToast('Pagamento annullato.', 'info');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  })();
 </script>
 <script src="js/cookie-banner.js"></script>
 </body>
