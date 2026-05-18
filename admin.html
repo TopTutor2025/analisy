@@ -1281,6 +1281,22 @@
     <div style="padding:20px 24px;display:flex;flex-direction:column;gap:18px;max-height:60vh;overflow-y:auto;">
       <input type="hidden" id="udm-id">
 
+      <!-- Sezione credenziali admin (visibile solo per role=admin) -->
+      <div id="udm-credentials-row" style="display:none;flex-direction:column;gap:14px;">
+        <div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);margin-bottom:2px;">Credenziali di accesso</div>
+        <div>
+          <label style="font-size:0.7rem;color:rgba(255,255,255,0.35);display:block;margin-bottom:5px;">Email</label>
+          <input type="email" id="udm-cred-email" placeholder="email@esempio.com" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:9px 12px;color:#fff;font-size:0.88rem;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='rgba(255,255,255,0.3)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
+        </div>
+        <div>
+          <label style="font-size:0.7rem;color:rgba(255,255,255,0.35);display:block;margin-bottom:5px;">Nuova password <span style="color:rgba(255,255,255,0.2);font-weight:400;">(lascia vuoto per non cambiarla)</span></label>
+          <input type="password" id="udm-cred-password" placeholder="••••••••" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:9px 12px;color:#fff;font-size:0.88rem;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='rgba(255,255,255,0.3)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
+        </div>
+        <div style="font-size:0.7rem;color:rgba(255,255,255,0.22);background:rgba(255,255,255,0.03);border-radius:7px;padding:8px 10px;line-height:1.5;">
+          🛡️ L'account admin ha accesso completo a tutte le funzionalità. Piano e abbonamento non si applicano.
+        </div>
+      </div>
+
       <!-- Piano -->
       <div>
         <div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);margin-bottom:10px;">Piano abbonamento</div>
@@ -1946,9 +1962,9 @@
     tbody.innerHTML = list.map(u => {
       const initials = `${(u.nome||'?')[0]}${(u.cognome||'')[0]||''}`.toUpperCase();
       const avatarColor = _userAvatarColor(u.plan);
-      const isAdmin = u.email === 'admin@analisy.com';
+      const isAdmin = u.role === 'admin';
       return `
-      <tr onclick="${isAdmin ? '' : `openUserDetail('${u.id}')`}" style="cursor:${isAdmin ? 'default' : 'pointer'};transition:background 0.12s;" onmouseover="if(!${isAdmin})this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
+      <tr onclick="openUserDetail('${u.id}')" style="cursor:pointer;transition:background 0.12s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
         <td style="width:40px;padding:10px 6px 10px 14px;">
           <div style="width:34px;height:34px;border-radius:50%;background:${avatarColor};display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:700;color:${u.plan==='free'?'rgba(255,255,255,0.5)':'#fff'};flex-shrink:0;">${initials}</div>
         </td>
@@ -2000,14 +2016,33 @@
     document.getElementById('udm-email').textContent = u.email;
     const regDate = u.createdAt ? `Registrato il ${fmtDate(u.createdAt)}` : '';
     document.getElementById('udm-meta').textContent  = [u.telefono ? `📞 ${u.telefono}` : '', regDate].filter(Boolean).join(' · ');
-    // Plan + Status
-    udmSelectPlan(u.plan || 'free');
-    udmSelectStatus(u.subscriptionStatus || 'inactive');
-    // Dates
-    document.getElementById('udm-start').value = u.subscriptionStart ? u.subscriptionStart.split('T')[0] : '';
-    document.getElementById('udm-end').value   = u.subscriptionEnd   ? u.subscriptionEnd.split('T')[0]   : '';
-    // Show/hide delete btn
-    document.getElementById('udm-delete-btn').style.display = u.email === 'admin@analisy.com' ? 'none' : '';
+    const isAdmin = u.role === 'admin';
+    // Sezione credenziali — solo per admin
+    const credRow    = document.getElementById('udm-credentials-row');
+    const planGroup  = document.getElementById('udm-plan-group').closest('div').parentElement;
+    const statusRow  = document.getElementById('udm-status-row');
+    const datesRow   = document.querySelector('#user-detail-modal details');
+    if (isAdmin) {
+      credRow.style.display   = 'flex';
+      planGroup.style.display = 'none';
+      statusRow.style.display = 'none';
+      if (datesRow) datesRow.style.display = 'none';
+      document.getElementById('udm-cred-email').value    = u.email || '';
+      document.getElementById('udm-cred-password').value = '';
+    } else {
+      credRow.style.display   = 'none';
+      planGroup.style.display = '';
+      statusRow.style.display = '';
+      if (datesRow) datesRow.style.display = '';
+      // Plan + Status
+      udmSelectPlan(u.plan || 'free');
+      udmSelectStatus(u.subscriptionStatus || 'inactive');
+      // Dates
+      document.getElementById('udm-start').value = u.subscriptionStart ? u.subscriptionStart.split('T')[0] : '';
+      document.getElementById('udm-end').value   = u.subscriptionEnd   ? u.subscriptionEnd.split('T')[0]   : '';
+    }
+    // Nascondi sempre il tasto elimina per gli admin
+    document.getElementById('udm-delete-btn').style.display = isAdmin ? 'none' : '';
     document.getElementById('user-detail-modal').classList.add('open');
   }
 
@@ -2070,20 +2105,33 @@
   async function saveUserDetail() {
     const id = document.getElementById('udm-id').value;
     if (!id) return;
+    const u = (AppData.users || []).find(x => x.id === id);
+    const isAdmin = u && u.role === 'admin';
     try {
-      const payload = {
-        id,
-        plan:     _udmCurrentPlan,
-        sub_status: _udmCurrentStatus,
-      };
-      // Optional dates
-      const start = document.getElementById('udm-start').value;
-      const end   = document.getElementById('udm-end').value;
-      if (start) payload.subscriptionStart = start;
-      if (end)   payload.subscriptionEnd   = end;
-      const updated = await Api.fn('admin-write', { action: 'update-user', data: payload });
-      const idx = AppData.users.findIndex(u => u.id === id);
-      if (idx > -1) AppData.users[idx] = { ...AppData.users[idx], ...updated };
+      if (isAdmin) {
+        // Admin: aggiorna solo credenziali
+        const email    = document.getElementById('udm-cred-email').value.trim();
+        const password = document.getElementById('udm-cred-password').value;
+        if (!email) { showToast('Inserisci un\'email valida', 'error'); return; }
+        const payload = { id, email };
+        if (password) payload.password = password;
+        await Api.fn('admin-write', { action: 'update-user', data: payload });
+        if (u) u.email = email;
+      } else {
+        // Utente normale: aggiorna piano/stato/date
+        const payload = {
+          id,
+          plan:       _udmCurrentPlan,
+          sub_status: _udmCurrentStatus,
+        };
+        const start = document.getElementById('udm-start').value;
+        const end   = document.getElementById('udm-end').value;
+        if (start) payload.subscriptionStart = start;
+        if (end)   payload.subscriptionEnd   = end;
+        const updated = await Api.fn('admin-write', { action: 'update-user', data: payload });
+        const idx = AppData.users.findIndex(x => x.id === id);
+        if (idx > -1) AppData.users[idx] = { ...AppData.users[idx], ...updated };
+      }
       closeUserDetail();
       renderUsers();
       refreshStats();
