@@ -5206,7 +5206,7 @@ function renderDeskArticles(cat) {
   const allArts = typeof getArticles === 'function' ? getArticles() : [];
   const humanArts = allArts.filter(a => a.author !== 'AI Intelligence \u00B7 Analisy');
   const filtered = cat && cat !== 'all' ? humanArts.filter(a => a.cat === cat) : humanArts;
-  if (titleEl) titleEl.textContent = cat && cat !== 'all' ? DESK_CAT_LABELS[cat] || 'Notizie' : 'Notizie Globali';
+  if (titleEl) titleEl.textContent = cat && cat !== 'all' ? DESK_CAT_LABELS[cat] || 'Analisi' : 'Analisi';
   if (!filtered.length) {
     feed.innerHTML = `<div style="padding:20px;font-size:0.7rem;color:rgba(255,255,255,0.2);text-align:center;">Nessun articolo disponibile</div>`;
     return;
@@ -6028,7 +6028,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <!-- Feed articoli -->
       <div id="desk-feed" class="desk-main-pane active">
         <div id="desk-feed-header">
-          <span class="desk-feed-title" id="desk-feed-title">Notizie Globali</span>
+          <span class="desk-feed-title" id="desk-feed-title">Analisi</span>
           <button class="desk-feed-viewall" onclick="closeDeskArtReader()">Vedi tutti &rarr;</button>
         </div>
         <div id="desk-articles-feed"></div>
