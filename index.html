@@ -90,13 +90,11 @@
       <div class="navbar-actions" id="navbar-actions">
         <!-- populated by app.js based on auth state -->
         <a href="login.html" class="btn-accedi">Accedi</a>
-        <button class="help-btn" title="Aiuto" onclick="document.getElementById('help-modal').classList.add('open')">?</button>
         <a href="situation-room.html" class="btn btn-primary btn-sm">Situation Room</a>
       </div>
 
       <!-- Hamburger — solo mobile -->
       <div class="navbar-mobile-right">
-        <button class="help-btn help-btn-mobile" title="Aiuto" onclick="document.getElementById('help-modal').classList.add('open')">?</button>
         <button class="hamburger-btn" id="hamburger-btn" onclick="toggleMobileMenu()" aria-label="Menu">
           <span></span><span></span><span></span>
         </button>
@@ -754,23 +752,6 @@
 
 
 <!-- Help modal -->
-<div class="modal-overlay" id="help-modal" onclick="if(event.target===this)this.classList.remove('open')">
-  <div class="modal">
-    <div class="modal-header">
-      <h3>Hai bisogno di aiuto?</h3>
-      <button class="modal-close" onclick="document.getElementById('help-modal').classList.remove('open')">✕</button>
-    </div>
-    <p style="margin-bottom:16px;">Benvenuto in Analisy. Ecco cosa puoi fare:</p>
-    <ul style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
-      <li style="font-size:0.9rem;color:var(--text-secondary);display:flex;gap:8px;"><span style="color:var(--accent-blue);">→</span> <a href="situation-room.html" style="color:var(--accent-blue);">Entra nella Situation Room</a> per esplorare la mappa interattiva</li>
-      <li style="font-size:0.9rem;color:var(--text-secondary);display:flex;gap:8px;"><span style="color:var(--accent-blue);">→</span> <a href="register.html" style="color:var(--accent-blue);">Crea un account</a> per accedere alle analisi</li>
-      <li style="font-size:0.9rem;color:var(--text-secondary);display:flex;gap:8px;"><span style="color:var(--accent-blue);">→</span> Abbonati per sbloccare tutti i contenuti premium</li>
-    </ul>
-    <div class="modal-footer">
-      <button class="btn btn-primary" onclick="document.getElementById('help-modal').classList.remove('open')">Ho capito</button>
-    </div>
-  </div>
-</div>
 
 <!-- Toast container -->
 <div class="toast-container" id="toast-container"></div>

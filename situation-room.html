@@ -2201,6 +2201,32 @@
   .goal-info-wrap:hover .goal-tooltip { display: block; }
   @keyframes goal-pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
 
+  /* ── Tactical mode button ── */
+  #desk-tactical-btn {
+    position: absolute; bottom: 50px; right: 12px; z-index: 500;
+    width: 30px; height: 30px; border-radius: 6px;
+    background: rgba(4,6,14,0.75); backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.45);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  #desk-tactical-btn:hover { background: rgba(4,6,14,0.92); color: rgba(255,255,255,0.85); }
+  #desk-tactical-btn.active {
+    background: rgba(0,20,40,0.92);
+    border-color: rgba(0,200,255,0.5);
+    color: #00c8ff;
+    box-shadow: 0 0 10px rgba(0,200,255,0.25);
+  }
+
+  /* ── Tactical map mode (CSS on the tile pane only) ── */
+  .sr-map-section.tactical-mode .leaflet-tile-pane {
+    filter: hue-rotate(195deg) saturate(2.2) brightness(0.55) contrast(1.25) !important;
+  }
+  .sr-map-section.tactical-mode .leaflet-overlay-pane {
+    filter: saturate(1.5) brightness(1.2) !important;
+  }
+
   /* ── Map floating legend + filter overlay ── */
   #desk-map-overlay-legend {
     position: absolute; bottom: 12px; left: 12px; z-index: 500;
@@ -3627,6 +3653,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (window.innerWidth > 768) initDeskLayout();
 
   await AppData.init();
+
+  // Re-render navbar con auth state aggiornato (dopo che AppData ha caricato la sessione)
+  renderSrNavbar();
 
   // Aggiorna legenda e live events desktop ora che i dati sono pronti
   if (window.innerWidth > 768) {
@@ -5546,6 +5575,57 @@ document.addEventListener('mapEventsLoaded', function() {
   }
 });
 
+// ── TACTICAL MAP MODE ────────────────────────────────────
+let _tacticalActive = false;
+const _HOTSPOT_COLOR_NORMAL  = '#06d6a0';
+const _HOTSPOT_COLOR_TACTICAL = '#39ff14'; // neon green
+
+function toggleTacticalMode() {
+  _tacticalActive = !_tacticalActive;
+  const btn = document.getElementById('desk-tactical-btn');
+  const mapSection = document.querySelector('#situation-map')?.closest('.sr-map-section');
+
+  if (!mapSection) return;
+
+  if (_tacticalActive) {
+    mapSection.classList.add('tactical-mode');
+    if (btn) btn.classList.add('active');
+    // Cambia colore marker hotspot → verde neon
+    _setHotspotMarkerColor(_HOTSPOT_COLOR_TACTICAL);
+  } else {
+    mapSection.classList.remove('tactical-mode');
+    if (btn) btn.classList.remove('active');
+    // Ripristina colore hotspot originale
+    _setHotspotMarkerColor(_HOTSPOT_COLOR_NORMAL);
+  }
+}
+
+function _setHotspotMarkerColor(color) {
+  const overlayPane = document.querySelector('#situation-map .leaflet-overlay-pane');
+  if (!overlayPane) return;
+  // Leaflet circle markers: SVG path elements con fill = colore categoria
+  const paths = overlayPane.querySelectorAll('path');
+  paths.forEach(p => {
+    const fill   = p.getAttribute('fill')   || '';
+    const stored = p.getAttribute('data-orig-fill') || '';
+    // In tactical: salva originale e cambia se è hotspot
+    if (_tacticalActive) {
+      if (fill === _HOTSPOT_COLOR_NORMAL) {
+        p.setAttribute('data-orig-fill', fill);
+        p.setAttribute('fill', color);
+        p.setAttribute('stroke', color);
+      }
+    } else {
+      // Ripristino: se c'era un colore salvato, restituiscilo
+      if (stored) {
+        p.setAttribute('fill', stored);
+        p.setAttribute('stroke', stored);
+        p.removeAttribute('data-orig-fill');
+      }
+    }
+  });
+}
+
 // ── SUBSCRIPTION GOAL BAR ────────────────────────────────
 async function initGoalBar() {
   try {
@@ -5931,6 +6011,14 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="map-ol-leg-row" onclick="deskFilterCat('tecnologia',this)"  data-cat="tecnologia"> <span class="map-ol-leg-dot" style="background:#a78bfa;"></span>Tech<span class="map-ol-leg-count" id="desk-count-tec">0</span></div>
       <div class="map-ol-leg-row" onclick="deskFilterCat('hotspot',this)"     data-cat="hotspot">    <span class="map-ol-leg-dot" style="background:#06d6a0;"></span>Hotspot<span class="map-ol-leg-count" id="desk-count-hot">0</span></div>
     </div>
+    <!-- Tactical mode toggle -->
+    <button id="desk-tactical-btn" onclick="toggleTacticalMode()" title="Modalità tattica — ottimizzata per la lettura in piena luce">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/>
+        <line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/>
+        <line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/>
+      </svg>
+    </button>
     <button id="desk-map-expand-btn" onclick="openDeskMapFullscreen()">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
       Espandi
