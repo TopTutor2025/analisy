@@ -385,6 +385,24 @@ function initSituationMap(containerId) {
     noWrap: true
   }).addTo(situationMap);
 
+  // Bordi nazioni — colore verde hotspot #06d6a0
+  fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+    .then(r => r.json())
+    .then(topo => {
+      const countries = topojson.feature(topo, topo.objects.countries);
+      L.geoJSON(countries, {
+        style: {
+          fillColor:   'transparent',
+          fillOpacity: 0,
+          color:       '#06d6a0',
+          weight:      0.8,
+          opacity:     0.55
+        },
+        interactive: false
+      }).addTo(situationMap);
+    })
+    .catch(() => {/* bordi non critici, ignora */});
+
   // Init layer groups
   const layerKeys = ['events', 'resources_oil', 'resources_gas', 'resources_lithium', 'resources_uranium', 'migration', 'maritime', 'oil_trade', 'submarine'];
   layerKeys.forEach(k => {
