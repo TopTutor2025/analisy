@@ -1253,34 +1253,41 @@
   }
   /* ── Mobile market tab bar ── */
   .mob-mover-tabs {
-    display: flex; gap: 5px;
-    overflow-x: auto; padding: 0 14px 8px;
-    scrollbar-width: none;
+    display: flex; gap: 0;
+    padding: 0 0 10px;
+    width: 100%;
   }
-  .mob-mover-tabs::-webkit-scrollbar { display: none; }
   .mob-mover-tab {
-    flex-shrink: 0;
-    padding: 4px 11px; height: 26px;
-    font-size: 0.65rem; font-weight: 600;
-    color: rgba(255,255,255,0.35);
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.09);
-    border-radius: 6px; cursor: pointer;
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 4px;
+    padding: 7px 4px;
+    font-size: 0.56rem; font-weight: 700;
+    letter-spacing: 0.03em;
+    color: rgba(255,255,255,0.30);
+    background: rgba(255,255,255,0.02);
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
     font-family: inherit; white-space: nowrap;
     transition: all 0.15s;
     -webkit-tap-highlight-color: transparent;
   }
-  .mob-mover-tab:not(.active):active { opacity: 0.7; }
+  .mob-mover-tab svg { opacity: 0.5; transition: opacity 0.15s; }
+  .mob-mover-tab:not(.active):active { background: rgba(255,255,255,0.05); }
   .mob-mover-tab.active {
     color: #06d6a0 !important;
-    background: rgba(6,214,160,0.10) !important;
-    border-color: #06d6a0 !important;
+    border-bottom-color: #06d6a0 !important;
+    background: rgba(6,214,160,0.05) !important;
   }
+  .mob-mover-tab.active svg { opacity: 1; color: #06d6a0; }
   .mob-mover-tab.tab-purple.active {
     color: #bf5af2 !important;
-    background: rgba(191,90,242,0.10) !important;
-    border-color: #bf5af2 !important;
+    border-bottom-color: #bf5af2 !important;
+    background: rgba(191,90,242,0.05) !important;
   }
+  .mob-mover-tab.tab-purple.active svg { color: #bf5af2; }
   .mob-markets-scroll {
     display: flex; gap: 10px;
     overflow-x: auto; padding: 0 14px 8px;
@@ -5959,11 +5966,49 @@ document.addEventListener('DOMContentLoaded', () => {
     <span class="mob-section-title">Come reagiscono i mercati</span>
   </div>
   <div class="mob-mover-tabs" id="mob-mover-tabs">
-    <button class="mob-mover-tab active" onclick="switchMobMoverTab('commodities',this)" title="Materie Prime">Materie</button>
-    <button class="mob-mover-tab tab-purple" onclick="switchMobMoverTab('defense',this)" title="Difesa">Difesa</button>
-    <button class="mob-mover-tab tab-purple" onclick="switchMobMoverTab('biotech',this)" title="Biotech">Biotech</button>
-    <button class="mob-mover-tab" onclick="switchMobMoverTab('food',this)" title="Food / AgriTech">Food</button>
-    <button class="mob-mover-tab" onclick="switchMobMoverTab('indices',this)" title="Indici Globali">Indici</button>
+    <button class="mob-mover-tab active" onclick="switchMobMoverTab('commodities',this)" title="Materie Prime">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+        <rect x="1" y="1" width="3.5" height="3.5" rx="0.5"/><rect x="19.5" y="1" width="3.5" height="3.5" rx="0.5"/>
+        <rect x="1" y="6" width="3.5" height="3.5" rx="0.5"/><rect x="5.5" y="6" width="3.5" height="3.5" rx="0.5"/>
+        <rect x="14" y="6" width="3.5" height="3.5" rx="0.5"/><rect x="19.5" y="6" width="3.5" height="3.5" rx="0.5"/>
+        <rect x="1" y="11" width="3.5" height="3.5" rx="0.5"/><rect x="5.5" y="11" width="3.5" height="3.5" rx="0.5"/>
+        <rect x="10" y="11" width="3.5" height="3.5" rx="0.5"/><rect x="14.5" y="11" width="3.5" height="3.5" rx="0.5"/>
+        <rect x="19.5" y="11" width="3.5" height="3.5" rx="0.5"/>
+        <rect x="1" y="16" width="3.5" height="3.5" rx="0.5"/><rect x="5.5" y="16" width="3.5" height="3.5" rx="0.5"/>
+        <rect x="10" y="16" width="3.5" height="3.5" rx="0.5"/><rect x="14.5" y="16" width="3.5" height="3.5" rx="0.5"/>
+        <rect x="19.5" y="16" width="3.5" height="3.5" rx="0.5"/>
+        <rect x="1" y="21" width="3.5" height="2.5" rx="0.5"/><rect x="5.5" y="21" width="3.5" height="2.5" rx="0.5"/>
+        <rect x="10" y="21" width="3.5" height="2.5" rx="0.5"/>
+      </svg>
+      Materie
+    </button>
+    <button class="mob-mover-tab tab-purple" onclick="switchMobMoverTab('defense',this)" title="Difesa">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      Difesa
+    </button>
+    <button class="mob-mover-tab tab-purple" onclick="switchMobMoverTab('biotech',this)" title="Biotech">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 3v4a4 4 0 0 0 8 0V3"/><path d="M8 21v-4a4 4 0 0 1 8 0v4"/>
+        <line x1="12" y1="7" x2="12" y2="17"/><path d="M8 12h8"/>
+      </svg>
+      Biotech
+    </button>
+    <button class="mob-mover-tab" onclick="switchMobMoverTab('food',this)" title="Food / AgriTech">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2a9 9 0 0 1 0 18"/><path d="M12 2C6.5 2 2 6.5 2 12"/>
+        <path d="M12 8c0 0-2 2-2 4s2 4 2 4"/><path d="M12 8c0 0 2 2 2 4s-2 4-2 4"/>
+      </svg>
+      Food
+    </button>
+    <button class="mob-mover-tab" onclick="switchMobMoverTab('indices',this)" title="Indici Globali">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+        <line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/>
+      </svg>
+      Indici
+    </button>
   </div>
   <div class="mob-markets-scroll" id="mob-markets-scroll"></div>
 </div>
