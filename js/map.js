@@ -716,3 +716,109 @@ function reloadMapData() {
   `;
   document.head.appendChild(style);
 })();
+
+/* ═══════════════════════════════════════════════════════════
+   LIVE LAYERS — Aerei (OpenSky Network) + Navi (MarineTraffic)
+   ═══════════════════════════════════════════════════════════ */
+
+// ── AEREI ─────────────────────────────────────────────────
+let _planesLayer  = null;
+let _planesTimer  = null;
+let _planesActive = false;
+
+window.togglePlanesLayer = async function() {
+  _planesActive = !_planesActive;
+  _syncLayerBtns('planes', _planesActive);
+
+  if (!_planesActive) {
+    if (_planesLayer) { situationMap.removeLayer(_planesLayer); _planesLayer = null; }
+    if (_planesTimer) { clearInterval(_planesTimer); _planesTimer = null; }
+    return;
+  }
+  await _fetchPlanes();
+  _planesTimer = setInterval(_fetchPlanes, 45000);
+};
+
+async function _fetchPlanes() {
+  try {
+    // Bounding box: Europa + Mediterraneo + parte Medio Oriente
+    const res = await fetch(
+      'https://opensky-network.org/api/states/all?lamin=25&lomin=-20&lamax=72&lomax=50',
+      { signal: AbortSignal.timeout(10000) }
+    );
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data || !Array.isArray(data.states)) return;
+
+    if (_planesLayer) situationMap.removeLayer(_planesLayer);
+    _planesLayer = L.layerGroup();
+
+    // Icona SVG aereo rotante
+    const planePath = 'M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z';
+
+    data.states.forEach(s => {
+      const lon      = s[5];
+      const lat      = s[6];
+      if (!lat || !lon) return;
+      const heading  = s[10] ?? 0;
+      const callsign = (s[1] || '').trim();
+      const alt      = s[7]  ? Math.round(s[7])     + ' m'     : '';
+      const spd      = s[9]  ? Math.round(s[9] * 3.6) + ' km/h' : '';
+      const onGround = s[8];
+      if (onGround) return; // salta aerei a terra
+
+      const icon = L.divIcon({
+        html: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                 fill="#60a5fa" style="transform:rotate(${heading}deg);display:block;
+                 filter:drop-shadow(0 0 3px rgba(96,165,250,0.7));">
+                 <path d="${planePath}"/>
+               </svg>`,
+        className: '',
+        iconSize: [16, 16],
+        iconAnchor: [8, 8]
+      });
+
+      const marker = L.marker([lat, lon], { icon });
+      const label  = [callsign, alt, spd].filter(Boolean).join(' · ') || 'Aereo';
+      marker.bindTooltip(label, {
+        permanent: false, className: 'plane-tooltip',
+        direction: 'top', offset: [0, -10]
+      });
+      _planesLayer.addLayer(marker);
+    });
+
+    _planesLayer.addTo(situationMap);
+  } catch(e) { console.warn('[planes]', e); }
+}
+
+// ── NAVI ──────────────────────────────────────────────────
+let _shipsActive = false;
+
+window.toggleShipsLayer = function() {
+  _shipsActive = !_shipsActive;
+  _syncLayerBtns('ships', _shipsActive);
+
+  const iframe = document.getElementById('map-ships-iframe');
+  if (!iframe) return;
+  iframe.classList.toggle('active', _shipsActive);
+  // Carica l'iframe solo al primo attivo (lazy)
+  if (_shipsActive && iframe.src === 'about:blank') {
+    iframe.src = iframe.dataset.src;
+  }
+};
+
+// ── helper condiviso ───────────────────────────────────────
+function _syncLayerBtns(layer, active) {
+  const ids = [`desk-${layer}-btn`, `mob-${layer}-btn`];
+  ids.forEach(id => {
+    const b = document.getElementById(id);
+    if (!b) return;
+    if (layer === 'planes') {
+      b.classList.toggle('active', active);
+      b.classList.toggle('planes-active', active);
+    } else {
+      b.classList.toggle('active', active);
+      b.classList.toggle('ships-active', active);
+    }
+  });
+}

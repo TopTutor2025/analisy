@@ -1237,6 +1237,23 @@
     box-shadow: 0 0 8px rgba(6,214,160,0.35);
   }
   .mob-map-ctrl-btn.active:active { background: rgba(6,214,160,0.2) !important; }
+  .mob-map-ctrl-btn.planes-active {
+    border-color: #60a5fa !important; color: #60a5fa !important;
+    background: rgba(96,165,250,0.1) !important;
+    box-shadow: 0 0 8px rgba(96,165,250,0.35);
+  }
+  .mob-map-ctrl-btn.ships-active {
+    border-color: #22d3ee !important; color: #22d3ee !important;
+    background: rgba(34,211,238,0.1) !important;
+    box-shadow: 0 0 8px rgba(34,211,238,0.35);
+  }
+  /* Ships/Planes iframe overlay sulla mappa */
+  .map-live-overlay {
+    position: absolute; inset: 0; z-index: 400;
+    border: none; display: none;
+    width: 100%; height: 100%;
+  }
+  .map-live-overlay.active { display: block; }
 
   /* ── Markets horizontal ── */
   #mob-markets-section {
@@ -1968,6 +1985,26 @@
     color: #06d6a0;
     box-shadow: 0 0 8px rgba(6,214,160,0.35);
   }
+  #desk-planes-btn, #desk-ships-btn {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.5);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0;
+    transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
+  }
+  #desk-planes-btn:hover, #desk-ships-btn:hover { color: white; background: rgba(0,0,0,0.7); }
+  #desk-planes-btn.active { border-color: #60a5fa; color: #60a5fa; box-shadow: 0 0 8px rgba(96,165,250,0.35); }
+  #desk-ships-btn.active  { border-color: #22d3ee; color: #22d3ee; box-shadow: 0 0 8px rgba(34,211,238,0.35); }
+  /* Tooltip marker aerei */
+  .leaflet-tooltip.plane-tooltip {
+    background: rgba(6,6,18,0.92); border: 1px solid rgba(96,165,250,0.35);
+    color: #93c5fd; font-size: 0.56rem; font-family: 'SF Mono','Consolas',monospace;
+    padding: 2px 6px; border-radius: 4px; box-shadow: none; white-space: nowrap;
+  }
+  .leaflet-tooltip.plane-tooltip::before { display: none; }
 
   /* Mobile map controls: hidden on desktop */
   #mob-map-controls { display: none !important; }
@@ -2738,6 +2775,12 @@
   <div class="sr-map-container">
     <div id="situation-map"></div>
 
+    <!-- Ships iframe overlay (z-index 400 — sopra mappa, sotto controlli) -->
+    <iframe id="map-ships-iframe" class="map-live-overlay"
+      src="about:blank"
+      data-src="https://www.marinetraffic.com/en/ais/embed/maptype:0/mmsi:0/shownames:false/zoom:3/centerx:15/centery:40"
+      allowfullscreen></iframe>
+
     <!-- ── Mobile map controls (bottom-right) ── -->
     <div id="mob-map-controls">
       <button class="mob-map-ctrl-btn borders-layer-btn" onclick="toggleBordersLayer()" title="Visualizzazione avanzata">
@@ -2759,6 +2802,20 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="12" cy="19" r="2"/>
           <line x1="7" y1="5" x2="17" y2="5"/><line x1="6.5" y1="6.5" x2="11" y2="17.5"/><line x1="17.5" y1="6.5" x2="13" y2="17.5"/>
+        </svg>
+      </button>
+      <!-- Aerei live -->
+      <button class="mob-map-ctrl-btn" id="mob-planes-btn" onclick="togglePlanesLayer()" title="Traffico aereo live">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+        </svg>
+      </button>
+      <!-- Navi live -->
+      <button class="mob-map-ctrl-btn" id="mob-ships-btn" onclick="toggleShipsLayer()" title="Traffico navale live">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2c1.3 0 1.9.5 2.5 1"/>
+          <path d="M19.38 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 5.591 3.824 6.99 7.386 7.994"/>
+          <path d="M12 10V2"/><path d="M8 6l4-4 4 4"/>
         </svg>
       </button>
     </div>
@@ -6135,6 +6192,20 @@ document.addEventListener('DOMContentLoaded', () => {
           <path d="M4.93 19.07A10 10 0 0 1 4 12"/>
           <line x1="2" y1="2" x2="6.34" y2="6.34"/>
           <line x1="17.66" y1="17.66" x2="22" y2="22"/>
+        </svg>
+      </button>
+      <!-- Aerei live -->
+      <button id="desk-planes-btn" onclick="togglePlanesLayer()" title="Traffico aereo live">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+        </svg>
+      </button>
+      <!-- Navi live -->
+      <button id="desk-ships-btn" onclick="toggleShipsLayer()" title="Traffico navale live">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2c1.3 0 1.9.5 2.5 1"/>
+          <path d="M19.38 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 5.591 3.824 6.99 7.386 7.994"/>
+          <path d="M12 10V2"/><path d="M8 6l4-4 4 4"/>
         </svg>
       </button>
       <button id="desk-map-expand-btn" onclick="openDeskMapFullscreen()">
