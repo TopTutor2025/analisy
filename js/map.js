@@ -745,17 +745,25 @@ window.togglePlanesLayer = async function() {
 
 async function _fetchPlanes() {
   try {
-    // Bounding box: Europa + Mediterraneo + parte Medio Oriente
+    // adsb.lol — free, no-auth, CORS-enabled
+    // Centro Europa (lat 50, lon 20), raggio 3000 nm copre Europa + Mediterraneo + Medio Oriente
     const controller = new AbortController();
-    const _timer = setTimeout(() => controller.abort(), 10000);
+    const _timer = setTimeout(() => controller.abort(), 15000);
     const res = await fetch(
-      'https://opensky-network.org/api/states/all?lamin=25&lomin=-20&lamax=72&lomax=50',
+      'https://api.adsb.lol/v2/lat/50/lon/20/dist/3000',
       { signal: controller.signal }
     );
     clearTimeout(_timer);
-    if (!res.ok) return;
+    if (!res.ok) {
+      console.warn('[planes] API error:', res.status, res.statusText);
+      return;
+    }
     const data = await res.json();
-    if (!data || !Array.isArray(data.states)) return;
+    const states = data?.ac;
+    if (!Array.isArray(states)) {
+      console.warn('[planes] risposta inattesa:', data);
+      return;
+    }
 
     if (_planesLayer) situationMap.removeLayer(_planesLayer);
     _planesLayer = L.layerGroup();
@@ -763,16 +771,17 @@ async function _fetchPlanes() {
     // Icona SVG aereo rotante
     const planePath = 'M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z';
 
-    data.states.forEach(s => {
-      const lon      = s[5];
-      const lat      = s[6];
-      if (!lat || !lon) return;
-      const heading  = s[10] ?? 0;
-      const callsign = (s[1] || '').trim();
-      const alt      = s[7]  ? Math.round(s[7])     + ' m'     : '';
-      const spd      = s[9]  ? Math.round(s[9] * 3.6) + ' km/h' : '';
-      const onGround = s[8];
-      if (onGround) return; // salta aerei a terra
+    let count = 0;
+    states.forEach(s => {
+      const lat = s.lat;
+      const lon = s.lon;
+      if (lat == null || lon == null) return;
+      if (s.alt_baro === 'ground' || s.on_ground) return; // salta aerei a terra
+
+      const heading  = s.track ?? 0;
+      const callsign = (s.flight || s.hex || '').trim();
+      const altFt    = typeof s.alt_baro === 'number' ? Math.round(s.alt_baro) + ' ft' : '';
+      const spdKts   = typeof s.gs      === 'number' ? Math.round(s.gs)      + ' kt' : '';
 
       const icon = L.divIcon({
         html: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
@@ -786,16 +795,18 @@ async function _fetchPlanes() {
       });
 
       const marker = L.marker([lat, lon], { icon });
-      const label  = [callsign, alt, spd].filter(Boolean).join(' · ') || 'Aereo';
+      const label  = [callsign, altFt, spdKts].filter(Boolean).join(' · ') || 'Aereo';
       marker.bindTooltip(label, {
         permanent: false, className: 'plane-tooltip',
         direction: 'top', offset: [0, -10]
       });
       _planesLayer.addLayer(marker);
+      count++;
     });
 
     _planesLayer.addTo(situationMap);
-  } catch(e) { console.warn('[planes]', e); }
+    console.log('[planes] caricati', count, 'aerei su', states.length);
+  } catch(e) { console.warn('[planes] errore:', e); }
 }
 
 // ── NAVI ──────────────────────────────────────────────────
