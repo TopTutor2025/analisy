@@ -2332,10 +2332,10 @@
 
   /* ── Market movers tab strip ── */
   .desk-mover-tab {
-    display: flex; align-items: center; justify-content: center; gap: 7px;
-    padding: 6px 14px; height: 30px;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    padding: 5px 9px; height: 28px;
     width: fit-content; flex-shrink: 0;
-    font-size: 0.75rem; font-weight: 600;
+    font-size: 0.68rem; font-weight: 600;
     color: rgba(255,255,255,0.38);
     background: none; border: 1px solid transparent;
     border-radius: 7px; cursor: pointer; font-family: inherit;
@@ -2445,10 +2445,12 @@
     -webkit-backdrop-filter: blur(20px);
   }
   #desk-tabnav-left {
-    width: 25%; flex-shrink: 0;
+    width: 30%; flex-shrink: 0;
     display: flex; align-items: center;
-    padding: 0 12px; gap: 4px;
+    padding: 0 8px; gap: 3px;
+    overflow-x: auto; scrollbar-width: none;
   }
+  #desk-tabnav-left::-webkit-scrollbar { display: none; }
   #desk-tabnav-center {
     flex: 1; min-width: 0;
     display: flex; align-items: center;
@@ -3601,6 +3603,54 @@ const MARKETS = [
   { name:'Uranio',         ticker:'UX',     price:'$85.50',  rawPrice:85.50,    change:'+0.7%', up:true,  history:[84.0,84.5,85.0,84.8,85.2,85.4,85.50] },
   { name:'Palladio',       ticker:'PALL',   price:'$980',    rawPrice:980,      change:'-0.2%', up:false, history:[990,987,985,984,982,981,980]           },
   { name:'Nichel',         ticker:'NICK',   price:'$17,890', rawPrice:17890,    change:'+1.8%', up:true,  history:[17500,17600,17650,17710,17760,17820,17890] },
+];
+
+/* ── Basket Difesa ── */
+const MARKETS_DEFENSE = [
+  { name:'Rheinmetall',       ticker:'RHM',  price:'€642',    rawPrice:642,    change:'+2.4%', up:true,  history:[580,592,605,615,624,634,642] },
+  { name:'Leonardo',          ticker:'LDO',  price:'€24.80',  rawPrice:24.80,  change:'+1.8%', up:true,  history:[22.4,22.9,23.3,23.7,24.1,24.5,24.80] },
+  { name:'Lockheed Martin',   ticker:'LMT',  price:'$452',    rawPrice:452,    change:'+0.6%', up:true,  history:[445,446,448,449,451,452,452] },
+  { name:'Northrop Grumman',  ticker:'NOC',  price:'$468',    rawPrice:468,    change:'-0.4%', up:false, history:[473,471,470,470,469,469,468] },
+  { name:'BAE Systems',       ticker:'BA.',  price:'£12.32',  rawPrice:12.32,  change:'+1.1%', up:true,  history:[11.80,11.90,12.05,12.12,12.20,12.28,12.32] },
+  { name:'Thales',            ticker:'HO',   price:'€138',    rawPrice:138,    change:'+0.9%', up:true,  history:[132,133,134,135,136,137,138] },
+  { name:'MBDA / Airbus DS',  ticker:'AIR',  price:'€162',    rawPrice:162,    change:'+1.3%', up:true,  history:[155,156,157,158,160,161,162] },
+  { name:'General Dynamics',  ticker:'GD',   price:'$278',    rawPrice:278,    change:'-0.2%', up:false, history:[281,280,280,279,279,278,278] },
+];
+
+/* ── Basket Biotech / Pharma ── */
+const MARKETS_BIOTECH = [
+  { name:'Moderna',           ticker:'MRNA', price:'$108',    rawPrice:108,    change:'+3.2%', up:true,  history:[98,100,102,104,106,107,108] },
+  { name:'BioNTech',          ticker:'BNTX', price:'$96',     rawPrice:96,     change:'+1.5%', up:true,  history:[90,91,92,93,94,95,96] },
+  { name:'Regeneron',         ticker:'REGN', price:'$994',    rawPrice:994,    change:'-0.6%', up:false, history:[1010,1006,1004,1001,998,996,994] },
+  { name:'Gilead Sciences',   ticker:'GILD', price:'$68.40',  rawPrice:68.40,  change:'+0.8%', up:true,  history:[66.8,67.1,67.4,67.7,68.0,68.2,68.40] },
+  { name:'AstraZeneca',       ticker:'AZN',  price:'£118',    rawPrice:118,    change:'+0.4%', up:true,  history:[115,116,116,117,117,118,118] },
+  { name:'Pfizer',            ticker:'PFE',  price:'$28.90',  rawPrice:28.90,  change:'-1.1%', up:false, history:[30.2,29.9,29.7,29.4,29.2,29.0,28.90] },
+  { name:'Vertex Pharma',     ticker:'VRTX', price:'$478',    rawPrice:478,    change:'+0.7%', up:true,  history:[472,473,474,475,476,477,478] },
+  { name:'Intuitive Surgical',ticker:'ISRG', price:'$388',    rawPrice:388,    change:'+1.2%', up:true,  history:[380,382,383,384,385,387,388] },
+];
+
+/* ── Basket Food / Carni Sintetiche / AgriTech ── */
+const MARKETS_FOOD = [
+  { name:'Beyond Meat',       ticker:'BYND', price:'$7.42',   rawPrice:7.42,   change:'-2.3%', up:false, history:[8.20,8.00,7.85,7.75,7.62,7.50,7.42] },
+  { name:'Oatly',             ticker:'OTLY', price:'$1.18',   rawPrice:1.18,   change:'-1.7%', up:false, history:[1.35,1.30,1.28,1.26,1.23,1.20,1.18] },
+  { name:'Archer-Daniels',    ticker:'ADM',  price:'$52.80',  rawPrice:52.80,  change:'+0.5%', up:true,  history:[51.2,51.5,51.8,52.0,52.3,52.6,52.80] },
+  { name:'Tyson Foods',       ticker:'TSN',  price:'$58.20',  rawPrice:58.20,  change:'+0.9%', up:true,  history:[56.8,57.1,57.4,57.6,57.9,58.1,58.20] },
+  { name:'Ingredion',         ticker:'INGR', price:'$118',    rawPrice:118,    change:'+0.3%', up:true,  history:[116,116,117,117,117,118,118] },
+  { name:'AppHarvest',        ticker:'APPH', price:'$0.82',   rawPrice:0.82,   change:'-3.5%', up:false, history:[0.95,0.92,0.90,0.88,0.86,0.84,0.82] },
+  { name:'Bunge Global',      ticker:'BG',   price:'$96',     rawPrice:96,     change:'+1.1%', up:true,  history:[92,93,93,94,95,95,96] },
+  { name:'Tattooed Chef',     ticker:'TTCF', price:'$2.10',   rawPrice:2.10,   change:'-1.4%', up:false, history:[2.45,2.38,2.32,2.28,2.22,2.16,2.10] },
+];
+
+/* ── Basket Indici Globali ── */
+const MARKETS_INDICES = [
+  { name:'S&P 500',           ticker:'SPX',    price:'5,304',  rawPrice:5304,   change:'+0.8%', up:true,  history:[5200,5222,5240,5258,5272,5290,5304] },
+  { name:'Nasdaq 100',        ticker:'NDX',    price:'18,680', rawPrice:18680,  change:'+1.1%', up:true,  history:[18200,18320,18450,18520,18590,18640,18680] },
+  { name:'Dow Jones',         ticker:'DJI',    price:'39,120', rawPrice:39120,  change:'+0.4%', up:true,  history:[38800,38880,38950,39010,39060,39090,39120] },
+  { name:'Euro Stoxx 50',     ticker:'SX5E',   price:'4,982',  rawPrice:4982,   change:'+0.6%', up:true,  history:[4880,4900,4920,4940,4958,4972,4982] },
+  { name:'DAX',               ticker:'DAX',    price:'18,420', rawPrice:18420,  change:'+0.7%', up:true,  history:[18100,18180,18240,18300,18350,18390,18420] },
+  { name:'FTSE 100',          ticker:'UKX',    price:'8,240',  rawPrice:8240,   change:'-0.2%', up:false, history:[8280,8275,8268,8262,8256,8248,8240] },
+  { name:'Nikkei 225',        ticker:'N225',   price:'38,460', rawPrice:38460,  change:'+0.5%', up:true,  history:[38100,38180,38250,38320,38380,38420,38460] },
+  { name:'Shanghai Comp.',    ticker:'SHCOMP', price:'3,154',  rawPrice:3154,   change:'-0.4%', up:false, history:[3200,3192,3185,3178,3170,3162,3154] },
 ];
 
 /* ── SR Navbar custom ──
@@ -5478,16 +5528,19 @@ function toggleMapLayer(layer, el) {
 function switchMoverTab(type, el) {
   document.querySelectorAll('.desk-mover-tab').forEach(b => b.classList.remove('active'));
   if (el) el.classList.add('active');
-  if (type === 'commodities') renderDeskCommodities();
-  // future: else if (type === 'currencies') renderDeskCurrencies();
+  if      (type === 'commodities') renderDeskCommodities();
+  else if (type === 'defense')     renderDeskBasket(MARKETS_DEFENSE);
+  else if (type === 'biotech')     renderDeskBasket(MARKETS_BIOTECH);
+  else if (type === 'food')        renderDeskBasket(MARKETS_FOOD);
+  else if (type === 'indices')     renderDeskBasket(MARKETS_INDICES);
 }
 
-/* ── Render Commodities (left col) ── */
-function renderDeskCommodities() {
+/* ── Helper: renderizza un basket generico nella colonna sinistra ── */
+function renderDeskBasket(data) {
   if (window.innerWidth <= 768) return;
   const grid = document.getElementById('desk-commodity-col');
   if (!grid) return;
-  grid.innerHTML = MARKETS.map(m => {
+  grid.innerHTML = data.map(m => {
     const color = m.up ? '#34d399' : '#e8344e';
     const spark = generateSparklineSVG(m.history, m.up);
     return `
@@ -5501,6 +5554,11 @@ function renderDeskCommodities() {
         <div class="desk-commodity-spark">${spark}</div>
       </div>`;
   }).join('');
+}
+
+/* ── Render Commodities (left col) ── */
+function renderDeskCommodities() {
+  renderDeskBasket(MARKETS);
 }
 
 /* ── Render Markets desktop ── */
@@ -6078,35 +6136,56 @@ document.addEventListener('DOMContentLoaded', () => {
   <div id="desk-tab-nav">
     <!-- Sezione sinistra 25%: Materie Prime -->
     <div id="desk-tabnav-left">
+      <!-- Materie Prime -->
       <button class="desk-mover-tab active" data-mover="commodities" onclick="switchMoverTab('commodities',this)" title="Materie Prime">
-        <!-- Periodic table icon -->
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-          <!-- Row 1: H (left) · · · · · · · · · · · · · · · He (right) -->
-          <rect x="1"  y="1" width="3.5" height="3.5" rx="0.5"/>
-          <rect x="19.5" y="1" width="3.5" height="3.5" rx="0.5"/>
-          <!-- Row 2: 2 left, gap, 4 right -->
-          <rect x="1"  y="6" width="3.5" height="3.5" rx="0.5"/>
-          <rect x="5.5" y="6" width="3.5" height="3.5" rx="0.5"/>
-          <rect x="14" y="6" width="3.5" height="3.5" rx="0.5"/>
-          <rect x="19.5" y="6" width="3.5" height="3.5" rx="0.5"/>
-          <!-- Row 3: full width -->
-          <rect x="1"    y="11" width="3.5" height="3.5" rx="0.5"/>
-          <rect x="5.5"  y="11" width="3.5" height="3.5" rx="0.5"/>
-          <rect x="10"   y="11" width="3.5" height="3.5" rx="0.5"/>
-          <rect x="14.5" y="11" width="3.5" height="3.5" rx="0.5"/>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+          <rect x="1" y="1" width="3.5" height="3.5" rx="0.5"/><rect x="19.5" y="1" width="3.5" height="3.5" rx="0.5"/>
+          <rect x="1" y="6" width="3.5" height="3.5" rx="0.5"/><rect x="5.5" y="6" width="3.5" height="3.5" rx="0.5"/>
+          <rect x="14" y="6" width="3.5" height="3.5" rx="0.5"/><rect x="19.5" y="6" width="3.5" height="3.5" rx="0.5"/>
+          <rect x="1" y="11" width="3.5" height="3.5" rx="0.5"/><rect x="5.5" y="11" width="3.5" height="3.5" rx="0.5"/>
+          <rect x="10" y="11" width="3.5" height="3.5" rx="0.5"/><rect x="14.5" y="11" width="3.5" height="3.5" rx="0.5"/>
           <rect x="19.5" y="11" width="3.5" height="3.5" rx="0.5"/>
-          <!-- Row 4: full width -->
-          <rect x="1"    y="16" width="3.5" height="3.5" rx="0.5"/>
-          <rect x="5.5"  y="16" width="3.5" height="3.5" rx="0.5"/>
-          <rect x="10"   y="16" width="3.5" height="3.5" rx="0.5"/>
-          <rect x="14.5" y="16" width="3.5" height="3.5" rx="0.5"/>
+          <rect x="1" y="16" width="3.5" height="3.5" rx="0.5"/><rect x="5.5" y="16" width="3.5" height="3.5" rx="0.5"/>
+          <rect x="10" y="16" width="3.5" height="3.5" rx="0.5"/><rect x="14.5" y="16" width="3.5" height="3.5" rx="0.5"/>
           <rect x="19.5" y="16" width="3.5" height="3.5" rx="0.5"/>
-          <!-- Row 5: partial -->
-          <rect x="1"   y="21" width="3.5" height="2.5" rx="0.5"/>
-          <rect x="5.5" y="21" width="3.5" height="2.5" rx="0.5"/>
-          <rect x="10"  y="21" width="3.5" height="2.5" rx="0.5"/>
+          <rect x="1" y="21" width="3.5" height="2.5" rx="0.5"/><rect x="5.5" y="21" width="3.5" height="2.5" rx="0.5"/>
+          <rect x="10" y="21" width="3.5" height="2.5" rx="0.5"/>
         </svg>
-        Materie Prime
+        Materie
+      </button>
+      <!-- Difesa -->
+      <button class="desk-mover-tab" data-mover="defense" onclick="switchMoverTab('defense',this)" title="Basket Settore Difesa">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        Difesa
+      </button>
+      <!-- Biotech -->
+      <button class="desk-mover-tab" data-mover="biotech" onclick="switchMoverTab('biotech',this)" title="Basket Biotech / Farmaceutico">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3v4a4 4 0 0 0 8 0V3"/><path d="M8 21v-4a4 4 0 0 1 8 0v4"/>
+          <line x1="12" y1="7" x2="12" y2="17"/>
+          <path d="M8 12h8"/>
+        </svg>
+        Biotech
+      </button>
+      <!-- Food -->
+      <button class="desk-mover-tab" data-mover="food" onclick="switchMoverTab('food',this)" title="Basket Food / Carni Sintetiche / AgriTech">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a9 9 0 0 1 0 18"/><path d="M12 2C6.5 2 2 6.5 2 12"/>
+          <path d="M12 8c0 0-2 2-2 4s2 4 2 4"/>
+          <path d="M12 8c0 0 2 2 2 4s-2 4-2 4"/>
+        </svg>
+        Food
+      </button>
+      <!-- Indici -->
+      <button class="desk-mover-tab" data-mover="indices" onclick="switchMoverTab('indices',this)" title="Indici Azionari Globali (S&amp;P 500, Nasdaq, DAX…)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6" y1="20" x2="6" y2="14"/>
+          <line x1="2" y1="20" x2="22" y2="20"/>
+        </svg>
+        Indici
       </button>
     </div>
     <!-- Sezione centrale 45%: tab articoli/live/podcast/forum -->
