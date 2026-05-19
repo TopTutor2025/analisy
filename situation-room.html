@@ -1746,6 +1746,7 @@
   display: none;
   position: fixed; inset: 0; z-index: 2000;
   background: #020508;
+  overflow: hidden;
 }
 /* Overlay inner: dimensioni esplicite su tutti i breakpoint */
 #desk-map-fs-inner {
@@ -2245,15 +2246,6 @@
 
   /* ── Map fullscreen overlay — desktop: lascia spazio alla topbar 52px ── */
   #desk-map-fullscreen { inset: 52px 0 0 0; }
-  #desk-map-fs-close {
-    position: absolute; top: 14px; right: 14px; z-index: 10;
-    width: 32px; height: 32px; border-radius: 50%;
-    background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.15);
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s;
-  }
-  #desk-map-fs-close:hover { background: rgba(0,0,0,0.85); }
 
   /* ══════════ NEW LAYOUT OVERRIDES ══════════ */
 
@@ -6520,13 +6512,9 @@ document.addEventListener('DOMContentLoaded', () => {
   </div>
 </div>
 
-<!-- Map fullscreen overlay desktop -->
-<div id="desk-map-fullscreen" onclick="if(event.target===this)toggleDeskMapExpand()">
-  <div id="desk-map-fs-inner">
-    <button id="desk-map-fs-close" onclick="toggleDeskMapExpand()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-  </div>
+<!-- Map fullscreen overlay desktop + mobile -->
+<div id="desk-map-fullscreen">
+  <div id="desk-map-fs-inner"></div>
 </div>
 
 <!-- ── Site Popup ── -->
