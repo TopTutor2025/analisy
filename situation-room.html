@@ -2342,44 +2342,44 @@
   #mob-goal-bar {
     display: none; /* JS lo mostra */
     flex-direction: column;
-    position: relative;
     margin: 0 12px 14px;
-    padding: 10px 12px 9px;
+    padding: 8px 12px 10px;
     background: rgba(8,5,20,0.98);
     border: 2px solid #bf5af2;
     border-radius: 8px;
-    box-shadow: 0 0 18px rgba(191,90,242,0.55), 0 0 6px rgba(191,90,242,0.25) inset;
-    gap: 7px;
+    box-shadow: 0 0 20px rgba(191,90,242,0.6), 0 0 8px rgba(191,90,242,0.2) inset;
+    gap: 6px;
   }
-  /* Badge "OBIETTIVO" stile retro */
-  #mob-goal-badge {
-    position: absolute;
-    top: -9px; left: 10px;
+  /* Riga 1: label descrizione obiettivo (stile "DAILY QUEST") */
+  #mob-goal-label {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
     background: #bf5af2;
     color: #fff;
     font-size: 0.48rem; font-weight: 800;
-    letter-spacing: 0.12em; text-transform: uppercase;
-    padding: 1px 7px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 2px 8px;
     border-radius: 3px;
-    line-height: 1.5;
+    max-width: 100%; overflow: hidden;
   }
-  /* Riga principale: stella + barra */
+  #mob-goal-desc-text {
+    overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap; color: inherit;
+  }
+  /* Riga 2: icona costellazione + barra progresso */
   #mob-goal-main {
     display: flex; align-items: center; gap: 8px;
-    margin-top: 2px;
   }
-  #mob-goal-star {
-    font-size: 1rem; line-height: 1;
+  #mob-goal-icon {
     flex-shrink: 0;
-    filter: drop-shadow(0 0 4px #ffd60a);
-  }
-  /* Track wrapper occupa tutto lo spazio */
-  #mob-goal-track-wrap {
-    flex: 1; display: flex; flex-direction: column; gap: 4px;
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    filter: drop-shadow(0 0 5px rgba(191,90,242,0.8));
   }
   #mob-goal-track {
-    width: 100%; height: 9px;
-    background: rgba(255,255,255,0.06);
+    flex: 1; height: 11px;
+    background: rgba(8,4,20,0.95);
     border-radius: 3px;
     border: 1px solid rgba(191,90,242,0.3);
     overflow: hidden;
@@ -2387,52 +2387,33 @@
   #mob-goal-fill {
     height: 100%; width: 0%;
     border-radius: 3px 0 0 3px;
-    background: linear-gradient(90deg, #00e5ff 0%, #00b4d8 25%, #7c6af2 65%, #bf5af2 100%);
-    transition: width 1.4s cubic-bezier(0.4,0,0.2,1);
-    box-shadow: 0 0 10px rgba(0,229,255,0.5), 0 0 6px rgba(191,90,242,0.6);
+    background: linear-gradient(90deg, #00e5ff 0%, #00b4d8 20%, #7c6af2 65%, #bf5af2 100%);
+    transition: width 1.6s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 0 10px rgba(0,229,255,0.45), 0 0 8px rgba(191,90,242,0.55);
   }
-  /* Riga sotto la barra: contatore | abbonati + CTA */
+  /* Riga 3: contatore + pulsante */
   #mob-goal-bottom-row {
-    display: flex; align-items: center; justify-content: space-between; gap: 6px;
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 8px;
+    padding-left: 32px; /* allinea sotto la barra, non sotto l'icona */
   }
   #mob-goal-count {
     font-size: 0.6rem; font-weight: 700;
-    color: rgba(235,235,245,0.85); letter-spacing: 0.03em;
-    font-variant-numeric: tabular-nums;
+    color: rgba(235,235,245,0.8);
+    font-variant-numeric: tabular-nums; letter-spacing: 0.04em;
   }
-  #mob-goal-count em {
-    font-style: normal; color: #bf5af2;
-  }
+  #mob-goal-count em { font-style: normal; color: #bf5af2; }
   #mob-goal-cta {
     background: linear-gradient(135deg, #7c6af2, #bf5af2);
-    color: #fff;
-    padding: 3px 10px; border-radius: 4px;
-    font-size: 0.55rem; font-weight: 800;
+    color: #fff; padding: 3px 10px; border-radius: 4px;
+    font-size: 0.52rem; font-weight: 800;
     text-decoration: none; white-space: nowrap;
-    letter-spacing: 0.06em; text-transform: uppercase;
+    letter-spacing: 0.07em; text-transform: uppercase;
+    box-shadow: 0 0 7px rgba(191,90,242,0.45);
     transition: opacity 0.2s, transform 0.15s;
-    box-shadow: 0 0 8px rgba(191,90,242,0.5);
     -webkit-tap-highlight-color: transparent;
   }
-  #mob-goal-cta:active { opacity: 0.85; transform: scale(0.96); }
-  /* Expand link */
-  #mob-goal-desc-row {
-    display: flex; align-items: center;
-    cursor: pointer; gap: 4px;
-    -webkit-tap-highlight-color: transparent;
-  }
-  #mob-goal-desc-toggle {
-    font-size: 0.5rem; font-weight: 500;
-    color: rgba(191,90,242,0.75);
-    text-decoration: underline; text-decoration-style: dotted;
-    text-underline-offset: 2px;
-  }
-  #mob-goal-desc-text {
-    font-size: 0.58rem; color: rgba(235,235,245,0.45);
-    line-height: 1.6; overflow: hidden;
-    max-height: 0; transition: max-height 0.35s ease, margin-top 0.2s ease;
-  }
-  #mob-goal-desc-text.open { max-height: 120px; margin-top: 0; }
+  #mob-goal-cta:active { opacity: 0.82; transform: scale(0.96); }
 
   /* ── Map floating legend + filter overlay ── */
   #desk-map-overlay-legend {
@@ -5865,14 +5846,6 @@ document.addEventListener('mapEventsLoaded', function() {
   }
 });
 
-// ── MOBILE GOAL DESC EXPAND ──────────────────────────────
-function toggleMobGoalDesc() {
-  const desc   = document.getElementById('mob-goal-desc-text');
-  const toggle = document.getElementById('mob-goal-desc-toggle');
-  if (!desc) return;
-  const isOpen = desc.classList.toggle('open');
-  if (toggle) toggle.textContent = isOpen ? 'chiudi ‹' : 'scopri cosa può fare il tuo sostegno ›';
-}
 
 // ── GOAL TOOLTIP TOGGLE ──────────────────────────────────
 function toggleGoalTooltip(e) {
@@ -5945,9 +5918,9 @@ async function initGoalBar() {
     if (mobBar) {
       mobBar.style.display = 'flex';
       const mobCount = document.getElementById('mob-goal-count');
-      if (mobCount) mobCount.innerHTML = `<em>${cur}</em> | ${target} abbonati`;
+      if (mobCount) mobCount.innerHTML = `<em>${cur}</em> | ${target}`;
       const mobDesc = document.getElementById('mob-goal-desc-text');
-      if (mobDesc) mobDesc.textContent = goal.label || `Aiutaci a raggiungere ${target} abbonati per sostenere il servizio.`;
+      if (mobDesc) mobDesc.textContent = goal.label || `Aiutaci a raggiungere ${target} abbonati`;
       requestAnimationFrame(() => {
         const mobFill = document.getElementById('mob-goal-fill');
         if (mobFill) mobFill.style.width = pct + '%';
@@ -6131,23 +6104,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <!-- ═══════════ MOBILE GOAL BAR ═══════════ -->
 <div id="mob-goal-bar">
-  <div id="mob-goal-badge">⬡ Obiettivo</div>
+  <!-- Riga 1: descrizione obiettivo stile "DAILY QUEST" -->
+  <div id="mob-goal-label">
+    <span id="mob-goal-desc-text">Aiutaci a raggiungere l'obiettivo</span>
+  </div>
+  <!-- Riga 2: icona costellazione + barra -->
   <div id="mob-goal-main">
-    <span id="mob-goal-star">★</span>
-    <div id="mob-goal-track-wrap">
-      <div id="mob-goal-track">
-        <div id="mob-goal-fill"></div>
-      </div>
-      <div id="mob-goal-bottom-row">
-        <span id="mob-goal-count"><em>0</em> | 100 abbonati</span>
-        <a id="mob-goal-cta" href="register.html">Sostienici →</a>
-      </div>
+    <div id="mob-goal-icon">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="11" cy="2.5" r="1.5" fill="#e9d5ff"/>
+        <circle cx="19" cy="8" r="1.1" fill="#c4b5fd"/>
+        <circle cx="15.5" cy="16" r="1.5" fill="#bf5af2"/>
+        <circle cx="6.5" cy="17" r="1.1" fill="#c4b5fd"/>
+        <circle cx="2.5" cy="9" r="1.5" fill="#e9d5ff"/>
+        <circle cx="10" cy="11" r="1" fill="#a78bfa"/>
+        <line x1="11" y1="2.5" x2="19" y2="8" stroke="#7c6af2" stroke-width="0.7" opacity="0.75"/>
+        <line x1="19" y1="8" x2="15.5" y2="16" stroke="#7c6af2" stroke-width="0.7" opacity="0.75"/>
+        <line x1="15.5" y1="16" x2="6.5" y2="17" stroke="#7c6af2" stroke-width="0.7" opacity="0.75"/>
+        <line x1="6.5" y1="17" x2="2.5" y2="9" stroke="#7c6af2" stroke-width="0.7" opacity="0.75"/>
+        <line x1="2.5" y1="9" x2="11" y2="2.5" stroke="#7c6af2" stroke-width="0.7" opacity="0.75"/>
+        <line x1="10" y1="11" x2="19" y2="8" stroke="#7c6af2" stroke-width="0.5" opacity="0.4"/>
+        <line x1="10" y1="11" x2="6.5" y2="17" stroke="#7c6af2" stroke-width="0.5" opacity="0.4"/>
+      </svg>
+    </div>
+    <div id="mob-goal-track">
+      <div id="mob-goal-fill"></div>
     </div>
   </div>
-  <div id="mob-goal-desc-row" onclick="toggleMobGoalDesc()">
-    <span id="mob-goal-desc-toggle">scopri cosa può fare il tuo sostegno ›</span>
+  <!-- Riga 3: contatore + bottone -->
+  <div id="mob-goal-bottom-row">
+    <span id="mob-goal-count"><em>0</em> | 100</span>
+    <a id="mob-goal-cta" href="register.html">Sostienici →</a>
   </div>
-  <div id="mob-goal-desc-text"></div>
 </div>
 
 <!-- ═══════════ MOBILE v2 CONTENT AREA ═══════════ -->
