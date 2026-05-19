@@ -1247,6 +1247,12 @@
     background: rgba(34,211,238,0.1) !important;
     box-shadow: 0 0 8px rgba(34,211,238,0.35);
   }
+  /* Mobile mappa fullscreen */
+  .sr-map-section.mob-map-fullscreen {
+    position: fixed !important; inset: 0 !important;
+    z-index: 2000 !important; height: 100dvh !important;
+    width: 100vw !important;
+  }
   /* Ships/Planes iframe overlay sulla mappa */
   .map-live-overlay {
     position: absolute; inset: 0; z-index: 400;
@@ -1734,7 +1740,7 @@
 ═══════════════════════════════════════════════ */
 
 /* Nascosto su mobile */
-#desk-topbar, #desk-body, #desk-art-reader, #desk-map-fullscreen { display: none; }
+#desk-topbar, #desk-body, #desk-art-reader, #desk-map-fullscreen, #desk-map-controls { display: none; }
 
 @media (min-width: 769px) {
 
@@ -2781,6 +2787,36 @@
       data-src="https://www.marinetraffic.com/en/ais/embed/maptype:0/mmsi:0/shownames:false/zoom:3/centerx:15/centery:40"
       allowfullscreen></iframe>
 
+    <!-- ── Desktop map controls (bottom-right) — si sposta con la mappa anche in fullscreen ── -->
+    <div id="desk-map-controls" style="position:absolute;bottom:12px;right:12px;z-index:1100;display:flex;align-items:center;gap:6px;">
+      <button id="desk-borders-btn" class="borders-layer-btn" onclick="toggleBordersLayer()" title="Visualizzazione avanzata">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M6.3 6.3A8 8 0 1 0 17.7 17.7"/>
+          <path d="M19.07 4.93A10 10 0 0 1 20 12"/>
+          <path d="M4.93 19.07A10 10 0 0 1 4 12"/>
+          <line x1="2" y1="2" x2="6.34" y2="6.34"/>
+          <line x1="17.66" y1="17.66" x2="22" y2="22"/>
+        </svg>
+      </button>
+      <button id="desk-planes-btn" onclick="togglePlanesLayer()" title="Traffico aereo live">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+        </svg>
+      </button>
+      <button id="desk-ships-btn" onclick="toggleShipsLayer()" title="Traffico navale live">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2c1.3 0 1.9.5 2.5 1"/>
+          <path d="M19.38 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 5.591 3.824 6.99 7.386 7.994"/>
+          <path d="M12 10V2"/><path d="M8 6l4-4 4 4"/>
+        </svg>
+      </button>
+      <button id="desk-map-expand-btn" onclick="toggleDeskMapExpand()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        Espandi
+      </button>
+    </div>
+
     <!-- ── Mobile map controls (bottom-right) ── -->
     <div id="mob-map-controls">
       <button class="mob-map-ctrl-btn borders-layer-btn" onclick="toggleBordersLayer()" title="Visualizzazione avanzata">
@@ -2816,6 +2852,13 @@
           <path d="M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2c1.3 0 1.9.5 2.5 1"/>
           <path d="M19.38 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 5.591 3.824 6.99 7.386 7.994"/>
           <path d="M12 10V2"/><path d="M8 6l4-4 4 4"/>
+        </svg>
+      </button>
+      <!-- Espandi mappa (mobile) -->
+      <button class="mob-map-ctrl-btn" id="mob-expand-btn" onclick="toggleMobMapExpand()" title="Espandi mappa">
+        <svg id="mob-expand-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
+          <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
         </svg>
       </button>
     </div>
@@ -5455,33 +5498,49 @@ function closeDeskArtReader() {
   if (reader) reader.classList.remove('open');
 }
 
-/* ── Map fullscreen ── */
+/* ── Map fullscreen — Desktop ── */
 function toggleDeskMapExpand() {
   if (window.innerWidth <= 768) return;
   deskMapExpanded = !deskMapExpanded;
-  const fs = document.getElementById('desk-map-fullscreen');
+  const fs      = document.getElementById('desk-map-fullscreen');
   const fsInner = document.getElementById('desk-map-fs-inner');
+  const slot    = document.getElementById('desk-map-slot');
   const wrapper = document.querySelector('.sr-map-wrapper');
   if (!fs || !fsInner || !wrapper) return;
 
   if (deskMapExpanded) {
-    fsInner.insertBefore(wrapper, fsInner.firstChild);
+    fsInner.appendChild(wrapper);
     fs.classList.add('open');
     document.getElementById('desk-map-expand-btn').innerHTML = `
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg>
-      Riduci mappa`;
+      Riduci`;
   } else {
-    const slot = document.getElementById('desk-map-slot');
-    const expandBtn = document.getElementById('desk-map-expand-btn');
-    slot.insertBefore(wrapper, expandBtn);
+    slot.appendChild(wrapper);
     fs.classList.remove('open');
     document.getElementById('desk-map-expand-btn').innerHTML = `
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-      Espandi mappa`;
+      Espandi`;
   }
   setTimeout(() => {
     if (typeof situationMap !== 'undefined' && situationMap) situationMap.invalidateSize();
   }, 350);
+}
+
+/* ── Map fullscreen — Mobile ── */
+let _mobMapExpanded = false;
+function toggleMobMapExpand() {
+  _mobMapExpanded = !_mobMapExpanded;
+  const section = document.querySelector('.sr-map-section');
+  if (section) section.classList.toggle('mob-map-fullscreen', _mobMapExpanded);
+  const icon = document.getElementById('mob-expand-icon');
+  if (icon) {
+    icon.innerHTML = _mobMapExpanded
+      ? `<polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/>`
+      : `<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>`;
+  }
+  setTimeout(() => {
+    if (typeof situationMap !== 'undefined' && situationMap) situationMap.invalidateSize();
+  }, 150);
 }
 
 /* ── Nav sidebar ── */
@@ -6180,38 +6239,6 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="map-ol-leg-row" onclick="deskFilterCat('politica',this)"    data-cat="politica">   <span class="map-ol-leg-dot" style="background:#4f9eff;"></span>Politica<span class="map-ol-leg-count" id="desk-count-pol">0</span></div>
       <div class="map-ol-leg-row" onclick="deskFilterCat('tecnologia',this)"  data-cat="tecnologia"> <span class="map-ol-leg-dot" style="background:#a78bfa;"></span>Tech<span class="map-ol-leg-count" id="desk-count-tec">0</span></div>
       <div class="map-ol-leg-row" onclick="deskFilterCat('hotspot',this)"     data-cat="hotspot">    <span class="map-ol-leg-dot" style="background:#06d6a0;"></span>Hotspot<span class="map-ol-leg-count" id="desk-count-hot">0</span></div>
-    </div>
-    <!-- Map controls: borders toggle + expand (top-right) -->
-    <div id="desk-map-controls" style="position:absolute;bottom:12px;right:12px;z-index:1100;display:flex;align-items:center;gap:6px;">
-      <button id="desk-borders-btn" class="borders-layer-btn" onclick="toggleBordersLayer()" title="Visualizzazione avanzata">
-        <!-- satellite icon -->
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M6.3 6.3A8 8 0 1 0 17.7 17.7"/>
-          <path d="M19.07 4.93A10 10 0 0 1 20 12"/>
-          <path d="M4.93 19.07A10 10 0 0 1 4 12"/>
-          <line x1="2" y1="2" x2="6.34" y2="6.34"/>
-          <line x1="17.66" y1="17.66" x2="22" y2="22"/>
-        </svg>
-      </button>
-      <!-- Aerei live -->
-      <button id="desk-planes-btn" onclick="togglePlanesLayer()" title="Traffico aereo live">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-        </svg>
-      </button>
-      <!-- Navi live -->
-      <button id="desk-ships-btn" onclick="toggleShipsLayer()" title="Traffico navale live">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2c1.3 0 1.9.5 2.5 1"/>
-          <path d="M19.38 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 5.591 3.824 6.99 7.386 7.994"/>
-          <path d="M12 10V2"/><path d="M8 6l4-4 4 4"/>
-        </svg>
-      </button>
-      <button id="desk-map-expand-btn" onclick="openDeskMapFullscreen()">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-        Espandi
-      </button>
     </div>
   </div>
 
