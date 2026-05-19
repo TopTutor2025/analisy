@@ -2343,31 +2343,31 @@
     display: none; /* JS lo mostra */
     flex-direction: column;
     margin: 0 14px 14px;
-    padding: 12px 14px 10px;
-    background: rgba(14,10,28,0.95);
-    border: 1px solid rgba(191,90,242,0.35);
-    border-radius: 14px;
-    box-shadow: 0 0 18px rgba(167,139,250,0.12);
-    gap: 9px;
+    padding: 10px 12px 9px;
+    background: rgba(14,10,28,0.97);
+    border: 1.5px solid #bf5af2;
+    border-radius: 12px;
+    box-shadow: 0 0 14px rgba(191,90,242,0.45), inset 0 0 20px rgba(191,90,242,0.04);
+    gap: 8px;
   }
   #mob-goal-top-row {
-    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
   }
   #mob-goal-count {
-    font-size: 0.82rem; font-weight: 800;
-    color: rgba(235,235,245,0.95); letter-spacing: -0.01em;
+    font-size: 0.68rem; font-weight: 700;
+    color: rgba(235,235,245,0.9); letter-spacing: -0.01em;
   }
   #mob-goal-cta {
     background: #a78bfa; color: #fff;
-    padding: 5px 14px; border-radius: 7px;
-    font-size: 0.7rem; font-weight: 700;
+    padding: 4px 11px; border-radius: 6px;
+    font-size: 0.6rem; font-weight: 700;
     text-decoration: none; white-space: nowrap;
     transition: background 0.2s, transform 0.15s;
     -webkit-tap-highlight-color: transparent;
   }
   #mob-goal-cta:active { background: #8b6ef0; transform: scale(0.97); }
   #mob-goal-track {
-    width: 100%; height: 8px;
+    width: 100%; height: 6px;
     background: rgba(255,255,255,0.07);
     border-radius: 99px; overflow: hidden;
   }
@@ -2376,25 +2376,25 @@
     border-radius: 99px;
     background: linear-gradient(90deg, #7c6af2, #bf5af2);
     transition: width 1.4s cubic-bezier(0.4,0,0.2,1);
-    box-shadow: 0 0 8px rgba(191,90,242,0.6);
+    box-shadow: 0 0 8px rgba(191,90,242,0.7);
   }
   #mob-goal-desc-row {
-    display: flex; align-items: center; justify-content: space-between;
-    cursor: pointer; gap: 8px;
+    display: flex; align-items: center;
+    cursor: pointer; gap: 6px;
     -webkit-tap-highlight-color: transparent;
   }
   #mob-goal-desc-toggle {
-    font-size: 0.62rem; font-weight: 500;
-    color: rgba(191,90,242,0.75);
+    font-size: 0.56rem; font-weight: 500;
+    color: rgba(191,90,242,0.8);
     text-decoration: underline; text-decoration-style: dotted;
-    text-underline-offset: 2px; white-space: nowrap; flex-shrink: 0;
+    text-underline-offset: 2px; white-space: nowrap;
   }
   #mob-goal-desc-text {
-    font-size: 0.72rem; color: rgba(235,235,245,0.55);
+    font-size: 0.6rem; color: rgba(235,235,245,0.5);
     line-height: 1.6; overflow: hidden;
     max-height: 0; transition: max-height 0.35s ease, margin-top 0.2s ease;
   }
-  #mob-goal-desc-text.open { max-height: 120px; margin-top: 2px; }
+  #mob-goal-desc-text.open { max-height: 120px; margin-top: 1px; }
 
   /* ── Map floating legend + filter overlay ── */
   #desk-map-overlay-legend {
