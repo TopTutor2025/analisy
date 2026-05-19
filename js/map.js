@@ -377,12 +377,16 @@ function initSituationMap(containerId) {
     maxBoundsViscosity: 1.0
   });
 
-  // Dark tile layer
+  // Sfondo uguale al colore delle tile — elimina le aree nere durante il caricamento
+  situationMap.getContainer().style.background = '#0d0d18';
+
+  // Dark tile layer — keepBuffer:4 pre-carica più tile attorno alla viewport
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a> © <a href="https://carto.com">CARTO</a>',
     subdomains: 'abcd',
     maxZoom: 19,
-    noWrap: true
+    noWrap: true,
+    keepBuffer: 4
   }).addTo(situationMap);
 
   // Bordi nazioni — colore verde hotspot #06d6a0 (togglabile via toggleBordersLayer)
