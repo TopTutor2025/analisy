@@ -1747,6 +1747,19 @@
   position: fixed; inset: 0; z-index: 2000;
   background: #020508;
 }
+/* Contenuto dentro l'overlay: forza la mappa a riempire tutto lo spazio */
+#desk-map-fs-inner .sr-map-wrapper {
+  height: 100% !important; display: flex !important;
+  flex-direction: column !important; border: none !important; margin: 0 !important;
+}
+#desk-map-fs-inner .sr-map-row {
+  flex: 1 !important; height: 100% !important; min-height: unset !important;
+}
+#desk-map-fs-inner .sr-map-section,
+#desk-map-fs-inner .sr-map-container,
+#desk-map-fs-inner #situation-map {
+  height: 100% !important; border-radius: 0 !important;
+}
 
 @media (min-width: 769px) {
 
@@ -5505,8 +5518,9 @@ function closeDeskArtReader() {
 }
 
 /* ── Map fullscreen — unificato desktop + mobile con transizione fluida ── */
-let _mapExpanded      = false;
-let _mapWrapperOrigin = null;
+let _mapExpanded          = false;
+let _mapWrapperOrigin     = null;
+let _mapWrapperNextSibling = null;
 
 const _MAP_EXPAND_SVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>`;
 const _MAP_REDUCE_SVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg>`;
@@ -5531,7 +5545,8 @@ function toggleMapExpand() {
   const EASE = 'cubic-bezier(0.32,0.72,0,1)';
 
   if (_mapExpanded) {
-    _mapWrapperOrigin = wrapper.parentElement;
+    _mapWrapperOrigin      = wrapper.parentElement;
+    _mapWrapperNextSibling = wrapper.nextSibling; // salva posizione esatta
     fsInner.appendChild(wrapper);
     // Stato iniziale (invisible) → poi trigger transizione nel prossimo frame
     fs.style.cssText = `display:block; opacity:0; transform:scale(0.97); pointer-events:none;
@@ -5549,7 +5564,11 @@ function toggleMapExpand() {
     fs.style.pointerEvents = 'none';
     fs.addEventListener('transitionend', () => {
       fs.style.cssText = 'display:none;';
-      if (_mapWrapperOrigin) { _mapWrapperOrigin.appendChild(wrapper); _mapWrapperOrigin = null; }
+      if (_mapWrapperOrigin) {
+        // insertBefore riporta il wrapper esattamente dove era (non in fondo)
+        _mapWrapperOrigin.insertBefore(wrapper, _mapWrapperNextSibling || null);
+        _mapWrapperOrigin = null; _mapWrapperNextSibling = null;
+      }
       setTimeout(() => { if (typeof situationMap !== 'undefined' && situationMap) situationMap.invalidateSize(); }, 50);
     }, { once: true });
   }
