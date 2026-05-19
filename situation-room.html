@@ -2240,84 +2240,7 @@
   #desk-map-full #desk-map-slot .sr-map-row { height: 100% !important; min-height: unset !important; }
   #desk-map-full #desk-map-slot .sr-map-section { height: 100% !important; border-radius: 0 !important; }
 
-  /* ── Goal bar — stile gaming (like photo: dark bg, solid color border, thick fill) ── */
-  #desk-goal-bar {
-    display: none; /* JS sets display:flex */
-    flex: 1; align-self: stretch;
-    margin: 7px 14px;
-    border-radius: 8px;
-    background: rgba(6,6,14,0.96);
-    border: 1.5px solid #e8344e; /* colore aggiornato da JS */
-    overflow: hidden;
-    position: relative;
-    min-width: 0;
-    pointer-events: all;
-    box-shadow: 0 0 10px rgba(232,52,78,0.25); /* glow aggiornato da JS */
-    flex-direction: column;
-  }
-  /* Riga testo: label sinistra, count + azioni destra */
-  #desk-goal-inner {
-    display: flex; flex-direction: row; align-items: center;
-    padding: 4px 12px 2px; gap: 8px;
-    position: relative; z-index: 1; flex: 1;
-    min-width: 0;
-  }
-  #desk-goal-label {
-    font-size: 0.58rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.06em;
-    color: rgba(255,255,255,0.45);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    flex: 1; min-width: 0;
-  }
-  #desk-goal-count {
-    font-size: 0.85rem; font-weight: 800;
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
-    color: rgba(235,235,245,0.97);
-    letter-spacing: -0.01em; white-space: nowrap;
-    flex-shrink: 0;
-  }
-  #desk-goal-actions {
-    display: flex; align-items: center; gap: 7px; flex-shrink: 0;
-  }
-  /* Barra progresso spessa (stile gaming) */
-  #desk-goal-track {
-    width: 100%; height: 9px;
-    background: rgba(255,255,255,0.07);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-  #desk-goal-fill {
-    height: 100%; width: 0%;
-    border-radius: 99px;
-    transition: width 1.4s cubic-bezier(0.4,0,0.2,1), background 0.8s ease;
-    box-shadow: 0 0 8px currentColor;
-  }
-  #desk-goal-cta {
-    background: #a78bfa; color: #fff;
-    padding: 3px 10px; border-radius: 5px;
-    font-size: 0.65rem; font-weight: 700;
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
-    text-decoration: none; white-space: nowrap;
-    transition: background 0.2s, transform 0.15s;
-    flex-shrink: 0;
-  }
-  #desk-goal-cta:hover { background: #8b6ef0; transform: scale(1.04); }
-  #desk-goal-line { display: none; }
-  #desk-goal-text  { display: contents; }
-  #desk-goal-top   { display: contents; }
-  .goal-info-wrap {
-    position: relative; display: flex; align-items: center;
-    cursor: default;
-  }
-  .goal-discover-link {
-    font-size: 0.58rem; font-weight: 500;
-    color: rgba(255,255,255,0.35);
-    text-decoration: underline; text-decoration-style: dotted;
-    text-underline-offset: 2px;
-    white-space: nowrap; cursor: pointer;
-    transition: color 0.15s;
-  }
-  .goal-discover-link:hover { color: rgba(255,255,255,0.65); }
+  /* desk-goal-bar: stili via inline style sull'elemento */
   .goal-tooltip {
     display: none;
     position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%);
@@ -5820,21 +5743,15 @@ async function initGoalBar() {
     // ── Desktop ──
     const bar = document.getElementById('desk-goal-bar');
     if (bar) {
-      bar.style.cssText += ';display:flex !important;';
-      bar.style.borderColor = color;
-      bar.style.boxShadow   = `0 0 12px ${color}55`;
-      const cta = document.getElementById('desk-goal-cta');
-      if (cta) cta.style.background = '#a78bfa';
+      bar.style.display = 'flex';
+      bar.style.flexDirection = 'column';
+      const titleEl = document.getElementById('desk-goal-title');
+      if (titleEl) titleEl.textContent = goal.label || 'Obiettivo abbonamenti';
       const countEl = document.getElementById('desk-goal-count');
-      if (countEl) { countEl.textContent = `${cur} / ${target} abbonamenti`; countEl.style.color = pct >= 100 ? color : 'rgba(235,235,245,0.95)'; }
-      const tooltip = document.getElementById('desk-goal-tooltip');
-      if (tooltip) tooltip.textContent = `Obiettivo: ${target} abbonati — ${goal.label || ''}`;
+      if (countEl) countEl.textContent = `${cur} | ${target}`;
       requestAnimationFrame(() => {
         const fill = document.getElementById('desk-goal-fill');
-        if (fill) { fill.style.background = `linear-gradient(90deg,${color},${color}bb)`; fill.style.width = pct + '%'; }
-        const line = document.getElementById('desk-goal-line');
-        if (line) { line.style.background = color; line.style.width = pct + '%';
-          if (pct >= 100) line.style.animation = 'goal-pulse 1.8s ease-in-out infinite'; }
+        if (fill) fill.style.width = Math.max(20, pct) + '%';
       });
     }
 
@@ -6201,26 +6118,22 @@ document.addEventListener('DOMContentLoaded', () => {
   </div>
 
   <!-- Goal bar inline nella navbar (spazio centrale) -->
-  <div id="desk-goal-bar">
-    <div id="desk-goal-inner">
-      <div id="desk-goal-text">
-        <span id="desk-goal-count">0 / 100 abbonamenti</span>
-      </div>
-      <div id="desk-goal-track">
-        <div id="desk-goal-fill"></div>
-      </div>
-      <div id="desk-goal-actions">
-        <div class="goal-info-wrap">
-          <span class="goal-discover-link" onclick="toggleGoalTooltip(event)">scopri cosa può fare il tuo sostegno</span>
-          <div class="goal-tooltip" id="desk-goal-tooltip">
-            <button onclick="toggleGoalTooltip(event)" style="position:absolute;top:6px;right:8px;background:none;border:none;color:rgba(255,255,255,0.35);font-size:0.75rem;cursor:pointer;line-height:1;">✕</button>
-            Obiettivo: raggiungere 100 abbonati
-          </div>
-        </div>
-        <a id="desk-goal-cta" href="/dashboard.html">Sostienici</a>
+  <div id="desk-goal-bar" style="display:none;flex:1;flex-direction:column;gap:5px;margin:7px 14px;padding:7px 12px 8px;background:#0d0b1e;border:1.5px solid rgba(110,70,210,0.6);border-radius:8px;box-sizing:border-box;min-width:0;align-self:stretch;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+      <span id="desk-goal-title" style="font-size:0.65rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Obiettivo abbonamenti</span>
+      <span id="desk-goal-count" style="font-size:0.65rem;font-weight:600;color:rgba(210,200,255,0.75);white-space:nowrap;flex-shrink:0;">0 | 100</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" style="flex-shrink:0;opacity:0.6;" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1.5" y="2" width="17" height="12" rx="2.5" stroke="#a78bfa" stroke-width="1.4"/>
+        <line x1="7" y1="14" x2="13" y2="14" stroke="#a78bfa" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="10" y1="14" x2="10" y2="17" stroke="#a78bfa" stroke-width="1.4" stroke-linecap="round"/>
+        <circle cx="10" cy="8" r="2.4" stroke="#a78bfa" stroke-width="1.2"/>
+      </svg>
+      <div id="desk-goal-track" style="flex:1;height:16px;background:#1c1040;border-radius:5px;overflow:hidden;">
+        <div id="desk-goal-fill" style="height:100%;width:20%;background:#7c6af2;border-radius:5px 0 0 5px;transition:width 1.6s cubic-bezier(0.4,0,0.2,1);"></div>
       </div>
     </div>
-    <div id="desk-goal-line"></div>
   </div>
 
   <div id="desk-topbar-right">
