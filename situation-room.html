@@ -5849,7 +5849,7 @@ async function initGoalBar() {
       if (mobCount) mobCount.textContent = `${cur} | ${target}`;
       requestAnimationFrame(() => {
         const mobFill = document.getElementById('mob-goal-fill');
-        if (mobFill) mobFill.style.width = pct + '%';
+        if (mobFill) mobFill.style.width = Math.max(20, pct) + '%';
       });
     }
 
@@ -6042,7 +6042,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <circle cx="10" cy="8" r="2.4" stroke="#a78bfa" stroke-width="1.2"/>
     </svg>
     <div id="mob-goal-track" style="flex:1;height:18px;background:#1c1040;border-radius:5px;overflow:hidden;">
-      <div id="mob-goal-fill" style="height:100%;width:0%;background:#7c6af2;border-radius:5px 0 0 5px;transition:width 1.6s cubic-bezier(0.4,0,0.2,1);"></div>
+      <div id="mob-goal-fill" style="height:100%;width:20%;background:#7c6af2;border-radius:5px 0 0 5px;transition:width 1.6s cubic-bezier(0.4,0,0.2,1);"></div>
     </div>
   </div>
 </div>
