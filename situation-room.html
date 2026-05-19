@@ -6439,8 +6439,6 @@ document.addEventListener('DOMContentLoaded', () => {
 (async function initSitePopup() {
   const PAGE = 'situation-room';
   const STORAGE_KEY = 'analisy_popup_dismissed';
-  const dismissed = localStorage.getItem(STORAGE_KEY);
-  if (dismissed && Date.now() - parseInt(dismissed) < 86400000) return;
   try {
     if (typeof SUPABASE_URL === 'undefined' || typeof SUPABASE_ANON === 'undefined') return;
     const res = await fetch(`${SUPABASE_URL}/functions/v1/site-popup`, {
@@ -6450,6 +6448,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const popup = await res.json();
     if (!popup || !popup.title) return;
     if (popup.show_on !== 'all' && popup.show_on !== PAGE) return;
+
+    // Controlla se questo specifico popup è già stato chiuso dall'utente (stesso id E non aggiornato dopo la chiusura)
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        const rec = JSON.parse(stored);
+        const sameId      = rec.id === popup.id;
+        const notUpdated  = popup.updated_at && rec.updated_at
+                              ? new Date(popup.updated_at) <= new Date(rec.updated_at)
+                              : true;
+        const within24h   = (Date.now() - (rec.dismissed_at || 0)) < 86400000;
+        if (sameId && notUpdated && within24h) return; // già visto, non mostrare
+      } catch(_) {
+        // vecchio formato plain timestamp — blocca solo se < 24h
+        if (Date.now() - parseInt(stored) < 86400000) return;
+      }
+    }
+
+    // Salva riferimento popup per closeSitePopup
+    window._activePopup = { id: popup.id, updated_at: popup.updated_at };
+
     document.getElementById('sp-title').textContent = popup.title;
     document.getElementById('sp-body').textContent  = popup.body;
     const cta = document.getElementById('sp-cta');
@@ -6480,13 +6499,15 @@ document.addEventListener('DOMContentLoaded', () => {
       overlay.style.display = 'flex';
       requestAnimationFrame(() => { overlay.style.opacity = '0'; overlay.style.transition = 'opacity 0.3s'; requestAnimationFrame(() => { overlay.style.opacity = '1'; }); });
     }, (popup.delay_sec || 3) * 1000);
-  } catch(e) { /* silenzioso */ }
+  } catch(e) { console.warn('[popup]', e); }
 })();
 function closeSitePopup() {
   const overlay = document.getElementById('site-popup-overlay');
   overlay.style.opacity = '0';
   setTimeout(() => { overlay.style.display = 'none'; }, 300);
-  localStorage.setItem('analisy_popup_dismissed', Date.now().toString());
+  // Salva id + updated_at + momento della chiusura — così un popup nuovo/aggiornato si mostrerà di nuovo
+  const rec = Object.assign({ dismissed_at: Date.now() }, window._activePopup || {});
+  localStorage.setItem('analisy_popup_dismissed', JSON.stringify(rec));
 }
 </script>
 </body>

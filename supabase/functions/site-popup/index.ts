@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
 
   const { data, error } = await db
     .from('site_popups')
-    .select('id, title, body, cta_text, cta_url, show_on, delay_sec')
+    .select('id, title, body, cta_text, cta_url, show_on, delay_sec, updated_at')
     .eq('active', true)
     .limit(1)
     .maybeSingle();
