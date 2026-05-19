@@ -2338,72 +2338,7 @@
   .goal-tooltip.open { display: block; }
   @keyframes goal-pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
 
-  /* ── Mobile goal bar ── */
-  #mob-goal-bar {
-    display: none;
-    flex-direction: column;
-    margin: 0 12px 14px;
-    padding: 8px 12px 10px;
-    background: #0d0a1f;
-    border: 1px solid rgba(100,60,200,0.55);
-    border-radius: 8px;
-    gap: 8px;
-    box-sizing: border-box;
-  }
-  #mob-goal-top-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-    width: 100%;
-  }
-  #mob-goal-title {
-    font-size: 0.62rem;
-    font-weight: 800;
-    color: #ffffff;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  #mob-goal-count {
-    font-size: 0.62rem;
-    font-weight: 600;
-    color: rgba(220,210,255,0.75);
-    white-space: nowrap;
-    flex-shrink: 0;
-    font-variant-numeric: tabular-nums;
-  }
-  #mob-goal-main {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-  }
-  #mob-goal-icon {
-    flex-shrink: 0;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(160,130,230,0.7);
-  }
-  #mob-goal-track {
-    flex: 1;
-    height: 18px;
-    background: #1a1035;
-    border-radius: 5px;
-    overflow: hidden;
-  }
-  #mob-goal-fill {
-    height: 100%;
-    width: 0%;
-    background: #7c6af2;
-    border-radius: 5px 0 0 5px;
-    transition: width 1.6s cubic-bezier(0.4,0,0.2,1);
-  }
+  /* mob-goal-bar: stili via inline style sull'elemento */
 
   /* ── Map floating legend + filter overlay ── */
   #desk-map-overlay-legend {
@@ -5907,6 +5842,7 @@ async function initGoalBar() {
     const mobBar = document.getElementById('mob-goal-bar');
     if (mobBar) {
       mobBar.style.display = 'flex';
+      mobBar.style.flexDirection = 'column';
       const mobTitle = document.getElementById('mob-goal-title');
       if (mobTitle) mobTitle.textContent = goal.label || 'Obiettivo abbonamenti';
       const mobCount = document.getElementById('mob-goal-count');
@@ -6093,23 +6029,20 @@ document.addEventListener('DOMContentLoaded', () => {
 </div>
 
 <!-- ═══════════ MOBILE GOAL BAR ═══════════ -->
-<div id="mob-goal-bar">
-  <div id="mob-goal-top-row">
-    <span id="mob-goal-title">Obiettivo abbonamenti</span>
-    <span id="mob-goal-count">0 | 100</span>
+<div id="mob-goal-bar" style="display:none;flex-direction:column;gap:7px;margin:0 12px 14px;padding:9px 13px 11px;background:#0d0b1e;border:1.5px solid rgba(110,70,210,0.6);border-radius:8px;box-sizing:border-box;">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+    <span id="mob-goal-title" style="font-size:0.7rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Obiettivo abbonamenti</span>
+    <span id="mob-goal-count" style="font-size:0.68rem;font-weight:600;color:rgba(210,200,255,0.75);white-space:nowrap;flex-shrink:0;">0 | 100</span>
   </div>
-  <div id="mob-goal-main">
-    <div id="mob-goal-icon">
-      <!-- icona monitor (come nel reference) -->
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="1.5" y="2.5" width="17" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/>
-        <line x1="7" y1="14.5" x2="13" y2="14.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-        <line x1="10" y1="14.5" x2="10" y2="17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-        <circle cx="10" cy="8.5" r="2.5" stroke="currentColor" stroke-width="1.2"/>
-      </svg>
-    </div>
-    <div id="mob-goal-track">
-      <div id="mob-goal-fill"></div>
+  <div style="display:flex;align-items:center;gap:9px;">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="flex-shrink:0;opacity:0.65;" xmlns="http://www.w3.org/2000/svg">
+      <rect x="1.5" y="2" width="17" height="12" rx="2.5" stroke="#a78bfa" stroke-width="1.4"/>
+      <line x1="7" y1="14" x2="13" y2="14" stroke="#a78bfa" stroke-width="1.4" stroke-linecap="round"/>
+      <line x1="10" y1="14" x2="10" y2="17" stroke="#a78bfa" stroke-width="1.4" stroke-linecap="round"/>
+      <circle cx="10" cy="8" r="2.4" stroke="#a78bfa" stroke-width="1.2"/>
+    </svg>
+    <div id="mob-goal-track" style="flex:1;height:18px;background:#1c1040;border-radius:5px;overflow:hidden;">
+      <div id="mob-goal-fill" style="height:100%;width:0%;background:#7c6af2;border-radius:5px 0 0 5px;transition:width 1.6s cubic-bezier(0.4,0,0.2,1);"></div>
     </div>
   </div>
 </div>
