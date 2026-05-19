@@ -1740,7 +1740,13 @@
 ═══════════════════════════════════════════════ */
 
 /* Nascosto su mobile */
-#desk-topbar, #desk-body, #desk-art-reader, #desk-map-fullscreen, #desk-map-controls { display: none; }
+#desk-topbar, #desk-body, #desk-art-reader, #desk-map-controls { display: none; }
+/* Overlay mappa fullscreen — base mobile (inset:0); desktop sovrascrive top:52px */
+#desk-map-fullscreen {
+  display: none;
+  position: fixed; inset: 0; z-index: 2000;
+  background: #020508;
+}
 
 @media (min-width: 769px) {
 
@@ -2220,19 +2226,8 @@
   #desk-art-body::-webkit-scrollbar { width: 3px; }
   #desk-art-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 2px; }
 
-  /* ── Map fullscreen overlay ── */
-  #desk-map-fullscreen {
-    position: fixed; inset: 52px 0 0 0; z-index: 2000;
-    background: #020508;
-    transform: scale(0.95); opacity: 0;
-    pointer-events: none;
-    transition: all 0.3s cubic-bezier(0.32,0.72,0,1);
-  }
-  #desk-map-fullscreen.open {
-    display: block !important;
-    transform: scale(1); opacity: 1;
-    pointer-events: all;
-  }
+  /* ── Map fullscreen overlay — desktop: lascia spazio alla topbar 52px ── */
+  #desk-map-fullscreen { inset: 52px 0 0 0; }
   #desk-map-fs-inner { width: 100%; height: 100%; position: relative; }
   #desk-map-fs-close {
     position: absolute; top: 14px; right: 14px; z-index: 10;
@@ -2822,7 +2817,7 @@
           <path d="M12 10V2"/><path d="M8 6l4-4 4 4"/>
         </svg>
       </button>
-      <button id="desk-map-expand-btn" onclick="toggleDeskMapExpand()">
+      <button id="desk-map-expand-btn" onclick="toggleMapExpand()">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
         Espandi
       </button>
@@ -2866,7 +2861,7 @@
         </svg>
       </button>
       <!-- Espandi mappa (mobile) -->
-      <button class="mob-map-ctrl-btn" id="mob-expand-btn" onclick="toggleMobMapExpand()" title="Espandi mappa">
+      <button class="mob-map-ctrl-btn" id="mob-expand-btn" onclick="toggleMapExpand()" title="Espandi mappa">
         <svg id="mob-expand-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
           <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
           <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
@@ -5509,50 +5504,59 @@ function closeDeskArtReader() {
   if (reader) reader.classList.remove('open');
 }
 
-/* ── Map fullscreen — Desktop ── */
-function toggleDeskMapExpand() {
-  if (window.innerWidth <= 768) return;
-  deskMapExpanded = !deskMapExpanded;
+/* ── Map fullscreen — unificato desktop + mobile con transizione fluida ── */
+let _mapExpanded      = false;
+let _mapWrapperOrigin = null;
+
+const _MAP_EXPAND_SVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>`;
+const _MAP_REDUCE_SVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg>`;
+
+function _syncExpandBtns(expanded) {
+  const deskBtn = document.getElementById('desk-map-expand-btn');
+  if (deskBtn) deskBtn.innerHTML = `${expanded ? _MAP_REDUCE_SVG : _MAP_EXPAND_SVG} ${expanded ? 'Riduci' : 'Espandi'}`;
+  const mobIcon = document.getElementById('mob-expand-icon');
+  if (mobIcon) mobIcon.innerHTML = expanded
+    ? `<polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/>`
+    : `<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>`;
+  const mobBtn = document.getElementById('mob-expand-btn');
+  if (mobBtn) mobBtn.classList.toggle('active', expanded);
+}
+
+function toggleMapExpand() {
+  _mapExpanded = !_mapExpanded;
   const fs      = document.getElementById('desk-map-fullscreen');
   const fsInner = document.getElementById('desk-map-fs-inner');
-  const slot    = document.getElementById('desk-map-slot');
   const wrapper = document.querySelector('.sr-map-wrapper');
   if (!fs || !fsInner || !wrapper) return;
+  const EASE = 'cubic-bezier(0.32,0.72,0,1)';
 
-  if (deskMapExpanded) {
+  if (_mapExpanded) {
+    _mapWrapperOrigin = wrapper.parentElement;
     fsInner.appendChild(wrapper);
-    fs.classList.add('open');
-    document.getElementById('desk-map-expand-btn').innerHTML = `
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg>
-      Riduci`;
+    // Stato iniziale (invisible) → poi trigger transizione nel prossimo frame
+    fs.style.cssText = `display:block; opacity:0; transform:scale(0.97); pointer-events:none;
+      transition:opacity 0.32s ease, transform 0.38s ${EASE};`;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      fs.style.opacity    = '1';
+      fs.style.transform  = 'scale(1)';
+      fs.style.pointerEvents = 'all';
+      setTimeout(() => { if (typeof situationMap !== 'undefined' && situationMap) situationMap.invalidateSize(); }, 380);
+    }));
   } else {
-    slot.appendChild(wrapper);
-    fs.classList.remove('open');
-    document.getElementById('desk-map-expand-btn').innerHTML = `
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-      Espandi`;
+    fs.style.transition = `opacity 0.28s ease, transform 0.32s ${EASE}`;
+    fs.style.opacity    = '0';
+    fs.style.transform  = 'scale(0.97)';
+    fs.style.pointerEvents = 'none';
+    fs.addEventListener('transitionend', () => {
+      fs.style.cssText = 'display:none;';
+      if (_mapWrapperOrigin) { _mapWrapperOrigin.appendChild(wrapper); _mapWrapperOrigin = null; }
+      setTimeout(() => { if (typeof situationMap !== 'undefined' && situationMap) situationMap.invalidateSize(); }, 50);
+    }, { once: true });
   }
-  setTimeout(() => {
-    if (typeof situationMap !== 'undefined' && situationMap) situationMap.invalidateSize();
-  }, 350);
+  _syncExpandBtns(_mapExpanded);
 }
-
-/* ── Map fullscreen — Mobile ── */
-let _mobMapExpanded = false;
-function toggleMobMapExpand() {
-  _mobMapExpanded = !_mobMapExpanded;
-  const section = document.querySelector('.sr-map-section');
-  if (section) section.classList.toggle('mob-map-fullscreen', _mobMapExpanded);
-  const icon = document.getElementById('mob-expand-icon');
-  if (icon) {
-    icon.innerHTML = _mobMapExpanded
-      ? `<polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/>`
-      : `<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>`;
-  }
-  setTimeout(() => {
-    if (typeof situationMap !== 'undefined' && situationMap) situationMap.invalidateSize();
-  }, 150);
-}
+/* Alias per compatibilità chiamate precedenti */
+const toggleDeskMapExpand = toggleMapExpand;
 
 /* ── Nav sidebar ── */
 function switchDeskNav(pane, el) {
