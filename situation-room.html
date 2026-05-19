@@ -5888,6 +5888,7 @@ async function initGoalBar() {
     const bar = document.getElementById('desk-goal-bar');
     if (bar) {
       bar.style.display = 'flex';
+      bar.style.flexDirection = 'column';
       const titleEl = document.getElementById('desk-goal-title');
       if (titleEl) titleEl.textContent = goal.label || 'Obiettivo abbonamenti';
       const countEl = document.getElementById('desk-goal-count');
@@ -6253,15 +6254,6 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
   </div>
 
-  <!-- Goal bar inline nella navbar (singola riga, max 52px height) -->
-  <div id="desk-goal-bar" style="display:none;flex:1;flex-direction:row;align-items:center;gap:10px;margin:10px 14px;padding:0 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;box-sizing:border-box;min-width:0;align-self:stretch;max-height:32px;overflow:hidden;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
-    <span id="desk-goal-title" style="font-size:0.62rem;font-weight:700;color:rgba(235,235,245,0.5);text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap;flex-shrink:0;">Obiettivo abbonamenti</span>
-    <div id="desk-goal-track" style="flex:1;height:4px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;min-width:0;">
-      <div id="desk-goal-fill" style="height:100%;width:20%;background:linear-gradient(90deg,#e8344e,#f5a623);border-radius:99px;transition:width 1.6s cubic-bezier(0.4,0,0.2,1);"></div>
-    </div>
-    <span id="desk-goal-count" style="font-size:0.62rem;font-weight:600;color:rgba(235,235,245,0.5);white-space:nowrap;flex-shrink:0;">0 | 100 abbonamenti</span>
-  </div>
-
   <div id="desk-topbar-right">
     <!-- avatar / accedi — popolato da renderSrNavbar() -->
   </div>
@@ -6429,6 +6421,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     <!-- RIGHT 30%: Flash Updates -->
     <div id="desk-right-col">
+
+      <!-- Goal bar — sopra "Scenari in Evoluzione" -->
+      <div id="desk-goal-bar" style="display:none;flex-direction:column;gap:7px;margin:10px 12px 4px;padding:10px 12px 11px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:9px;box-sizing:border-box;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span id="desk-goal-title" style="font-size:0.62rem;font-weight:700;color:rgba(235,235,245,0.5);text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Obiettivo abbonamenti</span>
+          <span id="desk-goal-count" style="font-size:0.62rem;font-weight:600;color:rgba(235,235,245,0.5);white-space:nowrap;flex-shrink:0;">0 | 100 abbonamenti</span>
+        </div>
+        <div id="desk-goal-track" style="width:100%;height:4px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;">
+          <div id="desk-goal-fill" style="height:100%;width:20%;background:linear-gradient(90deg,#e8344e,#f5a623);border-radius:99px;transition:width 1.6s cubic-bezier(0.4,0,0.2,1);"></div>
+        </div>
+      </div>
+
       <div class="desk-right-header">
         <span class="desk-right-title">Scenari in Evoluzione</span>
         <span id="desk-scenari-count" class="desk-right-badge"></span>
