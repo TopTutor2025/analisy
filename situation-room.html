@@ -3766,8 +3766,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (window.innerWidth > 768) {
     renderDeskLiveEvents();
     updateDeskLegendCounts();
-    initGoalBar(); // barra obiettivo abbonamenti
   }
+  initGoalBar(); // barra obiettivo abbonamenti (desktop + mobile)
 
   // Map — eventi only (hide resources + routes)
   initSituationMap('situation-map');
