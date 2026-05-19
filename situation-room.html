@@ -1251,6 +1251,36 @@
     font-size: 0.65rem; font-weight: 700; letter-spacing: 0.09em;
     text-transform: uppercase; color: rgba(255,255,255,0.35);
   }
+  /* ── Mobile market tab bar ── */
+  .mob-mover-tabs {
+    display: flex; gap: 5px;
+    overflow-x: auto; padding: 0 14px 8px;
+    scrollbar-width: none;
+  }
+  .mob-mover-tabs::-webkit-scrollbar { display: none; }
+  .mob-mover-tab {
+    flex-shrink: 0;
+    padding: 4px 11px; height: 26px;
+    font-size: 0.65rem; font-weight: 600;
+    color: rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 6px; cursor: pointer;
+    font-family: inherit; white-space: nowrap;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mob-mover-tab:not(.active):active { opacity: 0.7; }
+  .mob-mover-tab.active {
+    color: #06d6a0 !important;
+    background: rgba(6,214,160,0.10) !important;
+    border-color: #06d6a0 !important;
+  }
+  .mob-mover-tab.tab-purple.active {
+    color: #bf5af2 !important;
+    background: rgba(191,90,242,0.10) !important;
+    border-color: #bf5af2 !important;
+  }
   .mob-markets-scroll {
     display: flex; gap: 10px;
     overflow-x: auto; padding: 0 14px 8px;
@@ -4874,11 +4904,12 @@ function generateSparklineSVG(history, up) {
 }
 
 /* ── Markets horizontal scroll ── */
-function renderMobMarkets() {
+function renderMobMarkets(data) {
   if (window.innerWidth > 768) return;
   const scroll = document.getElementById('mob-markets-scroll');
   if (!scroll) return;
-  scroll.innerHTML = MARKETS.map(m => `
+  const source = data || MARKETS;
+  scroll.innerHTML = source.map(m => `
     <div class="mob-mkt-card">
       <div class="mob-mkt-card-top">
         <div class="mob-mkt-header">
@@ -4890,6 +4921,13 @@ function renderMobMarkets() {
       </div>
       <div class="mob-mkt-chart">${generateSparklineSVG(m.history, m.up)}</div>
     </div>`).join('');
+}
+
+function switchMobMoverTab(type, el) {
+  document.querySelectorAll('#mob-mover-tabs .mob-mover-tab').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const map = { commodities: MARKETS, defense: MARKETS_DEFENSE, biotech: MARKETS_BIOTECH, food: MARKETS_FOOD, indices: MARKETS_INDICES };
+  renderMobMarkets(map[type] || MARKETS);
 }
 
 /* ── Articles list ── */
@@ -5919,7 +5957,13 @@ document.addEventListener('DOMContentLoaded', () => {
 <div id="mob-markets-section">
   <div class="mob-section-header">
     <span class="mob-section-title">Come reagiscono i mercati</span>
-    <span style="font-size:0.52rem;color:rgba(255,255,255,0.18);letter-spacing:0.04em;">MATERIE PRIME</span>
+  </div>
+  <div class="mob-mover-tabs" id="mob-mover-tabs">
+    <button class="mob-mover-tab active" onclick="switchMobMoverTab('commodities',this)" title="Materie Prime">Materie</button>
+    <button class="mob-mover-tab tab-purple" onclick="switchMobMoverTab('defense',this)" title="Difesa">Difesa</button>
+    <button class="mob-mover-tab tab-purple" onclick="switchMobMoverTab('biotech',this)" title="Biotech">Biotech</button>
+    <button class="mob-mover-tab" onclick="switchMobMoverTab('food',this)" title="Food / AgriTech">Food</button>
+    <button class="mob-mover-tab" onclick="switchMobMoverTab('indices',this)" title="Indici Globali">Indici</button>
   </div>
   <div class="mob-markets-scroll" id="mob-markets-scroll"></div>
 </div>
