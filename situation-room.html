@@ -2032,14 +2032,17 @@
     -webkit-box-orient: vertical; overflow: hidden;
   }
   .desk-art-card-right {
-    width: 48px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
+    width: 52px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: flex-end;
+    padding-right: 12px;
     color: rgba(255,255,255,0.1);
   }
   .desk-art-readtime {
-    font-size: 0.55rem; color: rgba(255,255,255,0.18); text-align: center;
-    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    font-size: 0.6rem; color: rgba(255,255,255,0.25); text-align: right;
+    display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
+    line-height: 1.3;
   }
+  .desk-art-readtime svg { margin-top: 2px; }
 
   /* ── Right panel ── */
   #desk-right {
@@ -5315,13 +5318,13 @@ function renderDeskArticles(cat) {
         <div class="desk-art-card-body">
           <div class="desk-art-card-meta">
             <span class="desk-art-card-cat" style="color:${color};">${label}</span>
-            ${ago ? `<span class="desk-art-card-time">${ago}</span>` : ''}
           </div>
           <div class="desk-art-card-title">${a.title || ''}</div>
           ${excerpt ? `<div class="desk-art-card-excerpt">${excerpt}</div>` : ''}
         </div>
         <div class="desk-art-card-right">
           <div class="desk-art-readtime">
+            ${ago ? `<span>${ago}</span>` : ''}
             ${a.read_time ? `<span>${a.read_time}</span>` : ''}
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
