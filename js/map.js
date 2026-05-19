@@ -746,10 +746,13 @@ window.togglePlanesLayer = async function() {
 async function _fetchPlanes() {
   try {
     // Bounding box: Europa + Mediterraneo + parte Medio Oriente
+    const controller = new AbortController();
+    const _timer = setTimeout(() => controller.abort(), 10000);
     const res = await fetch(
       'https://opensky-network.org/api/states/all?lamin=25&lomin=-20&lamax=72&lomax=50',
-      { signal: AbortSignal.timeout(10000) }
+      { signal: controller.signal }
     );
+    clearTimeout(_timer);
     if (!res.ok) return;
     const data = await res.json();
     if (!data || !Array.isArray(data.states)) return;
