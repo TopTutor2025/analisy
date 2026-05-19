@@ -2626,7 +2626,17 @@
           <div class="card-body">
             <div style="margin-bottom:6px;"><span class="article-cat-badge ${catClass[a.cat]||'cat-geo'}" style="font-size:0.68rem;">${catLabels[a.cat]||a.cat}</span>${a.premium===true ? '<span style="margin-left:6px;font-size:0.65rem;color:var(--accent-yellow);">🔒 Premium</span>' : ''}</div>
             <h4>${a.title}</h4>
-            <div class="card-meta">${a.date||''} ${a.author ? '· ' + a.author : ''}</div>
+            <div class="card-meta">${a.author ? a.author : ''}</div>
+            <div style="display:flex;align-items:center;gap:12px;margin:6px 0 4px;font-size:0.72rem;color:var(--text-muted);">
+              <span title="Visualizzazioni" style="display:flex;align-items:center;gap:4px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                ${(a.views||0).toLocaleString('it-IT')}
+              </span>
+              <span title="Mi piace" style="display:flex;align-items:center;gap:4px;color:#e8344e;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="${a.likes ? '#e8344e' : 'none'}" stroke="#e8344e" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                ${(a.likes||0).toLocaleString('it-IT')}
+              </span>
+            </div>
             <div class="card-actions">${actions}</div>
           </div>
         </div>

@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
 
   let query = supabase
     .from('articles')
-    .select('id, title, subtitle, cat, cat_label, author, read_time, image, excerpt, content, suggested, premium, status, published_at')
+    .select('id, title, subtitle, cat, cat_label, author, read_time, image, excerpt, content, suggested, views, likes, premium, status, published_at')
     .order('published_at', { ascending: false });
 
   if (filter !== 'all') {
