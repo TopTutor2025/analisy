@@ -5748,7 +5748,7 @@ async function initGoalBar() {
       const titleEl = document.getElementById('desk-goal-title');
       if (titleEl) titleEl.textContent = goal.label || 'Obiettivo abbonamenti';
       const countEl = document.getElementById('desk-goal-count');
-      if (countEl) countEl.textContent = `${cur} | ${target}`;
+      if (countEl) countEl.textContent = `${cur} | ${target} abbonamenti`;
       requestAnimationFrame(() => {
         const fill = document.getElementById('desk-goal-fill');
         if (fill) fill.style.width = Math.max(20, pct) + '%';
@@ -6129,7 +6129,7 @@ document.addEventListener('DOMContentLoaded', () => {
     <div id="desk-goal-track" style="flex:1;height:10px;background:#1c1040;border-radius:4px;overflow:hidden;min-width:0;">
       <div id="desk-goal-fill" style="height:100%;width:20%;background:#7c6af2;border-radius:4px 0 0 4px;transition:width 1.6s cubic-bezier(0.4,0,0.2,1);"></div>
     </div>
-    <span id="desk-goal-count" style="font-size:0.65rem;font-weight:600;color:rgba(210,200,255,0.75);white-space:nowrap;flex-shrink:0;">0 | 100</span>
+    <span id="desk-goal-count" style="font-size:0.65rem;font-weight:600;color:rgba(210,200,255,0.75);white-space:nowrap;flex-shrink:0;">0 | 100 abbonamenti</span>
   </div>
 
   <div id="desk-topbar-right">
