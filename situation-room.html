@@ -2338,6 +2338,64 @@
   .goal-tooltip.open { display: block; }
   @keyframes goal-pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
 
+  /* ── Mobile goal bar ── */
+  #mob-goal-bar {
+    display: none; /* JS lo mostra */
+    flex-direction: column;
+    margin: 0 14px 14px;
+    padding: 12px 14px 10px;
+    background: rgba(14,10,28,0.95);
+    border: 1px solid rgba(191,90,242,0.35);
+    border-radius: 14px;
+    box-shadow: 0 0 18px rgba(167,139,250,0.12);
+    gap: 9px;
+  }
+  #mob-goal-top-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  #mob-goal-count {
+    font-size: 0.82rem; font-weight: 800;
+    color: rgba(235,235,245,0.95); letter-spacing: -0.01em;
+  }
+  #mob-goal-cta {
+    background: #a78bfa; color: #fff;
+    padding: 5px 14px; border-radius: 7px;
+    font-size: 0.7rem; font-weight: 700;
+    text-decoration: none; white-space: nowrap;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #mob-goal-cta:active { background: #8b6ef0; transform: scale(0.97); }
+  #mob-goal-track {
+    width: 100%; height: 8px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 99px; overflow: hidden;
+  }
+  #mob-goal-fill {
+    height: 100%; width: 0%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #7c6af2, #bf5af2);
+    transition: width 1.4s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 0 8px rgba(191,90,242,0.6);
+  }
+  #mob-goal-desc-row {
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; gap: 8px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #mob-goal-desc-toggle {
+    font-size: 0.62rem; font-weight: 500;
+    color: rgba(191,90,242,0.75);
+    text-decoration: underline; text-decoration-style: dotted;
+    text-underline-offset: 2px; white-space: nowrap; flex-shrink: 0;
+  }
+  #mob-goal-desc-text {
+    font-size: 0.72rem; color: rgba(235,235,245,0.55);
+    line-height: 1.6; overflow: hidden;
+    max-height: 0; transition: max-height 0.35s ease, margin-top 0.2s ease;
+  }
+  #mob-goal-desc-text.open { max-height: 120px; margin-top: 2px; }
+
   /* ── Map floating legend + filter overlay ── */
   #desk-map-overlay-legend {
     position: absolute; bottom: 12px; left: 12px; z-index: 500;
@@ -5769,6 +5827,15 @@ document.addEventListener('mapEventsLoaded', function() {
   }
 });
 
+// ── MOBILE GOAL DESC EXPAND ──────────────────────────────
+function toggleMobGoalDesc() {
+  const desc   = document.getElementById('mob-goal-desc-text');
+  const toggle = document.getElementById('mob-goal-desc-toggle');
+  if (!desc) return;
+  const isOpen = desc.classList.toggle('open');
+  if (toggle) toggle.textContent = isOpen ? 'chiudi ‹' : 'scopri cosa può fare il tuo sostegno ›';
+}
+
 // ── GOAL TOOLTIP TOGGLE ──────────────────────────────────
 function toggleGoalTooltip(e) {
   e.stopPropagation();
@@ -5814,29 +5881,40 @@ async function initGoalBar() {
     else if (pct >= 30)  color = '#f5a623';
     else                 color = '#e8344e';
 
-    // Mostra barra subito (display flex) poi anima width
+    // ── Desktop ──
     const bar = document.getElementById('desk-goal-bar');
-    if (!bar) { console.warn('[GoalBar] #desk-goal-bar non trovato nel DOM'); return; }
-    bar.style.cssText += ';display:flex !important;';
-    bar.style.borderColor = color;
-    bar.style.boxShadow   = `0 0 12px ${color}55`;
-    const cta = document.getElementById('desk-goal-cta');
-    if (cta) cta.style.background = '#a78bfa';
+    if (bar) {
+      bar.style.cssText += ';display:flex !important;';
+      bar.style.borderColor = color;
+      bar.style.boxShadow   = `0 0 12px ${color}55`;
+      const cta = document.getElementById('desk-goal-cta');
+      if (cta) cta.style.background = '#a78bfa';
+      const countEl = document.getElementById('desk-goal-count');
+      if (countEl) { countEl.textContent = `${cur} / ${target} abbonamenti`; countEl.style.color = pct >= 100 ? color : 'rgba(235,235,245,0.95)'; }
+      const tooltip = document.getElementById('desk-goal-tooltip');
+      if (tooltip) tooltip.textContent = `Obiettivo: ${target} abbonati — ${goal.label || ''}`;
+      requestAnimationFrame(() => {
+        const fill = document.getElementById('desk-goal-fill');
+        if (fill) { fill.style.background = `linear-gradient(90deg,${color},${color}bb)`; fill.style.width = pct + '%'; }
+        const line = document.getElementById('desk-goal-line');
+        if (line) { line.style.background = color; line.style.width = pct + '%';
+          if (pct >= 100) line.style.animation = 'goal-pulse 1.8s ease-in-out infinite'; }
+      });
+    }
 
-    // Testi
-    const countEl = document.getElementById('desk-goal-count');
-    if (countEl) { countEl.textContent = `${cur} / ${target} abbonamenti`; countEl.style.color = pct >= 100 ? color : 'rgba(235,235,245,0.95)'; }
-    const tooltip = document.getElementById('desk-goal-tooltip');
-    if (tooltip) tooltip.textContent = `Obiettivo: ${target} abbonati — ${goal.label || ''}`;
-
-    // Anima fill + linea dopo un frame (così la transizione CSS è visibile)
-    requestAnimationFrame(() => {
-      const fill = document.getElementById('desk-goal-fill');
-      if (fill) { fill.style.background = `linear-gradient(90deg,${color},${color}bb)`; fill.style.width = pct + '%'; }
-      const line = document.getElementById('desk-goal-line');
-      if (line) { line.style.background = color; line.style.width = pct + '%';
-        if (pct >= 100) line.style.animation = 'goal-pulse 1.8s ease-in-out infinite'; }
-    });
+    // ── Mobile ──
+    const mobBar = document.getElementById('mob-goal-bar');
+    if (mobBar) {
+      mobBar.style.display = 'flex';
+      const mobCount = document.getElementById('mob-goal-count');
+      if (mobCount) mobCount.textContent = `${cur} / ${target} abbonamenti`;
+      const mobDesc = document.getElementById('mob-goal-desc-text');
+      if (mobDesc) mobDesc.textContent = goal.label || `Aiutaci a raggiungere ${target} abbonati per sostenere il servizio.`;
+      requestAnimationFrame(() => {
+        const mobFill = document.getElementById('mob-goal-fill');
+        if (mobFill) mobFill.style.width = pct + '%';
+      });
+    }
 
     console.log(`[GoalBar] mostrata — ${cur}/${target} (${pct}%) colore:${color}`);
   } catch(e) { console.error('[GoalBar] errore:', e); }
@@ -6011,6 +6089,21 @@ document.addEventListener('DOMContentLoaded', () => {
     </button>
   </div>
   <div class="mob-markets-scroll" id="mob-markets-scroll"></div>
+</div>
+
+<!-- ═══════════ MOBILE GOAL BAR ═══════════ -->
+<div id="mob-goal-bar">
+  <div id="mob-goal-top-row">
+    <span id="mob-goal-count">0 / 100 abbonamenti</span>
+    <a id="mob-goal-cta" href="register.html">Sostienici</a>
+  </div>
+  <div id="mob-goal-track">
+    <div id="mob-goal-fill"></div>
+  </div>
+  <div id="mob-goal-desc-row" onclick="toggleMobGoalDesc()">
+    <span id="mob-goal-desc-toggle">scopri cosa può fare il tuo sostegno ›</span>
+  </div>
+  <div id="mob-goal-desc-text"></div>
 </div>
 
 <!-- ═══════════ MOBILE v2 CONTENT AREA ═══════════ -->
