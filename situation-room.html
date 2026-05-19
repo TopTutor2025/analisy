@@ -2350,6 +2350,14 @@
   }
   .desk-mover-tab svg { opacity: 0.7; flex-shrink: 0; }
   .desk-mover-tab.active svg { opacity: 1; color: #06d6a0; }
+  /* Variante viola per Difesa e Biotech */
+  .desk-mover-tab.tab-purple.active {
+    color: #bf5af2;
+    background: rgba(191,90,242,0.08);
+    border-color: #bf5af2;
+    box-shadow: 0 0 8px rgba(191,90,242,0.30);
+  }
+  .desk-mover-tab.tab-purple.active svg { color: #bf5af2; }
 
   /* ── Map layer toggle buttons (right tab nav) ── */
   #desk-tabnav-right {
@@ -6154,14 +6162,14 @@ document.addEventListener('DOMContentLoaded', () => {
         Materie
       </button>
       <!-- Difesa -->
-      <button class="desk-mover-tab" data-mover="defense" onclick="switchMoverTab('defense',this)" title="Basket Settore Difesa">
+      <button class="desk-mover-tab tab-purple" data-mover="defense" onclick="switchMoverTab('defense',this)" title="Basket Settore Difesa">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
         </svg>
         Difesa
       </button>
       <!-- Biotech -->
-      <button class="desk-mover-tab" data-mover="biotech" onclick="switchMoverTab('biotech',this)" title="Basket Biotech / Farmaceutico">
+      <button class="desk-mover-tab tab-purple" data-mover="biotech" onclick="switchMoverTab('biotech',this)" title="Basket Biotech / Farmaceutico">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M8 3v4a4 4 0 0 0 8 0V3"/><path d="M8 21v-4a4 4 0 0 1 8 0v4"/>
           <line x1="12" y1="7" x2="12" y2="17"/>
