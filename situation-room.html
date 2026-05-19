@@ -5755,9 +5755,9 @@ async function initGoalBar() {
       });
     }
 
-    // ── Mobile ──
+    // ── Mobile (solo sotto 769px) ──
     const mobBar = document.getElementById('mob-goal-bar');
-    if (mobBar) {
+    if (mobBar && window.innerWidth < 769) {
       mobBar.style.display = 'flex';
       mobBar.style.flexDirection = 'column';
       const mobTitle = document.getElementById('mob-goal-title');
