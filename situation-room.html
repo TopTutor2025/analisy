@@ -3887,27 +3887,93 @@ function renderMarkets() {
     </div>`).join('');
 }
 
-function updateMarketPrices() {
-  MARKETS.forEach(m => {
-    const pct = (Math.random() - 0.48) * 0.8;
+/* ── Simula variazione prezzi su un array ── */
+function _simBasket(arr, prefix) {
+  arr.forEach(m => {
+    const pct = (Math.random() - 0.48) * 0.6;
     m.up = pct >= 0;
-    m.change = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
-    // Aggiorna rawPrice e history
+    m.change = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
     const newPrice = m.rawPrice * (1 + pct / 100);
-    m.rawPrice = +newPrice.toFixed(m.rawPrice >= 100 ? 0 : 2);
-    m.price = m.rawPrice >= 1000
-      ? '$' + m.rawPrice.toLocaleString('en-US')
-      : '$' + m.rawPrice.toFixed(m.rawPrice >= 10 ? 2 : 2);
+    m.rawPrice = +newPrice.toFixed(m.rawPrice >= 100 ? 1 : 2);
+    const p = m.rawPrice;
+    const sym = prefix || '$';
+    m.price = p >= 10000
+      ? sym + p.toLocaleString('en-US', {maximumFractionDigits:0})
+      : p >= 1000
+        ? sym + p.toLocaleString('en-US', {minimumFractionDigits:1, maximumFractionDigits:1})
+        : sym + p.toFixed(2);
     m.history.push(m.rawPrice);
-    if (m.history.length > 7) m.history.shift();
+    if (m.history.length > 9) m.history.shift();
   });
+}
+
+function updateMarketPrices() {
+  _simBasket(MARKETS,         '$');
+  _simBasket(MARKETS_DEFENSE, '');   // prezzi misti €/$
+  _simBasket(MARKETS_BIOTECH, '$');
+  _simBasket(MARKETS_FOOD,    '$');
+  _simBasket(MARKETS_INDICES, '');
+  _simBasket(MARKETS_ENERGY,  '$');
+
   renderMarkets();
   renderMobMarkets();
-  // Aggiorna desktop solo se il pane mercati è visibile
+  populateDeskMarketCards();
+  renderTicker();
+
   const deskMktPane = document.getElementById('desk-pane-markets');
   if (deskMktPane && deskMktPane.classList.contains('active')) renderDeskMarkets();
-  renderTicker();
 }
+
+/* ── Yahoo Finance live fetch (via CORS proxy) ── */
+const YF_SYMBOLS = {
+  // MARKETS (Materie Prime)
+  'GC=F':  (d,m) => _applyYF(MARKETS,  'GOLD',   d, m),
+  'BZ=F':  (d,m) => _applyYF(MARKETS,  'BRENT',  d, m),
+  'NG=F':  (d,m) => _applyYF(MARKETS,  'NATGAS', d, m),
+  'SI=F':  (d,m) => _applyYF(MARKETS,  'SILVER', d, m),
+  // MARKETS_INDICES
+  'SPY':   (d,m) => _applyYF(MARKETS_INDICES, 'SPX', d, m),
+  'QQQ':   (d,m) => _applyYF(MARKETS_INDICES, 'NDX', d, m),
+  // MARKETS_ENERGY
+  'XOM':   (d,m) => _applyYF(MARKETS_ENERGY,  'XOM',  d, m),
+  'CVX':   (d,m) => _applyYF(MARKETS_ENERGY,  'CVX',  d, m),
+};
+
+function _applyYF(arr, ticker, price, chgPct) {
+  const m = arr.find(x => x.ticker === ticker);
+  if (!m || !price) return;
+  m.rawPrice = price;
+  m.up = chgPct >= 0;
+  m.change = (chgPct >= 0 ? '+' : '') + chgPct.toFixed(2) + '%';
+  const p = price;
+  m.price = p >= 1000 ? '$' + p.toLocaleString('en-US', {maximumFractionDigits:1})
+                      : '$' + p.toFixed(2);
+  m.history.push(price);
+  if (m.history.length > 9) m.history.shift();
+}
+
+async function fetchYahooFinancePrices() {
+  const symbols = Object.keys(YF_SYMBOLS).join(',');
+  const url = `https://corsproxy.io/?https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}&fields=regularMarketPrice,regularMarketChangePercent`;
+  try {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 5000);
+    const r = await fetch(url, { signal: ctrl.signal });
+    if (!r.ok) return;
+    const data = await r.json();
+    const results = data?.quoteResponse?.result || [];
+    results.forEach(q => {
+      const handler = YF_SYMBOLS[q.symbol];
+      if (handler) handler(q.regularMarketPrice, q.regularMarketChangePercent);
+    });
+    populateDeskMarketCards();
+    renderTicker();
+  } catch(e) { /* fallback alla simulazione */ }
+}
+
+// Fetch Yahoo ogni 30s; simulazione ogni 8s
+setInterval(fetchYahooFinancePrices, 30000);
+fetchYahooFinancePrices(); // fetch immediato al load
 
 /* ── INTELLIGENCE BRIEFS ── */
 const BRIEF_CAT = {
