@@ -1929,7 +1929,7 @@
   #desk-stats-row {
     flex-shrink: 0;
     padding: 14px 24px 12px;
-    background: rgba(255,255,255,0.02);
+    background: transparent;
   }
   .desk-sr-metrics {
     display: flex;
@@ -2002,9 +2002,10 @@
     height: 480px; flex-shrink: 0;
     display: flex; position: relative; overflow: hidden;
     background: #162130;
+    border-radius: 0 14px 14px 0;
     /* Alone del colore del mare che sfuma nel nero del sito */
-    box-shadow: 0 0 90px 30px #162130;
-    z-index: 1;
+    box-shadow: 0 0 260px 160px #1c2b3c;
+    z-index: 2;
   }
   #desk-chart-header {
     position: absolute; top: 0; left: 0; right: 0;
@@ -2047,7 +2048,7 @@
     width: 100% !important; margin: 0 !important; border: none !important;
   }
   #desk-chart-area #desk-map-slot .sr-map-row { height: 100% !important; min-height: unset !important; }
-  #desk-chart-area #desk-map-slot .sr-map-section { height: 100% !important; border-radius: 0 !important; }
+  #desk-chart-area #desk-map-slot .sr-map-section { height: 100% !important; border-radius: 0 14px 14px 0 !important; overflow: hidden !important; }
 
   /* Map controls inside chart area — nascosti sul desktop, sostituiti da #desk-map-tools-overlay */
   #desk-map-controls {
@@ -2191,7 +2192,7 @@
   #desk-new-right-panel {
     width: 341px; flex-shrink: 0;
     display: flex; flex-direction: column;
-    background: rgba(255,255,255,0.02);
+    background: transparent;
     align-self: stretch;
     overflow: hidden;
   }
