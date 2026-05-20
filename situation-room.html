@@ -2016,7 +2016,7 @@
   /* Map tools left side overlay */
   #desk-map-tools-overlay {
     position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-    display: flex; flex-direction: column; gap: 4px; z-index: 5;
+    display: flex; flex-direction: column; gap: 4px; z-index: 1200;
   }
   .desk-mt-btn {
     width: 34px; height: 34px; border-radius: 6px;
@@ -2042,11 +2042,9 @@
   #desk-chart-area #desk-map-slot .sr-map-row { height: 100% !important; min-height: unset !important; }
   #desk-chart-area #desk-map-slot .sr-map-section { height: 100% !important; border-radius: 0 !important; }
 
-  /* Map controls inside chart area */
+  /* Map controls inside chart area — nascosti sul desktop, sostituiti da #desk-map-tools-overlay */
   #desk-map-controls {
-    position: absolute !important; bottom: 12px !important; right: 12px !important;
-    z-index: 1100 !important;
-    display: flex !important; align-items: center; gap: 6px;
+    display: none !important;
   }
   #desk-map-expand-btn {
     display: flex; align-items: center; gap: 5px;
