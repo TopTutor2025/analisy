@@ -1831,6 +1831,10 @@
     background-clip: text;
   }
   .desk-room-badge { display: none; }
+  /* Right group: tutto ciò che va a destra nella topbar */
+  #desk-tb-right-area {
+    margin-left: auto; display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+  }
   #desk-live-pill {
     display: flex; align-items: center; gap: 5px;
     font-size: 0.58rem; font-weight: 700; letter-spacing: 0.07em;
@@ -1846,9 +1850,9 @@
   }
   @keyframes deskLivePulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
   /* "Situation Room" text dopo la live pill */
-  #desk-events-count {
-    font-size: 0.72rem; color: rgba(255,255,255,0.35);
-    margin-left: 8px;
+  #desk-events-count { display: none !important; }
+  .desk-tb-room-lbl {
+    font-size: 0.72rem; color: rgba(255,255,255,0.35); flex-shrink: 0;
   }
   /* Divider topbar */
   .desk-tb-divider {
@@ -1856,8 +1860,7 @@
     flex-shrink: 0;
   }
   #desk-topbar-right {
-    display: flex; align-items: center; gap: 8px;
-    margin-left: auto; flex-shrink: 0;
+    display: flex; align-items: center; gap: 8px; flex-shrink: 0;
   }
   .desk-avatar-btn {
     width: 30px; height: 30px; border-radius: 50%;
@@ -2256,8 +2259,9 @@
 
   /* Scenari bottom */
   #desk-rp-scenari {
-    flex: 1; min-height: 240px;
+    flex: 1; min-height: 220px;
     display: flex; flex-direction: column; overflow: hidden;
+    padding-bottom: 0;
   }
   #desk-rp-sc-header {
     display: flex; align-items: center; gap: 7px;
@@ -3709,16 +3713,14 @@ function renderSrNavbar() {
     }
   }
 
-  // ── Popola desk-topbar-right (desktop layout) ──
+  // ── Popola desk-topbar-right (solo avatar/accedi — tutorial e bell sono statici in HTML) ──
   const deskRight = document.getElementById('desk-topbar-right');
   if (deskRight) {
     const user2 = Auth.get();
-    const tutorialBtn = `<button class="help-btn" onclick="openSrTutorial()" title="Tutorial" style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);font-size:0.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.15s;">?</button>`;
     if (user2) {
       const initial2  = (user2.nome || 'U')[0].toUpperCase();
       const dashHref2 = user2.role === 'admin' ? 'admin.html' : 'dashboard.html';
       deskRight.innerHTML = `
-        ${tutorialBtn}
         <div class="sr-avatar-wrap" style="position:relative;display:flex;">
           <div class="sr-avatar" onclick="toggleAvatarMenu(event)">${initial2}</div>
           <div class="sr-avatar-menu" id="sr-avatar-menu-desk">
@@ -3735,7 +3737,6 @@ function renderSrNavbar() {
         </div>`;
     } else {
       deskRight.innerHTML = `
-        ${tutorialBtn}
         <a href="login.html" class="btn-accedi" style="font-size:0.75rem;">Accedi</a>
         <a href="register.html" class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:5px 14px;border-radius:6px;">Abbonati</a>`;
     }
@@ -6223,21 +6224,19 @@ document.addEventListener('DOMContentLoaded', () => {
     <a href="#" class="desk-tb-nav-btn" onclick="return false;">Tecnologia</a>
   </nav>
 
-  <span class="desk-room-badge">Situation Room</span>
-  <div id="desk-live-pill">
-    <div class="desk-live-dot"></div>
-    <span>LIVE</span>
-  </div>
-  <span id="desk-events-count" style="display:none;"></span>
-
-  <div id="desk-topbar-right">
-    <!-- Divider -->
+  <!-- Right group: LIVE + Situation Room + divider + icone + avatar -->
+  <div id="desk-tb-right-area">
+    <div id="desk-live-pill">
+      <div class="desk-live-dot"></div>
+      <span>LIVE</span>
+    </div>
+    <span class="desk-tb-room-lbl">Situation Room</span>
     <div class="desk-tb-divider"></div>
-    <!-- Tutorial button -->
+    <!-- Tutorial -->
     <div class="desk-tb-iconbtn" title="Tutorial" onclick="document.getElementById('sr-help-modal')?.classList.add('open')">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
     </div>
-    <!-- Bell desktop -->
+    <!-- Bell -->
     <div class="notif-bell-wrap" id="notif-bell-wrap-desk" style="flex-shrink:0;position:relative;">
       <button class="notif-bell-btn desk-tb-iconbtn" id="notif-bell-btn-desk" title="Comunicazioni" aria-label="Notifiche" style="position:relative;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
@@ -6249,6 +6248,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     </div>
     <!-- avatar / accedi — popolato da renderSrNavbar() -->
+    <div id="desk-topbar-right"></div>
   </div>
 </div>
 
