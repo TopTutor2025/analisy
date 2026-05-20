@@ -3772,10 +3772,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Re-render navbar con auth state aggiornato (dopo che AppData ha caricato la sessione)
   renderSrNavbar();
 
-  // Aggiorna legenda e live events desktop ora che i dati sono pronti
+  // Aggiorna legenda, live events e contatore eventi desktop ora che i dati sono pronti
   if (window.innerWidth > 768) {
     renderDeskLiveEvents();
     updateDeskLegendCounts();
+    // Aggiorna contatore eventi attivi nella stats row
+    const _evtEl = document.getElementById('dsk-events-val');
+    if (_evtEl) {
+      const _cnt = AppData.mapEvents ? AppData.mapEvents.length : 0;
+      _evtEl.textContent = _cnt > 0 ? _cnt : '—';
+    }
   }
   initGoalBar(); // barra obiettivo abbonamenti (desktop + mobile)
 
@@ -4505,6 +4511,9 @@ async function adminQuickAddEvent() {
     renderEventsSummary();
     situationMap.flyTo([lat, lng], 5);
     showToast('Evento aggiunto alla mappa!', 'success');
+    // Aggiorna contatore eventi nella stats row
+    const _e = document.getElementById('dsk-events-val');
+    if (_e) _e.textContent = AppData.mapEvents.length;
     ['qev-title','qev-desc','qev-lat','qev-lng'].forEach(id => document.getElementById(id).value = '');
   } catch(e) {
     showToast(e.message || 'Errore nel salvataggio', 'error');
