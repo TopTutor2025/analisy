@@ -2160,7 +2160,7 @@
   /* Asset grid inside market card */
   .desk-mc-assets {
     display: grid; grid-template-columns: 1fr 1fr;
-    gap: 6px; overflow-y: auto; max-height: 240px;
+    gap: 6px; overflow-y: auto; max-height: 308px;
     padding-bottom: 2px;
     scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;
   }
@@ -2171,16 +2171,17 @@
     border-radius: 10px; padding: 10px 10px 0;
     cursor: default; transition: background 0.15s;
     overflow: hidden; display: flex; flex-direction: column;
+    min-height: 148px;
   }
   .desk-mc-asset:hover { background: rgba(255,255,255,0.08); }
-  .desk-mca-name { font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.88); line-height: 1.2; }
+  .desk-mca-name { font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.9); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .desk-mca-ticker { font-size: 0.5rem; font-weight: 600; letter-spacing: 0.08em; color: rgba(255,255,255,0.28); text-transform: uppercase; margin-bottom: 5px; }
-  .desk-mca-bottom { display: flex; align-items: baseline; gap: 5px; margin-bottom: 6px; }
-  .desk-mca-price { font-size: 0.82rem; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
-  .desk-mca-chg { font-size: 0.6rem; font-weight: 700; }
+  .desk-mca-bottom { display: flex; align-items: baseline; gap: 5px; margin-bottom: 8px; }
+  .desk-mca-price { font-size: 0.88rem; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+  .desk-mca-chg { font-size: 0.62rem; font-weight: 700; }
   .desk-mca-chg.up { color: #a78bfa; }
   .desk-mca-chg.dn { color: #ff4d6d; }
-  .desk-mca-spark { width: calc(100% + 20px); margin-left: -10px; height: 48px; display: block; flex-shrink: 0; }
+  .desk-mca-spark { width: calc(100% + 20px); margin-left: -10px; height: 62px; display: block; flex: 1; min-height: 62px; }
 
   /* ── RIGHT PANEL (341px) ── */
   #desk-new-right-panel {
@@ -5600,6 +5601,37 @@ const MARKETS_ENERGY = [
   { name:'TotalEnergies',ticker:'TTE',  price:'€62',    rawPrice:62,    change:'+0.3%', up:true,  history:[60,60,61,61,61,62,62] },
 ];
 
+/* ── Sparkline bezier per asset card mercati ── */
+function generateMcaSparkSVG(history, up) {
+  const W = 200, H = 62, padY = 3;
+  const pts = (history && history.length >= 2) ? history : [0, 1];
+  const min = Math.min(...pts), max = Math.max(...pts);
+  const range = max - min || 1;
+  const xs = pts.map((_, i) => (i / (pts.length - 1)) * W);
+  const ys = pts.map(v => H - padY - ((v - min) / range) * (H - padY * 2));
+  const color = up ? '#a78bfa' : '#ff4d6d';
+  const gId = 'mcasg' + Math.random().toString(36).slice(2, 7);
+
+  // Smooth bezier: midpoints as control points
+  let linePath = `M${xs[0].toFixed(1)},${ys[0].toFixed(1)}`;
+  for (let i = 1; i < xs.length; i++) {
+    const cpx = ((xs[i - 1] + xs[i]) / 2).toFixed(1);
+    linePath += ` C${cpx},${ys[i-1].toFixed(1)} ${cpx},${ys[i].toFixed(1)} ${xs[i].toFixed(1)},${ys[i].toFixed(1)}`;
+  }
+  const areaPath = linePath + ` L${W},${H} L0,${H} Z`;
+
+  return `<svg class="desk-mca-spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="${gId}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${color}" stop-opacity="0.35"/>
+        <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <path d="${areaPath}" fill="url(#${gId})"/>
+    <path d="${linePath}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+}
+
 function populateDeskMarketCards() {
   if (window.innerWidth <= 768) return;
 
@@ -5608,8 +5640,7 @@ function populateDeskMarketCards() {
     if (!el) return;
     el.innerHTML = data.map(m => {
       const upClass = m.up ? 'up' : 'dn';
-      const spark = generateSparklineSVG(m.history, m.up);
-      const svgStr = spark.replace('<svg ', '<svg class="desk-mca-spark" ');
+      const spark = generateMcaSparkSVG(m.history, m.up);
       return `<div class="desk-mc-asset">
         <div class="desk-mca-name">${m.name}</div>
         <div class="desk-mca-ticker">${m.ticker}</div>
@@ -5617,7 +5648,7 @@ function populateDeskMarketCards() {
           <span class="desk-mca-price">${m.price}</span>
           <span class="desk-mca-chg ${upClass}">${m.change}</span>
         </div>
-        ${svgStr}
+        ${spark}
       </div>`;
     }).join('');
   }
