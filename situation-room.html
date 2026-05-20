@@ -3829,8 +3829,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Render markets
   renderMarkets();
 
-  // Simulate market refresh
-  setInterval(updateMarketPrices, 8000);
+  // Dati reali da Yahoo Finance (ogni 60s)
+  fetchYahooFinancePrices();
+  setInterval(fetchYahooFinancePrices, 60000);
 });
 
 /* ── TICKER ── */
@@ -3887,93 +3888,100 @@ function renderMarkets() {
     </div>`).join('');
 }
 
-/* ── Simula variazione prezzi su un array ── */
-function _simBasket(arr, prefix) {
-  arr.forEach(m => {
-    const pct = (Math.random() - 0.48) * 0.6;
-    m.up = pct >= 0;
-    m.change = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
-    const newPrice = m.rawPrice * (1 + pct / 100);
-    m.rawPrice = +newPrice.toFixed(m.rawPrice >= 100 ? 1 : 2);
-    const p = m.rawPrice;
-    const sym = prefix || '$';
-    m.price = p >= 10000
-      ? sym + p.toLocaleString('en-US', {maximumFractionDigits:0})
-      : p >= 1000
-        ? sym + p.toLocaleString('en-US', {minimumFractionDigits:1, maximumFractionDigits:1})
-        : sym + p.toFixed(2);
-    m.history.push(m.rawPrice);
-    if (m.history.length > 9) m.history.shift();
-  });
-}
-
-function updateMarketPrices() {
-  _simBasket(MARKETS,         '$');
-  _simBasket(MARKETS_DEFENSE, '');   // prezzi misti €/$
-  _simBasket(MARKETS_BIOTECH, '$');
-  _simBasket(MARKETS_FOOD,    '$');
-  _simBasket(MARKETS_INDICES, '');
-  _simBasket(MARKETS_ENERGY,  '$');
-
-  renderMarkets();
-  renderMobMarkets();
-  populateDeskMarketCards();
-  renderTicker();
-
-  const deskMktPane = document.getElementById('desk-pane-markets');
-  if (deskMktPane && deskMktPane.classList.contains('active')) renderDeskMarkets();
-}
-
-/* ── Yahoo Finance live fetch (via CORS proxy) ── */
-const YF_SYMBOLS = {
-  // MARKETS (Materie Prime)
-  'GC=F':  (d,m) => _applyYF(MARKETS,  'GOLD',   d, m),
-  'BZ=F':  (d,m) => _applyYF(MARKETS,  'BRENT',  d, m),
-  'NG=F':  (d,m) => _applyYF(MARKETS,  'NATGAS', d, m),
-  'SI=F':  (d,m) => _applyYF(MARKETS,  'SILVER', d, m),
-  // MARKETS_INDICES
-  'SPY':   (d,m) => _applyYF(MARKETS_INDICES, 'SPX', d, m),
-  'QQQ':   (d,m) => _applyYF(MARKETS_INDICES, 'NDX', d, m),
-  // MARKETS_ENERGY
-  'XOM':   (d,m) => _applyYF(MARKETS_ENERGY,  'XOM',  d, m),
-  'CVX':   (d,m) => _applyYF(MARKETS_ENERGY,  'CVX',  d, m),
+/* ══════════════════════════════════════════════════
+   YAHOO FINANCE — prezzi reali (via corsproxy.io)
+   Mappa: simbolo Yahoo → { array, ticker interno }
+   ══════════════════════════════════════════════════ */
+const YF_MAP = {
+  /* Materie Prime */
+  'GC=F':     { arr: () => MARKETS,         tk: 'GOLD',   sym: '$'  },
+  'BZ=F':     { arr: () => MARKETS,         tk: 'BRENT',  sym: '$'  },
+  'NG=F':     { arr: () => MARKETS,         tk: 'NATGAS', sym: '$'  },
+  'SI=F':     { arr: () => MARKETS,         tk: 'SILVER', sym: '$'  },
+  'HG=F':     { arr: () => MARKETS,         tk: 'COPPER', sym: '$'  },
+  'ZW=F':     { arr: () => MARKETS,         tk: 'WHEAT',  sym: '$'  },
+  /* Difesa */
+  'LMT':      { arr: () => MARKETS_DEFENSE, tk: 'LMT',   sym: '$'  },
+  'NOC':      { arr: () => MARKETS_DEFENSE, tk: 'NOC',   sym: '$'  },
+  'GD':       { arr: () => MARKETS_DEFENSE, tk: 'GD',    sym: '$'  },
+  'RHM.DE':   { arr: () => MARKETS_DEFENSE, tk: 'RHM',   sym: '€'  },
+  'LDO.MI':   { arr: () => MARKETS_DEFENSE, tk: 'LDO',   sym: '€'  },
+  'HO.PA':    { arr: () => MARKETS_DEFENSE, tk: 'HO',    sym: '€'  },
+  'AIR.PA':   { arr: () => MARKETS_DEFENSE, tk: 'AIR',   sym: '€'  },
+  'BA.L':     { arr: () => MARKETS_DEFENSE, tk: 'BA.',   sym: '£'  },
+  /* Biotech */
+  'MRNA':     { arr: () => MARKETS_BIOTECH, tk: 'MRNA',  sym: '$'  },
+  'BNTX':     { arr: () => MARKETS_BIOTECH, tk: 'BNTX',  sym: '$'  },
+  'REGN':     { arr: () => MARKETS_BIOTECH, tk: 'REGN',  sym: '$'  },
+  'GILD':     { arr: () => MARKETS_BIOTECH, tk: 'GILD',  sym: '$'  },
+  'AZN':      { arr: () => MARKETS_BIOTECH, tk: 'AZN',   sym: '$'  },
+  'PFE':      { arr: () => MARKETS_BIOTECH, tk: 'PFE',   sym: '$'  },
+  'VRTX':     { arr: () => MARKETS_BIOTECH, tk: 'VRTX',  sym: '$'  },
+  'ISRG':     { arr: () => MARKETS_BIOTECH, tk: 'ISRG',  sym: '$'  },
+  /* Food & AgriTech */
+  'BYND':     { arr: () => MARKETS_FOOD,    tk: 'BYND',  sym: '$'  },
+  'ADM':      { arr: () => MARKETS_FOOD,    tk: 'ADM',   sym: '$'  },
+  'TSN':      { arr: () => MARKETS_FOOD,    tk: 'TSN',   sym: '$'  },
+  'BG':       { arr: () => MARKETS_FOOD,    tk: 'BG',    sym: '$'  },
+  /* Indici */
+  '^GSPC':    { arr: () => MARKETS_INDICES, tk: 'SPX',     sym: ''  },
+  '^NDX':     { arr: () => MARKETS_INDICES, tk: 'NDX',     sym: ''  },
+  '^DJI':     { arr: () => MARKETS_INDICES, tk: 'DJI',     sym: ''  },
+  '^STOXX50E':{ arr: () => MARKETS_INDICES, tk: 'SX5E',    sym: ''  },
+  '^GDAXI':   { arr: () => MARKETS_INDICES, tk: 'DAX',     sym: ''  },
+  '^FTSE':    { arr: () => MARKETS_INDICES, tk: 'UKX',     sym: ''  },
+  '^N225':    { arr: () => MARKETS_INDICES, tk: 'N225',    sym: ''  },
+  /* Energia */
+  'XOM':      { arr: () => MARKETS_ENERGY,  tk: 'XOM',   sym: '$'  },
+  'CVX':      { arr: () => MARKETS_ENERGY,  tk: 'CVX',   sym: '$'  },
+  'NEE':      { arr: () => MARKETS_ENERGY,  tk: 'NEE',   sym: '$'  },
+  'SHEL':     { arr: () => MARKETS_ENERGY,  tk: 'SHEL',  sym: '$'  },
+  'TTE':      { arr: () => MARKETS_ENERGY,  tk: 'TTE',   sym: '€'  },
 };
 
-function _applyYF(arr, ticker, price, chgPct) {
-  const m = arr.find(x => x.ticker === ticker);
-  if (!m || !price) return;
+function _applyYFQuote(q) {
+  const cfg = YF_MAP[q.symbol];
+  if (!cfg) return;
+  const price = q.regularMarketPrice;
+  const chgPct = q.regularMarketChangePercent || 0;
+  if (!price) return;
+  const arr = cfg.arr();
+  const m = arr.find(x => x.ticker === cfg.tk);
+  if (!m) return;
   m.rawPrice = price;
   m.up = chgPct >= 0;
   m.change = (chgPct >= 0 ? '+' : '') + chgPct.toFixed(2) + '%';
-  const p = price;
-  m.price = p >= 1000 ? '$' + p.toLocaleString('en-US', {maximumFractionDigits:1})
-                      : '$' + p.toFixed(2);
+  const s = cfg.sym;
+  m.price = price >= 10000
+    ? s + price.toLocaleString('en-US', {maximumFractionDigits: 0})
+    : price >= 1000
+      ? s + price.toLocaleString('en-US', {minimumFractionDigits: 1, maximumFractionDigits: 1})
+      : s + price.toFixed(2);
   m.history.push(price);
-  if (m.history.length > 9) m.history.shift();
+  if (m.history.length > 12) m.history.shift();
 }
 
 async function fetchYahooFinancePrices() {
-  const symbols = Object.keys(YF_SYMBOLS).join(',');
-  const url = `https://corsproxy.io/?https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}&fields=regularMarketPrice,regularMarketChangePercent`;
+  const syms = Object.keys(YF_MAP).join(',');
+  const url = `https://corsproxy.io/?https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(syms)}&fields=regularMarketPrice,regularMarketChangePercent,currency`;
   try {
     const ctrl = new AbortController();
-    setTimeout(() => ctrl.abort(), 5000);
+    setTimeout(() => ctrl.abort(), 6000);
     const r = await fetch(url, { signal: ctrl.signal });
     if (!r.ok) return;
     const data = await r.json();
-    const results = data?.quoteResponse?.result || [];
-    results.forEach(q => {
-      const handler = YF_SYMBOLS[q.symbol];
-      if (handler) handler(q.regularMarketPrice, q.regularMarketChangePercent);
-    });
+    (data?.quoteResponse?.result || []).forEach(_applyYFQuote);
+    renderMarkets();
+    renderMobMarkets();
     populateDeskMarketCards();
     renderTicker();
-  } catch(e) { /* fallback alla simulazione */ }
+  } catch(e) {
+    console.warn('[Yahoo Finance] fetch fallito:', e.message);
+  }
 }
 
-// Fetch Yahoo ogni 30s; simulazione ogni 8s
-setInterval(fetchYahooFinancePrices, 30000);
-fetchYahooFinancePrices(); // fetch immediato al load
+// Legacy: funzione vuota per compatibilità con eventuali chiamate residue
+function updateMarketPrices() {}
 
 /* ── INTELLIGENCE BRIEFS ── */
 const BRIEF_CAT = {
