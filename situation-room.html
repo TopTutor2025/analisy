@@ -1915,7 +1915,7 @@
     position: relative;
     margin-top: 48px;
     padding-top: 0;
-    background: transparent;
+    background: #000;
     overflow: visible;
   }
 
@@ -1923,13 +1923,14 @@
   #desk-new-left-col {
     flex: 1; min-width: 0;
     display: flex; flex-direction: column;
+    background: #000;
   }
 
   /* Stats row */
   #desk-stats-row {
     flex-shrink: 0;
     padding: 14px 24px 12px;
-    background: transparent;
+    background: #000;
   }
   .desk-sr-metrics {
     display: flex;
@@ -2118,7 +2119,7 @@
   /* Bottom section: header+tabs+market cards */
   #desk-bottom-section {
     flex-shrink: 0;
-    background: transparent;
+    background: #000;
     padding-bottom: 8px;
   }
   #desk-bs-header {
@@ -2190,7 +2191,7 @@
   #desk-new-right-panel {
     width: 341px; flex-shrink: 0;
     display: flex; flex-direction: column;
-    background: transparent;
+    background: #000;
     align-self: stretch;
     overflow: hidden;
   }
@@ -2416,7 +2417,7 @@
   /* ── Full-width footer ── */
   #desk-footer-bar {
     flex-shrink: 0; width: 100%;
-    background: transparent;
+    background: #000;
     border-top: 1px solid rgba(255,255,255,0.04);
     padding: 48px 40px 28px;
   }
@@ -2437,7 +2438,7 @@
   /* ── Visible footer (new desktop layout) ── */
   #desk-footer-visible {
     flex-shrink: 0; width: 100%;
-    background: transparent;
+    background: #000;
     border-top: 1px solid rgba(255,255,255,0.04);
     padding: 48px 40px 28px;
   }
@@ -6447,7 +6448,7 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
 
     <!-- Epoch / Goal bar — uses the same IDs as JS expects -->
-    <div id="desk-goal-bar" style="display:none;flex-direction:row;align-items:center;gap:12px;padding:10px 20px;background:rgba(255,255,255,0.025);">
+    <div id="desk-goal-bar" style="display:none;flex-direction:row;align-items:center;gap:12px;padding:10px 20px;background:#000;">
       <div class="desk-ep-left">
         <div class="desk-ep-icon">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
