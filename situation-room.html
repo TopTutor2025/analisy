@@ -5687,6 +5687,70 @@ function initDeskLayout() {
   // Aggiorna timestamp mappa
   const updated = document.getElementById('desk-map-updated');
   if (updated) updated.textContent = `Dati aggiornati alle ${new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}`;
+
+  // Popola stats row
+  updateDeskStatsRow();
+}
+
+/* ── Stats row: popola i 6 asset + eventi attivi ── */
+async function updateDeskStatsRow() {
+  if (window.innerWidth <= 768) return;
+
+  function setMetric(valId, chgId, val, chg, up) {
+    const v = document.getElementById(valId);
+    const c = document.getElementById(chgId);
+    if (v) { v.textContent = val; v.className = 'desk-sr-mval'; }
+    if (c) { c.textContent = chg; c.className = 'desk-sr-msub ' + (up ? 'up' : 'dn'); }
+  }
+
+  // ── Dati statici dagli array già in pagina ──
+  const gold  = MARKETS.find(m => m.ticker === 'GOLD');
+  if (gold)  setMetric('dsk-gold-val', 'dsk-gold-chg', gold.price,  gold.change,  gold.up);
+
+  const brent = MARKETS.find(m => m.ticker === 'BRENT');
+  if (brent) setMetric('dsk-oil-val',  'dsk-oil-chg',  brent.price, brent.change, brent.up);
+
+  const sp = MARKETS_INDICES.find(m => m.ticker === 'SPX');
+  if (sp)   setMetric('dsk-sp-val',   'dsk-sp-chg',   sp.price,    sp.change,    sp.up);
+
+  // EUR/USD statico (dati aggiornati periodicamente con il resto dei MARKETS)
+  setMetric('dsk-eur-val', 'dsk-eur-chg', '1.0842', '+0.1%', true);
+
+  // ── Fallback BTC/ETH statici (mostrati subito) ──
+  setMetric('dsk-btc-val', 'dsk-btc-chg', '$104.2k', '+2.1%', true);
+  setMetric('dsk-eth-val', 'dsk-eth-chg', '$2,480',  '+1.8%', true);
+
+  // ── BTC/ETH live da CoinGecko (aggiorna se disponibile) ──
+  try {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 4500);
+    const r = await fetch(
+      'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true',
+      { signal: ctrl.signal }
+    );
+    if (r.ok) {
+      const d = await r.json();
+      if (d.bitcoin) {
+        const p = d.bitcoin.usd, c = d.bitcoin.usd_24h_change || 0;
+        setMetric('dsk-btc-val', 'dsk-btc-chg',
+          '$' + (p >= 1000 ? (p / 1000).toFixed(1) + 'k' : p.toFixed(0)),
+          (c >= 0 ? '+' : '') + c.toFixed(2) + '%', c >= 0);
+      }
+      if (d.ethereum) {
+        const p = d.ethereum.usd, c = d.ethereum.usd_24h_change || 0;
+        setMetric('dsk-eth-val', 'dsk-eth-chg',
+          '$' + (p >= 1000 ? (p / 1000).toFixed(1) + 'k' : p.toFixed(0)),
+          (c >= 0 ? '+' : '') + c.toFixed(2) + '%', c >= 0);
+      }
+    }
+  } catch(e) { /* mantieni fallback statico */ }
+
+  // ── Numero eventi attivi ──
+  const evtEl = document.getElementById('dsk-events-val');
+  if (evtEl) {
+    const cnt = (typeof AppData !== 'undefined' && AppData.mapEvents) ? AppData.mapEvents.length : 0;
+    evtEl.textContent = cnt > 0 ? cnt : '—';
+  }
 }
 
 /* ── Hook nelle funzioni esistenti ── */
@@ -5736,6 +5800,12 @@ document.addEventListener('mapEventsLoaded', function() {
   if (window.innerWidth > 768) {
     renderDeskLiveEvents();
     updateDeskLegendCounts();
+    // Aggiorna contatore eventi nella stats row
+    const evtEl = document.getElementById('dsk-events-val');
+    if (evtEl) {
+      const cnt = (typeof AppData !== 'undefined' && AppData.mapEvents) ? AppData.mapEvents.length : 0;
+      evtEl.textContent = cnt > 0 ? cnt : '—';
+    }
   }
 });
 
@@ -6201,7 +6271,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="desk-sr-msub dn" id="dsk-gold-chg">—</div>
         </div>
         <div class="desk-sr-metric">
-          <div class="desk-sr-mlbl">Oil WTI</div>
+          <div class="desk-sr-mlbl">Brent</div>
           <div class="desk-sr-mval" id="dsk-oil-val">—</div>
           <div class="desk-sr-msub up" id="dsk-oil-chg">—</div>
         </div>
