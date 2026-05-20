@@ -2187,8 +2187,7 @@
     width: 341px; flex-shrink: 0;
     display: flex; flex-direction: column;
     background: rgba(255,255,255,0.02);
-    height: calc(100vh - 48px);
-    position: sticky; top: 48px;
+    align-self: stretch;
     overflow: hidden;
   }
 
@@ -2226,7 +2225,7 @@
 
   /* Articles scroll */
   #desk-rp-art-scroll {
-    flex: 0 0 auto; max-height: 52%; overflow-y: auto; min-height: 0;
+    flex: 0 0 auto; height: 340px; overflow-y: auto;
     padding: 0 14px;
     scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.07) transparent;
   }
