@@ -2001,19 +2001,10 @@
   #desk-chart-area {
     height: 480px; flex-shrink: 0;
     display: flex; position: relative; overflow: hidden;
-    background: #0d1927;
-  }
-  /* Vignette gradient: il mare sfuma nel nero ai 4 bordi */
-  #desk-chart-area::after {
-    content: '';
-    position: absolute; inset: 0;
-    pointer-events: none;
-    z-index: 900;
-    background:
-      linear-gradient(to bottom, #000 0px, rgba(0,0,0,0) 90px),
-      linear-gradient(to top,    #000 0px, rgba(0,0,0,0) 90px),
-      linear-gradient(to right,  #000 0px, rgba(0,0,0,0) 70px),
-      linear-gradient(to left,   #000 0px, rgba(0,0,0,0) 70px);
+    background: #162130;
+    /* Alone del colore del mare che sfuma nel nero del sito */
+    box-shadow: 0 0 90px 30px #162130;
+    z-index: 1;
   }
   #desk-chart-header {
     position: absolute; top: 0; left: 0; right: 0;
@@ -2049,7 +2040,7 @@
   #desk-chart-area #desk-map-slot {
     flex: 1; width: 100% !important; height: 100% !important;
     margin: 0 !important; border-radius: 0 !important;
-    border: none !important; background: #0d1927;
+    border: none !important; background: #162130;
   }
   #desk-chart-area #desk-map-slot .sr-map-wrapper {
     display: flex !important; height: 100% !important;
