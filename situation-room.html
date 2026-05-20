@@ -2094,12 +2094,7 @@
 
   /* Map overlay legend */
   #desk-map-overlay-legend {
-    position: absolute; bottom: 12px; left: 12px; z-index: 500;
-    background: rgba(4,6,14,0.82); backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.09);
-    border-radius: 10px; padding: 10px 12px 8px; min-width: 148px;
-    pointer-events: all;
+    display: none !important;
   }
   .map-ol-label {
     font-size: 0.5rem; font-weight: 700; letter-spacing: 0.1em;
@@ -6255,11 +6250,11 @@ document.addEventListener('DOMContentLoaded', () => {
       <div id="desk-chart-header">
         <div></div><!-- spacer -->
         <div class="desk-ch-asset-info">
-          <span style="display:inline-flex;align-items:center;gap:5px;margin-right:10px;"><span style="width:8px;height:8px;border-radius:50%;background:#e8344e;box-shadow:0 0 5px rgba(232,52,78,0.7);display:inline-block;flex-shrink:0;"></span>Geopolitica <span id="desk-count-geo" style="color:rgba(255,255,255,0.5)">0</span></span>
-          <span style="display:inline-flex;align-items:center;gap:5px;margin-right:10px;"><span style="width:8px;height:8px;border-radius:50%;background:#4f9eff;box-shadow:0 0 5px rgba(79,159,255,0.7);display:inline-block;flex-shrink:0;"></span>Politica <span id="desk-count-pol" style="color:rgba(255,255,255,0.5)">0</span></span>
-          <span style="display:inline-flex;align-items:center;gap:5px;margin-right:10px;"><span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;box-shadow:0 0 5px rgba(245,158,11,0.7);display:inline-block;flex-shrink:0;"></span>Business <span id="desk-count-bus" style="color:rgba(255,255,255,0.5)">0</span></span>
-          <span style="display:inline-flex;align-items:center;gap:5px;margin-right:10px;"><span style="width:8px;height:8px;border-radius:50%;background:#a78bfa;box-shadow:0 0 5px rgba(167,139,250,0.7);display:inline-block;flex-shrink:0;"></span>Tech <span id="desk-count-tec" style="color:rgba(255,255,255,0.5)">0</span></span>
-          <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;border-radius:50%;background:#06d6a0;box-shadow:0 0 5px rgba(6,214,160,0.7);display:inline-block;flex-shrink:0;"></span>Hotspot <span id="desk-count-hot" style="color:rgba(255,255,255,0.5)">0</span></span>
+          <span style="display:inline-flex;align-items:center;gap:5px;margin-right:10px;cursor:pointer;" onclick="deskFilterCat('geopolitica',this)" data-cat="geopolitica"><span style="width:8px;height:8px;border-radius:50%;background:#e8344e;box-shadow:0 0 5px rgba(232,52,78,0.7);display:inline-block;flex-shrink:0;"></span>Geopolitica <span id="desk-count-geo" style="color:rgba(255,255,255,0.5)">0</span></span>
+          <span style="display:inline-flex;align-items:center;gap:5px;margin-right:10px;cursor:pointer;" onclick="deskFilterCat('politica',this)" data-cat="politica"><span style="width:8px;height:8px;border-radius:50%;background:#4f9eff;box-shadow:0 0 5px rgba(79,159,255,0.7);display:inline-block;flex-shrink:0;"></span>Politica <span id="desk-count-pol" style="color:rgba(255,255,255,0.5)">0</span></span>
+          <span style="display:inline-flex;align-items:center;gap:5px;margin-right:10px;cursor:pointer;" onclick="deskFilterCat('business',this)" data-cat="business"><span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;box-shadow:0 0 5px rgba(245,158,11,0.7);display:inline-block;flex-shrink:0;"></span>Business <span id="desk-count-bus" style="color:rgba(255,255,255,0.5)">0</span></span>
+          <span style="display:inline-flex;align-items:center;gap:5px;margin-right:10px;cursor:pointer;" onclick="deskFilterCat('tecnologia',this)" data-cat="tecnologia"><span style="width:8px;height:8px;border-radius:50%;background:#a78bfa;box-shadow:0 0 5px rgba(167,139,250,0.7);display:inline-block;flex-shrink:0;"></span>Tech <span id="desk-count-tec" style="color:rgba(255,255,255,0.5)">0</span></span>
+          <span style="display:inline-flex;align-items:center;gap:5px;cursor:pointer;" onclick="deskFilterCat('hotspot',this)" data-cat="hotspot"><span style="width:8px;height:8px;border-radius:50%;background:#06d6a0;box-shadow:0 0 5px rgba(6,214,160,0.7);display:inline-block;flex-shrink:0;"></span>Hotspot <span id="desk-count-hot" style="color:rgba(255,255,255,0.5)">0</span></span>
         </div>
       </div>
 
