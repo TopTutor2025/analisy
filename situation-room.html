@@ -5585,9 +5585,49 @@ function renderDeskBasket(data) {
   }).join('');
 }
 
-/* ── Render Commodities (left col) ── */
+/* ── Render Commodities (left col — legacy) ── */
 function renderDeskCommodities() {
   renderDeskBasket(MARKETS);
+  populateDeskMarketCards();
+}
+
+/* ── Popola le 6 card mercati nel nuovo layout desktop ── */
+const MARKETS_ENERGY = [
+  { name:'Exxon Mobil',  ticker:'XOM',  price:'$118',   rawPrice:118,   change:'+1.4%', up:true,  history:[108,110,112,113,115,117,118] },
+  { name:'Chevron',      ticker:'CVX',  price:'$158',   rawPrice:158,   change:'+0.9%', up:true,  history:[150,152,153,154,156,157,158] },
+  { name:'NextEra',      ticker:'NEE',  price:'$74',    rawPrice:74,    change:'+0.6%', up:true,  history:[70,71,71,72,72,73,74] },
+  { name:'Shell',        ticker:'SHEL', price:'$68',    rawPrice:68,    change:'-0.5%', up:false, history:[71,70,70,69,69,68,68] },
+  { name:'TotalEnergies',ticker:'TTE',  price:'€62',    rawPrice:62,    change:'+0.3%', up:true,  history:[60,60,61,61,61,62,62] },
+];
+
+function populateDeskMarketCards() {
+  if (window.innerWidth <= 768) return;
+
+  function buildAssets(containerId, data) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    el.innerHTML = data.map(m => {
+      const upClass = m.up ? 'up' : 'dn';
+      const spark = generateSparklineSVG(m.history, m.up);
+      const svgStr = spark.replace('<svg ', '<svg class="desk-mca-spark" ');
+      return `<div class="desk-mc-asset">
+        <div class="desk-mca-name">${m.name}</div>
+        <div class="desk-mca-ticker">${m.ticker}</div>
+        <div class="desk-mca-bottom">
+          <span class="desk-mca-price">${m.price}</span>
+          <span class="desk-mca-chg ${upClass}">${m.change}</span>
+        </div>
+        ${svgStr}
+      </div>`;
+    }).join('');
+  }
+
+  buildAssets('desk-commodities',    MARKETS);
+  buildAssets('desk-defense-assets', MARKETS_DEFENSE);
+  buildAssets('desk-biotech-assets', MARKETS_BIOTECH);
+  buildAssets('desk-food-assets',    MARKETS_FOOD);
+  buildAssets('desk-indices-assets', MARKETS_INDICES);
+  buildAssets('desk-energy-assets',  MARKETS_ENERGY);
 }
 
 /* ── Render Markets desktop ── */
