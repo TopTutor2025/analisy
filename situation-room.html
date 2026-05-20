@@ -2373,34 +2373,40 @@
   .desk-main-pane { display: none; }
   .desk-main-pane.active { display: block; }
 
-  /* Legacy desk-art-card styles (used by renderDeskArticles JS) */
+  /* Art card — nuovo stile preview */
   .desk-art-card {
-    display: flex; align-items: stretch;
-    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 12px; margin-bottom: 7px;
-    overflow: hidden; cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
+    padding: 11px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex; gap: 10px; align-items: flex-start;
+    cursor: pointer; transition: opacity 0.15s;
   }
-  .desk-art-card:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); }
-  .desk-art-card-stripe { width: 3px; flex-shrink: 0; }
+  .desk-art-card:last-child { border-bottom: none; }
+  .desk-art-card:hover { opacity: 0.8; }
+  .desk-art-card-body { flex: 1; min-width: 0; }
+  .desk-art-card-cat {
+    font-size: 0.5rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.11em;
+    margin-bottom: 3px; display: block;
+  }
+  .desk-art-card-title {
+    font-size: 0.72rem; font-weight: 600;
+    color: rgba(255,255,255,0.9); line-height: 1.4;
+    margin-bottom: 3px; letter-spacing: -0.01em;
+    display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .desk-art-card-meta {
+    font-size: 0.54rem; font-weight: 400;
+    color: rgba(255,255,255,0.18); margin-top: 3px;
+  }
   .desk-art-card-thumb {
-    width: 52px; height: 52px; flex-shrink: 0;
+    width: 58px; height: 58px; border-radius: 8px;
+    flex-shrink: 0; overflow: hidden;
+    background: rgba(255,255,255,0.06);
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem; font-weight: 800; color: rgba(255,255,255,0.25);
-    background: rgba(255,255,255,0.04);
-    margin: 10px 0 10px 10px; border-radius: 8px; overflow: hidden;
+    font-size: 0.9rem; font-weight: 800; color: rgba(255,255,255,0.2);
   }
-  .desk-art-card-thumb img { width: 100%; height: 100%; object-fit: cover; }
-  .desk-art-card-body { flex: 1; padding: 10px 12px; display: flex; flex-direction: column; justify-content: center; }
-  .desk-art-card-meta { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
-  .desk-art-card-cat { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; }
-  .desk-art-card-ai { font-size: 0.5rem; font-weight: 700; letter-spacing: 0.06em; background: rgba(232,52,78,0.15); color: #e8344e; padding: 1px 5px; border-radius: 3px; }
-  .desk-art-card-time { font-size: 0.58rem; color: rgba(255,255,255,0.2); margin-left: auto; }
-  .desk-art-card-title { font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.9); line-height: 1.35; }
-  .desk-art-card-excerpt { font-size: 0.68rem; color: rgba(255,255,255,0.35); line-height: 1.5; margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .desk-art-card-right { width: 52px; flex-shrink: 0; display: flex; align-items: center; justify-content: flex-end; padding-right: 12px; color: rgba(255,255,255,0.1); }
-  .desk-art-readtime { font-size: 0.6rem; color: rgba(255,255,255,0.25); text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; line-height: 1.3; }
-  .desk-art-readtime svg { margin-top: 2px; }
+  .desk-art-card-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
   /* Legacy right panel header (kept for JS that injects into desk-right-col) */
   .desk-right-header { display: none; }
@@ -5344,30 +5350,19 @@ function renderDeskArticles(cat) {
     const color = DESK_CAT_COLORS[a.cat] || '#4f9eff';
     const label = DESK_CAT_LABELS[a.cat] || (a.cat_label || a.cat || '');
     const ago = a.published_at ? timeAgo(a.published_at) : '';
-    const excerpt = a.excerpt || (a.content||'').replace(/<[^>]+>/g,' ').slice(0,130);
+    const readTime = a.read_time ? ` · ${a.read_time}` : '';
     const initials = (a.title || 'N').slice(0,2).toUpperCase();
-    const imgHtml = a.image
-      ? `<img src="${a.image}" alt="" onerror="this.style.display='none';this.nextSibling.style.display='flex';">
-         <span style="display:none;">${initials}</span>`
+    const thumbHtml = a.image
+      ? `<img src="${a.image}" alt="" onerror="this.style.display='none';">`
       : initials;
     return `
       <div class="desk-art-card" onclick="openDeskArtReader(${JSON.stringify(a).replace(/"/g,'&quot;')})">
-        <div class="desk-art-card-stripe" style="background:${color};"></div>
-        <div class="desk-art-card-thumb">${imgHtml}</div>
         <div class="desk-art-card-body">
-          <div class="desk-art-card-meta">
-            <span class="desk-art-card-cat" style="color:${color};">${label}</span>
-          </div>
+          <span class="desk-art-card-cat" style="color:${color};">${label}</span>
           <div class="desk-art-card-title">${a.title || ''}</div>
-          ${excerpt ? `<div class="desk-art-card-excerpt">${excerpt}</div>` : ''}
+          <div class="desk-art-card-meta">${ago}${readTime}</div>
         </div>
-        <div class="desk-art-card-right">
-          <div class="desk-art-readtime">
-            ${ago ? `<span>${ago}</span>` : ''}
-            ${a.read_time ? `<span>${a.read_time}</span>` : ''}
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
-        </div>
+        <div class="desk-art-card-thumb">${thumbHtml}</div>
       </div>`;
   }).join('');
 }
