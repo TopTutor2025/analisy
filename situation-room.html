@@ -43,6 +43,9 @@
   }
   </script>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
@@ -72,7 +75,7 @@
     }
 
     /* 2 · Base */
-    * { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif !important; }
+    * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif !important; }
     body { overflow-x: hidden; background: #000; }
 
     /* 3 · Sponsor bar */
@@ -1773,7 +1776,7 @@
   .sr-announce-bar  { display: none !important; }
   .sr-navbar        { display: none !important; }
   .ticker-wrap      { display: none !important; }
-  .ticker-outer     { display: none !important; } /* rimuove margin-top:90px dal wrapper */
+  .ticker-outer     { display: none !important; }
   .sr-toolnav       { display: none !important; }
   .sr-mobile-tabs   { display: none !important; }
   .sr-grid          { display: none !important; }
@@ -1787,203 +1790,259 @@
   #mob-bottom-nav, #mob-map-fs, #mob-art-reader,
   #mob-event-sheet  { display: none !important; }
 
-  /* ── Layout body ── */
+  /* ── Layout base ── */
   html, body { overflow: auto !important; height: auto !important; margin: 0 !important; }
 
-  /* ── Top bar ── */
+  /* Body background: nuovo design */
+  body {
+    background: #080614 !important;
+    background-image:
+      radial-gradient(ellipse 75% 60% at 38% 48%, #0d0d18 0%, transparent 70%),
+      radial-gradient(ellipse 95% 80% at 35% 50%, rgba(13,13,24,0.7) 0%, transparent 80%),
+      radial-gradient(ellipse 45% 40% at 5% 95%, rgba(232,52,78,0.18) 0%, transparent 55%) !important;
+    color: rgba(255,255,255,0.9) !important;
+  }
+
+  /* Mobile map controls: hidden on desktop */
+  #mob-map-controls { display: none !important; }
+
+  /* ── Topbar ── */
   #desk-topbar {
-    display: flex;
+    display: flex !important;
     align-items: center;
-    position: fixed; top: 6px; left: 8px; right: 8px; z-index: 1000;
-    height: 52px;
-    background: rgba(6,6,12,0.30);
-    backdrop-filter: blur(20px);
-    transition: background 0.35s ease, backdrop-filter 0.35s ease;
+    height: 48px;
+    background: rgba(8,6,20,0.5);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     border-bottom: none;
-    border-radius: 12px;
-    padding: 0 20px;
-    gap: 12px;
+    padding: 0 20px; gap: 0;
+    position: sticky; top: 0; z-index: 1000;
+    border-radius: 0;
+    margin-top: 0;
   }
   .desk-logo {
-    display: flex; align-items: center; gap: 8px;
+    display: flex; align-items: center;
     text-decoration: none; flex-shrink: 0;
+    margin-right: 28px;
   }
   .desk-logo-text {
-    font-size: 1.05rem; font-weight: 800; letter-spacing: -0.03em;
+    font-size: 0.95rem; font-weight: 800; letter-spacing: -0.03em;
     background: linear-gradient(135deg, #e8344e, #ff6b6b);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  .desk-room-badge {
-    font-size: 0.52rem; font-weight: 700; letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.3); text-transform: uppercase;
-    border: 1px solid rgba(255,255,255,0.1);
-    padding: 2px 7px; border-radius: 4px; flex-shrink: 0;
-  }
+  .desk-room-badge { display: none; }
   #desk-live-pill {
     display: flex; align-items: center; gap: 5px;
-    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em;
-    color: rgba(255,255,255,0.5); flex-shrink: 0;
+    font-size: 0.58rem; font-weight: 700; letter-spacing: 0.07em;
+    color: rgba(255,255,255,0.55);
+    background: rgba(232,52,78,0.10); border: 1px solid rgba(232,52,78,0.22);
+    padding: 3px 10px; border-radius: 20px;
+    flex-shrink: 0;
   }
   .desk-live-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: #e8344e;
-    box-shadow: 0 0 6px #e8344e;
-    animation: deskLivePulse 2s ease-in-out infinite;
+    width: 5px; height: 5px; border-radius: 50%;
+    background: #e8344e; box-shadow: 0 0 5px #e8344e;
+    animation: deskLivePulse 2s infinite;
   }
-  @keyframes deskLivePulse {
-    0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+  @keyframes deskLivePulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
+  /* "Situation Room" text dopo la live pill */
+  #desk-events-count {
+    font-size: 0.72rem; color: rgba(255,255,255,0.35);
+    margin-left: 8px;
+  }
+  /* Divider topbar */
+  .desk-tb-divider {
+    width: 1px; height: 18px; background: rgba(255,255,255,0.08);
+    flex-shrink: 0;
   }
   #desk-topbar-right {
-    display: flex; align-items: center; gap: 10px;
+    display: flex; align-items: center; gap: 8px;
     margin-left: auto; flex-shrink: 0;
   }
   .desk-avatar-btn {
-    width: 32px; height: 32px; border-radius: 50%;
-    background: linear-gradient(135deg, #e8344e, #ff6b6b);
+    width: 30px; height: 30px; border-radius: 50%;
+    background: linear-gradient(135deg, #7c3aed, #e8344e);
     border: none; cursor: pointer;
-    font-size: 0.75rem; font-weight: 700; color: white;
+    font-size: 0.68rem; font-weight: 800; color: white;
     font-family: inherit; display: flex; align-items: center; justify-content: center;
   }
   .desk-accedi-btn {
-    font-size: 0.7rem; font-weight: 600;
+    font-size: 0.72rem; font-weight: 600;
     color: rgba(255,255,255,0.7);
-    background: rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.06);
     border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px; padding: 5px 12px;
+    border-radius: 7px; padding: 5px 13px;
     cursor: pointer; font-family: inherit;
     text-decoration: none; transition: all 0.15s;
   }
   .desk-accedi-btn:hover { background: rgba(255,255,255,0.12); }
-
-  /* navbar semi-trasparente allo scroll */
+  /* Nav categories nella topbar */
+  .desk-tb-nav {
+    display: flex; align-items: center; gap: 1px;
+  }
+  .desk-tb-nav-btn {
+    font-size: 0.78rem; font-weight: 400; letter-spacing: 0.01em;
+    color: rgba(255,255,255,0.5);
+    padding: 5px 13px; border-radius: 6px; cursor: pointer;
+    border: none; background: none; font-family: 'Inter',sans-serif;
+    display: flex; align-items: center; gap: 5px; white-space: nowrap;
+    transition: color 0.15s, background 0.15s;
+    text-decoration: none;
+  }
+  .desk-tb-nav-btn:hover { color: white; background: rgba(255,255,255,0.06); }
+  /* Topbar icon buttons */
+  .desk-tb-iconbtn {
+    width: 30px; height: 30px; border-radius: 7px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.04);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: rgba(255,255,255,0.45);
+    flex-shrink: 0;
+  }
   #desk-topbar.desk-scrolled {
-    background: rgba(6,6,12,0.55) !important;
+    background: rgba(8,6,20,0.75) !important;
     backdrop-filter: blur(28px) !important;
   }
 
-  /* ── Body ── */
+  /* ── Body: ROW layout ── */
   #desk-body {
     display: flex !important;
-    flex-direction: column;
+    flex-direction: row !important;
+    min-height: calc(100vh - 48px);
     position: relative;
     margin-top: 0;
-    padding-top: 58px; /* 52px navbar + 6px margine top */
-    background: #020508;
+    padding-top: 0;
+    background: transparent;
     overflow: visible;
   }
 
-  /* ── Sidebar ── */
-  #desk-sidebar {
-    width: 220px; flex-shrink: 0;
-    background: #000;
-    border-right: none;
-    overflow-y: auto; overflow-x: hidden;
-    display: flex; flex-direction: column;
-    padding: 16px 0;
-    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.06) transparent;
-  }
-  #desk-sidebar::-webkit-scrollbar { width: 3px; }
-  #desk-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
-
-  .desk-nav-section-label {
-    font-size: 0.52rem; font-weight: 700; letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.2); text-transform: uppercase;
-    padding: 0 18px 8px;
-    display: flex; align-items: center; gap: 5px;
-  }
-  #desk-nav { padding-bottom: 8px; }
-  .desk-nav-item {
-    display: flex; align-items: center; gap: 10px;
-    width: 100%; padding: 9px 18px;
-    font-size: 0.8rem; font-weight: 500;
-    color: rgba(255,255,255,0.4);
-    background: none; border: none; cursor: pointer;
-    font-family: inherit; text-align: left;
-    border-radius: 0; transition: all 0.15s;
-    position: relative;
-  }
-  .desk-nav-item:hover { color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.04); }
-  .desk-nav-item.active {
-    color: white;
-    background: rgba(232,52,78,0.08);
-  }
-  .desk-nav-item.active::before {
-    content: '';
-    position: absolute; left: 0; top: 20%; bottom: 20%;
-    width: 3px; border-radius: 0 2px 2px 0;
-    background: #e8344e;
-  }
-
-  .desk-sidebar-divider {
-    margin: 10px 18px;
-    border-top: 1px solid rgba(255,255,255,0.05);
-  }
-
-  #desk-filters { padding-bottom: 8px; }
-  .desk-filter-item {
-    display: flex; align-items: center; gap: 9px;
-    width: 100%; padding: 7px 18px;
-    font-size: 0.75rem; font-weight: 500;
-    color: rgba(255,255,255,0.35);
-    background: none; border: none; cursor: pointer;
-    font-family: inherit; transition: all 0.15s;
-  }
-  .desk-filter-item:hover { color: rgba(255,255,255,0.7); }
-  .desk-filter-item.active { color: rgba(255,255,255,0.9); font-weight: 600; }
-  .desk-filter-dot {
-    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
-  }
-
-  #desk-live-events-sidebar { padding-bottom: 16px; }
-  .desk-live-dot-sm {
-    display: inline-block;
-    width: 5px; height: 5px; border-radius: 50%;
-    background: #e8344e; box-shadow: 0 0 5px #e8344e;
-  }
-  .desk-live-event-item {
-    padding: 5px 18px;
-    font-size: 0.68rem; color: rgba(255,255,255,0.35);
-    line-height: 1.4; cursor: pointer; transition: color 0.15s;
-  }
-  .desk-live-event-item:hover { color: rgba(255,255,255,0.65); }
-  .desk-live-event-dot {
-    display: inline-block; width: 6px; height: 6px;
-    border-radius: 50%; margin-right: 6px; flex-shrink: 0;
-    vertical-align: middle;
-  }
-
-  /* ── Main center ── */
-  #desk-main {
+  /* ── LEFT COL (flex:1) ── */
+  #desk-new-left-col {
     flex: 1; min-width: 0;
-    overflow-y: auto; overflow-x: hidden;
-    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.06) transparent;
+    display: flex; flex-direction: column;
   }
-  #desk-main::-webkit-scrollbar { width: 4px; }
-  #desk-main::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 2px; }
 
-  /* Map slot */
-  #desk-map-slot {
-    height: 360px; position: relative;
-    background: #060c1a;
-    overflow: hidden;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.06);
-    margin: 10px 10px 0;
+  /* Stats row */
+  #desk-stats-row {
+    flex-shrink: 0;
+    padding: 14px 24px 12px;
+    background: rgba(255,255,255,0.02);
   }
-  #desk-map-slot .sr-map-wrapper {
-    display: flex !important;
-    height: 100% !important; width: 100% !important;
-    margin: 0 !important; border: none !important;
+  .desk-sr-metrics {
+    display: flex;
+    justify-content: space-between;
+    gap: 0;
   }
-  #desk-map-slot .sr-map-row {
-    height: 100% !important; min-height: unset !important;
+  .desk-sr-metric {
+    display: flex; flex-direction: column; gap: 4px;
+    flex: 1;
   }
-  #desk-map-slot .sr-map-section {
-    height: 100% !important; border-radius: 0 !important;
+  .desk-sr-mlbl {
+    font-size: 0.57rem; font-weight: 400;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase; letter-spacing: 0.09em;
   }
-  /* Wrapper flex per pulsanti in alto a destra sulla mappa
-     top: 62px = 52px topbar fisso + 10px margine */
+  .desk-sr-mval {
+    font-size: 1.1rem; font-weight: 600;
+    letter-spacing: -0.03em; line-height: 1;
+    color: rgba(255,255,255,0.92);
+  }
+  .desk-sr-mval.green { color: #00e676; }
+  .desk-sr-mval.red   { color: #e8344e; }
+  .desk-sr-msub { font-size: 0.63rem; font-weight: 500; }
+  .desk-sr-msub.up { color: #00e676; }
+  .desk-sr-msub.dn { color: #ff4d6d; }
+  .desk-sr-msub.nu { color: rgba(255,255,255,0.28); }
+
+  /* Epoch/Goal bar inline */
+  #desk-epoch-bar {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.025);
+  }
+  .desk-ep-left { display: flex; align-items: center; gap: 9px; flex-shrink: 0; }
+  .desk-ep-icon {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.45); flex-shrink: 0;
+  }
+  .desk-ep-info { display: flex; flex-direction: column; gap: 1px; }
+  .desk-ep-lbl { font-size: 0.54rem; color: rgba(255,255,255,0.32); font-weight: 400; letter-spacing: 0.04em; }
+  .desk-ep-val { font-size: 0.82rem; font-weight: 600; color: white; line-height: 1.1; letter-spacing: -0.01em; }
+  .desk-ep-center { flex: 1; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+  .desk-ep-dates { display: flex; justify-content: space-between; align-items: center; }
+  .desk-ep-date { font-size: 0.55rem; color: rgba(255,255,255,0.3); }
+  .desk-ep-track {
+    height: 4px; background: rgba(255,255,255,0.07);
+    border-radius: 99px; overflow: hidden; position: relative;
+  }
+  .desk-ep-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    border-radius: 99px; position: relative;
+    transition: width 1.6s cubic-bezier(0.4,0,0.2,1);
+  }
+  .desk-ep-fill::after {
+    content: ''; position: absolute; right: 0; top: 50%; transform: translate(50%,-50%);
+    width: 8px; height: 8px; border-radius: 50%; background: #fbbf24;
+    box-shadow: 0 0 6px 2px rgba(251,191,36,0.7);
+  }
+  .desk-ep-right {
+    font-size: 0.6rem; color: rgba(255,255,255,0.45); flex-shrink: 0; white-space: nowrap;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+    padding: 3px 10px; border-radius: 6px;
+  }
+
+  /* Chart/Map area */
+  #desk-chart-area {
+    flex: 1; min-height: 380px;
+    display: flex; position: relative; overflow: hidden;
+  }
+  #desk-chart-header {
+    position: absolute; top: 0; left: 0; right: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; z-index: 5; pointer-events: none;
+  }
+  .desk-ch-asset-info {
+    font-size: 0.62rem; font-weight: 500; color: rgba(255,255,255,0.6);
+    pointer-events: all;
+    background: rgba(8,5,20,0.65);
+    padding: 6px 12px; border-radius: 8px;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    display: flex; align-items: center; gap: 0;
+  }
+
+  /* Map tools left side overlay */
+  #desk-map-tools-overlay {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 4px; z-index: 5;
+  }
+  .desk-mt-btn {
+    width: 34px; height: 34px; border-radius: 6px;
+    background: none; border: none;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: rgba(255,255,255,0.28);
+    transition: color 0.18s;
+  }
+  .desk-mt-btn:hover { color: rgba(255,255,255,0.85); }
+  .desk-mt-btn.active { color: rgba(167,139,250,1); }
+  .desk-mt-sep { height: 1px; background: rgba(255,255,255,0.07); margin: 5px 4px; }
+
+  /* Map slot inside chart-area */
+  #desk-chart-area #desk-map-slot {
+    flex: 1; width: 100% !important; height: 100% !important;
+    margin: 0 !important; border-radius: 0 !important;
+    border: none !important; background: #0d0d18;
+  }
+  #desk-chart-area #desk-map-slot .sr-map-wrapper {
+    display: flex !important; height: 100% !important;
+    width: 100% !important; margin: 0 !important; border: none !important;
+  }
+  #desk-chart-area #desk-map-slot .sr-map-row { height: 100% !important; min-height: unset !important; }
+  #desk-chart-area #desk-map-slot .sr-map-section { height: 100% !important; border-radius: 0 !important; }
+
+  /* Map controls inside chart area */
   #desk-map-controls {
     position: absolute !important; bottom: 12px !important; right: 12px !important;
     z-index: 1100 !important;
@@ -1999,7 +2058,6 @@
     transition: all 0.15s;
   }
   #desk-map-expand-btn:hover { color: white; background: rgba(0,0,0,0.7); }
-
   #desk-borders-btn, #desk-risorse-btn, #desk-tratte-btn {
     width: 30px; height: 30px; border-radius: 8px;
     background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
@@ -2012,9 +2070,7 @@
   }
   #desk-borders-btn:hover, #desk-risorse-btn:hover, #desk-tratte-btn:hover { color: white; background: rgba(0,0,0,0.7); }
   #desk-borders-btn.active, #desk-risorse-btn.active, #desk-tratte-btn.active {
-    border-color: #06d6a0;
-    color: #06d6a0;
-    box-shadow: 0 0 8px rgba(6,214,160,0.35);
+    border-color: #06d6a0; color: #06d6a0; box-shadow: 0 0 8px rgba(6,214,160,0.35);
   }
   #desk-planes-btn, #desk-ships-btn {
     width: 30px; height: 30px; border-radius: 8px;
@@ -2029,7 +2085,6 @@
   #desk-planes-btn:hover, #desk-ships-btn:hover { color: white; background: rgba(0,0,0,0.7); }
   #desk-planes-btn.active { border-color: #60a5fa; color: #60a5fa; box-shadow: 0 0 8px rgba(96,165,250,0.35); }
   #desk-ships-btn.active  { border-color: #22d3ee; color: #22d3ee; box-shadow: 0 0 8px rgba(34,211,238,0.35); }
-  /* Tooltip marker aerei */
   .leaflet-tooltip.plane-tooltip {
     background: rgba(6,6,18,0.92); border: 1px solid rgba(96,165,250,0.35);
     color: #93c5fd; font-size: 0.56rem; font-family: 'SF Mono','Consolas',monospace;
@@ -2037,175 +2092,216 @@
   }
   .leaflet-tooltip.plane-tooltip::before { display: none; }
 
-  /* Mobile map controls: hidden on desktop */
-  #mob-map-controls { display: none !important; }
+  /* Map overlay legend */
+  #desk-map-overlay-legend {
+    position: absolute; bottom: 12px; left: 12px; z-index: 500;
+    background: rgba(4,6,14,0.82); backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 10px; padding: 10px 12px 8px; min-width: 148px;
+    pointer-events: all;
+  }
+  .map-ol-label {
+    font-size: 0.5rem; font-weight: 700; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.22); text-transform: uppercase; margin-bottom: 6px;
+  }
+  .map-ol-leg-row {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 0.68rem; color: rgba(255,255,255,0.45);
+    padding: 2px 0; cursor: pointer; transition: color 0.12s;
+  }
+  .map-ol-leg-row:hover { color: rgba(255,255,255,0.78); }
+  .map-ol-leg-row.active { color: #fff; font-weight: 600; }
+  .map-ol-leg-row.active .map-ol-leg-dot { box-shadow: 0 0 6px currentColor; }
+  .map-ol-leg-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .map-ol-leg-count { margin-left: auto; font-size: 0.6rem; color: rgba(255,255,255,0.2); }
 
-  /* Legend bar */
-  #desk-map-legend-bar {
+  /* Bottom section: header+tabs+market cards */
+  #desk-bottom-section {
+    flex-shrink: 0;
+    background: transparent;
+    padding-bottom: 8px;
+  }
+  #desk-bs-header {
     display: flex; align-items: center; gap: 14px;
-    padding: 8px 18px;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    background: rgba(0,0,0,0.3);
+    padding: 12px 16px 8px; flex-shrink: 0;
   }
-  .desk-leg-item {
-    display: flex; align-items: center; gap: 5px;
-    font-size: 0.62rem; color: rgba(255,255,255,0.4);
+  .desk-bs-tabs { display: flex; gap: 4px; }
+  .desk-bst {
+    font-size: 0.7rem; font-weight: 600; color: rgba(255,255,255,0.4);
+    padding: 4px 12px; border-radius: 6px; border: 1px solid transparent;
+    cursor: pointer; background: none; font-family: 'Inter',sans-serif; transition: all 0.15s;
   }
-  .desk-leg-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-  }
+  .desk-bst:hover { color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.05); }
+  .desk-bst.active { color: #00e676; background: rgba(0,230,118,0.09); border-color: rgba(0,230,118,0.22); }
 
-  /* Pane switching */
-  .desk-main-pane { display: none; }
-  .desk-main-pane.active { display: block; }
-
-  /* Feed articoli */
-  #desk-feed { padding: 18px 18px 32px; }
-  #desk-feed-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 14px;
+  /* Market cards grid 3×2 */
+  #desk-mcards {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    grid-template-rows: repeat(2, auto);
+    gap: 10px;
+    padding: 8px 16px 12px;
   }
-  .desk-feed-title {
-    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em;
-    text-transform: uppercase; color: rgba(255,255,255,0.5);
-  }
-  .desk-feed-viewall {
-    font-size: 0.65rem; color: rgba(255,255,255,0.25);
-    background: none; border: none; cursor: pointer;
-    font-family: inherit; transition: color 0.15s;
-  }
-  .desk-feed-viewall:hover { color: rgba(255,255,255,0.6); }
-
-  .desk-art-card {
-    display: flex; align-items: stretch;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 12px;
-    margin-bottom: 7px;
-    overflow: hidden; cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
-  }
-  .desk-art-card:hover {
-    background: rgba(255,255,255,0.06);
-    border-color: rgba(255,255,255,0.1);
-  }
-  .desk-art-card-stripe { width: 3px; flex-shrink: 0; }
-  .desk-art-card-thumb {
-    width: 52px; height: 52px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem; font-weight: 800; color: rgba(255,255,255,0.25);
+  .desk-mc {
     background: rgba(255,255,255,0.04);
-    margin: 10px 0 10px 10px; border-radius: 8px;
+    border: none; border-radius: 14px;
+    padding: 12px 14px 10px;
+    display: flex; flex-direction: column;
+  }
+  .desk-mc-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; flex-shrink: 0; }
+  .desk-mc-avatar {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; color: rgba(255,255,255,0.45);
+  }
+  .desk-mc-meta { display: flex; flex-direction: column; gap: 1px; flex: 1; padding-left: 8px; }
+  .desk-mc-name { font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.88); letter-spacing: -0.01em; }
+  .desk-mc-count { font-size: 0.54rem; font-weight: 400; color: rgba(255,255,255,0.26); }
+  .desk-mc-perf-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px; flex-shrink: 0; }
+  .desk-mc-perf { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.03em; }
+
+  /* Asset grid inside market card */
+  .desk-mc-assets {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 6px; overflow-y: auto; max-height: 240px;
+    padding-bottom: 2px;
+    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;
+  }
+  .desk-mc-assets::-webkit-scrollbar { width: 3px; }
+  .desk-mc-assets::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+  .desk-mc-asset {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px; padding: 10px 10px 0;
+    cursor: default; transition: background 0.15s;
+    overflow: hidden; display: flex; flex-direction: column;
+  }
+  .desk-mc-asset:hover { background: rgba(255,255,255,0.08); }
+  .desk-mca-name { font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.88); line-height: 1.2; }
+  .desk-mca-ticker { font-size: 0.5rem; font-weight: 600; letter-spacing: 0.08em; color: rgba(255,255,255,0.28); text-transform: uppercase; margin-bottom: 5px; }
+  .desk-mca-bottom { display: flex; align-items: baseline; gap: 5px; margin-bottom: 6px; }
+  .desk-mca-price { font-size: 0.82rem; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+  .desk-mca-chg { font-size: 0.6rem; font-weight: 700; }
+  .desk-mca-chg.up { color: #a78bfa; }
+  .desk-mca-chg.dn { color: #ff4d6d; }
+  .desk-mca-spark { width: calc(100% + 20px); margin-left: -10px; height: 48px; display: block; flex-shrink: 0; }
+
+  /* ── RIGHT PANEL (341px) ── */
+  #desk-new-right-panel {
+    width: 341px; flex-shrink: 0;
+    display: flex; flex-direction: column;
+    background: rgba(255,255,255,0.02);
+    height: calc(100vh - 48px);
+    position: sticky; top: 48px;
     overflow: hidden;
   }
-  .desk-art-card-thumb img { width: 100%; height: 100%; object-fit: cover; }
-  .desk-art-card-body {
-    flex: 1; padding: 10px 12px;
-    display: flex; flex-direction: column; justify-content: center;
-  }
-  .desk-art-card-meta {
-    display: flex; align-items: center; gap: 7px;
-    margin-bottom: 4px;
-  }
-  .desk-art-card-cat {
-    font-size: 0.58rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.07em;
-  }
-  .desk-art-card-ai {
-    font-size: 0.5rem; font-weight: 700; letter-spacing: 0.06em;
-    background: rgba(232,52,78,0.15); color: #e8344e;
-    padding: 1px 5px; border-radius: 3px;
-  }
-  .desk-art-card-time {
-    font-size: 0.58rem; color: rgba(255,255,255,0.2);
-    margin-left: auto;
-  }
-  .desk-art-card-title {
-    font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.9);
-    line-height: 1.35;
-  }
-  .desk-art-card-excerpt {
-    font-size: 0.68rem; color: rgba(255,255,255,0.35);
-    line-height: 1.5; margin-top: 3px;
-    display: -webkit-box; -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical; overflow: hidden;
-  }
-  .desk-art-card-right {
-    width: 52px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: flex-end;
-    padding-right: 12px;
-    color: rgba(255,255,255,0.1);
-  }
-  .desk-art-readtime {
-    font-size: 0.6rem; color: rgba(255,255,255,0.25); text-align: right;
-    display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
-    line-height: 1.3;
-  }
-  .desk-art-readtime svg { margin-top: 2px; }
 
-  /* ── Right panel ── */
-  #desk-right {
-    width: 288px; flex-shrink: 0;
-    background: #08090f;
-    border-left: none;
-    overflow-y: auto; overflow-x: hidden;
+  /* Top tab switch ANALISI/PREMIUM */
+  #desk-rp-tabs {
+    display: flex; padding: 12px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    background: none; flex-shrink: 0;
+  }
+  #desk-rp-tabs-switch {
+    display: flex; background: rgba(255,255,255,0.06);
+    border-radius: 10px; padding: 3px; gap: 2px; width: 100%;
+  }
+  .desk-rptab {
+    flex: 1; padding: 6px 0; text-align: center;
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.02em;
+    border-radius: 7px; cursor: pointer; border: none; font-family: 'Inter',sans-serif;
+    transition: all 0.18s;
+  }
+  .desk-rptab.off { background: none; color: rgba(255,255,255,0.35); }
+  .desk-rptab.on  { background: rgba(255,255,255,0.12); color: white; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+
+  /* Stats row in right panel */
+  #desk-rp-stats {
+    display: flex; padding: 12px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0; gap: 0;
+  }
+  .desk-rps { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  .desk-rps:first-child { border-right: 1px solid rgba(255,255,255,0.06); padding-right: 14px; }
+  .desk-rps:last-child  { padding-left: 14px; }
+  .desk-rps-lbl { font-size: 0.57rem; font-weight: 400; color: rgba(255,255,255,0.28); letter-spacing: 0.02em; }
+  .desk-rps-val { font-size: 0.96rem; font-weight: 600; color: white; letter-spacing: -0.02em; }
+  .desk-rps-val.green { color: #00e676; }
+
+  /* Articles scroll */
+  #desk-rp-art-scroll {
+    flex: 1; overflow-y: auto; min-height: 0;
+    padding: 0 14px;
+    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.07) transparent;
+  }
+  #desk-rp-art-scroll::-webkit-scrollbar { width: 3px; }
+  #desk-rp-art-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+  .desk-rp-art {
+    padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex; gap: 10px; align-items: flex-start;
+    cursor: pointer; transition: background 0.12s;
+  }
+  .desk-rp-art:last-child { border-bottom: none; }
+  .desk-rp-art:hover { background: rgba(255,255,255,0.02); }
+  .desk-rp-art-body { flex: 1; min-width: 0; }
+  .desk-rp-art-thumb {
+    width: 58px; height: 58px; border-radius: 8px;
+    flex-shrink: 0; overflow: hidden;
+    background: rgba(255,255,255,0.06);
+  }
+  .desk-rp-art-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .desk-rp-art-cat { font-size: 0.5rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.11em; margin-bottom: 3px; }
+  .desk-rp-art-title {
+    font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.9);
+    line-height: 1.4; margin-bottom: 3px; letter-spacing: -0.01em;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .desk-rp-art-meta { font-size: 0.54rem; font-weight: 400; color: rgba(255,255,255,0.18); margin-top: 3px; }
+
+  /* Separator */
+  .desk-rp-sep { height: 1px; background: rgba(255,255,255,0.04); flex-shrink: 0; margin: 0; }
+
+  /* Scenari bottom */
+  #desk-rp-scenari {
+    height: 52%; flex-shrink: 0;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  #desk-rp-sc-header {
+    display: flex; align-items: center; gap: 7px;
+    padding: 10px 14px 8px; flex-shrink: 0;
+  }
+  .desk-rp-sc-lbl {
+    font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.09em; color: rgba(255,255,255,0.4);
+  }
+  .desk-rp-sc-badge {
+    font-size: 0.58rem; font-weight: 600; letter-spacing: 0.04em;
+    padding: 2px 8px; border-radius: 20px; border: 1px solid; line-height: 1.5;
+  }
+  .desk-rp-sc-badge.red { color: #e8344e; background: rgba(232,52,78,0.1); border-color: rgba(232,52,78,0.25); }
+  .desk-rp-sc-badge.violet { color: #a78bfa; background: rgba(167,139,250,0.1); border-color: rgba(167,139,250,0.25); }
+  #desk-rp-sc-scroll {
+    flex: 1; overflow-y: auto; padding: 0 14px 10px;
     scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.06) transparent;
   }
-  #desk-right::-webkit-scrollbar { width: 3px; }
-  #desk-right::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
-  .desk-right-header {
-    position: sticky; top: 0;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 16px 12px;
-    background: rgba(8,9,15,0.95); backdrop-filter: blur(8px);
-    border-bottom: none; z-index: 2;
-  }
-  .desk-right-title {
-    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em;
-    text-transform: uppercase; color: rgba(255,255,255,0.5);
-  }
-  .desk-right-badge {
-    font-size: 0.55rem; font-weight: 700;
-    background: rgba(232,52,78,0.15); color: #e8344e;
-    padding: 2px 6px; border-radius: 4px;
-  }
+  #desk-rp-sc-scroll::-webkit-scrollbar { width: 3px; }
+  #desk-rp-sc-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 2px; }
 
-  .desk-scenari-card {
-    padding: 14px 16px;
-    cursor: pointer; transition: background 0.15s;
-  }
-  .desk-scenari-card:hover { background: rgba(255,255,255,0.03); }
-  .desk-scenari-card-top {
-    display: flex; align-items: center; gap: 6px;
-    margin-bottom: 6px;
-  }
-  .desk-scenari-cat {
-    font-size: 0.52rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.09em;
-  }
-  .desk-scenari-mag {
-    display: flex; gap: 2px; margin-left: auto;
-  }
-  .desk-scenari-mag-dot {
-    width: 5px; height: 5px; border-radius: 50%;
-  }
-  .desk-scenari-title {
-    font-size: 0.78rem; font-weight: 700; color: rgba(255,255,255,0.88);
-    line-height: 1.35; margin-bottom: 5px;
-  }
-  .desk-scenari-excerpt {
-    font-size: 0.65rem; color: rgba(255,255,255,0.32);
-    line-height: 1.5;
-    display: -webkit-box; -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical; overflow: hidden;
-  }
-  .desk-scenari-time {
-    font-size: 0.58rem; color: rgba(255,255,255,0.18); margin-top: 6px;
-  }
+  /* Scenari cards in right panel scroll — reuse existing desk-scenari-* classes */
+  .desk-scenari-card { padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04); cursor: pointer; }
+  .desk-scenari-card:last-child { border-bottom: none; }
+  .desk-scenari-card:hover { background: rgba(255,255,255,0.02); }
+  .desk-scenari-card-top { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+  .desk-scenari-cat { font-size: 0.5rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.09em; }
+  .desk-scenari-mag { display: flex; gap: 2px; margin-left: auto; }
+  .desk-scenari-mag-dot { width: 5px; height: 5px; border-radius: 50%; }
+  .desk-scenari-title { font-size: 0.72rem; font-weight: 500; color: rgba(255,255,255,0.85); line-height: 1.4; letter-spacing: -0.01em; }
+  .desk-scenari-excerpt { font-size: 0.65rem; color: rgba(255,255,255,0.32); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .desk-scenari-time { font-size: 0.54rem; font-weight: 400; color: rgba(255,255,255,0.18); margin-top: 3px; }
 
   /* ── Article reader overlay ── */
   #desk-art-reader {
-    position: fixed; top: 52px; right: 0; bottom: 0;
+    position: fixed; top: 48px; right: 0; bottom: 0;
     width: 480px; z-index: 1100;
     transform: translateX(100%);
     transition: transform 0.35s cubic-bezier(0.32,0.72,0,1);
@@ -2233,11 +2329,7 @@
     font-size: 0.55rem; font-weight: 700; letter-spacing: 0.08em;
     text-transform: uppercase; padding: 3px 8px; border-radius: 4px;
   }
-  #desk-art-hero {
-    padding: 24px 24px 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    flex-shrink: 0;
-  }
+  #desk-art-hero { padding: 24px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
   #desk-art-body {
     flex: 1; overflow-y: auto; padding: 20px 24px 32px;
     scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.06) transparent;
@@ -2245,304 +2337,122 @@
   #desk-art-body::-webkit-scrollbar { width: 3px; }
   #desk-art-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 2px; }
 
-  /* ── Map fullscreen overlay — desktop: lascia spazio alla topbar 52px ── */
-  #desk-map-fullscreen { inset: 52px 0 0 0; }
+  /* ── Map fullscreen overlay — desktop topbar 48px ── */
+  #desk-map-fullscreen { inset: 48px 0 0 0; }
 
-  /* ══════════ NEW LAYOUT OVERRIDES ══════════ */
-
-  /* body: column */
-  #desk-body { flex-direction: column !important; }
-
-  /* hide old sidebar / main / right */
+  /* ── Legacy/compat: hide old desktop structures ── */
   #desk-sidebar { display: none !important; }
   #desk-main    { display: none !important; }
   #desk-right   { display: none !important; }
+  #desk-map-full   { display: none !important; }
+  #desk-tab-nav    { display: none !important; }
+  #desk-scroll-area { display: none !important; }
 
-  /* ── Full-width map ── */
-  #desk-map-full {
-    width: 100%; flex-shrink: 0;
-    position: relative;
-    background: #060c1a;
-    height: calc(57vh + 52px); min-height: 370px; max-height: 630px;
-    margin: 0;
-    margin-top: -58px; /* sale fino al bordo superiore della pagina, sotto la navbar pill */
-    border-radius: 0 0 12px 12px; /* solo angoli inferiori arrotondati */
-    overflow: hidden;
-  }
-  #desk-map-full #desk-map-slot {
-    width: 100% !important; height: 100% !important;
-    margin: 0 !important; border-radius: 0 !important;
-    border: none !important;
-  }
-  #desk-map-full #desk-map-slot .sr-map-wrapper {
-    display: flex !important; height: 100% !important;
-    width: 100% !important; margin: 0 !important; border: none !important;
-  }
-  #desk-map-full #desk-map-slot .sr-map-row { height: 100% !important; min-height: unset !important; }
-  #desk-map-full #desk-map-slot .sr-map-section { height: 100% !important; border-radius: 0 !important; }
-
-  /* desk-goal-bar: stili via inline style sull'elemento */
+  /* ── Goal bar tooltip ── */
   .goal-tooltip {
     display: none;
     position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%);
-    background: rgba(10,12,24,0.97);
-    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(10,12,24,0.97); border: 1px solid rgba(255,255,255,0.12);
     border-radius: 10px; padding: 10px 14px;
     font-size: 0.72rem; color: rgba(235,235,245,0.82); line-height: 1.55;
-    white-space: normal; width: 220px;
-    z-index: 9999;
+    white-space: normal; width: 220px; z-index: 9999;
     box-shadow: 0 8px 28px rgba(0,0,0,0.6);
   }
   .goal-tooltip::after {
-    content: '';
-    position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
-    border: 5px solid transparent;
-    border-top-color: rgba(10,12,24,0.97);
+    content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    border: 5px solid transparent; border-top-color: rgba(10,12,24,0.97);
   }
   .goal-tooltip.open { display: block; }
-  @keyframes goal-pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
+  @keyframes goal-pulse { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
 
-  /* mob-goal-bar: stili via inline style sull'elemento */
+  /* ── Market movers (legacy tab nav, kept for JS compatibility) ── */
+  .desk-mover-tab { display: none; }
+  .desk-tab-btn   { display: none; }
 
-  /* ── Map floating legend + filter overlay ── */
-  #desk-map-overlay-legend {
-    position: absolute; bottom: 12px; left: 12px; z-index: 500;
-    background: rgba(4,6,14,0.82);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.09);
-    border-radius: 10px;
-    padding: 10px 12px 8px;
-    min-width: 148px;
-    pointer-events: all;
-  }
-  .map-ol-label {
-    font-size: 0.5rem; font-weight: 700; letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.22); text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-  .map-ol-leg-row {
-    display: flex; align-items: center; gap: 7px;
-    font-size: 0.68rem; color: rgba(255,255,255,0.45);
-    padding: 2px 0;
-    cursor: pointer; transition: color 0.12s;
-  }
-  .map-ol-leg-row:hover { color: rgba(255,255,255,0.78); }
-  .map-ol-leg-row.active { color: #fff; font-weight: 600; }
-  .map-ol-leg-row.active .map-ol-leg-dot { box-shadow: 0 0 6px currentColor; }
-  .map-ol-leg-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-  .map-ol-leg-count { margin-left: auto; font-size: 0.6rem; color: rgba(255,255,255,0.2); }
+  /* Pane switching (kept for JS compatibility) */
+  .desk-main-pane { display: none; }
+  .desk-main-pane.active { display: block; }
 
-  /* ── Market movers tab strip ── */
-  .desk-mover-tab {
-    display: flex; align-items: center; justify-content: center; gap: 5px;
-    padding: 5px 9px; height: 28px;
-    width: fit-content; flex-shrink: 0;
-    font-size: 0.68rem; font-weight: 600;
-    color: rgba(255,255,255,0.38);
-    background: none; border: 1px solid transparent;
-    border-radius: 7px; cursor: pointer; font-family: inherit;
-    transition: all 0.15s; white-space: nowrap;
+  /* Legacy desk-art-card styles (used by renderDeskArticles JS) */
+  .desk-art-card {
+    display: flex; align-items: stretch;
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px; margin-bottom: 7px;
+    overflow: hidden; cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
   }
-  .desk-mover-tab:hover { color: rgba(255,255,255,0.72); background: rgba(255,255,255,0.05); }
-  .desk-mover-tab.active {
-    color: #bf5af2;
-    background: rgba(191,90,242,0.08);
-    border-color: #bf5af2;
-    box-shadow: 0 0 8px rgba(191,90,242,0.30);
-  }
-  .desk-mover-tab svg { opacity: 0.7; flex-shrink: 0; }
-  .desk-mover-tab.active svg { opacity: 1; color: #bf5af2; }
-
-  /* ── Map layer toggle buttons (right tab nav) ── */
-  #desk-tabnav-right {
-    display: flex; align-items: center; padding: 0 16px; gap: 8px;
-  }
-  .desk-layer-toggle {
-    display: flex; align-items: center; justify-content: center; gap: 5px;
-    height: 30px; padding: 0 12px;
-    font-size: 0.72rem; font-weight: 600; white-space: nowrap;
-    background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.12);
-    color: rgba(255,255,255,0.45);
-    border-radius: 8px; cursor: pointer; user-select: none;
-    transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
-    font-family: inherit;
-  }
-  .desk-layer-toggle:hover { color: white; background: rgba(0,0,0,0.7); }
-  .desk-layer-toggle.active {
-    border-color: #06d6a0;
-    color: #06d6a0;
-    box-shadow: 0 0 8px rgba(6,214,160,0.35);
-  }
-
-  /* ── Left col: Materie Prime ── */
-  #desk-left-col .desk-commodity-grid {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 6px; padding: 0 12px 12px;
-  }
-  .desk-commodity-card {
+  .desk-art-card:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); }
+  .desk-art-card-stripe { width: 3px; flex-shrink: 0; }
+  .desk-art-card-thumb {
+    width: 52px; height: 52px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; font-weight: 800; color: rgba(255,255,255,0.25);
     background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 10px; overflow: hidden;
-    cursor: default; transition: background 0.15s;
-    padding: 9px 10px 4px;
+    margin: 10px 0 10px 10px; border-radius: 8px; overflow: hidden;
   }
-  .desk-commodity-card:hover { background: rgba(255,255,255,0.07); }
-  .desk-commodity-name { font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,0.72); margin-bottom: 2px; line-height: 1.25; }
-  .desk-commodity-ticker { font-size: 0.5rem; font-weight: 700; letter-spacing: 0.07em; color: rgba(255,255,255,0.22); text-transform: uppercase; margin-bottom: 3px; }
-  .desk-commodity-price { font-size: 0.82rem; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
-  .desk-commodity-change { font-size: 0.58rem; font-weight: 700; }
-  .desk-commodity-spark { width: 100%; height: 32px; display: block; margin-top: 2px; }
+  .desk-art-card-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .desk-art-card-body { flex: 1; padding: 10px 12px; display: flex; flex-direction: column; justify-content: center; }
+  .desk-art-card-meta { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
+  .desk-art-card-cat { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; }
+  .desk-art-card-ai { font-size: 0.5rem; font-weight: 700; letter-spacing: 0.06em; background: rgba(232,52,78,0.15); color: #e8344e; padding: 1px 5px; border-radius: 3px; }
+  .desk-art-card-time { font-size: 0.58rem; color: rgba(255,255,255,0.2); margin-left: auto; }
+  .desk-art-card-title { font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.9); line-height: 1.35; }
+  .desk-art-card-excerpt { font-size: 0.68rem; color: rgba(255,255,255,0.35); line-height: 1.5; margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .desk-art-card-right { width: 52px; flex-shrink: 0; display: flex; align-items: center; justify-content: flex-end; padding-right: 12px; color: rgba(255,255,255,0.1); }
+  .desk-art-readtime { font-size: 0.6rem; color: rgba(255,255,255,0.25); text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; line-height: 1.3; }
+  .desk-art-readtime svg { margin-top: 2px; }
+
+  /* Legacy right panel header (kept for JS that injects into desk-right-col) */
+  .desk-right-header { display: none; }
+  .desk-right-title  { display: none; }
+  .desk-right-badge  { display: none; }
 
   /* ── Full-width footer ── */
   #desk-footer-bar {
-    flex-shrink: 0;
-    width: 100%;
-    background: #000;
+    flex-shrink: 0; width: 100%;
+    background: transparent;
+    border-top: 1px solid rgba(255,255,255,0.04);
     padding: 48px 40px 28px;
   }
   #desk-footer-bar .footer-grid {
-    display: grid;
-    grid-template-columns: 1.6fr 1fr 1fr 1fr;
-    gap: 20px 40px;
-    margin-bottom: 32px;
+    display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    gap: 20px 40px; margin-bottom: 32px;
   }
-  #desk-footer-bar .footer-brand p {
-    font-size: 0.75rem; color: rgba(235,235,245,0.38); line-height: 1.6;
-  }
-  #desk-footer-bar .footer-col h4 {
-    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em;
-    text-transform: uppercase; color: rgba(235,235,245,0.35);
-    margin-bottom: 14px;
-  }
-  #desk-footer-bar .footer-col ul {
-    list-style: none; padding: 0; margin: 0;
-    display: flex; flex-direction: column; gap: 10px;
-  }
-  #desk-footer-bar .footer-col ul li a {
-    font-size: 0.72rem; color: rgba(235,235,245,0.45);
-    text-decoration: none; transition: color 0.15s;
-  }
+  #desk-footer-bar .footer-brand p { font-size: 0.75rem; color: rgba(235,235,245,0.38); line-height: 1.6; }
+  #desk-footer-bar .footer-col h4 { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(235,235,245,0.35); margin-bottom: 14px; }
+  #desk-footer-bar .footer-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+  #desk-footer-bar .footer-col ul li a { font-size: 0.72rem; color: rgba(235,235,245,0.45); text-decoration: none; transition: color 0.15s; }
   #desk-footer-bar .footer-col ul li a:hover { color: rgba(235,235,245,0.85); }
-  #desk-footer-bar .footer-bottom {
-    display: flex; align-items: center; justify-content: space-between;
-    border-top: 1px solid rgba(255,255,255,0.07);
-    padding-top: 20px;
-    font-size: 0.65rem; color: rgba(235,235,245,0.28);
-  }
+  #desk-footer-bar .footer-bottom { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.07); padding-top: 20px; font-size: 0.65rem; color: rgba(235,235,245,0.28); }
   #desk-footer-bar .footer-links { display: flex; gap: 20px; }
-  #desk-footer-bar .footer-links a {
-    font-size: 0.65rem; color: rgba(235,235,245,0.28);
-    text-decoration: none; transition: color 0.15s;
-  }
+  #desk-footer-bar .footer-links a { font-size: 0.65rem; color: rgba(235,235,245,0.28); text-decoration: none; transition: color 0.15s; }
   #desk-footer-bar .footer-links a:hover { color: rgba(235,235,245,0.6); }
 
-  /* ── Bottom tab navbar ── */
-  #desk-tab-nav {
-    display: flex; align-items: stretch;
-    height: 42px; flex-shrink: 0;
-    background: rgba(6,6,12,0.30);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+  /* ── Visible footer (new desktop layout) ── */
+  #desk-footer-visible {
+    flex-shrink: 0; width: 100%;
+    background: transparent;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    padding: 48px 40px 28px;
   }
-  #desk-tabnav-left {
-    width: 30%; flex-shrink: 0;
-    display: flex; align-items: center;
-    padding: 0 8px; gap: 3px;
-    overflow-x: auto; scrollbar-width: none;
+  #desk-footer-visible .footer-grid {
+    display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    gap: 20px 40px; margin-bottom: 32px;
   }
-  #desk-tabnav-left::-webkit-scrollbar { display: none; }
-  #desk-tabnav-center {
-    flex: 1; min-width: 0;
-    display: flex; align-items: center;
-    padding: 0 16px; gap: 4px;
-  }
-  #desk-tabnav-right {
-    width: 30%; flex-shrink: 0;
-  }
-  .desk-tab-btn {
-    display: flex; align-items: center; gap: 7px;
-    padding: 6px 14px; height: 30px;
-    font-size: 0.75rem; font-weight: 600;
-    color: rgba(255,255,255,0.38);
-    background: none; border: 1px solid transparent; cursor: pointer;
-    font-family: inherit; border-radius: 7px;
-    transition: all 0.15s; white-space: nowrap;
-  }
-  .desk-tab-btn:hover { color: rgba(255,255,255,0.72); background: rgba(255,255,255,0.05); }
-  .desk-tab-btn.active {
-    color: #06d6a0;
-    background: rgba(6,214,160,0.08);
-    border-color: #06d6a0;
-    box-shadow: 0 0 8px rgba(6,214,160,0.25);
-  }
-  .desk-tab-btn svg { opacity: 0.7; }
-  .desk-tab-btn.active svg { opacity: 1; color: #06d6a0; }
+  #desk-footer-visible .footer-brand p { font-size: 0.75rem; color: rgba(235,235,245,0.38); line-height: 1.6; }
+  #desk-footer-visible .footer-col h4 { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(235,235,245,0.35); margin-bottom: 14px; }
+  #desk-footer-visible .footer-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+  #desk-footer-visible .footer-col ul li a { font-size: 0.72rem; color: rgba(235,235,245,0.45); text-decoration: none; transition: color 0.15s; }
+  #desk-footer-visible .footer-col ul li a:hover { color: rgba(235,235,245,0.85); }
+  #desk-footer-visible .footer-bottom { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.07); padding-top: 20px; font-size: 0.65rem; color: rgba(235,235,245,0.28); }
+  #desk-footer-visible .footer-links { display: flex; gap: 20px; }
+  #desk-footer-visible .footer-links a { font-size: 0.65rem; color: rgba(235,235,245,0.28); text-decoration: none; transition: color 0.15s; }
+  #desk-footer-visible .footer-links a:hover { color: rgba(235,235,245,0.6); }
 
-  /* ── Scroll wrapper: ora è solo un contenitore passivo ── */
-  #desk-scroll-area {
-    display: flex; flex-direction: column;
-    overflow: visible;
-  }
-
-  /* ── Three-column content row ── */
-  /* Altezza = viewport - map(57vh+52px) - tabnav(42px) + extra per estendere sotto il fold */
-  #desk-content-row {
-    display: flex; flex-shrink: 0;
-    height: calc(52vh - 94px);
-    min-height: 460px;
-    overflow: hidden;
-  }
-
-  /* Left 25%: legenda + filtri */
-  #desk-left-col {
-    width: 25%; flex-shrink: 0;
-    overflow-y: auto; overflow-x: hidden;
-    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.05) transparent;
-    padding: 14px 0 20px;
-    background: #020508;
-  }
-  #desk-left-col::-webkit-scrollbar { width: 3px; }
-  #desk-left-col::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 2px; }
-  #desk-left-col .desk-nav-section-label { padding: 0 18px 10px; }
-  /* Legend items vertical */
-  #desk-legend-new {
-    display: flex; flex-direction: column; gap: 2px;
-    padding: 0 18px 14px;
-  }
-  .desk-leg-row {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 0.72rem; color: rgba(255,255,255,0.38);
-    padding: 4px 0;
-  }
-  .desk-leg-row .desk-leg-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .desk-leg-row .desk-leg-count { margin-left: auto; font-size: 0.68rem; color: rgba(255,255,255,0.22); }
-  #desk-left-col .desk-sidebar-divider { margin: 6px 18px 10px; border-top: 1px solid rgba(255,255,255,0.05); }
-  /* Filters reuse existing styles */
-  #desk-filters-new { padding-bottom: 8px; }
-  #desk-filters-new .desk-filter-item { padding: 7px 18px; }
-
-  /* Center 45%: tab content */
-  #desk-center-col {
-    width: 45%; flex: 1; min-width: 0;
-    overflow-y: auto; overflow-x: hidden;
-    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.06) transparent;
-    background: #020508;
-  }
-  #desk-center-col::-webkit-scrollbar { width: 4px; }
-  #desk-center-col::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 2px; }
-
-  /* Right 30%: flash updates */
-  #desk-right-col {
-    width: 30%; flex-shrink: 0;
-    overflow-y: auto; overflow-x: hidden;
-    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.06) transparent;
-    background: #020508;
-  }
-  #desk-right-col::-webkit-scrollbar { width: 3px; }
-  #desk-right-col::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
+  /* Notif bell wrapper in topbar */
+  #notif-bell-wrap-desk { flex-shrink: 0; }
+  .notif-bell-btn { width: 30px; height: 30px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; cursor: pointer; color: rgba(255,255,255,0.45); transition: background 0.15s; }
+  .notif-bell-btn:hover { background: rgba(255,255,255,0.1); color: white; }
 
 }
   </style>
@@ -6237,258 +6147,387 @@ document.addEventListener('DOMContentLoaded', () => {
   <a href="index.html" class="desk-logo">
     <span class="desk-logo-text">ANALISY</span>
   </a>
+
+  <nav class="desk-tb-nav">
+    <a href="#" class="desk-tb-nav-btn" onclick="return false;">Geopolitica</a>
+    <a href="#" class="desk-tb-nav-btn" onclick="return false;">Politica</a>
+    <a href="#" class="desk-tb-nav-btn" onclick="return false;">Hotspot</a>
+    <a href="#" class="desk-tb-nav-btn" onclick="return false;">Business</a>
+    <a href="#" class="desk-tb-nav-btn" onclick="return false;">Tecnologia</a>
+  </nav>
+
   <span class="desk-room-badge">Situation Room</span>
   <div id="desk-live-pill">
     <div class="desk-live-dot"></div>
     <span>LIVE</span>
   </div>
-  <span id="desk-events-count" style="font-size:0.65rem;color:rgba(255,255,255,0.3);margin-left:10px;"></span>
-  <!-- Bell desktop -->
-  <div class="notif-bell-wrap" id="notif-bell-wrap-desk" style="flex-shrink:0;">
-    <button class="notif-bell-btn" id="notif-bell-btn-desk" title="Comunicazioni" aria-label="Notifiche">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-      <span class="notif-bell-dot" id="notif-bell-dot-desk"></span>
-    </button>
-    <div class="notif-dropdown" id="notif-dropdown-desk">
-      <div class="notif-dropdown-header">Comunicazioni</div>
-      <div class="notif-list" id="notif-list-desk"></div>
-    </div>
-  </div>
+  <span id="desk-events-count" style="display:none;"></span>
 
   <div id="desk-topbar-right">
+    <!-- Divider -->
+    <div class="desk-tb-divider"></div>
+    <!-- Tutorial button -->
+    <div class="desk-tb-iconbtn" title="Tutorial" onclick="document.getElementById('sr-help-modal')?.classList.add('open')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <!-- Bell desktop -->
+    <div class="notif-bell-wrap" id="notif-bell-wrap-desk" style="flex-shrink:0;position:relative;">
+      <button class="notif-bell-btn desk-tb-iconbtn" id="notif-bell-btn-desk" title="Comunicazioni" aria-label="Notifiche" style="position:relative;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span class="notif-bell-dot" id="notif-bell-dot-desk"></span>
+      </button>
+      <div class="notif-dropdown" id="notif-dropdown-desk">
+        <div class="notif-dropdown-header">Comunicazioni</div>
+        <div class="notif-list" id="notif-list-desk"></div>
+      </div>
+    </div>
     <!-- avatar / accedi — popolato da renderSrNavbar() -->
   </div>
 </div>
 
-<!-- Body: new layout (column) -->
+<!-- Body: new layout (row — left col + right panel) -->
 <div id="desk-body">
 
-  <!-- ──── 1. MAPPA FULL WIDTH ──── -->
-  <div id="desk-map-full">
-    <div id="desk-map-slot"></div>
-    <!-- Floating legend + filters overlay -->
-    <div id="desk-map-overlay-legend">
-      <div class="map-ol-label">Legenda</div>
-      <div class="map-ol-leg-row" onclick="deskFilterCat('geopolitica',this)" data-cat="geopolitica"><span class="map-ol-leg-dot" style="background:#e8344e;"></span>Crisi Geo<span class="map-ol-leg-count" id="desk-count-geo">0</span></div>
-      <div class="map-ol-leg-row" onclick="deskFilterCat('business',this)"    data-cat="business">   <span class="map-ol-leg-dot" style="background:#ffd700;"></span>Business<span class="map-ol-leg-count" id="desk-count-bus">0</span></div>
-      <div class="map-ol-leg-row" onclick="deskFilterCat('politica',this)"    data-cat="politica">   <span class="map-ol-leg-dot" style="background:#4f9eff;"></span>Politica<span class="map-ol-leg-count" id="desk-count-pol">0</span></div>
-      <div class="map-ol-leg-row" onclick="deskFilterCat('tecnologia',this)"  data-cat="tecnologia"> <span class="map-ol-leg-dot" style="background:#a78bfa;"></span>Tech<span class="map-ol-leg-count" id="desk-count-tec">0</span></div>
-      <div class="map-ol-leg-row" onclick="deskFilterCat('hotspot',this)"     data-cat="hotspot">    <span class="map-ol-leg-dot" style="background:#06d6a0;"></span>Hotspot<span class="map-ol-leg-count" id="desk-count-hot">0</span></div>
+  <!-- ══════════════ LEFT COL ══════════════ -->
+  <div id="desk-new-left-col">
+
+    <!-- Stats row: 7 metriche mercati -->
+    <div id="desk-stats-row">
+      <div class="desk-sr-metrics">
+        <div class="desk-sr-metric">
+          <div class="desk-sr-mlbl">BTC</div>
+          <div class="desk-sr-mval green" id="dsk-btc-val">—</div>
+          <div class="desk-sr-msub up" id="dsk-btc-chg">—</div>
+        </div>
+        <div class="desk-sr-metric">
+          <div class="desk-sr-mlbl">ETH</div>
+          <div class="desk-sr-mval" id="dsk-eth-val">—</div>
+          <div class="desk-sr-msub up" id="dsk-eth-chg">—</div>
+        </div>
+        <div class="desk-sr-metric">
+          <div class="desk-sr-mlbl">Gold</div>
+          <div class="desk-sr-mval" id="dsk-gold-val">—</div>
+          <div class="desk-sr-msub dn" id="dsk-gold-chg">—</div>
+        </div>
+        <div class="desk-sr-metric">
+          <div class="desk-sr-mlbl">Oil WTI</div>
+          <div class="desk-sr-mval" id="dsk-oil-val">—</div>
+          <div class="desk-sr-msub up" id="dsk-oil-chg">—</div>
+        </div>
+        <div class="desk-sr-metric">
+          <div class="desk-sr-mlbl">S&amp;P 500</div>
+          <div class="desk-sr-mval" id="dsk-sp-val">—</div>
+          <div class="desk-sr-msub dn" id="dsk-sp-chg">—</div>
+        </div>
+        <div class="desk-sr-metric">
+          <div class="desk-sr-mlbl">EUR/USD</div>
+          <div class="desk-sr-mval" id="dsk-eur-val">—</div>
+          <div class="desk-sr-msub up" id="dsk-eur-chg">—</div>
+        </div>
+        <div class="desk-sr-metric">
+          <div class="desk-sr-mlbl">Eventi Attivi</div>
+          <div class="desk-sr-mval red" id="dsk-events-val">—</div>
+          <div class="desk-sr-msub nu">tracciamento globale</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Epoch / Goal bar — uses the same IDs as JS expects -->
+    <div id="desk-goal-bar" style="display:none;flex-direction:row;align-items:center;gap:12px;padding:10px 20px;background:rgba(255,255,255,0.025);">
+      <div class="desk-ep-left">
+        <div class="desk-ep-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="desk-ep-info">
+          <div class="desk-ep-lbl">Obiettivo Abbonati</div>
+          <div class="desk-ep-val" id="desk-goal-count">— / —</div>
+        </div>
+      </div>
+      <div class="desk-ep-center">
+        <div class="desk-ep-track" id="desk-goal-track">
+          <div class="desk-ep-fill" id="desk-goal-fill" style="width:0%;"></div>
+        </div>
+      </div>
+      <span id="desk-goal-title" style="display:none;"></span>
+      <div class="desk-ep-right" id="desk-goal-remaining">— rimanenti</div>
+      <div id="desk-goal-tooltip" class="goal-tooltip"></div>
+    </div>
+
+    <!-- Chart/Map area -->
+    <div id="desk-chart-area">
+
+      <!-- Legend overlay top-right -->
+      <div id="desk-chart-header">
+        <div></div><!-- spacer -->
+        <div class="desk-ch-asset-info">
+          <span style="display:inline-flex;align-items:center;gap:5px;margin-right:10px;"><span style="width:8px;height:8px;border-radius:50%;background:#e8344e;box-shadow:0 0 5px rgba(232,52,78,0.7);display:inline-block;flex-shrink:0;"></span>Geopolitica <span id="desk-count-geo" style="color:rgba(255,255,255,0.5)">0</span></span>
+          <span style="display:inline-flex;align-items:center;gap:5px;margin-right:10px;"><span style="width:8px;height:8px;border-radius:50%;background:#4f9eff;box-shadow:0 0 5px rgba(79,159,255,0.7);display:inline-block;flex-shrink:0;"></span>Politica <span id="desk-count-pol" style="color:rgba(255,255,255,0.5)">0</span></span>
+          <span style="display:inline-flex;align-items:center;gap:5px;margin-right:10px;"><span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;box-shadow:0 0 5px rgba(245,158,11,0.7);display:inline-block;flex-shrink:0;"></span>Business <span id="desk-count-bus" style="color:rgba(255,255,255,0.5)">0</span></span>
+          <span style="display:inline-flex;align-items:center;gap:5px;margin-right:10px;"><span style="width:8px;height:8px;border-radius:50%;background:#a78bfa;box-shadow:0 0 5px rgba(167,139,250,0.7);display:inline-block;flex-shrink:0;"></span>Tech <span id="desk-count-tec" style="color:rgba(255,255,255,0.5)">0</span></span>
+          <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;border-radius:50%;background:#06d6a0;box-shadow:0 0 5px rgba(6,214,160,0.7);display:inline-block;flex-shrink:0;"></span>Hotspot <span id="desk-count-hot" style="color:rgba(255,255,255,0.5)">0</span></span>
+        </div>
+      </div>
+
+      <!-- Tool buttons overlay left -->
+      <div id="desk-map-tools-overlay">
+        <!-- Espandi mappa -->
+        <div class="desk-mt-btn active" title="Espandi mappa" id="desk-map-expand-btn-overlay" onclick="toggleMapExpand()">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3H5a2 2 0 00-2 2v3"/><path d="M21 8V5a2 2 0 00-2-2h-3"/><path d="M3 16v3a2 2 0 002 2h3"/><path d="M16 21h3a2 2 0 002-2v-3"/></svg>
+        </div>
+        <!-- Visualizzazione avanzata -->
+        <div class="desk-mt-btn borders-layer-btn" title="Visualizzazione avanzata" onclick="toggleBordersLayer()">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <circle cx="12" cy="12" r="4"/>
+            <line x1="9.2" y1="9.2" x2="3" y2="3"/><line x1="14.8" y1="9.2" x2="21" y2="3"/>
+            <line x1="9.2" y1="14.8" x2="4" y2="21"/><line x1="14.8" y1="14.8" x2="20" y2="21"/>
+          </svg>
+        </div>
+        <div class="desk-mt-sep"></div>
+        <!-- Confini stati -->
+        <div class="desk-mt-btn" title="Confini stati" onclick="toggleMapLayer('tratte',this)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+        </div>
+        <!-- Risorse strategiche -->
+        <div class="desk-mt-btn" title="Risorse strategiche" onclick="toggleMapLayer('risorse',this)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <text x="12" y="15" text-anchor="middle" font-size="9" font-weight="700" font-family="Inter,sans-serif" fill="currentColor" stroke="none">Au</text>
+            <text x="5.5" y="8" text-anchor="middle" font-size="4" font-family="Inter,sans-serif" fill="currentColor" stroke="none" opacity="0.7">79</text>
+          </svg>
+        </div>
+        <div class="desk-mt-sep"></div>
+        <!-- Aerei -->
+        <div class="desk-mt-btn" title="Traffico aereo live" onclick="togglePlanesLayer()">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 00-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>
+        </div>
+        <!-- Navi -->
+        <div class="desk-mt-btn" title="Traffico navale live" onclick="toggleShipsLayer()">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="5" r="2"/><line x1="12" y1="7" x2="12" y2="11"/><path d="M5 11h14l-2 8H7z"/><path d="M5 11C5 16 3 18 3 18s4 2 9 2 9-2 9-2-2-2-2-7"/></svg>
+        </div>
+      </div>
+
+      <!-- Map slot -->
+      <div id="desk-map-slot"></div>
+
+      <!-- Map overlay legend (bottom-left, kept for JS compat) -->
+      <div id="desk-map-overlay-legend">
+        <div class="map-ol-label">Legenda</div>
+        <div class="map-ol-leg-row" onclick="deskFilterCat('geopolitica',this)" data-cat="geopolitica"><span class="map-ol-leg-dot" style="background:#e8344e;"></span>Crisi Geo<span class="map-ol-leg-count">0</span></div>
+        <div class="map-ol-leg-row" onclick="deskFilterCat('business',this)"    data-cat="business">   <span class="map-ol-leg-dot" style="background:#ffd700;"></span>Business<span class="map-ol-leg-count">0</span></div>
+        <div class="map-ol-leg-row" onclick="deskFilterCat('politica',this)"    data-cat="politica">   <span class="map-ol-leg-dot" style="background:#4f9eff;"></span>Politica<span class="map-ol-leg-count">0</span></div>
+        <div class="map-ol-leg-row" onclick="deskFilterCat('tecnologia',this)"  data-cat="tecnologia"> <span class="map-ol-leg-dot" style="background:#a78bfa;"></span>Tech<span class="map-ol-leg-count">0</span></div>
+        <div class="map-ol-leg-row" onclick="deskFilterCat('hotspot',this)"     data-cat="hotspot">    <span class="map-ol-leg-dot" style="background:#06d6a0;"></span>Hotspot<span class="map-ol-leg-count">0</span></div>
+      </div>
+
+    </div><!-- /desk-chart-area -->
+
+    <!-- Bottom section: tabs + market cards 3×2 -->
+    <div id="desk-bottom-section">
+      <div id="desk-bs-header">
+        <div class="desk-bs-tabs">
+          <button class="desk-bst active">Mercati</button>
+          <button class="desk-bst">Live Feed</button>
+          <button class="desk-bst">Podcast</button>
+          <button class="desk-bst">Forum</button>
+        </div>
+      </div>
+
+      <!-- 6 market cards 3×2 -->
+      <div id="desk-mcards">
+
+        <!-- MATERIE PRIME -->
+        <div class="desk-mc">
+          <div class="desk-mc-top">
+            <div class="desk-mc-avatar"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/><path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg></div>
+            <div class="desk-mc-meta"><div class="desk-mc-name">Materie Prime</div><div class="desk-mc-count">8 asset · YTD</div></div>
+            <div class="desk-mc-perf-row"><span class="desk-mc-perf" style="color:#f59e0b">+8.4%</span></div>
+          </div>
+          <div class="desk-mc-assets" id="desk-commodities">
+            <!-- populated by JS (renderDeskCommodities) or static fallback -->
+            <div class="desk-mc-asset"><div class="desk-mca-name">Gold</div><div class="desk-mca-ticker">XAU</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg up">—</span></div></div>
+            <div class="desk-mc-asset"><div class="desk-mca-name">Oil WTI</div><div class="desk-mca-ticker">WTI</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg up">—</span></div></div>
+            <div class="desk-mc-asset"><div class="desk-mca-name">Nat. Gas</div><div class="desk-mca-ticker">NG</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg dn">—</span></div></div>
+            <div class="desk-mc-asset"><div class="desk-mca-name">Silver</div><div class="desk-mca-ticker">XAG</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg up">—</span></div></div>
+          </div>
+        </div>
+
+        <!-- DIFESA -->
+        <div class="desk-mc">
+          <div class="desk-mc-top">
+            <div class="desk-mc-avatar"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+            <div class="desk-mc-meta"><div class="desk-mc-name">Difesa</div><div class="desk-mc-count">6 titoli · YTD</div></div>
+            <div class="desk-mc-perf-row"><span class="desk-mc-perf" style="color:#00e676">+22.7%</span></div>
+          </div>
+          <div class="desk-mc-assets" id="desk-defense-assets">
+            <div class="desk-mc-asset"><div class="desk-mca-name">Lockheed</div><div class="desk-mca-ticker">LMT</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg up">—</span></div></div>
+            <div class="desk-mc-asset"><div class="desk-mca-name">Raytheon</div><div class="desk-mca-ticker">RTX</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg up">—</span></div></div>
+            <div class="desk-mc-asset"><div class="desk-mca-name">Northrop</div><div class="desk-mca-ticker">NOC</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg up">—</span></div></div>
+            <div class="desk-mc-asset"><div class="desk-mca-name">Boeing</div><div class="desk-mca-ticker">BA</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg dn">—</span></div></div>
+          </div>
+        </div>
+
+        <!-- BIOTECH -->
+        <div class="desk-mc">
+          <div class="desk-mc-top">
+            <div class="desk-mc-avatar"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 15c3-3 5-5 5-8a5 5 0 0110 0c0 3 2 5 5 8"/><path d="M2 9c3 3 5 5 5 8a5 5 0 0010 0c0-3 2-5 5-8"/></svg></div>
+            <div class="desk-mc-meta"><div class="desk-mc-name">Biotech</div><div class="desk-mc-count">5 titoli · YTD</div></div>
+            <div class="desk-mc-perf-row"><span class="desk-mc-perf" style="color:#ff4d6d">-3.2%</span></div>
+          </div>
+          <div class="desk-mc-assets" id="desk-biotech-assets">
+            <div class="desk-mc-asset"><div class="desk-mca-name">Moderna</div><div class="desk-mca-ticker">MRNA</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg dn">—</span></div></div>
+            <div class="desk-mc-asset"><div class="desk-mca-name">BioNTech</div><div class="desk-mca-ticker">BNTX</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg up">—</span></div></div>
+            <div class="desk-mc-asset"><div class="desk-mca-name">AbbVie</div><div class="desk-mca-ticker">ABBV</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg dn">—</span></div></div>
+            <div class="desk-mc-asset"><div class="desk-mca-name">Pfizer</div><div class="desk-mca-ticker">PFE</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg dn">—</span></div></div>
+          </div>
+        </div>
+
+        <!-- FOOD & AGRITECH -->
+        <div class="desk-mc">
+          <div class="desk-mc-top">
+            <div class="desk-mc-avatar"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"/><path d="M12 12C12 7 7 4 3 6c3 1 6 4 6 7"/><path d="M12 12c0-5 5-8 9-6-3 1-6 4-6 7"/><path d="M12 17c0-3 2-5 5-5"/><path d="M12 17c0-3-2-5-5-5"/></svg></div>
+            <div class="desk-mc-meta"><div class="desk-mc-name">Food &amp; AgriTech</div><div class="desk-mc-count">5 titoli · YTD</div></div>
+            <div class="desk-mc-perf-row"><span class="desk-mc-perf" style="color:#00e676">+5.1%</span></div>
+          </div>
+          <div class="desk-mc-assets" id="desk-food-assets">
+            <div class="desk-mc-asset"><div class="desk-mca-name">ADM</div><div class="desk-mca-ticker">ADM</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg dn">—</span></div></div>
+            <div class="desk-mc-asset"><div class="desk-mca-name">Beyond Meat</div><div class="desk-mca-ticker">BYND</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg up">—</span></div></div>
+            <div class="desk-mc-asset"><div class="desk-mca-name">Deere</div><div class="desk-mca-ticker">DE</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg up">—</span></div></div>
+            <div class="desk-mc-asset"><div class="desk-mca-name">Bunge</div><div class="desk-mca-ticker">BG</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg up">—</span></div></div>
+          </div>
+        </div>
+
+        <!-- INDICI GLOBALI -->
+        <div class="desk-mc">
+          <div class="desk-mc-top">
+            <div class="desk-mc-avatar"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+            <div class="desk-mc-meta"><div class="desk-mc-name">Indici Globali</div><div class="desk-mc-count">6 indici · YTD</div></div>
+            <div class="desk-mc-perf-row"><span class="desk-mc-perf" style="color:#ff4d6d">-1.3%</span></div>
+          </div>
+          <div class="desk-mc-assets" id="desk-indices-assets">
+            <div class="desk-mc-asset"><div class="desk-mca-name">S&amp;P 500</div><div class="desk-mca-ticker">SPX</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg dn">—</span></div></div>
+            <div class="desk-mc-asset"><div class="desk-mca-name">Nasdaq</div><div class="desk-mca-ticker">NDX</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg dn">—</span></div></div>
+            <div class="desk-mc-asset"><div class="desk-mca-name">DAX</div><div class="desk-mca-ticker">DAX</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg up">—</span></div></div>
+            <div class="desk-mc-asset"><div class="desk-mca-name">Nikkei</div><div class="desk-mca-ticker">NI225</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg up">—</span></div></div>
+          </div>
+        </div>
+
+        <!-- ENERGIA -->
+        <div class="desk-mc">
+          <div class="desk-mc-top">
+            <div class="desk-mc-avatar"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+            <div class="desk-mc-meta"><div class="desk-mc-name">Energia</div><div class="desk-mc-count">5 titoli · YTD</div></div>
+            <div class="desk-mc-perf-row"><span class="desk-mc-perf" style="color:#00e676">+11.3%</span></div>
+          </div>
+          <div class="desk-mc-assets" id="desk-energy-assets">
+            <div class="desk-mc-asset"><div class="desk-mca-name">Exxon</div><div class="desk-mca-ticker">XOM</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg up">—</span></div></div>
+            <div class="desk-mc-asset"><div class="desk-mca-name">Chevron</div><div class="desk-mca-ticker">CVX</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg up">—</span></div></div>
+            <div class="desk-mc-asset"><div class="desk-mca-name">NextEra</div><div class="desk-mca-ticker">NEE</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg up">—</span></div></div>
+            <div class="desk-mc-asset"><div class="desk-mca-name">Shell</div><div class="desk-mca-ticker">SHEL</div><div class="desk-mca-bottom"><span class="desk-mca-price">—</span><span class="desk-mca-chg dn">—</span></div></div>
+          </div>
+        </div>
+
+      </div><!-- /desk-mcards -->
+    </div><!-- /desk-bottom-section -->
+
+    <!-- Footer full-width (at bottom of left col, spans full width) -->
+    <div id="desk-footer-bar-placeholder"></div>
+
+  </div><!-- /desk-new-left-col -->
+
+  <!-- ══════════════ RIGHT PANEL ══════════════ -->
+  <div id="desk-new-right-panel">
+
+    <!-- Tab ANALISI / PREMIUM -->
+    <div id="desk-rp-tabs">
+      <div id="desk-rp-tabs-switch">
+        <button class="desk-rptab on">ANALISI</button>
+        <button class="desk-rptab off">PREMIUM</button>
+      </div>
+    </div>
+
+    <!-- Stats: articoli pubblicati / letture totali -->
+    <div id="desk-rp-stats">
+      <div class="desk-rps">
+        <div class="desk-rps-lbl">Articoli pubblicati</div>
+        <div class="desk-rps-val" id="desk-rp-art-count">—</div>
+      </div>
+      <div class="desk-rps">
+        <div class="desk-rps-lbl">Letture totali</div>
+        <div class="desk-rps-val green" id="desk-rp-reads-count">—</div>
+      </div>
+    </div>
+
+    <!-- Articles list scroll — renderDeskArticles writes to #desk-articles-feed -->
+    <div id="desk-rp-art-scroll">
+      <div id="desk-articles-feed"></div>
+    </div>
+
+    <!-- Separator -->
+    <div class="desk-rp-sep"></div>
+
+    <!-- Scenari in Evoluzione — renderDeskScenari writes to #desk-scenari-list -->
+    <div id="desk-rp-scenari">
+      <div id="desk-rp-sc-header">
+        <span class="desk-rp-sc-lbl">Scenari in Evoluzione</span>
+        <span id="desk-scenari-count" class="desk-rp-sc-badge red">— attivi</span>
+        <span class="desk-rp-sc-badge violet">AI</span>
+      </div>
+      <div id="desk-rp-sc-scroll">
+        <div id="desk-scenari-list"></div>
+      </div>
+    </div>
+
+  </div><!-- /desk-new-right-panel -->
+
+  <!-- ── LEGACY: hidden old layout elements — kept for JS compatibility ── -->
+  <div id="desk-map-full" style="display:none!important;"></div>
+
+
+  <!-- ── LEGACY compatibility elements: hidden, used by JS ── -->
+  <div id="desk-tab-nav" style="display:none!important;">
+    <div id="desk-tabnav-left"></div>
+    <div id="desk-tabnav-center"></div>
+    <div id="desk-tabnav-right"></div>
+  </div>
+  <div id="desk-scroll-area" style="display:none!important;">
+    <div id="desk-content-row">
+      <div id="desk-left-col">
+        <div id="desk-commodity-col"></div>
+        <div id="desk-live-events-sidebar"><div id="desk-live-events-list"></div></div>
+        <span id="desk-map-updated"></span>
+        <div id="desk-legend-new" style="display:none;"></div>
+        <div id="desk-filters-new" style="display:none;">
+          <button class="desk-filter-item active" data-cat="all" onclick="deskFilterCat('all',this)"></button>
+          <button class="desk-filter-item" data-cat="geopolitica" onclick="deskFilterCat('geopolitica',this)"></button>
+          <button class="desk-filter-item" data-cat="politica" onclick="deskFilterCat('politica',this)"></button>
+          <button class="desk-filter-item" data-cat="business" onclick="deskFilterCat('business',this)"></button>
+          <button class="desk-filter-item" data-cat="tecnologia" onclick="deskFilterCat('tecnologia',this)"></button>
+          <button class="desk-filter-item" data-cat="hotspot" onclick="deskFilterCat('hotspot',this)"></button>
+        </div>
+      </div>
+      <div id="desk-center-col">
+        <div id="desk-feed" class="desk-main-pane active">
+          <div id="desk-feed-header"><span class="desk-feed-title" id="desk-feed-title">Analisi</span><button class="desk-feed-viewall" onclick="closeDeskArtReader()">Vedi tutti</button></div>
+        </div>
+        <div id="desk-pane-live" class="desk-main-pane"><div id="desk-cams-grid"></div></div>
+        <div id="desk-pane-markets" class="desk-main-pane"><div id="desk-markets-feed"></div></div>
+        <div id="desk-pane-podcast" class="desk-main-pane"><div id="desk-podcast-feed"></div></div>
+        <div id="desk-pane-forum" class="desk-main-pane"><div id="desk-forum-feed"></div></div>
+      </div>
+      <div id="desk-right-col">
+        <div class="desk-right-header"><span class="desk-right-title">Scenari</span></div>
+      </div>
+    </div>
+    <div id="desk-footer-bar">
+      <div class="footer-grid">
+        <div class="footer-brand"><div><span style="font-family:Inter,sans-serif;font-size:1.35rem;font-weight:800;letter-spacing:-0.04em;background:linear-gradient(135deg,#e8344e,#ff6b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">ANALISY</span></div><p>La piattaforma di analisi geopolitica, business e tecnologia per chi vuole capire il mondo.</p></div>
+        <div class="footer-col"><h4>Prodotto</h4><ul><li><a href="situation-room.html">Situation Room</a></li><li><a href="index.html#perche-analisy">Perché Analisy</a></li><li><a href="index.html#come-funziona">Come funziona</a></li><li><a href="index.html#prezzi">Prezzi</a></li></ul></div>
+        <div class="footer-col"><h4>Categorie</h4><ul><li><a href="#">Geopolitica</a></li><li><a href="#">Politica Nazionale</a></li><li><a href="#">Business</a></li><li><a href="#">Tecnologia</a></li><li><a href="#">Hotspot</a></li></ul></div>
+        <div class="footer-col"><h4>Legale</h4><ul><li><a href="termini-condizioni.html">Termini e Condizioni</a></li><li><a href="privacy-policy.html">Privacy Policy</a></li><li><a href="cookie-policy.html">Cookie Policy</a></li><li><a href="#">Contatti</a></li></ul></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Analisy. Tutti i diritti riservati.</span><div class="footer-links"><a href="privacy-policy.html">Privacy</a><a href="termini-condizioni.html">Termini</a><a href="cookie-policy.html">Cookie</a></div></div>
     </div>
   </div>
-
-  <!-- ──── 2. BOTTOM TAB NAVBAR (allineata alle 3 colonne) ──── -->
-  <div id="desk-tab-nav">
-    <!-- Sezione sinistra 25%: Materie Prime -->
-    <div id="desk-tabnav-left">
-      <!-- Materie Prime -->
-      <button class="desk-mover-tab active" data-mover="commodities" onclick="switchMoverTab('commodities',this)" title="Materie Prime">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-          <rect x="1" y="1" width="3.5" height="3.5" rx="0.5"/><rect x="19.5" y="1" width="3.5" height="3.5" rx="0.5"/>
-          <rect x="1" y="6" width="3.5" height="3.5" rx="0.5"/><rect x="5.5" y="6" width="3.5" height="3.5" rx="0.5"/>
-          <rect x="14" y="6" width="3.5" height="3.5" rx="0.5"/><rect x="19.5" y="6" width="3.5" height="3.5" rx="0.5"/>
-          <rect x="1" y="11" width="3.5" height="3.5" rx="0.5"/><rect x="5.5" y="11" width="3.5" height="3.5" rx="0.5"/>
-          <rect x="10" y="11" width="3.5" height="3.5" rx="0.5"/><rect x="14.5" y="11" width="3.5" height="3.5" rx="0.5"/>
-          <rect x="19.5" y="11" width="3.5" height="3.5" rx="0.5"/>
-          <rect x="1" y="16" width="3.5" height="3.5" rx="0.5"/><rect x="5.5" y="16" width="3.5" height="3.5" rx="0.5"/>
-          <rect x="10" y="16" width="3.5" height="3.5" rx="0.5"/><rect x="14.5" y="16" width="3.5" height="3.5" rx="0.5"/>
-          <rect x="19.5" y="16" width="3.5" height="3.5" rx="0.5"/>
-          <rect x="1" y="21" width="3.5" height="2.5" rx="0.5"/><rect x="5.5" y="21" width="3.5" height="2.5" rx="0.5"/>
-          <rect x="10" y="21" width="3.5" height="2.5" rx="0.5"/>
-        </svg>
-        Materie
-      </button>
-      <!-- Difesa -->
-      <button class="desk-mover-tab tab-purple" data-mover="defense" onclick="switchMoverTab('defense',this)" title="Basket Settore Difesa">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-        </svg>
-        Difesa
-      </button>
-      <!-- Biotech -->
-      <button class="desk-mover-tab tab-purple" data-mover="biotech" onclick="switchMoverTab('biotech',this)" title="Basket Biotech / Farmaceutico">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M8 3v4a4 4 0 0 0 8 0V3"/><path d="M8 21v-4a4 4 0 0 1 8 0v4"/>
-          <line x1="12" y1="7" x2="12" y2="17"/>
-          <path d="M8 12h8"/>
-        </svg>
-        Biotech
-      </button>
-      <!-- Food -->
-      <button class="desk-mover-tab" data-mover="food" onclick="switchMoverTab('food',this)" title="Basket Food / Carni Sintetiche / AgriTech">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2a9 9 0 0 1 0 18"/><path d="M12 2C6.5 2 2 6.5 2 12"/>
-          <path d="M12 8c0 0-2 2-2 4s2 4 2 4"/>
-          <path d="M12 8c0 0 2 2 2 4s-2 4-2 4"/>
-        </svg>
-        Food
-      </button>
-      <!-- Indici -->
-      <button class="desk-mover-tab" data-mover="indices" onclick="switchMoverTab('indices',this)" title="Indici Azionari Globali (S&amp;P 500, Nasdaq, DAX…)">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
-          <line x1="6" y1="20" x2="6" y2="14"/>
-          <line x1="2" y1="20" x2="22" y2="20"/>
-        </svg>
-        Indici
-      </button>
-    </div>
-    <!-- Sezione centrale 45%: tab articoli/live/podcast/forum -->
-    <div id="desk-tabnav-center">
-      <button class="desk-tab-btn active" data-desk-pane="articles" onclick="switchDeskNav('articles',this)">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 10h10M4 14h16M4 18h10"/></svg>
-        Articoli
-      </button>
-      <button class="desk-tab-btn" data-desk-pane="live" onclick="switchDeskNav('live',this)">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
-        Live Feed
-      </button>
-      <button class="desk-tab-btn" data-desk-pane="podcast" onclick="switchDeskNav('podcast',this)">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M6.6 18.4a9 9 0 1 1 10.8 0"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
-        Podcast
-      </button>
-      <button class="desk-tab-btn" data-desk-pane="forum" onclick="switchDeskNav('forum',this)">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        Forum
-      </button>
-    </div>
-    <div id="desk-tabnav-right">
-      <!-- Goal bar — nella tab nav, allineata alla colonna destra -->
-      <div id="desk-goal-bar" style="display:none;flex-direction:row;align-items:center;gap:8px;flex:1;min-width:0;box-sizing:border-box;">
-        <span id="desk-goal-title" style="font-size:0.58rem;font-weight:700;color:rgba(235,235,245,0.4);text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap;flex-shrink:0;">Obiettivo</span>
-        <div id="desk-goal-track" style="flex:1;height:3px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;min-width:0;">
-          <div id="desk-goal-fill" style="height:100%;width:20%;background:linear-gradient(90deg,#e8344e,#f5a623);border-radius:99px;transition:width 1.6s cubic-bezier(0.4,0,0.2,1);"></div>
-        </div>
-        <span id="desk-goal-count" style="font-size:0.58rem;font-weight:600;color:rgba(235,235,245,0.4);white-space:nowrap;flex-shrink:0;">0 / 100</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- ──── 3. SCROLL AREA (content row + footer) ──── -->
-  <div id="desk-scroll-area">
-  <div id="desk-content-row">
-
-    <!-- LEFT 25%: Materie Prime -->
-    <div id="desk-left-col">
-      <div id="desk-commodity-col" class="desk-commodity-grid" style="padding-top:10px;"></div>
-      <div class="desk-sidebar-divider" style="margin:2px 12px 10px;"></div>
-      <div id="desk-live-events-sidebar">
-        <div id="desk-live-events-list"></div>
-      </div>
-      <span id="desk-map-updated" style="display:block;padding:0 18px;font-size:0.58rem;color:rgba(255,255,255,0.18);"></span>
-      <!-- hidden compat elements for old JS -->
-      <div id="desk-legend-new" style="display:none;"></div>
-      <div id="desk-filters-new" style="display:none;">
-        <button class="desk-filter-item active" data-cat="all" onclick="deskFilterCat('all',this)"></button>
-        <button class="desk-filter-item" data-cat="geopolitica" onclick="deskFilterCat('geopolitica',this)"></button>
-        <button class="desk-filter-item" data-cat="politica" onclick="deskFilterCat('politica',this)"></button>
-        <button class="desk-filter-item" data-cat="business" onclick="deskFilterCat('business',this)"></button>
-        <button class="desk-filter-item" data-cat="tecnologia" onclick="deskFilterCat('tecnologia',this)"></button>
-        <button class="desk-filter-item" data-cat="hotspot" onclick="deskFilterCat('hotspot',this)"></button>
-      </div>
-    </div>
-
-    <!-- CENTER 45%: Tab content panes -->
-    <div id="desk-center-col">
-      <!-- Feed articoli -->
-      <div id="desk-feed" class="desk-main-pane active">
-        <div id="desk-feed-header">
-          <span class="desk-feed-title" id="desk-feed-title">Analisi</span>
-          <button class="desk-feed-viewall" onclick="closeDeskArtReader()">Vedi tutti &rarr;</button>
-        </div>
-        <div id="desk-articles-feed"></div>
-      </div>
-      <!-- Pane: Live -->
-      <div id="desk-pane-live" class="desk-main-pane" style="padding:18px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-          <span class="desk-feed-title">City Cam Live</span>
-        </div>
-        <div id="desk-cams-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
-      </div>
-      <!-- Pane: Mercati -->
-      <div id="desk-pane-markets" class="desk-main-pane" style="padding:18px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-          <span class="desk-feed-title">Mercati & Materie Prime</span>
-        </div>
-        <div id="desk-markets-feed"></div>
-      </div>
-      <!-- Pane: Podcast -->
-      <div id="desk-pane-podcast" class="desk-main-pane" style="padding:18px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-          <span class="desk-feed-title">Podcast</span>
-        </div>
-        <div id="desk-podcast-feed" style="font-size:0.75rem;color:rgba(255,255,255,0.25);text-align:center;padding:40px 0;">Nessun podcast disponibile al momento.</div>
-      </div>
-      <!-- Pane: Forum -->
-      <div id="desk-pane-forum" class="desk-main-pane" style="padding:18px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-          <span class="desk-feed-title">Community & Forum</span>
-        </div>
-        <div id="desk-forum-feed"></div>
-      </div>
-
-    </div>
-
-    <!-- RIGHT 30%: Flash Updates -->
-    <div id="desk-right-col">
-      <div class="desk-right-header">
-        <span class="desk-right-title">Scenari in Evoluzione</span>
-        <span id="desk-scenari-count" class="desk-right-badge"></span>
-      </div>
-      <div id="desk-scenari-list"></div>
-    </div>
-
-  </div><!-- /desk-content-row -->
-
-  <!-- ──── FOOTER full-width ──── -->
-  <div id="desk-footer-bar">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <div style="margin-bottom:12px;">
-          <span style="font-family:-apple-system,'SF Pro Display',Inter,sans-serif;font-size:1.35rem;font-weight:800;letter-spacing:-0.04em;background:linear-gradient(135deg,#e8344e,#ff6b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">ANALISY</span>
-        </div>
-        <p>La piattaforma di analisi geopolitica, business e tecnologia per chi vuole capire il mondo.</p>
-      </div>
-      <div class="footer-col">
-        <h4>Prodotto</h4>
-        <ul>
-          <li><a href="situation-room.html">Situation Room</a></li>
-          <li><a href="index.html#perche-analisy">Perché Analisy</a></li>
-          <li><a href="index.html#come-funziona">Come funziona</a></li>
-          <li><a href="index.html#prezzi">Prezzi</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Categorie</h4>
-        <ul>
-          <li><a href="#">Geopolitica</a></li>
-          <li><a href="#">Politica Nazionale</a></li>
-          <li><a href="#">Business</a></li>
-          <li><a href="#">Tecnologia</a></li>
-          <li><a href="#">Hotspot</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Legale</h4>
-        <ul>
-          <li><a href="termini-condizioni.html">Termini e Condizioni</a></li>
-          <li><a href="privacy-policy.html">Privacy Policy</a></li>
-          <li><a href="cookie-policy.html">Cookie Policy</a></li>
-          <li><a href="#">Contatti</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© 2026 Analisy. Tutti i diritti riservati.</span>
-      <div class="footer-links">
-        <a href="privacy-policy.html">Privacy</a>
-        <a href="termini-condizioni.html">Termini</a>
-        <a href="cookie-policy.html">Cookie</a>
-      </div>
-    </div>
-  </div>
-
-  </div><!-- /desk-scroll-area -->
 
   <!-- hidden old elements kept for JS compatibility -->
   <div id="desk-sidebar" style="display:none!important;"></div>
@@ -6500,6 +6539,52 @@ document.addEventListener('DOMContentLoaded', () => {
   <div id="desk-filters" style="display:none!important;"></div>
 
 </div><!-- /desk-body -->
+
+<!-- ═══════════ DESKTOP FOOTER (visible on desktop only) ═══════════ -->
+<div id="desk-footer-visible">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div style="margin-bottom:12px;"><span style="font-family:'Inter',sans-serif;font-size:1.35rem;font-weight:800;letter-spacing:-0.04em;background:linear-gradient(135deg,#e8344e,#ff6b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">ANALISY</span></div>
+      <p>La piattaforma di analisi geopolitica, business e tecnologia per chi vuole capire il mondo.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Prodotto</h4>
+      <ul>
+        <li><a href="situation-room.html">Situation Room</a></li>
+        <li><a href="index.html#perche-analisy">Perché Analisy</a></li>
+        <li><a href="index.html#come-funziona">Come funziona</a></li>
+        <li><a href="index.html#prezzi">Prezzi</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Categorie</h4>
+      <ul>
+        <li><a href="#">Geopolitica</a></li>
+        <li><a href="#">Politica Nazionale</a></li>
+        <li><a href="#">Business</a></li>
+        <li><a href="#">Tecnologia</a></li>
+        <li><a href="#">Hotspot</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Legale</h4>
+      <ul>
+        <li><a href="termini-condizioni.html">Termini e Condizioni</a></li>
+        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+        <li><a href="cookie-policy.html">Cookie Policy</a></li>
+        <li><a href="#">Contatti</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Analisy. Tutti i diritti riservati.</span>
+    <div class="footer-links">
+      <a href="privacy-policy.html">Privacy</a>
+      <a href="termini-condizioni.html">Termini</a>
+      <a href="cookie-policy.html">Cookie</a>
+    </div>
+  </div>
+</div>
 
 <!-- Article reader overlay desktop -->
 <div id="desk-art-reader">

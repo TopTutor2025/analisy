@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Analisy — Preview Redesign v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Inter',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  background:#080614;
+  color:rgba(255,255,255,0.9);
+  min-height:100vh;overflow-y:auto;overflow-x:hidden;
+  /* Gradiente: viola dominante al centro + rosso Analisy in basso a destra */
+  background-image:
+    /* grigio mappa — centrato sulla mappa, stesso colore del mare CartoDB dark */
+    radial-gradient(ellipse 75% 60% at 38% 48%, #0d0d18 0%, transparent 70%),
+    /* sfumatura grigio più ampia per raccordare i bordi */
+    radial-gradient(ellipse 95% 80% at 35% 50%, rgba(13,13,24,0.7) 0%, transparent 80%),
+    /* accento rosso Analisy — angolo basso sinistra, molto sottile */
+    radial-gradient(ellipse 45% 40% at 5% 95%, rgba(232,52,78,0.18) 0%, transparent 55%);
+}
+
+/* ═══ TOPBAR ═══ */
+#tb{
+  height:48px;
+  background:rgba(8,6,20,0.5);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:none;
+  display:flex;align-items:center;
+  padding:0 20px;gap:0;
+  position:sticky;top:0;z-index:100;
+}
+.tb-logo{display:flex;align-items:center;margin-right:28px;cursor:pointer;}
+.tb-logo-name{
+  font-size:0.95rem;font-weight:800;letter-spacing:-0.03em;
+  background:linear-gradient(135deg,#e8344e,#ff6b6b);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+.tb-nav{display:flex;align-items:center;gap:1px;}
+.tbn{
+  font-size:0.78rem;font-weight:400;letter-spacing:0.01em;color:rgba(255,255,255,0.5);
+  padding:5px 13px;border-radius:6px;cursor:pointer;
+  border:none;background:none;font-family:'Inter',sans-serif;
+  display:flex;align-items:center;gap:5px;white-space:nowrap;
+  transition:color 0.15s,background 0.15s;
+}
+.tbn:hover{color:white;background:rgba(255,255,255,0.06);}
+.tbn .fire{font-size:0.65rem;}
+.tbn-more{color:rgba(255,255,255,0.4);display:flex;align-items:center;gap:3px;padding:5px 10px;font-size:0.78rem;cursor:pointer;}
+.tbn-more::after{content:'▾';font-size:0.6rem;opacity:0.6;}
+
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.tb-livepill{
+  display:flex;align-items:center;gap:5px;
+  font-size:0.58rem;font-weight:700;letter-spacing:0.07em;
+  color:rgba(255,255,255,0.55);
+  background:rgba(232,52,78,0.10);border:1px solid rgba(232,52,78,0.22);
+  padding:3px 10px;border-radius:20px;
+}
+.tb-ldot{width:5px;height:5px;border-radius:50%;background:#e8344e;box-shadow:0 0 5px #e8344e;animation:lp 2s infinite;}
+@keyframes lp{0%,100%{opacity:1}50%{opacity:0.25}}
+.tb-count{font-size:0.72rem;color:rgba(255,255,255,0.35);}
+.tb-divv{width:1px;height:18px;background:rgba(255,255,255,0.08);}
+.tb-iconbtn{
+  width:30px;height:30px;border-radius:7px;border:1px solid rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:rgba(255,255,255,0.45);
+}
+.tb-avatar{
+  width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(135deg,#7c3aed,#e8344e);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.68rem;font-weight:800;color:white;cursor:pointer;
+}
+.tb-accedi{
+  font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.7);
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+  padding:5px 13px;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;
+}
+
+/* ═══ BODY (sotto topbar) ═══ */
+#body{
+  display:flex;
+  min-height:calc(100vh - 48px);
+}
+
+/* ═══ LEFT COL ~72% ═══ */
+#left-col{
+  flex:1;min-width:0;
+  display:flex;flex-direction:column;
+  border-right:none;
+}
+
+/* Stats row */
+#stats-row{
+  flex-shrink:0;
+  padding:14px 24px 12px;
+  border-bottom:none;
+  background:rgba(255,255,255,0.02);
+}
+.sr-section-lbl{
+  font-size:0.6rem;font-weight:500;color:rgba(255,255,255,0.32);
+  margin-bottom:12px;letter-spacing:0.05em;
+}
+.sr-metrics{
+  display:flex;
+  justify-content:space-between; /* spread full width, no separators */
+  gap:0;
+}
+.sr-metric{
+  display:flex;flex-direction:column;gap:4px;
+  flex:1; /* ogni metrica occupa spazio uguale */
+}
+/* nessun bordo, nessun padding orizzontale fisso */
+.sr-metric:first-child{padding-left:0;}
+.sr-metric:last-child{padding-right:0;}
+.sr-mlbl{
+  font-size:0.57rem;font-weight:400;
+  color:rgba(255,255,255,0.3);
+  text-transform:uppercase;letter-spacing:0.09em;
+}
+.sr-mval{
+  font-size:1.18rem;font-weight:600;
+  letter-spacing:-0.03em;line-height:1;
+}
+.sr-mval.green{color:#00e676;}
+.sr-mval.white{color:rgba(255,255,255,0.92);}
+.sr-msub{font-size:0.63rem;font-weight:500;}
+.sr-msub.up{color:#00e676;}.sr-msub.dn{color:#ff4d6d;}.sr-msub.nu{color:rgba(255,255,255,0.28);}
+
+/* Epoch / Goal bar */
+#epoch-bar{
+  flex-shrink:0;
+  display:flex;align-items:center;gap:12px;
+  padding:10px 20px;
+  border-bottom:none;
+  background:rgba(255,255,255,0.025);
+}
+.ep-left{display:flex;align-items:center;gap:9px;flex-shrink:0;}
+.ep-icon{
+  width:32px;height:32px;
+  background:none;border:none;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  color:rgba(255,255,255,0.45);
+}
+.ep-info{display:flex;flex-direction:column;gap:1px;}
+.ep-lbl{font-size:0.54rem;color:rgba(255,255,255,0.32);font-weight:400;letter-spacing:0.04em;}
+.ep-val{font-size:0.82rem;font-weight:600;color:white;line-height:1.1;letter-spacing:-0.01em;}
+
+.ep-center{flex:1;display:flex;flex-direction:column;gap:5px;min-width:0;}
+.ep-dates{display:flex;justify-content:space-between;align-items:center;}
+.ep-date{font-size:0.55rem;color:rgba(255,255,255,0.3);}
+/* dashed progress track identico alla foto */
+.ep-track{
+  height:4px;
+  background:rgba(255,255,255,0.07);
+  border-radius:99px;overflow:hidden;position:relative;
+}
+.ep-fill{
+  height:100%;width:28%;
+  background:linear-gradient(90deg,#f59e0b,#fbbf24);
+  border-radius:99px;position:relative;
+}
+.ep-fill::after{
+  content:'';position:absolute;right:0;top:50%;transform:translate(50%,-50%);
+  width:8px;height:8px;border-radius:50%;background:#fbbf24;
+  box-shadow:0 0 6px 2px rgba(251,191,36,0.7);
+}
+
+.ep-right{font-size:0.6rem;color:rgba(255,255,255,0.45);flex-shrink:0;white-space:nowrap;
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);
+  padding:3px 10px;border-radius:6px;
+}
+
+
+/* Chart/Map area */
+#chart-area{
+  height:480px;display:flex;
+  position:relative;
+  overflow:hidden;
+}
+/* overlay tabs sopra la mappa */
+#chart-header{
+  position:absolute;top:0;left:0;right:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;z-index:5;pointer-events:none;
+}
+.ch-tabs{display:flex;gap:4px;pointer-events:all;}
+.ch-tab{
+  font-size:0.72rem;font-weight:700;padding:5px 14px;
+  border-radius:7px;border:1px solid rgba(255,255,255,0.1);
+  background:rgba(20,18,40,0.85);color:rgba(255,255,255,0.5);
+  cursor:pointer;font-family:'Inter',sans-serif;backdrop-filter:blur(8px);
+}
+.ch-tab.active{background:rgba(255,255,255,0.12);color:white;border-color:rgba(255,255,255,0.2);}
+.ch-asset-info{
+  font-size:0.62rem;font-weight:500;color:rgba(255,255,255,0.6);
+  pointer-events:all;
+  background:rgba(8,5,20,0.65);
+  padding:6px 12px;border-radius:8px;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  display:flex;align-items:center;gap:0;
+}
+
+/* Drawing tools overlay — sinistra della mappa */
+#map-tools{
+  position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:4px;z-index:5;
+}
+.mt-btn{
+  width:34px;height:34px;border-radius:6px;
+  background:none;border:none;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:rgba(255,255,255,0.28);
+  transition:color 0.18s;
+}
+.mt-btn:hover{color:rgba(255,255,255,0.85);}
+.mt-btn.active{color:rgba(167,139,250,1);}
+.mt-sep{height:1px;background:rgba(255,255,255,0.07);margin:5px 4px;}
+
+/* La mappa stessa — stesso colore del mare CartoDB per fusione seamless */
+#map-bg{
+  flex:1;
+  background:#0d0d18;
+  position:relative;overflow:hidden;
+}
+.map-label{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;
+  color:rgba(255,255,255,0.08);pointer-events:none;
+}
+/* fake map dots */
+.md{position:absolute;border-radius:50%;animation:mdblink 3s infinite;}
+@keyframes mdblink{0%,100%{opacity:1}50%{opacity:0.4}}
+.md.g{background:#e8344e;box-shadow:0 0 10px rgba(232,52,78,0.7);}
+.md.p{background:#4f9eff;box-shadow:0 0 10px rgba(79,159,255,0.6);}
+.md.b{background:#f59e0b;box-shadow:0 0 10px rgba(245,158,11,0.6);}
+.md.h{background:#06d6a0;box-shadow:0 0 10px rgba(6,214,160,0.6);}
+
+/* ─── BOTTOM SECTION ─── */
+#bottom-section{
+  flex-shrink:0;
+  border-top:none;
+  background:transparent;
+  padding-bottom:8px;
+}
+#bs-header{
+  display:flex;align-items:center;gap:14px;
+  padding:12px 16px 8px;
+  flex-shrink:0;
+}
+.bs-title{font-size:0.8rem;font-weight:500;color:rgba(255,255,255,0.85);letter-spacing:0.01em;}
+.bs-tabs{display:flex;gap:4px;margin-left:6px;}
+.bst{
+  font-size:0.7rem;font-weight:600;color:rgba(255,255,255,0.4);
+  padding:4px 12px;border-radius:6px;border:1px solid transparent;
+  cursor:pointer;background:none;font-family:'Inter',sans-serif;transition:all 0.15s;
+}
+.bst:hover{color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.05);}
+.bst.active{color:#00e676;background:rgba(0,230,118,0.09);border-color:rgba(0,230,118,0.22);}
+
+/* ── Market cards grid 3×2 ── */
+#mcards{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  grid-template-rows:repeat(2, auto);
+  gap:10px;
+  padding:8px 16px 12px;
+}
+
+.mc{
+  background:rgba(255,255,255,0.04);
+  border:none;
+  border-radius:14px;
+  padding:12px 14px 10px;
+  display:flex;flex-direction:column;
+}
+.mc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;flex-shrink:0;}
+.mc-avatar{
+  width:28px;height:28px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  color:rgba(255,255,255,0.45);
+}
+.mc-meta{display:flex;flex-direction:column;gap:1px;flex:1;padding-left:8px;}
+.mc-name{font-size:0.75rem;font-weight:600;color:rgba(255,255,255,0.88);letter-spacing:-0.01em;}
+.mc-count{font-size:0.54rem;font-weight:400;color:rgba(255,255,255,0.26);}
+.mc-perf-row{display:flex;align-items:baseline;gap:6px;margin-bottom:8px;flex-shrink:0;}
+.mc-perf{font-size:1.1rem;font-weight:700;letter-spacing:-0.03em;}
+.mc-roi{font-size:0.57rem;font-weight:400;color:rgba(255,255,255,0.28);}
+
+/* Griglia asset scrollabile */
+.mc-assets{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  overflow-y:auto;
+  max-height:240px; /* abbastanza per ~3 righe, poi scroll */
+  padding-bottom:2px;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(255,255,255,0.1) transparent;
+}
+.mc-assets::-webkit-scrollbar{width:3px;}
+.mc-assets::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px;}
+
+/* Singola asset card — come in foto */
+.mc-asset{
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:10px;
+  padding:10px 10px 0;
+  cursor:default;
+  transition:background 0.15s;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.mc-asset:hover{background:rgba(255,255,255,0.08);}
+.mca-name{font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.88);line-height:1.2;}
+.mca-ticker{font-size:0.5rem;font-weight:600;letter-spacing:0.08em;color:rgba(255,255,255,0.28);text-transform:uppercase;margin-bottom:5px;}
+.mca-bottom{display:flex;align-items:baseline;gap:5px;margin-bottom:6px;}
+.mca-price{font-size:0.82rem;font-weight:700;color:#fff;letter-spacing:-0.02em;}
+.mca-chg{font-size:0.6rem;font-weight:700;}
+.mca-chg.up{color:#a78bfa;}
+.mca-chg.dn{color:#ff4d6d;}
+.mca-spark{
+  width:calc(100% + 20px);
+  margin-left:-10px;
+  height:48px;
+  display:block;
+  flex-shrink:0;
+}
+
+/* ═══ RIGHT PANEL ~28% ═══ */
+#right-panel{
+  width:341px;flex-shrink:0;
+  display:flex;flex-direction:column;
+  background:rgba(255,255,255,0.02);
+}
+
+/* Top tab bar ANALISI / PREMIUM — switch */
+#rp-tabs{
+  display:flex;
+  padding:12px 14px;
+  border-bottom:1px solid rgba(255,255,255,0.07);
+  background:none;
+  flex-shrink:0;
+}
+#rp-tabs-switch{
+  display:flex;
+  background:rgba(255,255,255,0.06);
+  border-radius:10px;
+  padding:3px;
+  gap:2px;
+  width:100%;
+}
+.rptab{
+  flex:1;padding:6px 0;text-align:center;
+  font-size:0.75rem;font-weight:700;letter-spacing:0.02em;
+  border-radius:7px;cursor:pointer;border:none;font-family:'Inter',sans-serif;
+  transition:all 0.18s;
+}
+.rptab.off{background:none;color:rgba(255,255,255,0.35);}
+.rptab.on{background:rgba(255,255,255,0.12);color:white;box-shadow:0 1px 4px rgba(0,0,0,0.3);}
+
+/* Stats in right panel (come "Your Deposits / All-time Earned") */
+#rp-stats{
+  display:flex;
+  padding:12px 14px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  flex-shrink:0;
+  gap:0;
+}
+.rps{flex:1;display:flex;flex-direction:column;gap:2px;}
+.rps:first-child{border-right:1px solid rgba(255,255,255,0.06);padding-right:14px;}
+.rps:last-child{padding-left:14px;}
+.rps-lbl{font-size:0.57rem;font-weight:400;color:rgba(255,255,255,0.28);letter-spacing:0.02em;}
+.rps-val{font-size:0.96rem;font-weight:600;color:white;letter-spacing:-0.02em;}
+.rps-val.green{color:#00e676;}
+
+/* Articles scroll */
+#rp-art-scroll{
+  flex:1;overflow-y:auto;min-height:0;
+  padding:0 14px;
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.07) transparent;
+}
+.art{
+  padding:11px 0;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  display:flex;gap:10px;align-items:flex-start;
+}
+.art:last-child{border-bottom:none;}
+.art-body{flex:1;min-width:0;}
+.art-thumb{
+  width:58px;height:58px;border-radius:8px;
+  flex-shrink:0;overflow:hidden;
+  background:rgba(255,255,255,0.06);
+}
+.art-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.art-cat{font-size:0.5rem;font-weight:600;text-transform:uppercase;letter-spacing:0.11em;margin-bottom:3px;}
+.art-t{font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.9);line-height:1.4;margin-bottom:3px;letter-spacing:-0.01em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.art-m{font-size:0.54rem;font-weight:400;color:rgba(255,255,255,0.18);margin-top:3px;}
+
+/* Separator */
+.rp-sep{height:1px;background:rgba(255,255,255,0.04);flex-shrink:0;margin:0;}
+
+/* Scenari bottom (come About/Performance) */
+#rp-scenari{
+  height:52%;flex-shrink:0;
+  display:flex;flex-direction:column;overflow:hidden;
+}
+#rp-sc-header{
+  display:flex;align-items:center;gap:7px;
+  padding:10px 14px 8px;flex-shrink:0;
+}
+.rp-sc-tabs{display:flex;gap:4px;}
+.rp-sc-tab{
+  font-size:0.68rem;font-weight:700;padding:4px 12px;
+  border-radius:7px;border:1px solid rgba(255,255,255,0.09);
+  background:none;color:rgba(255,255,255,0.35);cursor:pointer;font-family:'Inter',sans-serif;
+  transition:all 0.15s;
+}
+.rp-sc-tab.on{background:rgba(255,255,255,0.08);color:white;border-color:rgba(255,255,255,0.16);}
+.rp-sc-badge{
+  font-size:0.58rem;font-weight:600;letter-spacing:0.04em;
+  padding:2px 8px;border-radius:20px;
+  border:1px solid;
+  line-height:1.5;
+}
+.rp-sc-badge.red{color:#e8344e;background:rgba(232,52,78,0.1);border-color:rgba(232,52,78,0.25);}
+.rp-sc-badge.violet{color:#a78bfa;background:rgba(167,139,250,0.1);border-color:rgba(167,139,250,0.25);}
+
+#rp-sc-scroll{flex:1;overflow-y:auto;padding:0 14px 10px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.06) transparent;}
+.sc{padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;}
+.sc:last-child{border-bottom:none;}
+.sc-top{display:flex;align-items:center;gap:6px;margin-bottom:3px;}
+.sc-cat{font-size:0.5rem;font-weight:800;text-transform:uppercase;letter-spacing:0.09em;}
+.sc-mag{display:flex;gap:2px;margin-left:auto;}
+.sc-dot{width:5px;height:5px;border-radius:50%;}
+.sc-t{font-size:0.72rem;font-weight:500;color:rgba(255,255,255,0.85);line-height:1.4;letter-spacing:-0.01em;}
+.sc-m{font-size:0.54rem;font-weight:400;color:rgba(255,255,255,0.18);margin-top:3px;}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ TOPBAR ═══════════════════ -->
+<div id="tb">
+  <div class="tb-logo">
+    <span class="tb-logo-name">ANALISY</span>
+  </div>
+
+  <nav class="tb-nav">
+    <button class="tbn">Geopolitica</button>
+    <button class="tbn">Politica</button>
+    <button class="tbn">Hotspot</button>
+    <button class="tbn">Business</button>
+    <button class="tbn">Tecnologia</button>
+  </nav>
+
+  <div class="tb-right">
+    <div class="tb-livepill"><div class="tb-ldot"></div>LIVE</div>
+    <span class="tb-count">Situation Room</span>
+    <div class="tb-divv"></div>
+    <!-- tutorial -->
+    <div class="tb-iconbtn" title="Tutorial">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <!-- bell -->
+    <div class="tb-iconbtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+    </div>
+    <!-- avatar -->
+    <div class="tb-avatar">M</div>
+  </div>
+</div>
+
+<!-- ═══════════════════ BODY ═══════════════════ -->
+<div id="body">
+
+  <!-- ────────── LEFT COL ────────── -->
+  <div id="left-col">
+
+    <!-- Stats row (come la riga TVL, Price ecc di Voltrex) -->
+    <div id="stats-row">
+      <div class="sr-metrics">
+        <div class="sr-metric">
+          <div class="sr-mlbl">BTC</div>
+          <div class="sr-mval green">$103.241</div>
+          <div class="sr-msub up">+2.14%</div>
+        </div>
+        <div class="sr-metric">
+          <div class="sr-mlbl">ETH</div>
+          <div class="sr-mval white">$2.481</div>
+          <div class="sr-msub up">+1.87%</div>
+        </div>
+        <div class="sr-metric">
+          <div class="sr-mlbl">Gold</div>
+          <div class="sr-mval white">$3.312</div>
+          <div class="sr-msub dn">-0.42%</div>
+        </div>
+        <div class="sr-metric">
+          <div class="sr-mlbl">Oil WTI</div>
+          <div class="sr-mval white">$78.34</div>
+          <div class="sr-msub up">+0.93%</div>
+        </div>
+        <div class="sr-metric">
+          <div class="sr-mlbl">S&amp;P 500</div>
+          <div class="sr-mval white">5.812</div>
+          <div class="sr-msub dn">-0.28%</div>
+        </div>
+        <div class="sr-metric">
+          <div class="sr-mlbl">EUR/USD</div>
+          <div class="sr-mval white">1.1248</div>
+          <div class="sr-msub up">+0.15%</div>
+        </div>
+        <div class="sr-metric">
+          <div class="sr-mlbl">Eventi Attivi</div>
+          <div class="sr-mval" style="color:#e8344e">12</div>
+          <div class="sr-msub nu">tracciamento globale</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Epoch / Goal bar + Legend -->
+    <div id="epoch-bar">
+      <div class="ep-left">
+        <div class="ep-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="ep-info">
+          <div class="ep-lbl">Obiettivo Abbonati</div>
+          <div class="ep-val">142 / 500</div>
+        </div>
+      </div>
+
+      <div class="ep-center">
+        <div class="ep-dates">
+          <span class="ep-date">Inizio campagna: Gen 2025</span>
+          <span class="ep-date">28.4% completato</span>
+        </div>
+        <div class="ep-track">
+          <div class="ep-fill" style="width:28.4%"></div>
+        </div>
+      </div>
+
+      <div class="ep-right">358 rimanenti</div>
+
+    </div>
+
+    <!-- Chart (Map) area -->
+    <div id="chart-area">
+
+      <!-- overlay info in alto — solo info, niente tab -->
+      <div id="chart-header">
+        <div class="ch-tabs"></div>
+        <div class="ch-asset-info">
+          <span style="display:inline-flex;align-items:center;gap:5px;margin-right:10px;"><span style="width:8px;height:8px;border-radius:50%;background:#e8344e;box-shadow:0 0 5px rgba(232,52,78,0.7);display:inline-block;flex-shrink:0;"></span>Geopolitica <span style="color:rgba(255,255,255,0.5)">12</span></span>
+          <span style="display:inline-flex;align-items:center;gap:5px;margin-right:10px;"><span style="width:8px;height:8px;border-radius:50%;background:#4f9eff;box-shadow:0 0 5px rgba(79,159,255,0.7);display:inline-block;flex-shrink:0;"></span>Politica <span style="color:rgba(255,255,255,0.5)">8</span></span>
+          <span style="display:inline-flex;align-items:center;gap:5px;margin-right:10px;"><span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;box-shadow:0 0 5px rgba(245,158,11,0.7);display:inline-block;flex-shrink:0;"></span>Business <span style="color:rgba(255,255,255,0.5)">7</span></span>
+          <span style="display:inline-flex;align-items:center;gap:5px;margin-right:10px;"><span style="width:8px;height:8px;border-radius:50%;background:#a78bfa;box-shadow:0 0 5px rgba(167,139,250,0.7);display:inline-block;flex-shrink:0;"></span>Tech <span style="color:rgba(255,255,255,0.5)">5</span></span>
+          <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;border-radius:50%;background:#06d6a0;box-shadow:0 0 5px rgba(6,214,160,0.7);display:inline-block;flex-shrink:0;"></span>Hotspot <span style="color:rgba(255,255,255,0.5)">4</span></span>
+        </div>
+      </div>
+
+      <!-- drawing tools overlay a sinistra -->
+      <div id="map-tools">
+        <!-- Espandi mappa -->
+        <div class="mt-btn active" title="Espandi mappa">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3H5a2 2 0 00-2 2v3"/><path d="M21 8V5a2 2 0 00-2-2h-3"/><path d="M3 16v3a2 2 0 002 2h3"/><path d="M16 21h3a2 2 0 002-2v-3"/></svg>
+        </div>
+        <!-- Visualizzazione avanzata — sputnik -->
+        <div class="mt-btn" title="Visualizzazione avanzata">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <!-- sfera centrale -->
+            <circle cx="12" cy="12" r="4"/>
+            <!-- 4 antenne diagonali -->
+            <line x1="9.2" y1="9.2" x2="3" y2="3"/>
+            <line x1="14.8" y1="9.2" x2="21" y2="3"/>
+            <line x1="9.2" y1="14.8" x2="4" y2="21"/>
+            <line x1="14.8" y1="14.8" x2="20" y2="21"/>
+          </svg>
+        </div>
+        <div class="mt-sep"></div>
+        <!-- Confini stati — bordo mappa -->
+        <div class="mt-btn" title="Confini stati">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+        </div>
+        <!-- Risorse strategiche — tavola periodica -->
+        <div class="mt-btn" title="Risorse strategiche">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <text x="12" y="15" text-anchor="middle" font-size="9" font-weight="700" font-family="Inter,sans-serif" fill="currentColor" stroke="none">Au</text>
+            <text x="5.5" y="8" text-anchor="middle" font-size="4" font-family="Inter,sans-serif" fill="currentColor" stroke="none" opacity="0.7">79</text>
+          </svg>
+        </div>
+        <!-- Tratte / rotte — path con waypoint -->
+        <div class="mt-btn" title="Tratte e rotte">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="19" r="2"/><circle cx="19" cy="5" r="2"/><path d="M5 17V9a2 2 0 012-2h10"/><polyline points="15 3 19 7 15 11"/></svg>
+        </div>
+        <div class="mt-sep"></div>
+        <!-- Aerei — aereo vero -->
+        <div class="mt-btn" title="Traffico aereo live">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 00-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>
+        </div>
+        <!-- Navi — ancora -->
+        <div class="mt-btn" title="Traffico navale live">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="5" r="2"/><line x1="12" y1="7" x2="12" y2="11"/><path d="M5 11h14l-2 8H7z"/><path d="M5 11C5 16 3 18 3 18s4 2 9 2 9-2 9-2-2-2-2-7"/></svg>
+        </div>
+      </div>
+
+      <!-- mappa -->
+      <div id="map-bg">
+        <div class="map-label">— Mappa Interattiva Leaflet —</div>
+        <!-- fake event dots -->
+        <div class="md g" style="width:10px;height:10px;top:40%;left:55%;animation-delay:0s"></div>
+        <div class="md g" style="width:8px;height:8px;top:46%;left:60%;animation-delay:0.5s"></div>
+        <div class="md p" style="width:9px;height:9px;top:28%;left:48%;animation-delay:0.3s"></div>
+        <div class="md b" style="width:8px;height:8px;top:52%;left:28%;animation-delay:0.8s"></div>
+        <div class="md h" style="width:10px;height:10px;top:58%;left:65%;animation-delay:0.2s"></div>
+        <div class="md g" style="width:7px;height:7px;top:44%;left:70%;animation-delay:1s"></div>
+        <div class="md p" style="width:8px;height:8px;top:22%;left:32%;animation-delay:0.6s"></div>
+        <div class="md b" style="width:9px;height:9px;top:35%;left:42%;animation-delay:1.2s"></div>
+      </div>
+
+    </div><!-- /chart-area -->
+
+    <!-- Bottom: sezione mercati + tab content -->
+    <div id="bottom-section">
+      <div id="bs-header">
+        <div class="bs-tabs">
+          <button class="bst active">Mercati</button>
+          <button class="bst">Live Feed</button>
+          <button class="bst">Podcast</button>
+          <button class="bst">Forum</button>
+        </div>
+      </div>
+
+      <!-- 6 card mercati in griglia 3×2 con asset quadrate scrollabili -->
+      <div id="mcards">
+
+        <!-- MATERIE PRIME -->
+        <div class="mc">
+          <div class="mc-top">
+            <div class="mc-avatar"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/><path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg></div>
+            <div class="mc-meta"><div class="mc-name">Materie Prime</div><div class="mc-count">8 asset · YTD</div></div>
+            <div class="mc-perf-row"><span class="mc-perf" style="color:#f59e0b">+8.4%</span></div>
+          </div>
+          <div class="mc-assets">
+            <div class="mc-asset"><div class="mca-name">Gold</div><div class="mca-ticker">XAU</div><div class="mca-bottom"><span class="mca-price">$3.312</span><span class="mca-chg up">+0.8%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="sg1" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#a78bfa" stop-opacity="0.5"/><stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/></linearGradient></defs><path d="M0,36 C10,32 20,30 30,22 C45,12 55,10 80,4" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round"/><path d="M0,36 C10,32 20,30 30,22 C45,12 55,10 80,4 L80,48 L0,48 Z" fill="url(#sg1)"/></svg></div>
+            <div class="mc-asset"><div class="mca-name">Oil WTI</div><div class="mca-ticker">WTI</div><div class="mca-bottom"><span class="mca-price">$78.34</span><span class="mca-chg up">+0.9%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="sg2" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#a78bfa" stop-opacity="0.5"/><stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/></linearGradient></defs><path d="M0,40 C15,36 25,38 35,28 C50,16 65,10 80,6" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round"/><path d="M0,40 C15,36 25,38 35,28 C50,16 65,10 80,6 L80,48 L0,48 Z" fill="url(#sg2)"/></svg></div>
+            <div class="mc-asset"><div class="mca-name">Nat. Gas</div><div class="mca-ticker">NG</div><div class="mca-bottom"><span class="mca-price">$3.87</span><span class="mca-chg dn">-1.1%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="sg3" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#ff4d6d" stop-opacity="0.5"/><stop offset="100%" stop-color="#ff4d6d" stop-opacity="0"/></linearGradient></defs><path d="M0,8 C15,12 25,10 35,18 C50,28 65,34 80,42" fill="none" stroke="#ff4d6d" stroke-width="1.8" stroke-linecap="round"/><path d="M0,8 C15,12 25,10 35,18 C50,28 65,34 80,42 L80,48 L0,48 Z" fill="url(#sg3)"/></svg></div>
+            <div class="mc-asset"><div class="mca-name">Silver</div><div class="mca-ticker">XAG</div><div class="mca-bottom"><span class="mca-price">$32.10</span><span class="mca-chg up">+1.2%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="sg4" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#a78bfa" stop-opacity="0.5"/><stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/></linearGradient></defs><path d="M0,34 C15,28 25,30 35,20 C50,10 65,8 80,4" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round"/><path d="M0,34 C15,28 25,30 35,20 C50,10 65,8 80,4 L80,48 L0,48 Z" fill="url(#sg4)"/></svg></div>
+            <div class="mc-asset"><div class="mca-name">Copper</div><div class="mca-ticker">HG</div><div class="mca-bottom"><span class="mca-price">$4.52</span><span class="mca-chg dn">-0.3%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="sg5" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#ff4d6d" stop-opacity="0.5"/><stop offset="100%" stop-color="#ff4d6d" stop-opacity="0"/></linearGradient></defs><path d="M0,20 C15,22 30,18 45,26 C60,32 70,34 80,38" fill="none" stroke="#ff4d6d" stroke-width="1.8" stroke-linecap="round"/><path d="M0,20 C15,22 30,18 45,26 C60,32 70,34 80,38 L80,48 L0,48 Z" fill="url(#sg5)"/></svg></div>
+            <div class="mc-asset"><div class="mca-name">Wheat</div><div class="mca-ticker">ZW</div><div class="mca-bottom"><span class="mca-price">$548</span><span class="mca-chg up">+0.5%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="sg6" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#a78bfa" stop-opacity="0.5"/><stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/></linearGradient></defs><path d="M0,38 C15,34 25,38 40,26 C55,16 68,12 80,8" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round"/><path d="M0,38 C15,34 25,38 40,26 C55,16 68,12 80,8 L80,48 L0,48 Z" fill="url(#sg6)"/></svg></div>
+          </div>
+        </div>
+
+        <!-- DIFESA -->
+        <div class="mc">
+          <div class="mc-top">
+            <div class="mc-avatar"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+            <div class="mc-meta"><div class="mc-name">Difesa</div><div class="mc-count">6 titoli · YTD</div></div>
+            <div class="mc-perf-row"><span class="mc-perf" style="color:#00e676">+22.7%</span></div>
+          </div>
+          <div class="mc-assets">
+            <div class="mc-asset"><div class="mca-name">Lockheed</div><div class="mca-ticker">LMT</div><div class="mca-bottom"><span class="mca-price">$481.2</span><span class="mca-chg up">+2.3%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="sd1" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#a78bfa" stop-opacity="0.5"/><stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/></linearGradient></defs><path d="M0,42 C15,36 25,38 38,26 C52,14 66,8 80,3" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round"/><path d="M0,42 C15,36 25,38 38,26 C52,14 66,8 80,3 L80,48 L0,48 Z" fill="url(#sd1)"/></svg></div>
+            <div class="mc-asset"><div class="mca-name">Raytheon</div><div class="mca-ticker">RTX</div><div class="mca-bottom"><span class="mca-price">$124.8</span><span class="mca-chg up">+1.7%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="sd2" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#a78bfa" stop-opacity="0.5"/><stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/></linearGradient></defs><path d="M0,44 C15,38 28,40 40,28 C55,16 68,10 80,5" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round"/><path d="M0,44 C15,38 28,40 40,28 C55,16 68,10 80,5 L80,48 L0,48 Z" fill="url(#sd2)"/></svg></div>
+            <div class="mc-asset"><div class="mca-name">Northrop</div><div class="mca-ticker">NOC</div><div class="mca-bottom"><span class="mca-price">$492.3</span><span class="mca-chg up">+3.1%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="sd3" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#a78bfa" stop-opacity="0.5"/><stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/></linearGradient></defs><path d="M0,46 C15,40 28,34 42,22 C56,12 68,7 80,3" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round"/><path d="M0,46 C15,40 28,34 42,22 C56,12 68,7 80,3 L80,48 L0,48 Z" fill="url(#sd3)"/></svg></div>
+            <div class="mc-asset"><div class="mca-name">Boeing</div><div class="mca-ticker">BA</div><div class="mca-bottom"><span class="mca-price">$192.5</span><span class="mca-chg dn">-0.8%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="sd4" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#ff4d6d" stop-opacity="0.5"/><stop offset="100%" stop-color="#ff4d6d" stop-opacity="0"/></linearGradient></defs><path d="M0,10 C15,16 28,12 42,22 C56,32 68,36 80,42" fill="none" stroke="#ff4d6d" stroke-width="1.8" stroke-linecap="round"/><path d="M0,10 C15,16 28,12 42,22 C56,32 68,36 80,42 L80,48 L0,48 Z" fill="url(#sd4)"/></svg></div>
+          </div>
+        </div>
+
+        <!-- BIOTECH -->
+        <div class="mc">
+          <div class="mc-top">
+            <div class="mc-avatar"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 15c3-3 5-5 5-8a5 5 0 0110 0c0 3 2 5 5 8"/><path d="M2 9c3 3 5 5 5 8a5 5 0 0010 0c0-3 2-5 5-8"/></svg></div>
+            <div class="mc-meta"><div class="mc-name">Biotech</div><div class="mc-count">5 titoli · YTD</div></div>
+            <div class="mc-perf-row"><span class="mc-perf" style="color:#ff4d6d">-3.2%</span></div>
+          </div>
+          <div class="mc-assets">
+            <div class="mc-asset"><div class="mca-name">Moderna</div><div class="mca-ticker">MRNA</div><div class="mca-bottom"><span class="mca-price">$38.4</span><span class="mca-chg dn">-2.1%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="sb1" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#ff4d6d" stop-opacity="0.5"/><stop offset="100%" stop-color="#ff4d6d" stop-opacity="0"/></linearGradient></defs><path d="M0,6 C15,10 28,8 42,18 C56,28 68,34 80,42" fill="none" stroke="#ff4d6d" stroke-width="1.8" stroke-linecap="round"/><path d="M0,6 C15,10 28,8 42,18 C56,28 68,34 80,42 L80,48 L0,48 Z" fill="url(#sb1)"/></svg></div>
+            <div class="mc-asset"><div class="mca-name">BioNTech</div><div class="mca-ticker">BNTX</div><div class="mca-bottom"><span class="mca-price">$92.1</span><span class="mca-chg up">+0.8%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="sb2" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#a78bfa" stop-opacity="0.5"/><stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/></linearGradient></defs><path d="M0,34 C15,28 28,30 42,20 C56,12 68,8 80,5" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round"/><path d="M0,34 C15,28 28,30 42,20 C56,12 68,8 80,5 L80,48 L0,48 Z" fill="url(#sb2)"/></svg></div>
+            <div class="mc-asset"><div class="mca-name">AbbVie</div><div class="mca-ticker">ABBV</div><div class="mca-bottom"><span class="mca-price">$164.2</span><span class="mca-chg dn">-0.4%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="sb3" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#ff4d6d" stop-opacity="0.5"/><stop offset="100%" stop-color="#ff4d6d" stop-opacity="0"/></linearGradient></defs><path d="M0,22 C15,24 30,20 45,28 C60,34 70,36 80,40" fill="none" stroke="#ff4d6d" stroke-width="1.8" stroke-linecap="round"/><path d="M0,22 C15,24 30,20 45,28 C60,34 70,36 80,40 L80,48 L0,48 Z" fill="url(#sb3)"/></svg></div>
+            <div class="mc-asset"><div class="mca-name">Pfizer</div><div class="mca-ticker">PFE</div><div class="mca-bottom"><span class="mca-price">$27.8</span><span class="mca-chg dn">-1.5%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="sb4" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#ff4d6d" stop-opacity="0.5"/><stop offset="100%" stop-color="#ff4d6d" stop-opacity="0"/></linearGradient></defs><path d="M0,8 C15,12 28,10 42,20 C56,30 68,36 80,44" fill="none" stroke="#ff4d6d" stroke-width="1.8" stroke-linecap="round"/><path d="M0,8 C15,12 28,10 42,20 C56,30 68,36 80,44 L80,48 L0,48 Z" fill="url(#sb4)"/></svg></div>
+          </div>
+        </div>
+
+        <!-- FOOD & AGRITECH -->
+        <div class="mc">
+          <div class="mc-top">
+            <div class="mc-avatar"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"/><path d="M12 12C12 7 7 4 3 6c3 1 6 4 6 7"/><path d="M12 12c0-5 5-8 9-6-3 1-6 4-6 7"/><path d="M12 17c0-3 2-5 5-5"/><path d="M12 17c0-3-2-5-5-5"/></svg></div>
+            <div class="mc-meta"><div class="mc-name">Food & AgriTech</div><div class="mc-count">5 titoli · YTD</div></div>
+            <div class="mc-perf-row"><span class="mc-perf" style="color:#00e676">+5.1%</span></div>
+          </div>
+          <div class="mc-assets">
+            <div class="mc-asset"><div class="mca-name">ADM</div><div class="mca-ticker">ADM</div><div class="mca-bottom"><span class="mca-price">$48.7</span><span class="mca-chg dn">-1.2%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="sf1" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#ff4d6d" stop-opacity="0.5"/><stop offset="100%" stop-color="#ff4d6d" stop-opacity="0"/></linearGradient></defs><path d="M0,14 C15,18 28,16 42,24 C56,32 68,36 80,42" fill="none" stroke="#ff4d6d" stroke-width="1.8" stroke-linecap="round"/><path d="M0,14 C15,18 28,16 42,24 C56,32 68,36 80,42 L80,48 L0,48 Z" fill="url(#sf1)"/></svg></div>
+            <div class="mc-asset"><div class="mca-name">Beyond Meat</div><div class="mca-ticker">BYND</div><div class="mca-bottom"><span class="mca-price">$5.3</span><span class="mca-chg up">+4.2%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="sf2" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#a78bfa" stop-opacity="0.5"/><stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/></linearGradient></defs><path d="M0,42 C15,36 28,38 42,26 C56,14 68,8 80,4" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round"/><path d="M0,42 C15,36 28,38 42,26 C56,14 68,8 80,4 L80,48 L0,48 Z" fill="url(#sf2)"/></svg></div>
+            <div class="mc-asset"><div class="mca-name">Deere</div><div class="mca-ticker">DE</div><div class="mca-bottom"><span class="mca-price">$392.8</span><span class="mca-chg up">+0.7%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="sf3" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#a78bfa" stop-opacity="0.5"/><stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/></linearGradient></defs><path d="M0,36 C15,30 28,34 42,22 C56,12 68,9 80,6" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round"/><path d="M0,36 C15,30 28,34 42,22 C56,12 68,9 80,6 L80,48 L0,48 Z" fill="url(#sf3)"/></svg></div>
+            <div class="mc-asset"><div class="mca-name">Bunge</div><div class="mca-ticker">BG</div><div class="mca-bottom"><span class="mca-price">$74.2</span><span class="mca-chg up">+1.1%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="sf4" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#a78bfa" stop-opacity="0.5"/><stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/></linearGradient></defs><path d="M0,40 C15,34 28,36 42,24 C56,14 68,10 80,7" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round"/><path d="M0,40 C15,34 28,36 42,24 C56,14 68,10 80,7 L80,48 L0,48 Z" fill="url(#sf4)"/></svg></div>
+          </div>
+        </div>
+
+        <!-- INDICI GLOBALI -->
+        <div class="mc">
+          <div class="mc-top">
+            <div class="mc-avatar"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+            <div class="mc-meta"><div class="mc-name">Indici Globali</div><div class="mc-count">6 indici · YTD</div></div>
+            <div class="mc-perf-row"><span class="mc-perf" style="color:#ff4d6d">-1.3%</span></div>
+          </div>
+          <div class="mc-assets">
+            <div class="mc-asset"><div class="mca-name">S&amp;P 500</div><div class="mca-ticker">SPX</div><div class="mca-bottom"><span class="mca-price">5.812</span><span class="mca-chg dn">-0.3%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="si1" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#ff4d6d" stop-opacity="0.5"/><stop offset="100%" stop-color="#ff4d6d" stop-opacity="0"/></linearGradient></defs><path d="M0,18 C15,22 28,16 42,26 C56,34 68,30 80,36" fill="none" stroke="#ff4d6d" stroke-width="1.8" stroke-linecap="round"/><path d="M0,18 C15,22 28,16 42,26 C56,34 68,30 80,36 L80,48 L0,48 Z" fill="url(#si1)"/></svg></div>
+            <div class="mc-asset"><div class="mca-name">Nasdaq</div><div class="mca-ticker">NDX</div><div class="mca-bottom"><span class="mca-price">18.421</span><span class="mca-chg dn">-0.5%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="si2" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#ff4d6d" stop-opacity="0.5"/><stop offset="100%" stop-color="#ff4d6d" stop-opacity="0"/></linearGradient></defs><path d="M0,14 C15,18 28,12 42,22 C56,30 68,34 80,40" fill="none" stroke="#ff4d6d" stroke-width="1.8" stroke-linecap="round"/><path d="M0,14 C15,18 28,12 42,22 C56,30 68,34 80,40 L80,48 L0,48 Z" fill="url(#si2)"/></svg></div>
+            <div class="mc-asset"><div class="mca-name">DAX</div><div class="mca-ticker">DAX</div><div class="mca-bottom"><span class="mca-price">22.840</span><span class="mca-chg up">+0.4%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="si3" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#a78bfa" stop-opacity="0.5"/><stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/></linearGradient></defs><path d="M0,30 C15,24 28,28 42,16 C56,8 68,5 80,3" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round"/><path d="M0,30 C15,24 28,28 42,16 C56,8 68,5 80,3 L80,48 L0,48 Z" fill="url(#si3)"/></svg></div>
+            <div class="mc-asset"><div class="mca-name">Nikkei</div><div class="mca-ticker">NI225</div><div class="mca-bottom"><span class="mca-price">38.104</span><span class="mca-chg up">+0.6%</span></div><svg class="mca-spark" viewBox="0 0 80 48" preserveAspectRatio="none"><defs><linearGradient id="si4" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#a78bfa" stop-opacity="0.5"/><stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/></linearGradient></defs><path d="M0,36 C15,28 28,32 42,20 C56,10 68,6 80,4" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round"/><path d="M0,36 C15,28 28,32 42,20 C56,10 68,6 80,4 L80,48 L0,48 Z" fill="url(#si4)"/></svg></div>
+          </div>
+        </div>
+
+        <!-- ENERGIA -->
+        <div class="mc">
+          <div class="mc-top">
+            <div class="mc-avatar"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+            <div class="mc-meta">
+              <div class="mc-name">Energia</div>
+              <div class="mc-count">5 titoli · YTD</div>
+            </div>
+            <div class="mc-perf-row">
+              <span class="mc-perf" style="color:#00e676">+11.3%</span>
+            </div>
+          </div>
+          <div class="mc-assets">
+            <div class="mc-asset">
+              <div class="mca-name">Exxon</div><div class="mca-ticker">XOM</div>
+              <div class="mca-bottom"><span class="mca-price">$112.4</span><span class="mca-chg up">+1.4%</span></div>
+              <svg class="mca-spark" viewBox="0 0 80 28" preserveAspectRatio="none"><defs><linearGradient id="se1" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#e8344e" stop-opacity="0.3"/><stop offset="100%" stop-color="#e8344e" stop-opacity="0"/></linearGradient></defs><polygon points="0,20 16,17 32,19 48,12 64,8 80,5 80,28 0,28" fill="url(#se1)"/><polyline points="0,20 16,17 32,19 48,12 64,8 80,5" fill="none" stroke="#e8344e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="mc-asset">
+              <div class="mca-name">Chevron</div><div class="mca-ticker">CVX</div>
+              <div class="mca-bottom"><span class="mca-price">$152.8</span><span class="mca-chg up">+0.9%</span></div>
+              <svg class="mca-spark" viewBox="0 0 80 28" preserveAspectRatio="none"><defs><linearGradient id="se2" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#e8344e" stop-opacity="0.3"/><stop offset="100%" stop-color="#e8344e" stop-opacity="0"/></linearGradient></defs><polygon points="0,22 16,18 32,20 48,14 64,10 80,7 80,28 0,28" fill="url(#se2)"/><polyline points="0,22 16,18 32,20 48,14 64,10 80,7" fill="none" stroke="#e8344e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="mc-asset">
+              <div class="mca-name">NextEra</div><div class="mca-ticker">NEE</div>
+              <div class="mca-bottom"><span class="mca-price">$68.9</span><span class="mca-chg up">+2.1%</span></div>
+              <svg class="mca-spark" viewBox="0 0 80 28" preserveAspectRatio="none"><defs><linearGradient id="se3" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#a78bfa" stop-opacity="0.3"/><stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/></linearGradient></defs><polygon points="0,24 16,20 32,16 48,11 64,7 80,4 80,28 0,28" fill="url(#se3)"/><polyline points="0,24 16,20 32,16 48,11 64,7 80,4" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="mc-asset">
+              <div class="mca-name">Shell</div><div class="mca-ticker">SHEL</div>
+              <div class="mca-bottom"><span class="mca-price">$32.1</span><span class="mca-chg dn">-0.6%</span></div>
+              <svg class="mca-spark" viewBox="0 0 80 28" preserveAspectRatio="none"><defs><linearGradient id="se4" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#ff4d6d" stop-opacity="0.3"/><stop offset="100%" stop-color="#ff4d6d" stop-opacity="0"/></linearGradient></defs><polygon points="0,12 16,14 32,13 48,17 64,16 80,19 80,28 0,28" fill="url(#se4)"/><polyline points="0,12 16,14 32,13 48,17 64,16 80,19" fill="none" stroke="#ff4d6d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /mcards -->
+    </div><!-- /bottom-section -->
+
+  </div><!-- /left-col -->
+
+  <!-- ═══════════════════ RIGHT PANEL ═══════════════════ -->
+  <div id="right-panel">
+
+    <!-- Tab ANALISI / PREMIUM — switch -->
+    <div id="rp-tabs">
+      <div id="rp-tabs-switch">
+        <button class="rptab on">ANALISI</button>
+        <button class="rptab off">PREMIUM</button>
+      </div>
+    </div>
+
+    <!-- Stats (come "Your Deposits / All-time Earned") -->
+    <div id="rp-stats">
+      <div class="rps">
+        <div class="rps-lbl">Articoli pubblicati</div>
+        <div class="rps-val">48</div>
+      </div>
+      <div class="rps">
+        <div class="rps-lbl">Letture totali</div>
+        <div class="rps-val green">12.847</div>
+      </div>
+    </div>
+
+    <!-- Articles list -->
+    <div id="rp-art-scroll">
+      <div class="art">
+        <div class="art-body">
+          <div class="art-cat" style="color:#e8344e">Geopolitica</div>
+          <div class="art-t">Iran-Israele: la finestra diplomatica si chiude dopo i raid notturni</div>
+          <div class="art-m">14 min fa · 5 min lettura</div>
+        </div>
+        <div class="art-thumb">
+          <img src="https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=120&q=70" alt="">
+        </div>
+      </div>
+      <div class="art">
+        <div class="art-body">
+          <div class="art-cat" style="color:#f59e0b">Business</div>
+          <div class="art-t">OPEC+ conferma tagli: petrolio verso $85 entro luglio</div>
+          <div class="art-m">1 ora fa · 7 min lettura</div>
+        </div>
+        <div class="art-thumb">
+          <img src="https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=120&q=70" alt="">
+        </div>
+      </div>
+      <div class="art">
+        <div class="art-body">
+          <div class="art-cat" style="color:#a78bfa">Tecnologia</div>
+          <div class="art-t">La corsa ai chip: TSMC apre fab in Europa, ASML sotto pressione</div>
+          <div class="art-m">3 ore fa · 6 min lettura</div>
+        </div>
+        <div class="art-thumb">
+          <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=120&q=70" alt="">
+        </div>
+      </div>
+      <div class="art">
+        <div class="art-body">
+          <div class="art-cat" style="color:#4f9eff">Politica</div>
+          <div class="art-t">Elezioni Polonia: la destra sovranista torna al 38%</div>
+          <div class="art-m">5 ore fa · 4 min lettura</div>
+        </div>
+        <div class="art-thumb">
+          <img src="https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=120&q=70" alt="">
+        </div>
+      </div>
+      <div class="art">
+        <div class="art-body">
+          <div class="art-cat" style="color:#06d6a0">Hotspot</div>
+          <div class="art-t">Ebola in RDC: 131 morti, OMS convoca riunione d'emergenza</div>
+          <div class="art-m">6 ore fa · 4 min lettura</div>
+        </div>
+        <div class="art-thumb">
+          <img src="https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=120&q=70" alt="">
+        </div>
+      </div>
+    </div>
+
+    <!-- Separator -->
+    <div class="rp-sep"></div>
+
+    <!-- Scenari in Evoluzione — identico alla sezione About/Performance di Voltrex -->
+    <div id="rp-scenari">
+      <div id="rp-sc-header">
+        <span style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:rgba(255,255,255,0.4);">Scenari in Evoluzione</span>
+        <span class="rp-sc-badge red">5 attivi</span>
+        <span class="rp-sc-badge violet">AI</span>
+      </div>
+      <div id="rp-sc-scroll">
+        <div class="sc">
+          <div class="sc-top">
+            <span class="sc-cat" style="color:#e8344e">Geopolitica</span>
+            <div class="sc-mag">
+              <div class="sc-dot" style="background:#e8344e"></div>
+              <div class="sc-dot" style="background:#e8344e"></div>
+              <div class="sc-dot" style="background:rgba(255,255,255,0.12)"></div>
+            </div>
+          </div>
+          <div class="sc-t">Trump sospende attacco all'Iran, Teheran minaccia nuovi fronti</div>
+          <div class="sc-m">12 min fa</div>
+        </div>
+        <div class="sc">
+          <div class="sc-top">
+            <span class="sc-cat" style="color:#06d6a0">Hotspot</span>
+            <div class="sc-mag">
+              <div class="sc-dot" style="background:#06d6a0"></div>
+              <div class="sc-dot" style="background:#06d6a0"></div>
+              <div class="sc-dot" style="background:#06d6a0"></div>
+            </div>
+          </div>
+          <div class="sc-t">Ebola in RDC: 131 morti, OMS convoca riunione emergenza</div>
+          <div class="sc-m">34 min fa</div>
+        </div>
+        <div class="sc">
+          <div class="sc-top">
+            <span class="sc-cat" style="color:#f59e0b">Business</span>
+            <div class="sc-mag">
+              <div class="sc-dot" style="background:#f59e0b"></div>
+              <div class="sc-dot" style="background:rgba(255,255,255,0.12)"></div>
+              <div class="sc-dot" style="background:rgba(255,255,255,0.12)"></div>
+            </div>
+          </div>
+          <div class="sc-t">Dazi USA-UE: Bruxelles prepara contromisure su $95B</div>
+          <div class="sc-m">1 ora fa</div>
+        </div>
+        <div class="sc">
+          <div class="sc-top">
+            <span class="sc-cat" style="color:#4f9eff">Politica</span>
+            <div class="sc-mag">
+              <div class="sc-dot" style="background:#4f9eff"></div>
+              <div class="sc-dot" style="background:#4f9eff"></div>
+              <div class="sc-dot" style="background:rgba(255,255,255,0.12)"></div>
+            </div>
+          </div>
+          <div class="sc-t">Pakistan-India: cessate il fuoco a rischio dopo nuovi incidenti</div>
+          <div class="sc-m">2 ore fa</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /right-panel -->
+
+</div><!-- /body -->
+
+<!-- ═══════════════════ FOOTER ═══════════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div style="margin-bottom:12px;">
+          <span style="font-size:1.35rem;font-weight:800;letter-spacing:-0.04em;background:linear-gradient(135deg,#e8344e,#ff6b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">ANALISY</span>
+        </div>
+        <p>La piattaforma di analisi geopolitica, business e tecnologia per chi vuole capire il mondo.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Prodotto</h4>
+        <ul>
+          <li><a href="situation-room.html">Situation Room</a></li>
+          <li><a href="#perche-analisy">Perché Analisy</a></li>
+          <li><a href="#come-funziona">Come funziona</a></li>
+          <li><a href="#">Prezzi</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Categorie</h4>
+        <ul>
+          <li><a href="#">Geopolitica</a></li>
+          <li><a href="#">Politica Nazionale</a></li>
+          <li><a href="#">Business</a></li>
+          <li><a href="#">Tecnologia</a></li>
+          <li><a href="#">Hotspot</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legale</h4>
+        <ul>
+          <li><a href="termini-condizioni.html">Termini e Condizioni</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="cookie-policy.html">Cookie Policy</a></li>
+          <li><a href="#">Contatti</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Analisy. Tutti i diritti riservati.</span>
+      <div class="footer-links">
+        <a href="privacy-policy.html">Privacy</a>
+        <a href="termini-condizioni.html">Termini</a>
+        <a href="cookie-policy.html">Cookie</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+/* ═══ FOOTER ═══ */
+footer{
+  background:transparent;
+  border-top:1px solid rgba(255,255,255,0.04);
+  padding:52px 0 28px;
+  margin-top:40px;
+  font-family:'Inter',sans-serif;
+}
+.container{ width:100%;padding:0 24px; }
+.footer-grid{
+  display:grid;
+  grid-template-columns:1.5fr repeat(3,1fr);
+  gap:48px;
+  margin-bottom:40px;
+  align-items:start;
+}
+.footer-brand p{
+  font-size:0.72rem;font-weight:400;
+  margin-top:10px;max-width:240px;
+  color:rgba(255,255,255,0.28);line-height:1.7;
+}
+.footer-col h4{
+  font-size:0.58rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.1em;
+  color:rgba(255,255,255,0.22);
+  margin-bottom:14px;
+}
+.footer-col ul{ display:flex;flex-direction:column;gap:9px;list-style:none; }
+.footer-col ul li a{
+  font-size:0.75rem;font-weight:400;
+  color:rgba(255,255,255,0.35);
+  text-decoration:none;transition:color 0.18s;
+}
+.footer-col ul li a:hover{ color:rgba(255,255,255,0.8); }
+.footer-bottom{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:20px;
+  border-top:1px solid rgba(255,255,255,0.04);
+  font-size:0.68rem;font-weight:400;color:rgba(255,255,255,0.18);
+}
+.footer-links{ display:flex;gap:18px; }
+.footer-links a{
+  font-size:0.68rem;color:rgba(255,255,255,0.18);
+  text-decoration:none;transition:color 0.18s;
+}
+.footer-links a:hover{ color:rgba(255,255,255,0.5); }
+</style>
+
+</body>
+</html>
