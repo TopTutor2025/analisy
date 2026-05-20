@@ -378,7 +378,7 @@ function initSituationMap(containerId) {
   });
 
   // Sfondo uguale al colore delle tile — elimina le aree nere durante il caricamento
-  situationMap.getContainer().style.background = '#162130';
+  situationMap.getContainer().style.background = '#000';
 
   // Dark tile layer — keepBuffer:4 pre-carica più tile attorno alla viewport
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
