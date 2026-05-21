@@ -2135,14 +2135,20 @@
   .desk-bst:hover { color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.05); }
   .desk-bst.active { color: #00e676; background: rgba(0,230,118,0.09); border-color: rgba(0,230,118,0.22); }
 
-  /* Market cards grid 3×2 */
+  /* Market cards — fila unica con scroll orizzontale */
   #desk-mcards {
-    display: grid;
-    grid-template-columns: repeat(3,1fr);
-    grid-template-rows: repeat(2, auto);
+    display: flex;
+    flex-direction: row;
     gap: 10px;
     padding: 8px 16px 12px;
+    overflow-x: auto;
+    overflow-y: visible;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.12) transparent;
   }
+  #desk-mcards::-webkit-scrollbar { height: 4px; }
+  #desk-mcards::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+  .desk-mc { flex: 0 0 280px; }
   .desk-mc {
     background: rgba(255,255,255,0.04);
     border: none; border-radius: 14px;
