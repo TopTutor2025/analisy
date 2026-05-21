@@ -82,6 +82,55 @@
     #page-gradient { display: none; }
     #page-wrap { overflow-x: hidden; }
 
+    /* 2b · Interactive Tour */
+    .sr-tour-highlight {
+      outline: 2px solid rgba(232,52,78,0.9) !important;
+      outline-offset: 5px !important;
+      border-radius: 12px;
+      animation: sr-tour-pulse 1.8s ease-in-out infinite !important;
+      position: relative;
+      z-index: 9801 !important;
+    }
+    @keyframes sr-tour-pulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(232,52,78,0.35), 0 0 20px rgba(232,52,78,0.15); }
+      50%      { box-shadow: 0 0 0 8px rgba(232,52,78,0.0), 0 0 32px rgba(232,52,78,0.4); }
+    }
+    #sr-tour-card .tour-item {
+      display:flex;align-items:flex-start;gap:10px;
+      background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+      border-radius:10px;padding:10px 12px;margin-bottom:7px;
+    }
+    #sr-tour-card .tour-item-icon {
+      font-size:1rem;flex-shrink:0;margin-top:1px;
+    }
+    #sr-tour-card .tour-item-title {
+      font-size:0.76rem;font-weight:600;color:rgba(235,235,245,0.85);margin-bottom:2px;
+    }
+    #sr-tour-card .tour-item-desc {
+      font-size:0.7rem;color:rgba(235,235,245,0.38);line-height:1.5;
+    }
+    #sr-tour-card .tour-legend {
+      display:grid;grid-template-columns:1fr 1fr;gap:7px;
+      background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+      border-radius:10px;padding:12px 14px;margin-top:10px;
+    }
+    #sr-tour-card .tour-legend-row {
+      display:flex;align-items:center;gap:7px;
+    }
+    #sr-tour-card .tour-legend-dot {
+      width:9px;height:9px;border-radius:50%;flex-shrink:0;
+    }
+    #sr-tour-card .tour-legend-lbl {
+      font-size:0.72rem;color:rgba(235,235,245,0.55);
+    }
+    #sr-tour-card .tour-benefit {
+      display:flex;align-items:center;gap:9px;
+      font-size:0.77rem;color:rgba(235,235,245,0.6);margin-bottom:6px;
+    }
+    #sr-tour-card .tour-benefit-check {
+      color:#06d6a0;font-weight:700;flex-shrink:0;font-size:0.8rem;
+    }
+
     /* 3 · Sponsor bar */
     .sr-announce-bar {
       position: fixed; top: 0; left: 0; right: 0; z-index: 1100;
@@ -3411,25 +3460,49 @@
   </div>
 </div>
 
-<!-- ── SITUATION ROOM TUTORIAL ── -->
-<div class="modal-overlay" id="sr-help-modal" onclick="if(event.target===this)closeSrTutorial()">
-  <div class="modal" style="max-width:540px;padding:0;overflow:hidden;">
+<!-- ── SITUATION ROOM TUTORIAL (interactive) ── -->
+<!-- Backdrop click-to-close -->
+<div id="sr-tour-backdrop" onclick="closeSrTutorial()"
+     style="display:none;position:fixed;inset:0;z-index:9800;background:rgba(0,0,0,0.55);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);"></div>
 
-    <!-- Progress bar -->
-    <div style="height:3px;background:rgba(255,255,255,0.06);">
-      <div id="sr-tour-progress" style="height:100%;background:#e8344e;transition:width 0.3s ease;width:20%;"></div>
+<!-- Floating card -->
+<div id="sr-tour-card"
+     style="display:none;position:fixed;z-index:9810;width:min(400px,calc(100vw - 24px));
+            background:#111113;border:1px solid rgba(255,255,255,0.1);border-radius:16px;
+            box-shadow:0 12px 60px rgba(0,0,0,0.95);overflow:hidden;transition:top 0.35s cubic-bezier(.4,0,.2,1),left 0.35s cubic-bezier(.4,0,.2,1);">
+
+  <!-- Progress bar -->
+  <div style="height:3px;background:rgba(255,255,255,0.06);">
+    <div id="sr-tour-bar" style="height:100%;background:#e8344e;transition:width 0.35s ease;width:16%;"></div>
+  </div>
+
+  <!-- Header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px 0;">
+    <span id="sr-tour-step-label" style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(235,235,245,0.28);"></span>
+    <button onclick="closeSrTutorial()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.5);font-size:0.7rem;cursor:pointer;flex-shrink:0;">✕</button>
+  </div>
+
+  <!-- Body (dynamically filled) -->
+  <div id="sr-tour-body" style="padding:14px 18px 0;"></div>
+
+  <!-- Footer -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px 16px;border-top:1px solid rgba(255,255,255,0.06);margin-top:14px;">
+    <div id="sr-tour-dots" style="display:flex;gap:5px;align-items:center;"></div>
+    <div style="display:flex;gap:6px;">
+      <button id="sr-tour-prev" onclick="srTourStep(-1)"
+              style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:6px 14px;font-size:0.74rem;color:rgba(235,235,245,0.55);cursor:pointer;display:none;">← Indietro</button>
+      <button id="sr-tour-next" onclick="srTourStep(1)"
+              style="background:#e8344e;border:none;border-radius:20px;padding:6px 16px;font-size:0.74rem;font-weight:600;color:#fff;cursor:pointer;">Avanti →</button>
     </div>
+  </div>
 
-    <!-- Step counter + close -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0;">
-      <div style="display:flex;gap:6px;align-items:center;">
-        <span id="sr-tour-step-label" style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(235,235,245,0.28);">Passo 1 di 5</span>
-      </div>
-      <button class="modal-close" onclick="closeSrTutorial()">✕</button>
-    </div>
+</div>
 
-    <!-- Slides -->
-    <div id="sr-tour-slides" style="overflow:hidden;">
+<!-- Legacy modal wrapper (kept for JS compat — openSrTutorial rewires it) -->
+<div id="sr-help-modal" style="display:none;"></div>
+
+<!-- OLD SLIDES — now replaced by JS-driven content, kept as hidden for reference -->
+<div style="display:none;" id="sr-tour-slides-legacy">
 
       <!-- STEP 1: Benvenuto -->
       <div class="sr-tour-slide" data-step="1" style="padding:20px 24px 24px;">
@@ -3564,52 +3637,7 @@
         </div>
       </div>
 
-      <!-- STEP 5: Abbonamento -->
-      <div class="sr-tour-slide" data-step="5" style="display:none;padding:20px 24px 28px;text-align:center;">
-        <div style="font-size:2.4rem;margin-bottom:12px;">🚀</div>
-        <div style="font-size:1rem;font-weight:800;color:rgba(235,235,245,0.95);letter-spacing:-0.02em;margin-bottom:8px;">Sblocca tutto con Analisy Premium</div>
-        <div style="font-size:0.82rem;color:rgba(235,235,245,0.42);line-height:1.7;margin-bottom:22px;">Gli articoli premium e il forum community sono riservati agli abbonati. Con il piano Premium hai accesso completo a tutta l'intelligence generata dall'IA.</div>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:22px;text-align:left;">
-          <div style="display:flex;align-items:center;gap:10px;font-size:0.8rem;color:rgba(235,235,245,0.55);">
-            <span style="color:#06d6a0;font-weight:700;flex-shrink:0;">✓</span> Tutti gli articoli IA senza limite
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:0.8rem;color:rgba(235,235,245,0.55);">
-            <span style="color:#06d6a0;font-weight:700;flex-shrink:0;">✓</span> Analisi approfondite su ogni evento
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:0.8rem;color:rgba(235,235,245,0.55);">
-            <span style="color:#06d6a0;font-weight:700;flex-shrink:0;">✓</span> Accesso al Forum community
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:0.8rem;color:rgba(235,235,245,0.55);">
-            <span style="color:#06d6a0;font-weight:700;flex-shrink:0;">✓</span> Aggiornamenti in tempo reale 24/7
-          </div>
-        </div>
-        <a href="register.html" class="btn btn-primary" style="display:inline-block;border-radius:20px;padding:10px 28px;font-size:0.88rem;" onclick="closeSrTutorial()">Abbonati ora — 2,99€/mese</a>
-        <div style="margin-top:10px;">
-          <button onclick="closeSrTutorial()" style="background:none;border:none;font-size:0.76rem;color:rgba(235,235,245,0.28);cursor:pointer;">Continua senza abbonamento</button>
-        </div>
-      </div>
-
-    </div><!-- /slides -->
-
-    <!-- Navigation -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px 18px;border-top:1px solid rgba(255,255,255,0.06);">
-      <!-- Dot indicators -->
-      <div style="display:flex;gap:6px;align-items:center;">
-        <div class="sr-tour-dot active" data-dot="1" onclick="goToStep(1)" style="width:7px;height:7px;border-radius:50%;background:#e8344e;cursor:pointer;transition:all 0.2s;"></div>
-        <div class="sr-tour-dot" data-dot="2" onclick="goToStep(2)" style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.18);cursor:pointer;transition:all 0.2s;"></div>
-        <div class="sr-tour-dot" data-dot="3" onclick="goToStep(3)" style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.18);cursor:pointer;transition:all 0.2s;"></div>
-        <div class="sr-tour-dot" data-dot="4" onclick="goToStep(4)" style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.18);cursor:pointer;transition:all 0.2s;"></div>
-        <div class="sr-tour-dot" data-dot="5" onclick="goToStep(5)" style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.18);cursor:pointer;transition:all 0.2s;"></div>
-      </div>
-      <!-- Buttons -->
-      <div style="display:flex;gap:8px;">
-        <button id="sr-tour-prev" onclick="srTourStep(-1)" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:7px 16px;font-size:0.78rem;color:rgba(235,235,245,0.55);cursor:pointer;display:none;">← Indietro</button>
-        <button id="sr-tour-next" onclick="srTourStep(1)" style="background:#e8344e;border:none;border-radius:20px;padding:7px 18px;font-size:0.78rem;font-weight:600;color:#fff;cursor:pointer;">Avanti →</button>
-      </div>
-    </div>
-
-  </div><!-- /modal -->
-</div>
+</div><!-- /sr-tour-slides-legacy -->
 
 <div class="toast-container" id="toast-container"></div>
 
@@ -4833,70 +4861,268 @@ async function adminQuickAddEvent() {
   }
 }
 
-/* ── SITUATION ROOM TUTORIAL ── */
+/* ══════════════════════════════════════════════════
+   SITUATION ROOM — Tutorial Interattivo v2
+   Evidenzia le sezioni reali del layout desktop
+   ══════════════════════════════════════════════════ */
+
+const SR_TOUR_STEPS = [
+  {
+    target: null,
+    emoji: '🌍',
+    title: 'Benvenuto nella Situation Room',
+    desc: 'La tua centrale di intelligence geopolitica in tempo reale. Tutto ciò che vedi — eventi, analisi, articoli — è generato automaticamente dall\'IA di Analisy.',
+    items: [
+      { icon: '🤖', title: 'IA sempre attiva', desc: 'Scansiona migliaia di fonti ogni 6 ore e aggiorna la mappa. Scrive articoli ogni 30 minuti.' },
+      { icon: '📊', title: 'Mercati live', desc: 'BTC, ETH, Gold, Brent, S&P500 e EUR/USD aggiornati ogni 3 secondi via Yahoo Finance.' },
+      { icon: '💬', title: 'Community & Feed', desc: 'Forum degli abbonati, city cam live e podcast geopolitici.' },
+    ]
+  },
+  {
+    target: 'desk-stats-row',
+    emoji: '📊',
+    title: 'Barra Mercati & Statistiche',
+    desc: 'Prezzi degli asset strategici aggiornati ogni 3 secondi via Yahoo Finance. Il contatore <span style="color:#e8344e;font-weight:600;">EVENTI ATTIVI</span> mostra quanti hotspot geopolitici sono tracciati in questo momento.',
+    note: 'I valori verdi indicano rialzo, rossi indicano ribasso rispetto alla chiusura precedente.'
+  },
+  {
+    target: 'desk-chart-area',
+    emoji: '🗺️',
+    title: 'Mappa Geopolitica Interattiva',
+    desc: 'Ogni cerchio è un evento selezionato dall\'IA. <b style="color:rgba(235,235,245,0.8)">Clicca un marker</b> per leggere il brief analitico completo con contesto storico e scenari futuri.',
+    legend: [
+      { color: '#e8344e', label: 'Geopolitica' },
+      { color: '#4f9eff', label: 'Politica' },
+      { color: '#f5a623', label: 'Business' },
+      { color: '#a78bfa', label: 'Tecnologia' },
+      { color: '#06d6a0', label: 'Hotspot' },
+    ],
+    legendNote: 'Colore = categoria · Dimensione = gravità dell\'evento'
+  },
+  {
+    target: 'desk-bottom-section',
+    emoji: '📈',
+    title: 'Mercati, Feed & Community',
+    desc: 'Le card mostrano i prezzi live dei mercati finanziari. Usa i tab in alto per navigare tra:',
+    items: [
+      { icon: '📈', title: 'Mercati', desc: 'Materie prime, difesa, tech, energia e crypto con prezzi live.' },
+      { icon: '📡', title: 'Live Feed', desc: 'City Cam dalle città più vicine agli hotspot geopolitici.' },
+      { icon: '🎙️', title: 'Podcast', desc: 'Analisi audio geopolitiche settimanali di Analisy.' },
+      { icon: '💬', title: 'Forum', desc: 'Discussioni della community degli abbonati.' },
+    ]
+  },
+  {
+    target: 'desk-new-right-panel',
+    emoji: '🧠',
+    title: 'Pannello Intelligence',
+    desc: 'Il pannello destro è il cuore dell\'analisi. Usa il tab <b style="color:rgba(235,235,245,0.8)">ANALISI</b> per gli articoli e gli scenari IA, o <b style="color:#e8344e">PREMIUM</b> per i contenuti esclusivi.',
+    items: [
+      { icon: '📰', title: 'Articoli', desc: 'Approfondimenti scritti dall\'IA sugli eventi in corso, aggiornati ogni 30 minuti.' },
+      { icon: '🔮', title: 'Scenari in Evoluzione', desc: 'Proiezioni future con analisi probabilistica AI — cosa potrebbe succedere nei prossimi giorni.' },
+    ]
+  },
+  {
+    target: null,
+    emoji: '⭐',
+    title: 'Sblocca Analisy Premium',
+    isCta: true,
+    desc: 'Con Analisy Premium hai accesso illimitato a tutta l\'intelligence generata dall\'IA e alla community degli abbonati.',
+    benefits: [
+      'Tutti gli articoli IA senza limiti',
+      'Scenari di evoluzione avanzati',
+      'Forum community degli abbonati',
+      'Analisi esclusive su ogni crisi',
+      'Aggiornamenti prioritari 24/7',
+    ]
+  }
+];
+
 let _srTourStep = 1;
-const SR_TOUR_TOTAL = 5;
+const SR_TOUR_TOTAL = SR_TOUR_STEPS.length;
+let _srTourHighlighted = null;
 
 function openSrTutorial() {
   _srTourStep = 1;
+  document.getElementById('sr-tour-backdrop').style.display = 'block';
+  document.getElementById('sr-tour-card').style.display = 'block';
   _srTourRender();
-  document.getElementById('sr-help-modal').classList.add('open');
 }
 
 function closeSrTutorial() {
-  document.getElementById('sr-help-modal').classList.remove('open');
+  document.getElementById('sr-tour-backdrop').style.display = 'none';
+  document.getElementById('sr-tour-card').style.display = 'none';
+  _srTourClearHighlight();
 }
 
 function srTourStep(dir) {
   const next = _srTourStep + dir;
-  if (next < 1 || next > SR_TOUR_TOTAL) return;
+  if (next < 1 || next > SR_TOUR_TOTAL) { if (dir > 0) closeSrTutorial(); return; }
   _srTourStep = next;
   _srTourRender();
 }
 
-function goToStep(n) {
-  _srTourStep = n;
-  _srTourRender();
+function goToStep(n) { _srTourStep = n; _srTourRender(); }
+
+function _srTourClearHighlight() {
+  if (_srTourHighlighted) {
+    _srTourHighlighted.classList.remove('sr-tour-highlight');
+    _srTourHighlighted = null;
+  }
+}
+
+function _srTourHighlightEl(id) {
+  _srTourClearHighlight();
+  if (!id) return;
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add('sr-tour-highlight');
+  _srTourHighlighted = el;
+  // Scroll element into view smoothly
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function _srTourPosition(targetId) {
+  const card = document.getElementById('sr-tour-card');
+  if (!targetId) {
+    // Center on screen
+    card.style.top       = '50%';
+    card.style.left      = '50%';
+    card.style.transform = 'translate(-50%,-50%)';
+    card.style.right     = 'auto';
+    card.style.bottom    = 'auto';
+    return;
+  }
+  const el = document.getElementById(targetId);
+  if (!el) { card.style.top='50%'; card.style.left='50%'; card.style.transform='translate(-50%,-50%)'; return; }
+
+  card.style.transform = '';
+  const rect  = el.getBoundingClientRect();
+  const cw    = Math.min(400, window.innerWidth - 24); // card width
+  const gap   = 18;
+  const marg  = 12;
+  let top, left;
+
+  // Right panel → card goes to its LEFT
+  if (targetId === 'desk-new-right-panel') {
+    top  = Math.max(marg, rect.top + rect.height / 2 - 180);
+    left = Math.max(marg, rect.left - cw - gap);
+  }
+  // Bottom section → card goes ABOVE it
+  else if (targetId === 'desk-bottom-section') {
+    top  = Math.max(marg, rect.top - 300 - gap);
+    left = Math.max(marg, Math.min(rect.left + 20, window.innerWidth - cw - marg));
+  }
+  // Map → card goes to bottom-right of viewport (avoids map)
+  else if (targetId === 'desk-chart-area') {
+    top  = rect.bottom - 260;
+    left = Math.min(rect.right - cw - 20, window.innerWidth - cw - marg);
+  }
+  // Stats row → card goes BELOW it
+  else {
+    top  = Math.min(rect.bottom + gap, window.innerHeight - 300 - marg);
+    left = Math.max(marg, Math.min(rect.left + 40, window.innerWidth - cw - marg));
+  }
+
+  top  = Math.max(marg, Math.min(top,  window.innerHeight - 300 - marg));
+  left = Math.max(marg, Math.min(left, window.innerWidth  - cw  - marg));
+
+  card.style.top    = top  + 'px';
+  card.style.left   = left + 'px';
+  card.style.right  = 'auto';
+  card.style.bottom = 'auto';
+}
+
+function _srTourBuildBody(step) {
+  let html = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+      <div style="font-size:1.5rem;flex-shrink:0;">${step.emoji}</div>
+      <div style="font-size:0.95rem;font-weight:800;color:rgba(235,235,245,0.95);letter-spacing:-0.02em;line-height:1.25;">${step.title}</div>
+    </div>`;
+
+  if (step.desc) {
+    html += `<div style="font-size:0.77rem;color:rgba(235,235,245,0.45);line-height:1.65;margin-bottom:10px;">${step.desc}</div>`;
+  }
+
+  if (step.note) {
+    html += `<div style="font-size:0.72rem;color:rgba(235,235,245,0.32);background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:8px 10px;line-height:1.5;margin-bottom:10px;">💡 ${step.note}</div>`;
+  }
+
+  if (step.items) {
+    step.items.forEach(it => {
+      html += `<div class="tour-item"><span class="tour-item-icon">${it.icon}</span>
+        <div><div class="tour-item-title">${it.title}</div><div class="tour-item-desc">${it.desc}</div></div></div>`;
+    });
+  }
+
+  if (step.legend) {
+    html += `<div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(235,235,245,0.22);margin:10px 0 6px;">${step.legendNote||'Legenda colori'}</div>
+      <div class="tour-legend">`;
+    step.legend.forEach(l => {
+      html += `<div class="tour-legend-row"><div class="tour-legend-dot" style="background:${l.color};box-shadow:0 0 5px ${l.color}60;"></div><span class="tour-legend-lbl">${l.label}</span></div>`;
+    });
+    html += `</div>`;
+  }
+
+  if (step.isCta) {
+    html += `<div style="display:flex;flex-direction:column;gap:5px;margin-bottom:14px;">`;
+    (step.benefits||[]).forEach(b => {
+      html += `<div class="tour-benefit"><span class="tour-benefit-check">✓</span>${b}</div>`;
+    });
+    html += `</div>
+      <a href="register.html" onclick="closeSrTutorial()"
+         style="display:block;text-align:center;background:#e8344e;color:#fff;border-radius:10px;padding:11px 20px;font-size:0.82rem;font-weight:700;letter-spacing:0.02em;text-decoration:none;margin-bottom:8px;">
+        Abbonati ora — da €2,99/mese →
+      </a>
+      <button onclick="closeSrTutorial()" style="display:block;width:100%;background:none;border:none;font-size:0.7rem;color:rgba(235,235,245,0.22);cursor:pointer;padding:2px;">
+        Continua senza abbonamento
+      </button>`;
+  }
+
+  return html;
 }
 
 function _srTourRender() {
   const n     = _srTourStep;
   const total = SR_TOUR_TOTAL;
+  const step  = SR_TOUR_STEPS[n - 1];
+  if (!step) return;
 
-  // Slides
-  document.querySelectorAll('.sr-tour-slide').forEach(s => {
-    s.style.display = parseInt(s.dataset.step) === n ? '' : 'none';
-  });
+  // Highlight
+  _srTourHighlightEl(step.target);
+
+  // Position card
+  _srTourPosition(step.target);
 
   // Progress bar
-  const prog = document.getElementById('sr-tour-progress');
-  if (prog) prog.style.width = (n / total * 100) + '%';
+  const bar = document.getElementById('sr-tour-bar');
+  if (bar) bar.style.width = (n / total * 100) + '%';
 
   // Step label
   const lbl = document.getElementById('sr-tour-step-label');
   if (lbl) lbl.textContent = `Passo ${n} di ${total}`;
 
+  // Body
+  const body = document.getElementById('sr-tour-body');
+  if (body) body.innerHTML = _srTourBuildBody(step);
+
   // Dots
-  document.querySelectorAll('.sr-tour-dot').forEach(d => {
-    const active = parseInt(d.dataset.dot) === n;
-    d.style.width      = active ? '7px' : '6px';
-    d.style.height     = active ? '7px' : '6px';
-    d.style.background = active ? '#e8344e' : 'rgba(255,255,255,0.18)';
-  });
+  const dotsEl = document.getElementById('sr-tour-dots');
+  if (dotsEl) {
+    dotsEl.innerHTML = SR_TOUR_STEPS.map((_, i) => {
+      const active = i + 1 === n;
+      return `<div onclick="goToStep(${i+1})"
+        style="width:${active?'18':'6'}px;height:6px;border-radius:3px;cursor:pointer;transition:all 0.25s;
+               background:${active?'#e8344e':'rgba(255,255,255,0.18)'};"></div>`;
+    }).join('');
+  }
 
-  // Prev button
+  // Prev/Next
   const prev = document.getElementById('sr-tour-prev');
+  const next = document.getElementById('sr-tour-next');
   if (prev) prev.style.display = n > 1 ? '' : 'none';
-
-  // Next button
-  const nextBtn = document.getElementById('sr-tour-next');
-  if (nextBtn) {
-    if (n === total) {
-      nextBtn.style.display = 'none';
-    } else {
-      nextBtn.style.display = '';
-      nextBtn.textContent   = n === total - 1 ? 'Concludi →' : 'Avanti →';
-    }
+  if (next) {
+    if (step.isCta) { next.style.display = 'none'; }
+    else { next.style.display = ''; next.textContent = n === total - 1 ? 'Concludi →' : 'Avanti →'; }
   }
 }
 
@@ -6596,7 +6822,7 @@ document.addEventListener('DOMContentLoaded', () => {
     <span class="desk-tb-room-lbl">Situation Room</span>
     <div class="desk-tb-divider"></div>
     <!-- Tutorial -->
-    <div class="desk-tb-iconbtn" title="Tutorial" onclick="document.getElementById('sr-help-modal')?.classList.add('open')">
+    <div class="desk-tb-iconbtn" title="Tutorial" onclick="openSrTutorial()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
     </div>
     <!-- Bell -->
