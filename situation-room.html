@@ -2271,7 +2271,7 @@
     height: 480px; flex-shrink: 0;
     display: flex; position: relative; overflow: hidden;
     background: #000;
-    border-radius: 0 0 14px 14px;
+    border-radius: 0;
     margin: 0 0 0 16px;
     z-index: 2;
   }
@@ -2316,7 +2316,7 @@
     width: 100% !important; margin: 0 !important; border: none !important;
   }
   #desk-chart-area #desk-map-slot .sr-map-row { height: 100% !important; min-height: unset !important; }
-  #desk-chart-area #desk-map-slot .sr-map-section { height: 100% !important; border-radius: 0 0 14px 14px !important; overflow: hidden !important; }
+  #desk-chart-area #desk-map-slot .sr-map-section { height: 100% !important; border-radius: 0 !important; overflow: hidden !important; }
 
   /* Map controls inside chart area — nascosti sul desktop, sostituiti da #desk-map-tools-overlay */
   #desk-map-controls {
@@ -7183,7 +7183,7 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
 
     <!-- Epoch / Goal bar — uses the same IDs as JS expects -->
-    <div id="desk-goal-bar" style="display:none;flex-direction:row;align-items:center;gap:12px;padding:10px 20px;background:#000;border-radius:14px 14px 0 0;">
+    <div id="desk-goal-bar" style="display:none;flex-direction:row;align-items:center;gap:12px;padding:10px 20px;background:#000;border-radius:0;">
       <div class="desk-ep-left">
         <div class="desk-ep-icon">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
