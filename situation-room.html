@@ -78,9 +78,6 @@
     * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif !important; }
     html, body {
       background: #000 !important;
-      /* clip invece di hidden: non crea un nuovo containing-block
-         per i position:fixed, quindi #page-gradient resta fisso */
-      overflow-x: clip !important;
     }
     /* Gradiente viola fisso — strato dietro tutto il contenuto */
     #page-gradient {
