@@ -215,17 +215,14 @@
     .sr-theme-light .sr-announce-bar { background: #fff !important; border-bottom-color: rgba(0,0,0,0.08) !important; }
 
     /* 2c · Interactive Tour */
-    .sr-tour-highlight {
-      outline: 2px solid rgba(232,52,78,0.9) !important;
-      outline-offset: 5px !important;
-      border-radius: 12px;
-      animation: sr-tour-pulse 1.8s ease-in-out infinite !important;
-      position: relative;
-      z-index: 9801 !important;
+    #sr-tour-backdrop {
+      /* transizione fluida del foro spotlight */
+      transition: clip-path 0.45s cubic-bezier(.4,0,.2,1);
     }
-    @keyframes sr-tour-pulse {
-      0%,100% { box-shadow: 0 0 0 0 rgba(232,52,78,0.35), 0 0 20px rgba(232,52,78,0.15); }
-      50%      { box-shadow: 0 0 0 8px rgba(232,52,78,0.0), 0 0 32px rgba(232,52,78,0.4); }
+    .sr-tour-highlight {
+      outline: 2px solid rgba(232,52,78,0.85) !important;
+      outline-offset: 8px !important;
+      border-radius: 12px;
     }
     #sr-tour-card .tour-item {
       display:flex;align-items:flex-start;gap:10px;
@@ -3595,7 +3592,7 @@
 <!-- ── SITUATION ROOM TUTORIAL (interactive) ── -->
 <!-- Backdrop click-to-close -->
 <div id="sr-tour-backdrop" onclick="closeSrTutorial()"
-     style="display:none;position:fixed;inset:0;z-index:9800;background:rgba(0,0,0,0.55);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);"></div>
+     style="display:none;position:fixed;inset:0;z-index:9800;background:rgba(0,0,0,0.78);"></div>
 
 <!-- Floating card -->
 <div id="sr-tour-card"
@@ -5123,23 +5120,62 @@ function _srTourClearHighlight() {
     _srTourHighlighted.classList.remove('sr-tour-highlight');
     _srTourHighlighted = null;
   }
+  const bd = document.getElementById('sr-tour-backdrop');
+  if (bd) bd.style.clipPath = '';
 }
 
 function _srTourHighlightEl(id) {
   _srTourClearHighlight();
-  if (!id) return;
+  const bd = document.getElementById('sr-tour-backdrop');
+  if (!id) {
+    // nessun target: overlay uniforme senza foro
+    if (bd) bd.style.clipPath = '';
+    return;
+  }
   const el = document.getElementById(id);
   if (!el) return;
   el.classList.add('sr-tour-highlight');
   _srTourHighlighted = el;
-  // Scroll element into view smoothly
+
+  // Scroll l'elemento in vista, poi taglia il foro
   el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  // rAF doppio: aspetta che lo scroll/layout si stabilizzi
+  requestAnimationFrame(() => requestAnimationFrame(() => _srCutSpotlight(el)));
+}
+
+function _srCutSpotlight(el) {
+  const bd = document.getElementById('sr-tour-backdrop');
+  if (!bd || !el) return;
+  const rect = el.getBoundingClientRect();
+  const pad  = 14;   // padding intorno all'elemento
+  const r    = 14;   // raggio angoli del foro
+  const W    = window.innerWidth;
+  const H    = window.innerHeight;
+  const x1   = Math.max(0, rect.left   - pad);
+  const y1   = Math.max(0, rect.top    - pad);
+  const x2   = Math.min(W, rect.right  + pad);
+  const y2   = Math.min(H, rect.bottom + pad);
+
+  // Path SVG: rettangolo esterno (pieno) + rettangolo arrotondato interno (foro)
+  // La combinazione dei due percorsi crea il "buco" tramite regola fill-even-odd
+  const path =
+    `M 0 0 L ${W} 0 L ${W} ${H} L 0 ${H} Z ` +
+    `M ${x1+r} ${y1} ` +
+    `Q ${x1} ${y1} ${x1} ${y1+r} ` +
+    `L ${x1} ${y2-r} ` +
+    `Q ${x1} ${y2} ${x1+r} ${y2} ` +
+    `L ${x2-r} ${y2} ` +
+    `Q ${x2} ${y2} ${x2} ${y2-r} ` +
+    `L ${x2} ${y1+r} ` +
+    `Q ${x2} ${y1} ${x2-r} ${y1} ` +
+    `Z`;
+
+  bd.style.clipPath = `path('${path}')`;
 }
 
 function _srTourPosition(targetId) {
   const card = document.getElementById('sr-tour-card');
   if (!targetId) {
-    // Center on screen
     card.style.top       = '50%';
     card.style.left      = '50%';
     card.style.transform = 'translate(-50%,-50%)';
@@ -5147,44 +5183,44 @@ function _srTourPosition(targetId) {
     card.style.bottom    = 'auto';
     return;
   }
-  const el = document.getElementById(targetId);
-  if (!el) { card.style.top='50%'; card.style.left='50%'; card.style.transform='translate(-50%,-50%)'; return; }
+  // Posiziona dopo lo scroll (doppio rAF, stesso timing di _srCutSpotlight)
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const el = document.getElementById(targetId);
+    if (!el) { card.style.top='50%'; card.style.left='50%'; card.style.transform='translate(-50%,-50%)'; return; }
 
-  card.style.transform = '';
-  const rect  = el.getBoundingClientRect();
-  const cw    = Math.min(400, window.innerWidth - 24); // card width
-  const gap   = 18;
-  const marg  = 12;
-  let top, left;
+    card.style.transform = '';
+    const rect = el.getBoundingClientRect();
+    const cw   = Math.min(400, window.innerWidth - 24);
+    const gap  = 20;
+    const marg = 12;
+    let top, left;
 
-  // Right panel → card goes to its LEFT
-  if (targetId === 'desk-new-right-panel') {
-    top  = Math.max(marg, rect.top + rect.height / 2 - 180);
-    left = Math.max(marg, rect.left - cw - gap);
-  }
-  // Bottom section → card goes ABOVE it
-  else if (targetId === 'desk-bottom-section') {
-    top  = Math.max(marg, rect.top - 300 - gap);
-    left = Math.max(marg, Math.min(rect.left + 20, window.innerWidth - cw - marg));
-  }
-  // Map → card goes to bottom-right of viewport (avoids map)
-  else if (targetId === 'desk-chart-area') {
-    top  = rect.bottom - 260;
-    left = Math.min(rect.right - cw - 20, window.innerWidth - cw - marg);
-  }
-  // Stats row → card goes BELOW it
-  else {
-    top  = Math.min(rect.bottom + gap, window.innerHeight - 300 - marg);
-    left = Math.max(marg, Math.min(rect.left + 40, window.innerWidth - cw - marg));
-  }
+    if (targetId === 'desk-new-right-panel') {
+      // Panel destro → card a sinistra del foro
+      top  = Math.max(marg, rect.top + rect.height / 2 - 180);
+      left = Math.max(marg, rect.left - cw - gap);
+    } else if (targetId === 'desk-bottom-section') {
+      // Sezione bassa → card sopra il foro, centrata
+      top  = Math.max(marg, rect.top - 320 - gap);
+      left = Math.max(marg, Math.min(rect.left + rect.width / 2 - cw / 2, window.innerWidth - cw - marg));
+    } else if (targetId === 'desk-chart-area') {
+      // Mappa → card in basso a destra del foro
+      top  = Math.min(rect.bottom - 270, window.innerHeight - 310 - marg);
+      left = Math.min(rect.right  - cw - 16, window.innerWidth - cw - marg);
+    } else {
+      // Stats row → card sotto il foro
+      top  = rect.bottom + gap;
+      left = Math.max(marg, Math.min(rect.left + 40, window.innerWidth - cw - marg));
+    }
 
-  top  = Math.max(marg, Math.min(top,  window.innerHeight - 300 - marg));
-  left = Math.max(marg, Math.min(left, window.innerWidth  - cw  - marg));
+    top  = Math.max(marg, Math.min(top,  window.innerHeight - 320 - marg));
+    left = Math.max(marg, Math.min(left, window.innerWidth  - cw  - marg));
 
-  card.style.top    = top  + 'px';
-  card.style.left   = left + 'px';
-  card.style.right  = 'auto';
-  card.style.bottom = 'auto';
+    card.style.top    = top  + 'px';
+    card.style.left   = left + 'px';
+    card.style.right  = 'auto';
+    card.style.bottom = 'auto';
+  }));
 }
 
 function _srTourBuildBody(step) {
