@@ -4,6 +4,7 @@
    ========================================================= */
 
 let situationMap;
+let _srBaseTileLayer = null;  // riferimento al tile layer corrente (dark o light)
 const layerGroups = {};
 const layerState  = {};
 
@@ -380,8 +381,12 @@ function initSituationMap(containerId) {
   // Sfondo uguale al colore delle tile — elimina le aree nere durante il caricamento
   situationMap.getContainer().style.background = 'transparent';
 
-  // Dark tile layer — keepBuffer:4 pre-carica più tile attorno alla viewport
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  // Tile layer — dark di default, light in tema chiaro
+  const _isLightTheme = document.documentElement.classList.contains('sr-theme-light');
+  const _tileUrl = _isLightTheme
+    ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+    : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+  _srBaseTileLayer = L.tileLayer(_tileUrl, {
     attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a> © <a href="https://carto.com">CARTO</a>',
     subdomains: 'abcd',
     maxZoom: 19,
@@ -839,4 +844,22 @@ function _syncLayerBtns(layer, active) {
       b.classList.toggle('ships-active', active);
     }
   });
+}
+
+/* ── Switcha tra tile dark e light al cambio tema ── */
+function switchMapTheme(isLight) {
+  if (!situationMap || !_srBaseTileLayer) return;
+  situationMap.removeLayer(_srBaseTileLayer);
+  const url = isLight
+    ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+    : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+  _srBaseTileLayer = L.tileLayer(url, {
+    attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a> © <a href="https://carto.com">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 19,
+    noWrap: true,
+    keepBuffer: 4
+  }).addTo(situationMap);
+  // I tile nuovi vanno sotto tutti gli altri layer
+  _srBaseTileLayer.bringToBack();
 }

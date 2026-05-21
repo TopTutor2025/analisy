@@ -193,13 +193,18 @@
     html.sr-theme-light .desk-bst:hover { color: rgba(10,10,20,0.75) !important; background: rgba(0,0,0,0.05) !important; }
     html.sr-theme-light .desk-bst.active { color: #00a854 !important; background: rgba(0,168,84,0.08) !important; border-color: rgba(0,168,84,0.22) !important; }
 
-    /* ── Market cards ── */
+    /* ── Market cards (70% trasparenza) ── */
     html.sr-theme-light .desk-mc {
-      background: #ffffff !important;
-      border: 1px solid rgba(0,0,0,0.08) !important;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.06) !important;
+      background: rgba(255,255,255,0.7) !important;
+      backdrop-filter: blur(10px) !important;
+      -webkit-backdrop-filter: blur(10px) !important;
+      border: 1px solid rgba(0,0,0,0.07) !important;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.05) !important;
     }
-    html.sr-theme-light .desk-mc:hover { background: #fafafa !important; border-color: rgba(0,0,0,0.14) !important; }
+    html.sr-theme-light .desk-mc:hover {
+      background: rgba(255,255,255,0.88) !important;
+      border-color: rgba(0,0,0,0.12) !important;
+    }
     html.sr-theme-light .desk-mc-name  { color: rgba(10,10,20,0.82) !important; }
     html.sr-theme-light .desk-mc-count { color: rgba(10,10,20,0.35) !important; }
     html.sr-theme-light .desk-mc-asset {
@@ -238,19 +243,29 @@
     html.sr-theme-light .desk-art-card-meta  { color: rgba(10,10,20,0.38) !important; }
     html.sr-theme-light .desk-art-card-thumb { background: rgba(0,0,0,0.06) !important; color: rgba(10,10,20,0.35) !important; }
 
-    /* ── Scenari ── */
+    /* ── Scenari (classi reali: desk-scenari-*) ── */
     html.sr-theme-light #desk-rp-scenari { background: #f8f8fa !important; }
     html.sr-theme-light #desk-rp-sc-header { border-bottom-color: rgba(0,0,0,0.07) !important; }
     html.sr-theme-light .desk-rp-sc-lbl { color: rgba(10,10,20,0.75) !important; }
-    html.sr-theme-light .desk-sc-card {
-      background: #ffffff !important;
-      border-color: rgba(0,0,0,0.08) !important;
+    html.sr-theme-light .desk-scenari-card {
+      border-bottom-color: rgba(0,0,0,0.07) !important;
     }
-    html.sr-theme-light .desk-sc-card:hover { border-color: rgba(0,0,0,0.15) !important; }
-    html.sr-theme-light .desk-sc-title  { color: rgba(10,10,20,0.86) !important; }
-    html.sr-theme-light .desk-sc-excerpt { color: rgba(10,10,20,0.45) !important; }
-    html.sr-theme-light .desk-sc-meta   { color: rgba(10,10,20,0.3) !important; }
+    html.sr-theme-light .desk-scenari-card:hover { background: rgba(0,0,0,0.02) !important; }
+    html.sr-theme-light .desk-scenari-title   { color: rgba(10,10,20,0.86) !important; }
+    html.sr-theme-light .desk-scenari-excerpt { color: rgba(10,10,20,0.42) !important; }
+    html.sr-theme-light .desk-scenari-time    { color: rgba(10,10,20,0.28) !important; }
     html.sr-theme-light .desk-rp-sep { background: rgba(0,0,0,0.07) !important; }
+
+    /* ── Articoli nel pannello destro (desk-rp-art-*) ── */
+    html.sr-theme-light .desk-rp-art { border-bottom-color: rgba(0,0,0,0.06) !important; }
+    html.sr-theme-light .desk-rp-art:hover { background: rgba(0,0,0,0.02) !important; }
+    html.sr-theme-light .desk-rp-art-title { color: rgba(10,10,20,0.88) !important; }
+    html.sr-theme-light .desk-rp-art-meta  { color: rgba(10,10,20,0.32) !important; }
+    html.sr-theme-light .desk-rp-art-thumb { background: rgba(0,0,0,0.06) !important; }
+
+    /* ── Market card: icona avatar e variazione ── */
+    html.sr-theme-light .desk-mc-avatar { color: rgba(10,10,20,0.35) !important; }
+    html.sr-theme-light .desk-mca-chg.up { color: #7c3aed !important; }
 
     /* ── Goal bar ── */
     html.sr-theme-light #desk-goal-bar { background: #ffffff !important; border-top: 1px solid rgba(0,0,0,0.08) !important; }
@@ -5158,6 +5173,7 @@ function toggleSrTheme() {
   const isLight = document.documentElement.classList.toggle('sr-theme-light');
   localStorage.setItem('sr-theme', isLight ? 'light' : 'dark');
   _srUpdateThemeIcon(isLight);
+  if (typeof switchMapTheme === 'function') switchMapTheme(isLight);
 }
 function _srUpdateThemeIcon(isLight) {
   const sun  = document.getElementById('desk-theme-icon-sun');
@@ -5169,9 +5185,12 @@ function _srUpdateThemeIcon(isLight) {
 (function() {
   if (localStorage.getItem('sr-theme') === 'light') {
     document.documentElement.classList.add('sr-theme-light');
-    // Gli svg vengono aggiornati dopo il DOM ready
     document.addEventListener('DOMContentLoaded', function() {
       _srUpdateThemeIcon(true);
+      // Mappa inizializzata ~1s dopo — switcha le tile quando è pronta
+      setTimeout(function() {
+        if (typeof switchMapTheme === 'function') switchMapTheme(true);
+      }, 1200);
     });
   }
 })();
