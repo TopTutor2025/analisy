@@ -76,8 +76,9 @@
 
     /* 2 · Base */
     * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif !important; }
-    body { background: #000; }
-    #page-wrap { overflow-x: hidden; }
+    html { overflow-x: visible !important; }
+    body { background: #000; overflow-x: visible !important; }
+    #page-wrap { overflow-x: clip; }
 
     /* Gradient — fisso, dietro la mappa (z-index < 2), visibile nelle sezioni trasparenti */
     #page-gradient {
