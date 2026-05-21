@@ -51,7 +51,11 @@ html {
 
 body {
   font-family: var(--font);
-  background: var(--bg-primary);
+  background:
+    radial-gradient(ellipse 70% 55% at 15% 25%, rgba(88,28,149,0.13) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 40% at 85% 75%, rgba(45,15,100,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 60% 10%, rgba(30,10,80,0.08) 0%, transparent 55%),
+    #000;
   color: var(--text-primary);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
