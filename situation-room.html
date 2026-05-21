@@ -3865,9 +3865,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Render markets
   renderMarkets();
 
-  // Dati reali da Yahoo Finance (ogni 60s)
+  // Dati reali da Yahoo Finance (ogni 3s)
   fetchYahooFinancePrices();
-  setInterval(fetchYahooFinancePrices, 60000);
+  setInterval(fetchYahooFinancePrices, 3000);
 
   // Scroll hint mercati: nascondi fade+label quando si è quasi in fondo
   const _mc = document.getElementById('desk-mcards');
@@ -3972,19 +3972,26 @@ const YF_MAP = {
   'TSN':      { arr: () => MARKETS_FOOD,    tk: 'TSN',   sym: '$'  },
   'BG':       { arr: () => MARKETS_FOOD,    tk: 'BG',    sym: '$'  },
   /* Indici */
-  '^GSPC':    { arr: () => MARKETS_INDICES, tk: 'SPX',     sym: ''  },
-  '^NDX':     { arr: () => MARKETS_INDICES, tk: 'NDX',     sym: ''  },
-  '^DJI':     { arr: () => MARKETS_INDICES, tk: 'DJI',     sym: ''  },
-  '^STOXX50E':{ arr: () => MARKETS_INDICES, tk: 'SX5E',    sym: ''  },
-  '^GDAXI':   { arr: () => MARKETS_INDICES, tk: 'DAX',     sym: ''  },
-  '^FTSE':    { arr: () => MARKETS_INDICES, tk: 'UKX',     sym: ''  },
-  '^N225':    { arr: () => MARKETS_INDICES, tk: 'N225',    sym: ''  },
+  '^GSPC':    { arr: () => MARKETS_INDICES, tk: 'SPX',   sym: ''   },
+  '^NDX':     { arr: () => MARKETS_INDICES, tk: 'NDX',   sym: ''   },
+  '^DJI':     { arr: () => MARKETS_INDICES, tk: 'DJI',   sym: ''   },
+  '^STOXX50E':{ arr: () => MARKETS_INDICES, tk: 'SX5E',  sym: ''   },
+  '^GDAXI':   { arr: () => MARKETS_INDICES, tk: 'DAX',   sym: ''   },
+  '^FTSE':    { arr: () => MARKETS_INDICES, tk: 'UKX',   sym: ''   },
+  '^N225':    { arr: () => MARKETS_INDICES, tk: 'N225',  sym: ''   },
   /* Energia */
   'XOM':      { arr: () => MARKETS_ENERGY,  tk: 'XOM',   sym: '$'  },
   'CVX':      { arr: () => MARKETS_ENERGY,  tk: 'CVX',   sym: '$'  },
   'NEE':      { arr: () => MARKETS_ENERGY,  tk: 'NEE',   sym: '$'  },
   'SHEL':     { arr: () => MARKETS_ENERGY,  tk: 'SHEL',  sym: '$'  },
   'TTE':      { arr: () => MARKETS_ENERGY,  tk: 'TTE',   sym: '€'  },
+  /* Stats row diretti */
+  'EURUSD=X': { statsRow: true, valId: 'dsk-eur-val', chgId: 'dsk-eur-chg',
+                fmt: p => p.toFixed(4) },
+  'BTC-USD':  { statsRow: true, valId: 'dsk-btc-val', chgId: 'dsk-btc-chg',
+                fmt: p => '$' + (p >= 1000 ? (p/1000).toFixed(1) + 'k' : p.toFixed(0)) },
+  'ETH-USD':  { statsRow: true, valId: 'dsk-eth-val', chgId: 'dsk-eth-chg',
+                fmt: p => '$' + (p >= 1000 ? (p/1000).toFixed(1) + 'k' : p.toFixed(2)) },
 };
 
 function _applyYFQuote(q) {
@@ -3993,6 +4000,20 @@ function _applyYFQuote(q) {
   const price = q.regularMarketPrice;
   const chgPct = q.regularMarketChangePercent || 0;
   if (!price) return;
+
+  /* ── Stats row diretti (BTC, ETH, EUR/USD) ── */
+  if (cfg.statsRow) {
+    const valEl = document.getElementById(cfg.valId);
+    const chgEl = document.getElementById(cfg.chgId);
+    if (valEl) valEl.textContent = cfg.fmt(price);
+    if (chgEl) {
+      chgEl.textContent = (chgPct >= 0 ? '+' : '') + chgPct.toFixed(2) + '%';
+      chgEl.className = 'desk-sr-msub ' + (chgPct >= 0 ? 'up' : 'dn');
+    }
+    return;
+  }
+
+  /* ── Asset nelle card mercati ── */
   const arr = cfg.arr();
   const m = arr.find(x => x.ticker === cfg.tk);
   if (!m) return;
@@ -4009,12 +4030,15 @@ function _applyYFQuote(q) {
   if (m.history.length > 12) m.history.shift();
 }
 
+let _yfFetching = false;
 async function fetchYahooFinancePrices() {
+  if (_yfFetching) return;
+  _yfFetching = true;
   const syms = Object.keys(YF_MAP).join(',');
   const url = `https://corsproxy.io/?https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(syms)}&fields=regularMarketPrice,regularMarketChangePercent,currency`;
   try {
     const ctrl = new AbortController();
-    setTimeout(() => ctrl.abort(), 6000);
+    setTimeout(() => ctrl.abort(), 2500);
     const r = await fetch(url, { signal: ctrl.signal });
     if (!r.ok) return;
     const data = await r.json();
@@ -4022,9 +4046,12 @@ async function fetchYahooFinancePrices() {
     renderMarkets();
     renderMobMarkets();
     populateDeskMarketCards();
+    updateDeskStatsRow();
     renderTicker();
   } catch(e) {
     console.warn('[Yahoo Finance] fetch fallito:', e.message);
+  } finally {
+    _yfFetching = false;
   }
 }
 
@@ -5891,8 +5918,8 @@ function initDeskLayout() {
   updateDeskStatsRow();
 }
 
-/* ── Stats row: popola i 6 asset + eventi attivi ── */
-async function updateDeskStatsRow() {
+/* ── Stats row: aggiorna Gold, Brent, S&P dagli array YF (BTC/ETH/EUR già aggiornati in _applyYFQuote) ── */
+function updateDeskStatsRow() {
   if (window.innerWidth <= 768) return;
 
   function setMetric(valId, chgId, val, chg, up) {
@@ -5902,7 +5929,6 @@ async function updateDeskStatsRow() {
     if (c) { c.textContent = chg; c.className = 'desk-sr-msub ' + (up ? 'up' : 'dn'); }
   }
 
-  // ── Dati statici dagli array già in pagina ──
   const gold  = MARKETS.find(m => m.ticker === 'GOLD');
   if (gold)  setMetric('dsk-gold-val', 'dsk-gold-chg', gold.price,  gold.change,  gold.up);
 
@@ -5911,38 +5937,6 @@ async function updateDeskStatsRow() {
 
   const sp = MARKETS_INDICES.find(m => m.ticker === 'SPX');
   if (sp)   setMetric('dsk-sp-val',   'dsk-sp-chg',   sp.price,    sp.change,    sp.up);
-
-  // EUR/USD statico (dati aggiornati periodicamente con il resto dei MARKETS)
-  setMetric('dsk-eur-val', 'dsk-eur-chg', '1.0842', '+0.1%', true);
-
-  // ── Fallback BTC/ETH statici (mostrati subito) ──
-  setMetric('dsk-btc-val', 'dsk-btc-chg', '$104.2k', '+2.1%', true);
-  setMetric('dsk-eth-val', 'dsk-eth-chg', '$2,480',  '+1.8%', true);
-
-  // ── BTC/ETH live da CoinGecko (aggiorna se disponibile) ──
-  try {
-    const ctrl = new AbortController();
-    setTimeout(() => ctrl.abort(), 4500);
-    const r = await fetch(
-      'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true',
-      { signal: ctrl.signal }
-    );
-    if (r.ok) {
-      const d = await r.json();
-      if (d.bitcoin) {
-        const p = d.bitcoin.usd, c = d.bitcoin.usd_24h_change || 0;
-        setMetric('dsk-btc-val', 'dsk-btc-chg',
-          '$' + (p >= 1000 ? (p / 1000).toFixed(1) + 'k' : p.toFixed(0)),
-          (c >= 0 ? '+' : '') + c.toFixed(2) + '%', c >= 0);
-      }
-      if (d.ethereum) {
-        const p = d.ethereum.usd, c = d.ethereum.usd_24h_change || 0;
-        setMetric('dsk-eth-val', 'dsk-eth-chg',
-          '$' + (p >= 1000 ? (p / 1000).toFixed(1) + 'k' : p.toFixed(0)),
-          (c >= 0 ? '+' : '') + c.toFixed(2) + '%', c >= 0);
-      }
-    }
-  } catch(e) { /* mantieni fallback statico */ }
 
   // ── Numero eventi attivi ──
   const evtEl = document.getElementById('dsk-events-val');
