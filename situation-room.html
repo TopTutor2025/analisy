@@ -79,24 +79,8 @@
     html, body {
       background: #000 !important;
     }
-    /* Gradiente viola fisso — strato dietro tutto il contenuto */
-    #page-gradient {
-      display: block !important;
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      background:
-        radial-gradient(ellipse 72% 62% at 95% 12%,  rgba(232,52,78,0.50) 0%, transparent 55%),
-        radial-gradient(ellipse 58% 48% at 8% 88%,   rgba(180,20,40,0.38) 0%, transparent 50%),
-        radial-gradient(ellipse 42% 32% at 50% 0%,   rgba(210,35,60,0.22) 0%, transparent 45%);
-    }
-    /* Tutto il contenuto sopra il gradiente */
-    #page-wrap {
-      position: relative;
-      z-index: 1;
-      overflow-x: hidden; /* blocca scroll orizzontale sul contenuto */
-    }
+    #page-gradient { display: none; }
+    #page-wrap { overflow-x: hidden; }
 
     /* 3 · Sponsor bar */
     .sr-announce-bar {
