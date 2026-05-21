@@ -82,7 +82,139 @@
     #page-gradient { display: none; }
     #page-wrap { overflow-x: hidden; }
 
-    /* 2b · Interactive Tour */
+    /* 2b · Tema Chiaro */
+    .sr-theme-light {
+      /* Token override */
+      --bg-primary:    #f5f5f7;
+      --bg-secondary:  #ffffff;
+      --bg-card:       #ffffff;
+      --bg-card-hover: #f0f0f4;
+      --bg-dark:       #f5f5f7;
+      --border:        rgba(0,0,0,0.08);
+      --border-hover:  rgba(0,0,0,0.15);
+      --text-primary:  rgba(10,10,20,0.88);
+      --text-secondary:rgba(10,10,20,0.52);
+      --text-muted:    rgba(10,10,20,0.32);
+    }
+    .sr-theme-light html,
+    .sr-theme-light body,
+    html.sr-theme-light,
+    body.sr-theme-light {
+      background: #f5f5f7 !important;
+    }
+
+    /* ── Topbar ── */
+    .sr-theme-light #desk-topbar {
+      background: rgba(255,255,255,0.96) !important;
+      border-bottom: 1px solid rgba(0,0,0,0.08) !important;
+      backdrop-filter: blur(20px);
+    }
+    .sr-theme-light .desk-tb-nav-btn { color: rgba(10,10,20,0.55) !important; }
+    .sr-theme-light .desk-tb-nav-btn:hover { color: rgba(10,10,20,0.88) !important; }
+    .sr-theme-light .desk-tb-room-lbl { color: rgba(10,10,20,0.4) !important; }
+    .sr-theme-light .desk-tb-divider  { background: rgba(0,0,0,0.1) !important; }
+    .sr-theme-light .desk-tb-iconbtn  { color: rgba(10,10,20,0.55) !important; }
+    .sr-theme-light .desk-tb-iconbtn:hover { background: rgba(0,0,0,0.06) !important; color: rgba(10,10,20,0.88) !important; }
+
+    /* ── Stats row ── */
+    .sr-theme-light #desk-stats-row   { background: transparent !important; }
+    .sr-theme-light .desk-sr-label    { color: rgba(10,10,20,0.38) !important; }
+    .sr-theme-light .desk-sr-mval,
+    .sr-theme-light .desk-sr-metric-val { color: rgba(10,10,20,0.88) !important; }
+    .sr-theme-light #desk-events-active { color: #e8344e !important; }
+    .sr-theme-light .desk-sr-sep { background: rgba(0,0,0,0.08) !important; }
+
+    /* ── Bottom section ── */
+    .sr-theme-light #desk-bottom-section { background: transparent !important; }
+    .sr-theme-light #desk-bs-header      { background: transparent !important; }
+    .sr-theme-light .desk-bst {
+      color: rgba(10,10,20,0.45) !important;
+      background: transparent !important;
+    }
+    .sr-theme-light .desk-bst:hover { color: rgba(10,10,20,0.75) !important; background: rgba(0,0,0,0.05) !important; }
+    .sr-theme-light .desk-bst.active { color: #00a854 !important; background: rgba(0,168,84,0.08) !important; border-color: rgba(0,168,84,0.22) !important; }
+
+    /* ── Market cards ── */
+    .sr-theme-light .desk-mc {
+      background: #ffffff !important;
+      border: 1px solid rgba(0,0,0,0.08) !important;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06) !important;
+    }
+    .sr-theme-light .desk-mc:hover { background: #fafafa !important; border-color: rgba(0,0,0,0.14) !important; }
+    .sr-theme-light .desk-mc-name  { color: rgba(10,10,20,0.82) !important; }
+    .sr-theme-light .desk-mc-count { color: rgba(10,10,20,0.35) !important; }
+    .sr-theme-light .desk-mc-asset {
+      background: rgba(0,0,0,0.03) !important;
+      border-color: rgba(0,0,0,0.07) !important;
+    }
+    .sr-theme-light .desk-mc-asset:hover { background: rgba(0,0,0,0.06) !important; }
+    .sr-theme-light .desk-mca-name   { color: rgba(10,10,20,0.82) !important; }
+    .sr-theme-light .desk-mca-ticker { color: rgba(10,10,20,0.32) !important; }
+    .sr-theme-light .desk-mca-price  { color: rgba(10,10,20,0.82) !important; }
+    .sr-theme-light #desk-mcards-fade {
+      background: linear-gradient(to right, transparent, #f5f5f7 85%) !important;
+    }
+
+    /* ── Right panel ── */
+    .sr-theme-light #desk-new-right-panel {
+      background: #ffffff !important;
+      border-left: 1px solid rgba(0,0,0,0.08) !important;
+    }
+    .sr-theme-light #desk-rp-tabs { border-bottom-color: rgba(0,0,0,0.08) !important; }
+    .sr-theme-light #desk-rp-tabs-switch { background: rgba(0,0,0,0.05) !important; }
+    .sr-theme-light .desk-rptab.on  { background: #ffffff !important; color: rgba(10,10,20,0.88) !important; box-shadow: 0 1px 4px rgba(0,0,0,0.12) !important; }
+    .sr-theme-light .desk-rptab.off { color: rgba(10,10,20,0.4) !important; }
+    .sr-theme-light #desk-rp-stats  { border-bottom-color: rgba(0,0,0,0.08) !important; }
+    .sr-theme-light .desk-rps-lbl   { color: rgba(10,10,20,0.38) !important; }
+    .sr-theme-light .desk-rps-val   { color: rgba(10,10,20,0.88) !important; }
+    .sr-theme-light .desk-rps-val.green { color: #00a854 !important; }
+
+    /* ── Articles ── */
+    .sr-theme-light .desk-art-card {
+      background: #f5f5f7 !important;
+      border-color: rgba(0,0,0,0.07) !important;
+    }
+    .sr-theme-light .desk-art-card:hover { background: #eeeef2 !important; border-color: rgba(0,0,0,0.12) !important; }
+    .sr-theme-light .desk-art-card-title { color: rgba(10,10,20,0.86) !important; }
+    .sr-theme-light .desk-art-card-meta  { color: rgba(10,10,20,0.38) !important; }
+    .sr-theme-light .desk-art-card-thumb { background: rgba(0,0,0,0.06) !important; color: rgba(10,10,20,0.35) !important; }
+
+    /* ── Scenari ── */
+    .sr-theme-light #desk-rp-scenari { background: #f5f5f7 !important; }
+    .sr-theme-light #desk-rp-sc-header { border-bottom-color: rgba(0,0,0,0.07) !important; }
+    .sr-theme-light .desk-rp-sc-lbl { color: rgba(10,10,20,0.75) !important; }
+    .sr-theme-light .desk-sc-card {
+      background: #ffffff !important;
+      border-color: rgba(0,0,0,0.08) !important;
+    }
+    .sr-theme-light .desk-sc-card:hover { border-color: rgba(0,0,0,0.15) !important; }
+    .sr-theme-light .desk-sc-title  { color: rgba(10,10,20,0.86) !important; }
+    .sr-theme-light .desk-sc-excerpt { color: rgba(10,10,20,0.45) !important; }
+    .sr-theme-light .desk-sc-meta   { color: rgba(10,10,20,0.3) !important; }
+    .sr-theme-light .desk-rp-sep { background: rgba(0,0,0,0.07) !important; }
+
+    /* ── Goal bar ── */
+    .sr-theme-light #desk-goal-bar { background: #ffffff !important; border-top: 1px solid rgba(0,0,0,0.08) !important; }
+
+    /* ── Reader ── */
+    .sr-theme-light #desk-art-reader {
+      background: rgba(255,255,255,0.95) !important;
+      border-left: 1px solid rgba(0,0,0,0.08) !important;
+    }
+    .sr-theme-light #desk-art-title  { color: rgba(10,10,20,0.9) !important; }
+    .sr-theme-light #desk-art-body   { color: rgba(10,10,20,0.72) !important; }
+
+    /* ── Map container stays dark ── */
+    .sr-theme-light #desk-chart-area  { background: #1a1a2e !important; }
+
+    /* ── Tour card in light mode ── */
+    .sr-theme-light #sr-tour-card { background: #ffffff !important; border-color: rgba(0,0,0,0.1) !important; }
+    .sr-theme-light #sr-tour-card .tour-item { background: rgba(0,0,0,0.03) !important; border-color: rgba(0,0,0,0.07) !important; }
+
+    /* ── Announce bar ── */
+    .sr-theme-light .sr-announce-bar { background: #fff !important; border-bottom-color: rgba(0,0,0,0.08) !important; }
+
+    /* 2c · Interactive Tour */
     .sr-tour-highlight {
       outline: 2px solid rgba(232,52,78,0.9) !important;
       outline-offset: 5px !important;
@@ -4954,6 +5086,29 @@ function closeSrTutorial() {
   _srTourClearHighlight();
 }
 
+/* ── Tema chiaro / scuro ── */
+function toggleSrTheme() {
+  const isLight = document.documentElement.classList.toggle('sr-theme-light');
+  localStorage.setItem('sr-theme', isLight ? 'light' : 'dark');
+  _srUpdateThemeIcon(isLight);
+}
+function _srUpdateThemeIcon(isLight) {
+  const sun  = document.getElementById('desk-theme-icon-sun');
+  const moon = document.getElementById('desk-theme-icon-moon');
+  if (sun)  sun.style.display  = isLight  ? 'none' : '';
+  if (moon) moon.style.display = isLight  ? ''     : 'none';
+}
+// Applica tema salvato al caricamento
+(function() {
+  if (localStorage.getItem('sr-theme') === 'light') {
+    document.documentElement.classList.add('sr-theme-light');
+    // Gli svg vengono aggiornati dopo il DOM ready
+    document.addEventListener('DOMContentLoaded', function() {
+      _srUpdateThemeIcon(true);
+    });
+  }
+})();
+
 function srTourStep(dir) {
   const next = _srTourStep + dir;
   if (next < 1 || next > SR_TOUR_TOTAL) { if (dir > 0) closeSrTutorial(); return; }
@@ -6821,6 +6976,20 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
     <span class="desk-tb-room-lbl">Situation Room</span>
     <div class="desk-tb-divider"></div>
+    <!-- Tema chiaro/scuro -->
+    <div class="desk-tb-iconbtn" id="desk-theme-btn" title="Cambia tema" onclick="toggleSrTheme()">
+      <!-- Sun (shown in dark mode) -->
+      <svg id="desk-theme-icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </svg>
+      <!-- Moon (shown in light mode, hidden by default) -->
+      <svg id="desk-theme-icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </div>
     <!-- Tutorial -->
     <div class="desk-tb-iconbtn" title="Tutorial" onclick="openSrTutorial()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
