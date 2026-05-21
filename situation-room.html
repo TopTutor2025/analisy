@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="it">
+<html lang="it" class="sr-theme-light">
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
@@ -5185,32 +5185,12 @@ function closeSrTutorial() {
   _srTourClearHighlight();
 }
 
-/* ── Tema chiaro / scuro ── */
-function toggleSrTheme() {
-  const isLight = document.documentElement.classList.toggle('sr-theme-light');
-  localStorage.setItem('sr-theme', isLight ? 'light' : 'dark');
-  _srUpdateThemeIcon(isLight);
-  if (typeof switchMapTheme === 'function') switchMapTheme(isLight);
-}
-function _srUpdateThemeIcon(isLight) {
-  const sun  = document.getElementById('desk-theme-icon-sun');
-  const moon = document.getElementById('desk-theme-icon-moon');
-  if (sun)  sun.style.display  = isLight  ? 'none' : '';
-  if (moon) moon.style.display = isLight  ? ''     : 'none';
-}
-// Applica tema salvato al caricamento
-(function() {
-  if (localStorage.getItem('sr-theme') === 'light') {
-    document.documentElement.classList.add('sr-theme-light');
-    document.addEventListener('DOMContentLoaded', function() {
-      _srUpdateThemeIcon(true);
-      // Mappa inizializzata ~1s dopo — switcha le tile quando è pronta
-      setTimeout(function() {
-        if (typeof switchMapTheme === 'function') switchMapTheme(true);
-      }, 1200);
-    });
-  }
-})();
+// Situation Room — sempre in versione white. Switcha le tile della mappa a light all'avvio.
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() {
+    if (typeof switchMapTheme === 'function') switchMapTheme(true);
+  }, 800);
+});
 
 function srTourStep(dir) {
   const next = _srTourStep + dir;
@@ -7138,20 +7118,6 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
     <span class="desk-tb-room-lbl">Situation Room</span>
     <div class="desk-tb-divider"></div>
-    <!-- Tema chiaro/scuro -->
-    <div class="desk-tb-iconbtn" id="desk-theme-btn" title="Cambia tema" onclick="toggleSrTheme()">
-      <!-- Sun (shown in dark mode) -->
-      <svg id="desk-theme-icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-        <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-      </svg>
-      <!-- Moon (shown in light mode, hidden by default) -->
-      <svg id="desk-theme-icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-      </svg>
-    </div>
     <!-- Tutorial -->
     <div class="desk-tb-iconbtn" title="Tutorial" onclick="openSrTutorial()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
