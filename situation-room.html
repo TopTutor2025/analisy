@@ -3936,6 +3936,155 @@ function switchToolTab(tab, el) {
   if (pane) pane.classList.add('active');
 }
 
+/* ── DESKTOP BOTTOM TABS: Mercati / Live Feed / Podcast / Forum ── */
+function switchDeskBottomTab(tab, el) {
+  document.querySelectorAll('.desk-bst').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+
+  const mcards = document.getElementById('desk-mcards');
+  const fade   = document.getElementById('desk-mcards-fade');
+  const panels = ['livefeed','podcast','forum'];
+
+  if (tab === 'mercati') {
+    if (mcards) mcards.style.display = '';
+    if (fade)   fade.style.display   = '';
+    panels.forEach(p => { const d = document.getElementById('desk-panel-' + p); if (d) d.style.display = 'none'; });
+  } else {
+    if (mcards) mcards.style.display = 'none';
+    if (fade)   fade.style.display   = 'none';
+    panels.forEach(p => {
+      const d = document.getElementById('desk-panel-' + p);
+      if (d) d.style.display = (p === tab) ? 'block' : 'none';
+    });
+    if (tab === 'livefeed') _renderDeskLiveFeed();
+    if (tab === 'podcast')  _renderDeskPodcastPanel();
+    if (tab === 'forum')    _renderDeskForumPanel();
+  }
+}
+
+function _renderDeskLiveFeed() {
+  const el = document.getElementById('desk-livefeed-list');
+  if (!el) return;
+  const events = typeof getMapEvents === 'function' ? getMapEvents() : [];
+  if (!events.length) {
+    el.innerHTML = '<div style="padding:24px 0;text-align:center;color:rgba(255,255,255,0.2);font-size:0.72rem;">Nessun evento attivo</div>';
+    return;
+  }
+  const catColors = { geopolitica:'#e8344e', conflict:'#e8344e', politica:'#4f9eff', tension:'#ffd60a',
+                      business:'#f5a623', crisis:'#ff9f0a', tecnologia:'#a78bfa', hotspot:'#06d6a0', economic:'#06d6a0' };
+  el.innerHTML = events.slice(0,20).map(ev => {
+    const color = catColors[ev.category] || catColors[ev.cat] || '#aaa';
+    const title = ev.title || ev.name || '';
+    const loc   = ev.location || ev.country || '';
+    const ago   = ev.updated_at ? timeAgo(ev.updated_at) : (ev.date ? timeAgo(ev.date) : '');
+    return `<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;"
+                 onclick="typeof panToEvent==='function'&&panToEvent(${ev.lat||0},${ev.lng||0})">
+      <div style="width:6px;height:6px;border-radius:50%;background:${color};margin-top:5px;flex-shrink:0;box-shadow:0 0 4px ${color};"></div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:0.72rem;font-weight:600;color:rgba(235,235,245,0.85);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${title}</div>
+        <div style="font-size:0.61rem;color:rgba(235,235,245,0.28);margin-top:1px;">${loc}${loc&&ago?' · ':''}${ago}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function _renderDeskPodcastPanel() {
+  const el = document.getElementById('desk-podcast-panel-list');
+  if (!el) return;
+  const pods = typeof getPodcasts === 'function' ? getPodcasts() : [];
+  if (!pods.length) {
+    el.innerHTML = '<div style="padding:24px 0;text-align:center;color:rgba(255,255,255,0.2);font-size:0.72rem;">Nessun podcast disponibile al momento</div>';
+    return;
+  }
+  el.innerHTML = pods.map(p => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+      <div style="width:36px;height:36px;border-radius:8px;background:rgba(232,52,78,0.12);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">🎙️</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:0.72rem;font-weight:600;color:rgba(235,235,245,0.85);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.title||''}</div>
+        <div style="font-size:0.61rem;color:rgba(235,235,245,0.28);margin-top:1px;">${p.date||''} · ${p.duration||''}</div>
+      </div>
+    </div>`).join('');
+}
+
+function _renderDeskForumPanel() {
+  const el = document.getElementById('desk-forum-panel-list');
+  if (!el) return;
+  if (!forumPosts.length) {
+    el.innerHTML = '<div style="padding:24px 0;text-align:center;color:rgba(255,255,255,0.2);font-size:0.72rem;">Nessuna discussione disponibile</div>';
+    return;
+  }
+  const catColors = { geopolitica:'#e8344e', politica:'#4f9eff', business:'#f5a623', tecnologia:'#a78bfa', generale:'rgba(255,255,255,0.25)' };
+  const catLabels = { geopolitica:'Geopolitica', politica:'Politica', business:'Business', tecnologia:'Tecnologia', generale:'Generale' };
+  el.innerHTML = forumPosts.slice(0,15).map(p => {
+    const color   = catColors[p.category] || 'rgba(255,255,255,0.2)';
+    const label   = catLabels[p.category] || p.category;
+    const excerpt = (p.body||'').slice(0,100) + ((p.body||'').length > 100 ? '…' : '');
+    return `<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+        <span style="font-size:0.58rem;font-weight:700;color:${color};letter-spacing:0.06em;text-transform:uppercase;">${label}</span>
+        <span style="font-size:0.61rem;color:rgba(235,235,245,0.28);">${p.username||'Utente'}</span>
+      </div>
+      <div style="font-size:0.72rem;font-weight:600;color:rgba(235,235,245,0.85);line-height:1.3;margin-bottom:2px;">${p.title||''}</div>
+      <div style="font-size:0.65rem;color:rgba(235,235,245,0.35);line-height:1.4;">${excerpt}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── DESKTOP RIGHT PANEL TABS: ANALISI / PREMIUM ── */
+function switchDeskRpTab(tab, el) {
+  document.querySelectorAll('.desk-rptab').forEach(b => {
+    b.classList.toggle('on',  b === el);
+    b.classList.toggle('off', b !== el);
+  });
+  const analisiIds = ['desk-rp-stats','desk-rp-art-scroll','desk-rp-sep','desk-rp-scenari'];
+  const premiumEl  = document.getElementById('desk-rp-premium');
+  if (tab === 'analisi') {
+    analisiIds.forEach(id => { const e = document.getElementById(id); if (e) e.style.display = ''; });
+    if (premiumEl) premiumEl.style.display = 'none';
+  } else {
+    analisiIds.forEach(id => { const e = document.getElementById(id); if (e) e.style.display = 'none'; });
+    if (premiumEl) { premiumEl.style.display = 'flex'; _renderDeskPremiumPanel(); }
+  }
+}
+
+function _renderDeskPremiumPanel() {
+  const el = document.getElementById('desk-rp-premium-list');
+  if (!el) return;
+  const allArts     = typeof getArticles === 'function' ? getArticles() : [];
+  const premiumArts = allArts.filter(a => a.premium);
+  const isPremium   = typeof Auth !== 'undefined' && Auth.isPremium();
+
+  if (!isPremium) {
+    el.innerHTML = `
+      <div style="text-align:center;padding:32px 8px;">
+        <div style="font-size:2rem;margin-bottom:12px;">⭐</div>
+        <div style="font-size:0.85rem;font-weight:700;color:rgba(235,235,245,0.92);margin-bottom:8px;">Contenuto Premium</div>
+        <div style="font-size:0.72rem;color:rgba(235,235,245,0.38);line-height:1.65;margin-bottom:20px;">Sblocca le analisi esclusive, gli approfondimenti AI avanzati e l'accesso al forum community.</div>
+        <button onclick="document.querySelector('[data-open-premium]')?.click()"
+                style="background:#e8344e;color:#fff;border:none;border-radius:8px;padding:9px 22px;font-size:0.78rem;font-weight:700;cursor:pointer;letter-spacing:0.02em;">
+          Abbonati ora
+        </button>
+      </div>`;
+    return;
+  }
+  if (!premiumArts.length) {
+    el.innerHTML = '<div style="padding:24px 0;text-align:center;color:rgba(255,255,255,0.2);font-size:0.72rem;">Nessun articolo premium disponibile</div>';
+    return;
+  }
+  const catColors = { geopolitica:'#e8344e', politica:'#4f9eff', business:'#f5a623', tecnologia:'#a78bfa', hotspot:'#06d6a0' };
+  el.innerHTML = premiumArts.map(a => {
+    const color = catColors[a.cat] || '#4f9eff';
+    const ago   = a.published_at ? timeAgo(a.published_at) : '';
+    return `<div class="desk-art-card" onclick="openDeskArtReader(${JSON.stringify(a).replace(/"/g,'&quot;')})">
+      <div class="desk-art-card-body">
+        <span class="desk-art-card-cat" style="color:${color};">⭐ ${(a.cat_label||a.cat||'').toUpperCase()}</span>
+        <div class="desk-art-card-title">${a.title||''}</div>
+        <div class="desk-art-card-meta">${ago}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 /* ── CENTER COLUMN: cam/markets toggle ── */
 function switchCenter(mode, el) {
   document.querySelectorAll('.tn-toggle-btn').forEach(b => b.classList.remove('active'));
@@ -6619,10 +6768,10 @@ document.addEventListener('DOMContentLoaded', () => {
       <div id="desk-mcards-fade"></div>
       <div id="desk-bs-header">
         <div class="desk-bs-tabs">
-          <button class="desk-bst active">Mercati</button>
-          <button class="desk-bst">Live Feed</button>
-          <button class="desk-bst">Podcast</button>
-          <button class="desk-bst">Forum</button>
+          <button class="desk-bst active" onclick="switchDeskBottomTab('mercati',this)">Mercati</button>
+          <button class="desk-bst" onclick="switchDeskBottomTab('livefeed',this)">Live Feed</button>
+          <button class="desk-bst" onclick="switchDeskBottomTab('podcast',this)">Podcast</button>
+          <button class="desk-bst" onclick="switchDeskBottomTab('forum',this)">Forum</button>
         </div>
       </div>
 
@@ -6721,6 +6870,22 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
 
       </div><!-- /desk-mcards -->
+
+      <!-- Panel: Live Feed -->
+      <div id="desk-panel-livefeed" style="display:none;padding:0 16px 12px;overflow-y:auto;max-height:230px;">
+        <div id="desk-livefeed-list"></div>
+      </div>
+
+      <!-- Panel: Podcast -->
+      <div id="desk-panel-podcast" style="display:none;padding:0 16px 12px;overflow-y:auto;max-height:230px;">
+        <div id="desk-podcast-panel-list"></div>
+      </div>
+
+      <!-- Panel: Forum -->
+      <div id="desk-panel-forum" style="display:none;padding:0 16px 12px;overflow-y:auto;max-height:230px;">
+        <div id="desk-forum-panel-list"></div>
+      </div>
+
     </div><!-- /desk-bottom-section -->
 
     <!-- Footer full-width (at bottom of left col, spans full width) -->
@@ -6734,8 +6899,8 @@ document.addEventListener('DOMContentLoaded', () => {
     <!-- Tab ANALISI / PREMIUM -->
     <div id="desk-rp-tabs">
       <div id="desk-rp-tabs-switch">
-        <button class="desk-rptab on">ANALISI</button>
-        <button class="desk-rptab off">PREMIUM</button>
+        <button class="desk-rptab on" onclick="switchDeskRpTab('analisi',this)">ANALISI</button>
+        <button class="desk-rptab off" onclick="switchDeskRpTab('premium',this)">PREMIUM</button>
       </div>
     </div>
 
@@ -6769,6 +6934,11 @@ document.addEventListener('DOMContentLoaded', () => {
       <div id="desk-rp-sc-scroll">
         <div id="desk-scenari-list"></div>
       </div>
+    </div>
+
+    <!-- Panel PREMIUM (hidden by default) -->
+    <div id="desk-rp-premium" style="display:none;flex:1;overflow-y:auto;flex-direction:column;">
+      <div id="desk-rp-premium-list" style="padding:8px 14px 14px;"></div>
     </div>
 
   </div><!-- /desk-new-right-panel -->
