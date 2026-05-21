@@ -76,21 +76,16 @@
 
     /* 2 · Base */
     * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif !important; }
-    html { overflow-x: visible !important; }
-    body { background: #000; overflow-x: visible !important; }
-    #page-wrap { overflow-x: clip; }
-
-    /* Gradient — fisso, dietro la mappa (z-index < 2), visibile nelle sezioni trasparenti */
-    #page-gradient {
-      position: fixed; inset: 0;
-      z-index: 1;
-      pointer-events: none;
+    body {
       background:
         radial-gradient(ellipse 72% 62% at 95% 12%,  rgba(130,50,255,0.55) 0%, transparent 55%),
-        radial-gradient(ellipse 58% 48% at 8% 88%,  rgba(90,20,220,0.42) 0%, transparent 50%),
+        radial-gradient(ellipse 58% 48% at 8% 88%,   rgba(90,20,220,0.42) 0%, transparent 50%),
         radial-gradient(ellipse 42% 32% at 50% 0%,   rgba(70,15,180,0.28) 0%, transparent 45%),
         #000;
+      background-attachment: fixed;
+      overflow-x: hidden;
     }
+    #page-gradient { display: none; }
 
     /* 3 · Sponsor bar */
     .sr-announce-bar {
@@ -2017,7 +2012,7 @@
   #desk-chart-area {
     height: 480px; flex-shrink: 0;
     display: flex; position: relative; overflow: hidden;
-    background: transparent;
+    background: #000;
     border-radius: 0 0 14px 14px;
     margin: 0 0 0 16px;
     z-index: 2;
