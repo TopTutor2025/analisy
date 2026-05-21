@@ -3965,27 +3965,26 @@ function switchDeskBottomTab(tab, el) {
 function _renderDeskLiveFeed() {
   const el = document.getElementById('desk-livefeed-list');
   if (!el) return;
-  const events = typeof getMapEvents === 'function' ? getMapEvents() : [];
-  if (!events.length) {
-    el.innerHTML = '<div style="padding:24px 0;text-align:center;color:rgba(255,255,255,0.2);font-size:0.72rem;">Nessun evento attivo</div>';
+  const cams = typeof getCitycams === 'function' ? getCitycams() : [];
+  if (!cams.length) {
+    el.innerHTML = '<div style="padding:24px 0;text-align:center;color:rgba(255,255,255,0.2);font-size:0.72rem;">Nessuna city cam disponibile</div>';
     return;
   }
-  const catColors = { geopolitica:'#e8344e', conflict:'#e8344e', politica:'#4f9eff', tension:'#ffd60a',
-                      business:'#f5a623', crisis:'#ff9f0a', tecnologia:'#a78bfa', hotspot:'#06d6a0', economic:'#06d6a0' };
-  el.innerHTML = events.slice(0,20).map(ev => {
-    const color = catColors[ev.category] || catColors[ev.cat] || '#aaa';
-    const title = ev.title || ev.name || '';
-    const loc   = ev.location || ev.country || '';
-    const ago   = ev.updated_at ? timeAgo(ev.updated_at) : (ev.date ? timeAgo(ev.date) : '');
-    return `<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;"
-                 onclick="typeof panToEvent==='function'&&panToEvent(${ev.lat||0},${ev.lng||0})">
-      <div style="width:6px;height:6px;border-radius:50%;background:${color};margin-top:5px;flex-shrink:0;box-shadow:0 0 4px ${color};"></div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:0.72rem;font-weight:600;color:rgba(235,235,245,0.85);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${title}</div>
-        <div style="font-size:0.61rem;color:rgba(235,235,245,0.28);margin-top:1px;">${loc}${loc&&ago?' · ':''}${ago}</div>
-      </div>
-    </div>`;
-  }).join('');
+  const catColor = { conflict:'#e8344e', crisis:'#ff7043', tension:'#f5c842', diplomatic:'#4f9eff',
+                     political:'#9b59ff', economic:'#00d4aa', disaster:'#ff8c00', migration:'#ffb400' };
+  el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;padding:4px 0;">` +
+    cams.slice(0,12).map(cam => `
+      <div style="border-radius:10px;overflow:hidden;background:#111113;border:1px solid rgba(255,255,255,0.07);
+                  aspect-ratio:16/10;position:relative;cursor:pointer;"
+           onclick="window.open('${cam.stream_url||'#'}','_blank')">
+        <img src="${cam.thumbnail_url||''}" style="width:100%;height:100%;object-fit:cover;"
+             onerror="this.style.display='none'"/>
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.8) 0%,transparent 50%);"></div>
+        <div style="position:absolute;bottom:5px;left:7px;right:7px;">
+          <div style="font-size:0.58rem;font-weight:700;color:${catColor[cam.ai_event_category]||'#fff'};margin-bottom:1px;">${cam.city||''}</div>
+          <div style="font-size:0.52rem;color:rgba(255,255,255,0.4);">${cam.country||''}</div>
+        </div>
+      </div>`).join('') + `</div>`;
 }
 
 function _renderDeskPodcastPanel() {
@@ -3993,15 +3992,20 @@ function _renderDeskPodcastPanel() {
   if (!el) return;
   const pods = typeof getPodcasts === 'function' ? getPodcasts() : [];
   if (!pods.length) {
-    el.innerHTML = '<div style="padding:24px 0;text-align:center;color:rgba(255,255,255,0.2);font-size:0.72rem;">Nessun podcast disponibile al momento</div>';
+    el.innerHTML = '<div style="padding:32px 0;text-align:center;color:rgba(255,255,255,0.2);font-size:0.72rem;">Nessun podcast disponibile al momento</div>';
     return;
   }
   el.innerHTML = pods.map(p => `
-    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-      <div style="width:36px;height:36px;border-radius:8px;background:rgba(232,52,78,0.12);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">🎙️</div>
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;"
+         onclick="window.open('${p.audio_url||'#'}','_blank')">
+      <div style="width:36px;height:36px;border-radius:8px;background:rgba(191,90,242,0.12);border:1px solid rgba(191,90,242,0.2);
+                  display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bf5af2" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+      </div>
       <div style="flex:1;min-width:0;">
+        <div style="font-size:0.58rem;font-weight:700;color:#bf5af2;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:2px;">PODCAST</div>
         <div style="font-size:0.72rem;font-weight:600;color:rgba(235,235,245,0.85);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.title||''}</div>
-        <div style="font-size:0.61rem;color:rgba(235,235,245,0.28);margin-top:1px;">${p.date||''} · ${p.duration||''}</div>
+        <div style="font-size:0.61rem;color:rgba(235,235,245,0.28);margin-top:1px;">${p.date||''}${p.date&&p.duration?' · ':''}${p.duration||''}</div>
       </div>
     </div>`).join('');
 }
@@ -4010,7 +4014,7 @@ function _renderDeskForumPanel() {
   const el = document.getElementById('desk-forum-panel-list');
   if (!el) return;
   if (!forumPosts.length) {
-    el.innerHTML = '<div style="padding:24px 0;text-align:center;color:rgba(255,255,255,0.2);font-size:0.72rem;">Nessuna discussione disponibile</div>';
+    el.innerHTML = '<div style="padding:32px 0;text-align:center;color:rgba(255,255,255,0.2);font-size:0.72rem;">Nessuna discussione disponibile</div>';
     return;
   }
   const catColors = { geopolitica:'#e8344e', politica:'#4f9eff', business:'#f5a623', tecnologia:'#a78bfa', generale:'rgba(255,255,255,0.25)' };
@@ -4018,13 +4022,14 @@ function _renderDeskForumPanel() {
   el.innerHTML = forumPosts.slice(0,15).map(p => {
     const color   = catColors[p.category] || 'rgba(255,255,255,0.2)';
     const label   = catLabels[p.category] || p.category;
-    const excerpt = (p.body||'').slice(0,100) + ((p.body||'').length > 100 ? '…' : '');
-    return `<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+    const excerpt = (p.body||'').slice(0,120) + ((p.body||'').length > 120 ? '…' : '');
+    const date    = p.created_at ? new Date(p.created_at).toLocaleDateString('it-IT',{day:'2-digit',month:'short'}) : '';
+    return `<div style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
         <span style="font-size:0.58rem;font-weight:700;color:${color};letter-spacing:0.06em;text-transform:uppercase;">${label}</span>
-        <span style="font-size:0.61rem;color:rgba(235,235,245,0.28);">${p.username||'Utente'}</span>
+        <span style="font-size:0.61rem;color:rgba(235,235,245,0.25);">${p.username||'Utente'}${date?' · '+date:''}</span>
       </div>
-      <div style="font-size:0.72rem;font-weight:600;color:rgba(235,235,245,0.85);line-height:1.3;margin-bottom:2px;">${p.title||''}</div>
+      <div style="font-size:0.73rem;font-weight:600;color:rgba(235,235,245,0.88);line-height:1.3;margin-bottom:3px;">${p.title||''}</div>
       <div style="font-size:0.65rem;color:rgba(235,235,245,0.35);line-height:1.4;">${excerpt}</div>
     </div>`;
   }).join('');
