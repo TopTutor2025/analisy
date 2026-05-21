@@ -2121,7 +2121,32 @@
     flex-shrink: 0;
     background: #000;
     padding-bottom: 8px;
+    position: relative;
   }
+  /* Fade destro: indica che ci sono altre card da scorrere */
+  #desk-mcards-fade {
+    position: absolute;
+    top: 0; right: 0; bottom: 8px;
+    width: 120px;
+    background: linear-gradient(to right, transparent, #000 85%);
+    pointer-events: none;
+    z-index: 3;
+    transition: opacity 0.4s;
+  }
+  #desk-mcards-fade.hidden { opacity: 0; }
+  /* Label "Esplora mercati →" */
+  #desk-mcards-hint {
+    position: absolute;
+    bottom: 22px; right: 16px;
+    display: flex; align-items: center; gap: 5px;
+    font-size: 0.6rem; font-weight: 600; letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.35);
+    pointer-events: none;
+    z-index: 4;
+    transition: opacity 0.4s;
+  }
+  #desk-mcards-hint.hidden { opacity: 0; }
+  #desk-mcards-hint svg { flex-shrink: 0; }
   #desk-bs-header {
     display: flex; align-items: center; gap: 14px;
     padding: 12px 16px 8px; flex-shrink: 0;
@@ -3843,6 +3868,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Dati reali da Yahoo Finance (ogni 60s)
   fetchYahooFinancePrices();
   setInterval(fetchYahooFinancePrices, 60000);
+
+  // Scroll hint mercati: nascondi fade+label quando si è quasi in fondo
+  const _mc = document.getElementById('desk-mcards');
+  const _mcFade = document.getElementById('desk-mcards-fade');
+  const _mcHint = document.getElementById('desk-mcards-hint');
+  if (_mc && _mcFade && _mcHint) {
+    _mc.addEventListener('scroll', function() {
+      const atEnd = this.scrollLeft + this.clientWidth >= this.scrollWidth - 16;
+      _mcFade.classList.toggle('hidden', atEnd);
+      _mcHint.classList.toggle('hidden', atEnd);
+    });
+  }
 });
 
 /* ── TICKER ── */
@@ -6545,6 +6582,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     <!-- Bottom section: tabs + market cards 3×2 -->
     <div id="desk-bottom-section">
+      <!-- Fade + hint scroll -->
+      <div id="desk-mcards-fade"></div>
+      <div id="desk-mcards-hint">
+        <span>Esplora mercati</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
       <div id="desk-bs-header">
         <div class="desk-bs-tabs">
           <button class="desk-bst active">Mercati</button>
