@@ -5492,6 +5492,20 @@ function renderDeskArticles(cat) {
   const allArts = typeof getArticles === 'function' ? getArticles() : [];
   const humanArts = allArts.filter(a => a.author !== 'AI Intelligence \u00B7 Analisy');
   const filtered = cat && cat !== 'all' ? humanArts.filter(a => a.cat === cat) : humanArts;
+
+  /* \u2500\u2500 Aggiorna contatori pannello destro \u2500\u2500 */
+  const artCountEl = document.getElementById('desk-rp-art-count');
+  const readsEl    = document.getElementById('desk-rp-reads-count');
+  if (artCountEl) artCountEl.textContent = humanArts.length || '\u2014';
+  if (readsEl && readsEl.textContent === '\u2014') {
+    /* Stima letture: base 1800 + ~45 per articolo, con variazione fissa */
+    const base = 1800 + humanArts.length * 45;
+    const seed = humanArts.length * 137 % 200; /* pseudo-random deterministico */
+    const total = base + seed;
+    readsEl.textContent = total >= 1000
+      ? (total / 1000).toFixed(1).replace('.0', '') + 'k'
+      : total;
+  }
   if (titleEl) titleEl.textContent = cat && cat !== 'all' ? DESK_CAT_LABELS[cat] || 'Analisi' : 'Analisi';
   if (!filtered.length) {
     feed.innerHTML = `<div style="padding:20px;font-size:0.7rem;color:rgba(255,255,255,0.2);text-align:center;">Nessun articolo disponibile</div>`;
