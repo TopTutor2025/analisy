@@ -76,19 +76,27 @@
 
     /* 2 · Base */
     * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif !important; }
-    html {
+    html, body {
+      background: #000 !important;
+      overflow-x: hidden;
+    }
+    /* Gradiente viola fisso — strato dietro tutto il contenuto */
+    #page-gradient {
+      display: block !important;
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
       background:
         radial-gradient(ellipse 72% 62% at 95% 12%,  rgba(130,50,255,0.55) 0%, transparent 55%),
         radial-gradient(ellipse 58% 48% at 8% 88%,   rgba(90,20,220,0.42) 0%, transparent 50%),
-        radial-gradient(ellipse 42% 32% at 50% 0%,   rgba(70,15,180,0.28) 0%, transparent 45%),
-        #000 !important;
-      background-attachment: fixed !important;
+        radial-gradient(ellipse 42% 32% at 50% 0%,   rgba(70,15,180,0.28) 0%, transparent 45%);
     }
-    body {
-      background: transparent !important;
-      overflow-x: hidden;
+    /* Tutto il contenuto sopra il gradiente */
+    #page-wrap {
+      position: relative;
+      z-index: 1;
     }
-    #page-gradient { display: none; }
 
     /* 3 · Sponsor bar */
     .sr-announce-bar {
