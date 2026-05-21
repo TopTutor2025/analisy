@@ -46,16 +46,17 @@ html {
   scroll-behavior: smooth;
   overflow-x: hidden;
   max-width: 100%;
-  background: #000;
+  background: #07040f;
 }
 
 body {
   font-family: var(--font);
+  min-height: 100vh;
   background:
-    radial-gradient(ellipse 70% 55% at 15% 25%, rgba(88,28,149,0.13) 0%, transparent 65%),
-    radial-gradient(ellipse 50% 40% at 85% 75%, rgba(45,15,100,0.10) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 30% at 60% 10%, rgba(30,10,80,0.08) 0%, transparent 55%),
-    #000;
+    radial-gradient(ellipse 65% 55% at 12% 20%, rgba(120,40,220,0.28) 0%, transparent 58%),
+    radial-gradient(ellipse 50% 40% at 88% 80%, rgba(80,20,160,0.20) 0%, transparent 55%),
+    radial-gradient(ellipse 35% 30% at 55% 5%,  rgba(60,10,130,0.15) 0%, transparent 50%),
+    #07040f;
   color: var(--text-primary);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
