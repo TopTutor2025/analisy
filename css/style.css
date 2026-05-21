@@ -46,18 +46,12 @@ html {
   scroll-behavior: smooth;
   overflow-x: hidden;
   max-width: 100%;
-  background: #080612;
+  background: #000;
 }
 
 body {
   font-family: var(--font);
-  min-height: 100vh;
-  background:
-    radial-gradient(ellipse 75% 65% at 5% 10%,  rgba(150,60,255,0.50) 0%, rgba(0,0,0,0) 52%),
-    radial-gradient(ellipse 60% 50% at 92% 88%, rgba(100,20,220,0.38) 0%, rgba(0,0,0,0) 48%),
-    radial-gradient(ellipse 45% 35% at 50% 0%,  rgba(80,20,180,0.22) 0%, rgba(0,0,0,0) 45%),
-    #080612;
-  background-attachment: fixed;
+  background: #000;
   color: var(--text-primary);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
