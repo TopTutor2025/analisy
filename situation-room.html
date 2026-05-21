@@ -76,18 +76,19 @@
 
     /* 2 · Base */
     * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif !important; }
-    body { overflow-x: hidden; background: #000; }
+    body { background: #000; }
+    #page-wrap { overflow-x: hidden; }
 
-    /* Gradient overlay — mix-blend-mode:screen rende il viola visibile sopra i neri */
+    /* Gradient — fisso, dietro la mappa (z-index < 2), visibile nelle sezioni trasparenti */
     #page-gradient {
       position: fixed; inset: 0;
-      z-index: 500;
+      z-index: 1;
       pointer-events: none;
-      mix-blend-mode: screen;
       background:
         radial-gradient(ellipse 72% 62% at 95% 12%,  rgba(130,50,255,0.55) 0%, transparent 55%),
-        radial-gradient(ellipse 58% 48% at 8% 88%, rgba(90,20,220,0.42) 0%, transparent 50%),
-        radial-gradient(ellipse 42% 32% at 50% 0%,  rgba(70,15,180,0.28) 0%, transparent 45%);
+        radial-gradient(ellipse 58% 48% at 8% 88%,  rgba(90,20,220,0.42) 0%, transparent 50%),
+        radial-gradient(ellipse 42% 32% at 50% 0%,   rgba(70,15,180,0.28) 0%, transparent 45%),
+        #000;
     }
 
     /* 3 · Sponsor bar */
@@ -1929,6 +1930,7 @@
     padding-top: 0;
     background: transparent;
     overflow: visible;
+    z-index: 2;
   }
 
   /* ── LEFT COL (flex:1) ── */
@@ -2512,6 +2514,7 @@
 </head>
 <body>
 <div id="page-gradient" aria-hidden="true"></div>
+<div id="page-wrap">
 
 <!-- ═══════════════ SPONSOR BAR ═══════════════ -->
 <div class="sr-announce-bar" id="sr-announce-bar">
@@ -6988,5 +6991,6 @@ function closeSitePopup() {
   localStorage.setItem('analisy_popup_dismissed', JSON.stringify(rec));
 }
 </script>
+</div><!-- /page-wrap -->
 </body>
 </html>
