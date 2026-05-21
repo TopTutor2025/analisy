@@ -278,8 +278,10 @@
     html.sr-theme-light #desk-art-title  { color: rgba(10,10,20,0.9) !important; }
     html.sr-theme-light #desk-art-body   { color: rgba(10,10,20,0.72) !important; }
 
-    /* ── Map container stays dark ── */
-    html.sr-theme-light #desk-chart-area  { background: #1a1a2e !important; }
+    /* ── Map container: transparent, Leaflet container si adatta al tile ── */
+    html.sr-theme-light #desk-chart-area  { background: transparent !important; }
+    html.sr-theme-light #desk-chart-area .leaflet-container { background: #e8e0d8 !important; }
+    #desk-chart-area .leaflet-container { background: #1a1a2c !important; }
 
     /* ── Tour card in light mode ── */
     html.sr-theme-light #sr-tour-card {
@@ -2529,9 +2531,9 @@
   .desk-rps-val { font-size: 0.96rem; font-weight: 600; color: white; letter-spacing: -0.02em; }
   .desk-rps-val.green { color: #00e676; }
 
-  /* Articles scroll — altezza calcolata per arrivare al bordo inferiore della mappa (480px) */
+  /* Articles scroll — altezza impostata dinamicamente da syncArtScrollHeight() */
   #desk-rp-art-scroll {
-    flex: 0 0 auto; height: calc(480px - 106px); overflow-y: auto;
+    flex: 0 0 auto; height: 374px; overflow-y: auto; /* fallback, JS sovrascrive */
     padding: 0 14px;
     scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.07) transparent;
   }
@@ -6601,6 +6603,24 @@ function initDeskLayout() {
 
   // Popola stats row
   updateDeskStatsRow();
+
+  // Allinea altezza art-scroll al bordo inferiore della mappa
+  syncArtScrollHeight();
+  window.addEventListener('resize', syncArtScrollHeight);
+}
+
+/* Calcola dinamicamente l'altezza di #desk-rp-art-scroll
+   in modo che il suo bordo inferiore coincida con quello della mappa */
+function syncArtScrollHeight() {
+  if (window.innerWidth <= 768) return;
+  const mapEl    = document.getElementById('desk-chart-area');
+  const artEl    = document.getElementById('desk-rp-art-scroll');
+  const rpStats  = document.getElementById('desk-rp-stats');
+  if (!mapEl || !artEl || !rpStats) return;
+  const mapBottom = mapEl.getBoundingClientRect().bottom;
+  const artTop    = rpStats.getBoundingClientRect().bottom;
+  const h = Math.max(80, mapBottom - artTop);
+  artEl.style.height = h + 'px';
 }
 
 /* ── Stats row: aggiorna Gold, Brent, S&P dagli array YF (BTC/ETH/EUR già aggiornati in _applyYFQuote) ── */
